@@ -1,4 +1,6 @@
-import Navbar from "./ui/components/navbar";
+import Navbar from "./ui/header/navbar";
+import { publicSans } from "./ui/fonts";
+import "./globals.css";
 
 export default function RootLayout({
   children,
@@ -7,7 +9,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
+      <body className={`${publicSans.className} antialiased`}>
         <Navbar />
         {children}
       </body>

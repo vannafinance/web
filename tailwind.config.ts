@@ -11,6 +11,24 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        baseWhite: "#fafafa",
+        baseBlack: "#0a0a0b",
+        purple: "#7a45da",
+        secondary: "#f5aba1",
+        success: "#60d4bb",
+        warning: "#f3b661",
+        error: "#da5252",
+        gradient: {
+          1: "#f5aba1",
+          2: "#703ae6",
+        },
+      },
+      backgroundImage: {
+        "gradient-1": "linear-gradient(to right, #f5aba1, #703ae6)",
+        "gradient-2": "linear-gradient(to right, #f5aba1, #703ae6)",
+      },
+      fontFamily: {
+        sans: ["var(--font-public-sans)"],
       },
     },
   },
