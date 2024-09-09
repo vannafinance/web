@@ -3,7 +3,7 @@
 import { useState } from "react";
 import PoolsTable from "../ui/earn/pool-table";
 import FAQAccordion from "../ui/earn/faq-accordion";
-import TabComponent from "../ui/earn/TabComponent";
+import TabComponent from "../ui/earn/tab-component";
 
 export default function Page() {
   const [isActivePoolsOnly, setIsActivePoolsOnly] = useState(false);

@@ -40,3 +40,8 @@ interface Pool {
   name: string;
   shortName: string;
 }
+
+interface TooltipProps {
+  content: string;
+  children: React.ReactNode;
+}

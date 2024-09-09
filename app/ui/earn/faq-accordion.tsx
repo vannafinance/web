@@ -1,5 +1,4 @@
 import { CaretDown, DiscordLogo } from "@phosphor-icons/react";
-import clsx from "clsx";
 import React, { useState } from "react";
 
 interface FAQItem {

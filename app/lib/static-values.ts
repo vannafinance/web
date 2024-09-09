@@ -46,3 +46,47 @@ export const pools: PoolTable[] = [
     isActive: false,
   },
 ];
+
+export const details = [
+  {
+    label: "DEPOSIT APY 7D",
+    value: "2.18%",
+    tooltip: "Average Deposit APY for the last 7 days",
+  },
+  {
+    label: "DEPOSIT APY 30D",
+    value: "1.69%",
+    tooltip: "Average Deposit APY for the last 30 days",
+  },
+  { label: "DIESEL RATE", value: "1.055073", tooltip: "Current Diesel Rate" },
+  {
+    label: "EXPECTED LIQUIDITY",
+    value: "19.15K ETH",
+    tooltip: "Expected liquidity in the pool",
+  },
+  {
+    label: "BORROW APY",
+    value: "1.94%",
+    tooltip: "Current Borrow Annual Percentage Yield",
+  },
+  {
+    label: "TOTAL BORROWED",
+    value: "10.32K ETH",
+    tooltip: "Total amount borrowed from the pool",
+  },
+  {
+    label: "AVAILABLE LIQUIDITY",
+    value: "8.74K ETH",
+    tooltip: "Current available liquidity in the pool",
+  },
+  {
+    label: "UNIQUE USERS",
+    value: "1955",
+    tooltip: "Number of unique users in the pool",
+  },
+  {
+    label: "WITHDRAWAL FEES",
+    value: "0.00%",
+    tooltip: "Current withdrawal fees",
+  },
+];

@@ -1,4 +1,4 @@
-import TabComponent from "@/app/ui/earn/TabComponent";
+import TabComponent from "@/app/ui/earn/tab-component";
 
 export default function Page() {
   return (
