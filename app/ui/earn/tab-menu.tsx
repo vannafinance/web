@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const TabComponent = () => {
+const TabMenu = () => {
   const tabs = [
     { name: "Pools", href: "/earn" },
     { name: "Analytics", href: "/earn/analytics" },
@@ -38,4 +38,4 @@ const TabComponent = () => {
   );
 };
 
-export default TabComponent;
+export default TabMenu;

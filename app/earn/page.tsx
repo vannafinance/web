@@ -3,13 +3,13 @@
 import { useState } from "react";
 import PoolsTable from "../ui/earn/pool-table";
 import FAQAccordion from "../ui/earn/faq-accordion";
-import TabComponent from "../ui/earn/tab-component";
+import TabMenu from "../ui/earn/tab-menu";
 
 export default function Page() {
   const [isActivePoolsOnly, setIsActivePoolsOnly] = useState(false);
   return (
     <>
-      <TabComponent />
+      <TabMenu />
       <div className="mt-8 flex items-center space-x-4">
         <label className="flex items-center cursor-pointer">
           <div className="relative">
