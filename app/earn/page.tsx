@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import PoolsTable from "../ui/earn/pool-table";
+import FAQAccordion from "../ui/earn/faq-accordion";
 
 export default function Page() {
   const [isActivePoolsOnly, setIsActivePoolsOnly] = useState(false);
@@ -31,6 +32,7 @@ export default function Page() {
       </div>
       <div className="mt-8">
         <PoolsTable />
+        <FAQAccordion />
       </div>
     </>
   );

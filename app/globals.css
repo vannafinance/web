@@ -24,7 +24,3 @@ body {
     text-wrap: balance;
   }
 }
-
-.border-color-gradient {
-  border-color: linear-gradient(to right, #f5aba1, #703ae6);
-}

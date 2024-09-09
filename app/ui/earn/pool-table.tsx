@@ -66,7 +66,7 @@ const pools: Pool[] = [
 // const PoolsTable: React.FC<{ pools: Pool[] }> = ({ pools }) => (
 const PoolsTable = () => (
   <div className="mt-4 overflow-x-auto">
-    <div className="min-w-full text-sm font-medium text-baseBlack">
+    <div className="min-w-full text-base font-medium text-baseBlack">
       {/* Header */}
       <div className="bg-baseComplementary grid grid-cols-7 rounded-xl px-6 py-3 font-semibold">
         <div className="text-center">#</div>
