@@ -13,6 +13,7 @@ interface NetworkOption {
 interface NetworkDropdownProps {
   options: NetworkOption[];
   onSelect: (network: NetworkOption) => void;
+  displayName?: boolean;
 }
 
 interface TabProps {
@@ -44,4 +45,9 @@ interface Pool {
 interface TooltipProps {
   content: string;
   children: React.ReactNode;
+}
+
+interface DepositInterfaceProps {
+  balance: string;
+  currentAPY: string;
 }

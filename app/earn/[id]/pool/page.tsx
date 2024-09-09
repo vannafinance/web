@@ -2,6 +2,7 @@
 
 import { poolMap } from "@/app/lib/constants";
 import PoolDetails from "@/app/ui/earn/pool-details";
+import SupplyWithdraw from "@/app/ui/earn/supply-withdraw";
 import { CaretLeft } from "@phosphor-icons/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -67,7 +68,9 @@ export default function Page({ params }: { params: { id: string } }) {
           </div>
           <PoolDetails />
         </div>
-        <div className="flex-none w-2/5 border-2 border-cyan-400"></div>
+        <div className="flex-none w-2/5">
+          <SupplyWithdraw balance="10" currentAPY="1" />
+        </div>
       </div>
     </>
   );

@@ -7,6 +7,7 @@ import { useState } from "react";
 export const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
   options,
   onSelect,
+  displayName,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedNetwork, setSelectedNetwork] = useState(options[0]);
@@ -32,6 +33,7 @@ export const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
             alt={selectedNetwork.name}
           />
           &nbsp;&nbsp;
+          {displayName ? selectedNetwork.name : ""}
           <CaretDown color="baseBlack" weight="bold" />
         </button>
       </div>
