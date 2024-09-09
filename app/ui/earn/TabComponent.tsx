@@ -3,7 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const TabComponent: React.FC<TabProps> = ({ tabs }) => {
+const TabComponent = () => {
+  const tabs = [
+    { name: "Pools", href: "/earn" },
+    { name: "Analytics", href: "/earn/analytics" },
+    { name: "History", href: "/earn/history" },
+  ];
+
   const pathname = usePathname();
 
   return (

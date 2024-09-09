@@ -21,3 +21,22 @@ interface TabProps {
     href: string;
   }[];
 }
+
+interface PoolTable {
+  id: number;
+  name: string;
+  icon1: string;
+  icon2?: string;
+  supply: string;
+  supplyAPY: string;
+  borrowAPY: string;
+  yourBalance: string;
+  isActive?: boolean;
+  version?: number;
+}
+
+interface Pool {
+  id: number;
+  name: string;
+  shortName: string;
+}

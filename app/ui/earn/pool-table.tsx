@@ -1,67 +1,6 @@
+import { pools } from "@/app/lib/static-values";
 import Image from "next/image";
 import Link from "next/link";
-
-interface Pool {
-  id: number;
-  name: string;
-  icon1: string;
-  icon2?: string;
-  supply: string;
-  supplyAPY: string;
-  borrowAPY: string;
-  yourBalance: string;
-  isActive?: boolean;
-  version?: number;
-}
-
-const pools: Pool[] = [
-  {
-    id: 1,
-    name: "WBTC/ETH",
-    icon1: "/eth-icon.svg",
-    icon2: "/eth-icon.svg",
-    supply: "345.8K",
-    supplyAPY: "$196.2M",
-    borrowAPY: "53.8M",
-    yourBalance: "$25.1M",
-    isActive: true,
-    version: 2,
-  },
-  {
-    id: 2,
-    name: "WBTC/ETH",
-    icon1: "/eth-icon.svg",
-    icon2: "/eth-icon.svg",
-    supply: "345.8K",
-    supplyAPY: "$196.2M",
-    borrowAPY: "53.8M",
-    yourBalance: "$25.1M",
-    isActive: false,
-    version: 3,
-  },
-  {
-    id: 3,
-    name: "WBTC/ETH",
-    icon1: "/eth-icon.svg",
-    icon2: "/eth-icon.svg",
-    supply: "345.8K",
-    supplyAPY: "$196.2M",
-    borrowAPY: "53.8M",
-    yourBalance: "$25.1M",
-    isActive: true,
-  },
-  {
-    id: 4,
-    name: "WBTC/ETH",
-    icon1: "/eth-icon.svg",
-    icon2: "/eth-icon.svg",
-    supply: "345.8K",
-    supplyAPY: "$196.2M",
-    borrowAPY: "53.8M",
-    yourBalance: "$25.1M",
-    isActive: false,
-  },
-];
 
 // const PoolsTable: React.FC<{ pools: Pool[] }> = ({ pools }) => (
 const PoolsTable = () => (
