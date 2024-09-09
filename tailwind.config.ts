@@ -22,6 +22,12 @@ const config: Config = {
           1: "#f5aba1",
           2: "#703ae6",
         },
+        purpleBG: {
+          lighter: "#e9e0f9",
+          light: "#bda2ed",
+          DEFAULT: "#9064e0",
+        },
+        baseComplementary: "#f4f4ff",
       },
       backgroundImage: {
         "gradient-1": "linear-gradient(to right, #f5aba1, #703ae6)",

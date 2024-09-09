@@ -28,12 +28,13 @@ export default function NavLinks() {
       {links.map((link) => {
         const isActive =
           pathname === link.href ||
-          (link.title === "Trade" && pathname.startsWith(link.href));
+          (link.title !== "Overview" && pathname.startsWith(link.href));
 
         if (link.title === "Trade") {
           return (
             <div key={link.title} className="relative group">
               <Link
+                key={link.title}
                 href={link.href}
                 className={clsx(
                   "py-1 px-4 inline-flex items-center whitespace-nowrap",
@@ -42,9 +43,13 @@ export default function NavLinks() {
                 )}
               >
                 <span>{link.title}</span>
-                &nbsp;<CaretDown color="baseBlack" />
+                &nbsp;
+                <CaretDown color="baseBlack" />
               </Link>
-              <div key={link.title} className="absolute left-2 top-10 mt-2 rounded-md shadow-xl bg-white ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
+              <div
+                key={link.title}
+                className="absolute left-2 top-10 mt-2 rounded-md shadow-xl bg-white ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300"
+              >
                 {tradeSubLinks.map((subItem) => (
                   <Link
                     key={subItem.title}

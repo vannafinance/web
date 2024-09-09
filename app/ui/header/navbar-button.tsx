@@ -3,9 +3,9 @@ import NetworkDropdown from "./network-dropdown";
 
 export default function NavbarButtons() {
   const networkOptions = [
-    { id: "base", name: "Base", icon: "/eth-logo.svg" },
-    { id: "arbitrum", name: "Arbitrum One", icon: "/eth-logo.svg" },
-    { id: "optimism", name: "OP Mainnet", icon: "/eth-logo.svg" },
+    { id: "base", name: "Base", icon: "/eth-icon.svg" },
+    { id: "arbitrum", name: "Arbitrum One", icon: "/eth-icon.svg" },
+    { id: "optimism", name: "OP Mainnet", icon: "/eth-icon.svg" },
   ];
 
   const handleNetworkSelect = (network: NetworkOption) => {
