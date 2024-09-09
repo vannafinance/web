@@ -11,7 +11,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${publicSans.className} antialiased`}>
         <Navbar />
-        {children}
+        <div className="w-9/12 mx-auto my-12">{children}</div>
       </body>
     </html>
   );

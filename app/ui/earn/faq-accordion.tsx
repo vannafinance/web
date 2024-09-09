@@ -34,7 +34,7 @@ const faqs: FAQItem[] = [
   },
 ];
 
-const FAQAccordion: React.FC = () => {
+const FAQAccordion = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
@@ -55,7 +55,6 @@ const FAQAccordion: React.FC = () => {
           {faqs.map((faq, index) => (
             <div
               key={index}
-              // className={clsx("", openIndex === index && "bg-neutral-100")}
             >
               <button
                 className="w-full text-left py-4 flex justify-between items-center border-b border-neutral-300 focus:outline-none"
