@@ -6,7 +6,7 @@ import NetworkDropdown from "../header/network-dropdown";
 import Tooltip from "../components/tooltip";
 import Image from "next/image";
 
-const SupplyWithdraw: React.FC<DepositInterfaceProps> = ({
+const SupplyWithdraw: React.FC<SupplyWithdrawProps> = ({
   balance,
   currentAPY,
 }) => {
@@ -97,9 +97,6 @@ const SupplyWithdraw: React.FC<DepositInterfaceProps> = ({
             onClick={() => handlePercentageClick(percent)}
             className={clsx(
               "w-1/5 h-12 bg-purpleBG-lighter font-semibold text-base rounded-lg"
-              // selectedPercentage === percent
-              //   ? "bg-purple-100 text-purple-700"
-              //   : "bg-gray-200 text-gray-700"
             )}
           >
             {percent}%

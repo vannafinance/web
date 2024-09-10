@@ -28,6 +28,10 @@ const config: Config = {
           DEFAULT: "#9064e0",
         },
         baseComplementary: "#f4f4ff",
+        lightBlueBG: "#d2d2f7",
+        baseSuccess: {
+          300: "#2ea88e"
+        }
       },
       backgroundImage: {
         "gradient-1": "linear-gradient(to right, #f5aba1, #703ae6)",

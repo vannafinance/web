@@ -47,7 +47,7 @@ interface TooltipProps {
   children: React.ReactNode;
 }
 
-interface DepositInterfaceProps {
+interface SupplyWithdrawProps {
   balance: string;
   currentAPY: string;
 }
@@ -56,4 +56,9 @@ interface CustomDropdownProps {
   options: string[];
   selected: string;
   onSelect: (option: string) => void;
+}
+
+interface SliderProps {
+  value: number;
+  onChange: (value: number) => void;
 }

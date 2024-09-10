@@ -57,6 +57,7 @@ export default function NavLinks() {
                     className="block p-1 w-72 text-sm"
                   >
                     <FeatureCard
+                      key={subItem.title}
                       icon=""
                       title={subItem.title}
                       subtitle={subItem.subtitle}
