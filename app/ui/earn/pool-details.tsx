@@ -5,6 +5,8 @@ import { Info, Copy } from "@phosphor-icons/react";
 import clsx from "clsx";
 import { details } from "@/app/lib/static-values";
 import Tooltip from "../components/tooltip";
+import UtilizationChart from "./utilization-graph";
+import AnalyticsChart from "./analytics-chart";
 
 const PoolDetails = () => {
   const [activeTab, setActiveTab] = useState("Details");
@@ -47,9 +49,9 @@ const PoolDetails = () => {
           </div>
         );
       case "Utilization rate":
-        return <div>Utilization rate content here</div>;
+        return <UtilizationChart />;
       case "Analytics":
-        return <div>Analytics content here</div>;
+        return <AnalyticsChart />;
       default:
         return null;
     }

@@ -43,7 +43,7 @@ export default function Page({ params }: { params: { id: string } }) {
       </div>
 
       <div className="flex flex-row gap-10 text-base">
-        <div className="bg-white pt-4 w-full mx-auto">
+        <div className="bg-white pt-4 w-full mx-auto mb-6">
           <div className="grid grid-cols-3 gap-2 mb-4">
             <div className="p-6 pr-0">
               <div className="text-sm font-semibold text-neutral-500">Supply</div>

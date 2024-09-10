@@ -51,3 +51,9 @@ interface DepositInterfaceProps {
   balance: string;
   currentAPY: string;
 }
+
+interface CustomDropdownProps {
+  options: string[];
+  selected: string;
+  onSelect: (option: string) => void;
+}
