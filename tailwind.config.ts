@@ -6,6 +6,7 @@ const config: Config = {
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
@@ -30,8 +31,8 @@ const config: Config = {
         baseComplementary: "#f4f4ff",
         lightBlueBG: "#d2d2f7",
         baseSuccess: {
-          300: "#2ea88e"
-        }
+          300: "#2ea88e",
+        },
       },
       backgroundImage: {
         "gradient-1": "linear-gradient(to right, #f5aba1, #703ae6)",

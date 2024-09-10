@@ -50,14 +50,14 @@ export default function NavLinks() {
                 key={link.title}
                 className="absolute left-2 top-10 mt-2 rounded-md shadow-xl bg-white ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300"
               >
-                {tradeSubLinks.map((subItem) => (
+                {tradeSubLinks.map((subItem, index) => (
                   <Link
-                    key={subItem.title}
+                    key={index}
                     href={subItem.href}
                     className="block p-1 w-72 text-sm"
                   >
                     <FeatureCard
-                      key={subItem.title}
+                      key={'a' + index}
                       icon=""
                       title={subItem.title}
                       subtitle={subItem.subtitle}
