@@ -1,0 +1,920 @@
+{
+  "abi": [
+    {
+      "inputs": [],
+      "name": "AccountDeactivationFailure",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        }
+      ],
+      "name": "AccountInteractionFailure",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "AccountManagerOnly",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "AccountNotLiquidatable",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "AccountOwnerOnly",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "AddressNotContract",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "AdminOnly",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "CollateralTypeRestricted",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ContractAlreadyInitialized",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ContractNotPaused",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ContractPaused",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "EthTransferFailure",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "FunctionCallRestricted",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "IncorrectConstructorArgs",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "LiquidationFailed",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "MaxAssetCap",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "MaxSupply",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "MinimumShares",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "OutstandingDebt",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RiskThresholdBreached",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TokenNotContract",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "VTokenUnavailable",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ZeroAddress",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ZeroAssets",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ZeroShares",
+      "type": "error"
+    }
+  ],
+  "bytecode": {
+    "object": "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea26469706673582212203c057917081790cad2b6278b33ee925e3ac93af6ff79b3c134aad8cad58aedbb64736f6c63430008110033",
+    "sourceMap": "58:826:72:-:0;;;;;;;;;;;;;;;-1:-1:-1;;;58:826:72;;;;;;;;;;;;;;;;;",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x73000000000000000000000000000000000000000030146080604052600080fdfea26469706673582212203c057917081790cad2b6278b33ee925e3ac93af6ff79b3c134aad8cad58aedbb64736f6c63430008110033",
+    "sourceMap": "58:826:72:-:0;;;;;;;;",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {},
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"AccountDeactivationFailure\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"AccountInteractionFailure\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"AccountManagerOnly\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"AccountNotLiquidatable\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"AccountOwnerOnly\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"AddressNotContract\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"AdminOnly\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"CollateralTypeRestricted\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ContractAlreadyInitialized\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ContractNotPaused\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ContractPaused\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"EthTransferFailure\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"FunctionCallRestricted\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"IncorrectConstructorArgs\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"LiquidationFailed\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"MaxAssetCap\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"MaxSupply\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"MinimumShares\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"OutstandingDebt\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"RiskThresholdBreached\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TokenNotContract\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"VTokenUnavailable\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ZeroAddress\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ZeroAssets\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ZeroShares\",\"type\":\"error\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/utils/Errors.sol\":\"Errors\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":controller/=lib/controller/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":oracle/=lib/oracle/src/\",\":solidity-bytes-utils/=lib/controller/lib/solidity-bytes-utils/contracts/\",\":solmate/=lib/solmate/src/\",\":v3-core/=lib/oracle/lib/v3-core/\"]},\"sources\":{\"src/utils/Errors.sol\":{\"keccak256\":\"0xd2d5eb79c1c0f682ba1eb3d1d49369957d3f7c6d858f5033e9088f532b04a773\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://e21fe1111ea1e14117d8e339b733fad0d79b2dff5c63120e1f934480852a126b\",\"dweb:/ipfs/QmaeJr7pQTubaqW3fZdWvfRqc82apPeT59yQHHmYnXZfdb\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.17+commit.8df45f5f"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "AccountDeactivationFailure"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes",
+              "name": "",
+              "type": "bytes"
+            }
+          ],
+          "type": "error",
+          "name": "AccountInteractionFailure"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "AccountManagerOnly"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "AccountNotLiquidatable"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "AccountOwnerOnly"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "AddressNotContract"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "AdminOnly"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "CollateralTypeRestricted"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "ContractAlreadyInitialized"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "ContractNotPaused"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "ContractPaused"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "EthTransferFailure"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "FunctionCallRestricted"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "IncorrectConstructorArgs"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "LiquidationFailed"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "MaxAssetCap"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "MaxSupply"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "MinimumShares"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "OutstandingDebt"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "RiskThresholdBreached"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "TokenNotContract"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "VTokenUnavailable"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "ZeroAddress"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "ZeroAssets"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "ZeroShares"
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {},
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {},
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        ":controller/=lib/controller/",
+        ":ds-test/=lib/forge-std/lib/ds-test/src/",
+        ":forge-std/=lib/forge-std/src/",
+        ":oracle/=lib/oracle/src/",
+        ":solidity-bytes-utils/=lib/controller/lib/solidity-bytes-utils/contracts/",
+        ":solmate/=lib/solmate/src/",
+        ":v3-core/=lib/oracle/lib/v3-core/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "src/utils/Errors.sol": "Errors"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "src/utils/Errors.sol": {
+        "keccak256": "0xd2d5eb79c1c0f682ba1eb3d1d49369957d3f7c6d858f5033e9088f532b04a773",
+        "urls": [
+          "bzz-raw://e21fe1111ea1e14117d8e339b733fad0d79b2dff5c63120e1f934480852a126b",
+          "dweb:/ipfs/QmaeJr7pQTubaqW3fZdWvfRqc82apPeT59yQHHmYnXZfdb"
+        ],
+        "license": "MIT"
+      }
+    },
+    "version": 1
+  },
+  "ast": {
+    "absolutePath": "src/utils/Errors.sol",
+    "id": 40004,
+    "exportedSymbols": {
+      "Errors": [
+        40003
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "32:852:72",
+    "nodes": [
+      {
+        "id": 39944,
+        "nodeType": "PragmaDirective",
+        "src": "32:24:72",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".17"
+        ]
+      },
+      {
+        "id": 40003,
+        "nodeType": "ContractDefinition",
+        "src": "58:826:72",
+        "nodes": [
+          {
+            "id": 39946,
+            "nodeType": "ErrorDefinition",
+            "src": "79:18:72",
+            "nodes": [],
+            "errorSelector": "c15c60b4",
+            "name": "AdminOnly",
+            "nameLocation": "85:9:72",
+            "parameters": {
+              "id": 39945,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "94:2:72"
+            }
+          },
+          {
+            "id": 39948,
+            "nodeType": "ErrorDefinition",
+            "src": "102:18:72",
+            "nodes": [],
+            "errorSelector": "b36c1284",
+            "name": "MaxSupply",
+            "nameLocation": "108:9:72",
+            "parameters": {
+              "id": 39947,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "117:2:72"
+            }
+          },
+          {
+            "id": 39950,
+            "nodeType": "ErrorDefinition",
+            "src": "125:19:72",
+            "nodes": [],
+            "errorSelector": "9811e0c7",
+            "name": "ZeroShares",
+            "nameLocation": "131:10:72",
+            "parameters": {
+              "id": 39949,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "141:2:72"
+            }
+          },
+          {
+            "id": 39952,
+            "nodeType": "ErrorDefinition",
+            "src": "149:19:72",
+            "nodes": [],
+            "errorSelector": "32d971dc",
+            "name": "ZeroAssets",
+            "nameLocation": "155:10:72",
+            "parameters": {
+              "id": 39951,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "165:2:72"
+            }
+          },
+          {
+            "id": 39954,
+            "nodeType": "ErrorDefinition",
+            "src": "173:20:72",
+            "nodes": [],
+            "errorSelector": "4653c292",
+            "name": "MaxAssetCap",
+            "nameLocation": "179:11:72",
+            "parameters": {
+              "id": 39953,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "190:2:72"
+            }
+          },
+          {
+            "id": 39956,
+            "nodeType": "ErrorDefinition",
+            "src": "198:20:72",
+            "nodes": [],
+            "errorSelector": "d92e233d",
+            "name": "ZeroAddress",
+            "nameLocation": "204:11:72",
+            "parameters": {
+              "id": 39955,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "215:2:72"
+            }
+          },
+          {
+            "id": 39958,
+            "nodeType": "ErrorDefinition",
+            "src": "223:22:72",
+            "nodes": [],
+            "errorSelector": "a212f0b9",
+            "name": "MinimumShares",
+            "nameLocation": "229:13:72",
+            "parameters": {
+              "id": 39957,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "242:2:72"
+            }
+          },
+          {
+            "id": 39960,
+            "nodeType": "ErrorDefinition",
+            "src": "250:23:72",
+            "nodes": [],
+            "errorSelector": "ab35696f",
+            "name": "ContractPaused",
+            "nameLocation": "256:14:72",
+            "parameters": {
+              "id": 39959,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "270:2:72"
+            }
+          },
+          {
+            "id": 39962,
+            "nodeType": "ErrorDefinition",
+            "src": "278:24:72",
+            "nodes": [],
+            "errorSelector": "e90cbfe8",
+            "name": "OutstandingDebt",
+            "nameLocation": "284:15:72",
+            "parameters": {
+              "id": 39961,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "299:2:72"
+            }
+          },
+          {
+            "id": 39964,
+            "nodeType": "ErrorDefinition",
+            "src": "307:25:72",
+            "nodes": [],
+            "errorSelector": "69470cc4",
+            "name": "AccountOwnerOnly",
+            "nameLocation": "313:16:72",
+            "parameters": {
+              "id": 39963,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "329:2:72"
+            }
+          },
+          {
+            "id": 39966,
+            "nodeType": "ErrorDefinition",
+            "src": "337:25:72",
+            "nodes": [],
+            "errorSelector": "7f523fe8",
+            "name": "TokenNotContract",
+            "nameLocation": "343:16:72",
+            "parameters": {
+              "id": 39965,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "359:2:72"
+            }
+          },
+          {
+            "id": 39968,
+            "nodeType": "ErrorDefinition",
+            "src": "367:27:72",
+            "nodes": [],
+            "errorSelector": "a4831110",
+            "name": "AddressNotContract",
+            "nameLocation": "373:18:72",
+            "parameters": {
+              "id": 39967,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "391:2:72"
+            }
+          },
+          {
+            "id": 39970,
+            "nodeType": "ErrorDefinition",
+            "src": "399:26:72",
+            "nodes": [],
+            "errorSelector": "dcdde9dd",
+            "name": "ContractNotPaused",
+            "nameLocation": "405:17:72",
+            "parameters": {
+              "id": 39969,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "422:2:72"
+            }
+          },
+          {
+            "id": 39972,
+            "nodeType": "ErrorDefinition",
+            "src": "430:26:72",
+            "nodes": [],
+            "errorSelector": "244b1f8e",
+            "name": "VTokenUnavailable",
+            "nameLocation": "436:17:72",
+            "parameters": {
+              "id": 39971,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "453:2:72"
+            }
+          },
+          {
+            "id": 39974,
+            "nodeType": "ErrorDefinition",
+            "src": "461:26:72",
+            "nodes": [],
+            "errorSelector": "05c4d8ac",
+            "name": "LiquidationFailed",
+            "nameLocation": "467:17:72",
+            "parameters": {
+              "id": 39973,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "484:2:72"
+            }
+          },
+          {
+            "id": 39976,
+            "nodeType": "ErrorDefinition",
+            "src": "492:27:72",
+            "nodes": [],
+            "errorSelector": "af2349ad",
+            "name": "EthTransferFailure",
+            "nameLocation": "498:18:72",
+            "parameters": {
+              "id": 39975,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "516:2:72"
+            }
+          },
+          {
+            "id": 39978,
+            "nodeType": "ErrorDefinition",
+            "src": "524:27:72",
+            "nodes": [],
+            "errorSelector": "fae067e5",
+            "name": "AccountManagerOnly",
+            "nameLocation": "530:18:72",
+            "parameters": {
+              "id": 39977,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "548:2:72"
+            }
+          },
+          {
+            "id": 39980,
+            "nodeType": "ErrorDefinition",
+            "src": "556:30:72",
+            "nodes": [],
+            "errorSelector": "17a81570",
+            "name": "RiskThresholdBreached",
+            "nameLocation": "562:21:72",
+            "parameters": {
+              "id": 39979,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "583:2:72"
+            }
+          },
+          {
+            "id": 39982,
+            "nodeType": "ErrorDefinition",
+            "src": "591:31:72",
+            "nodes": [],
+            "errorSelector": "778cba00",
+            "name": "FunctionCallRestricted",
+            "nameLocation": "597:22:72",
+            "parameters": {
+              "id": 39981,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "619:2:72"
+            }
+          },
+          {
+            "id": 39984,
+            "nodeType": "ErrorDefinition",
+            "src": "627:31:72",
+            "nodes": [],
+            "errorSelector": "1d85ba40",
+            "name": "AccountNotLiquidatable",
+            "nameLocation": "633:22:72",
+            "parameters": {
+              "id": 39983,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "655:2:72"
+            }
+          },
+          {
+            "id": 39986,
+            "nodeType": "ErrorDefinition",
+            "src": "663:33:72",
+            "nodes": [],
+            "errorSelector": "8495a58c",
+            "name": "CollateralTypeRestricted",
+            "nameLocation": "669:24:72",
+            "parameters": {
+              "id": 39985,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "693:2:72"
+            }
+          },
+          {
+            "id": 39988,
+            "nodeType": "ErrorDefinition",
+            "src": "701:33:72",
+            "nodes": [],
+            "errorSelector": "37414dbf",
+            "name": "IncorrectConstructorArgs",
+            "nameLocation": "707:24:72",
+            "parameters": {
+              "id": 39987,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "731:2:72"
+            }
+          },
+          {
+            "id": 39990,
+            "nodeType": "ErrorDefinition",
+            "src": "739:35:72",
+            "nodes": [],
+            "errorSelector": "7b878c0c",
+            "name": "ContractAlreadyInitialized",
+            "nameLocation": "745:26:72",
+            "parameters": {
+              "id": 39989,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "771:2:72"
+            }
+          },
+          {
+            "id": 39992,
+            "nodeType": "ErrorDefinition",
+            "src": "779:35:72",
+            "nodes": [],
+            "errorSelector": "cfe4f117",
+            "name": "AccountDeactivationFailure",
+            "nameLocation": "785:26:72",
+            "parameters": {
+              "id": 39991,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "811:2:72"
+            }
+          },
+          {
+            "id": 40002,
+            "nodeType": "ErrorDefinition",
+            "src": "819:63:72",
+            "nodes": [],
+            "errorSelector": "ca4ea6f9",
+            "name": "AccountInteractionFailure",
+            "nameLocation": "825:25:72",
+            "parameters": {
+              "id": 40001,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 39994,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 40002,
+                  "src": "851:7:72",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 39993,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "851:7:72",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 39996,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 40002,
+                  "src": "860:7:72",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 39995,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "860:7:72",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 39998,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 40002,
+                  "src": "869:4:72",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 39997,
+                    "name": "uint",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "869:4:72",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 40000,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 40002,
+                  "src": "875:5:72",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_memory_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 39999,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "875:5:72",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "850:31:72"
+            }
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "Errors",
+        "contractDependencies": [],
+        "contractKind": "library",
+        "fullyImplemented": true,
+        "linearizedBaseContracts": [
+          40003
+        ],
+        "name": "Errors",
+        "nameLocation": "66:6:72",
+        "scope": 40004,
+        "usedErrors": [
+          39946,
+          39948,
+          39950,
+          39952,
+          39954,
+          39956,
+          39958,
+          39960,
+          39962,
+          39964,
+          39966,
+          39968,
+          39970,
+          39972,
+          39974,
+          39976,
+          39978,
+          39980,
+          39982,
+          39984,
+          39986,
+          39988,
+          39990,
+          39992,
+          40002
+        ]
+      }
+    ],
+    "license": "MIT"
+  },
+  "id": 72
+}

@@ -1,0 +1,353 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "getPrice",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x608060405234801561001057600080fd5b5060bb8061001f6000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c806341976e0914602d575b600080fd5b604560383660046057565b50670de0b6b3a764000090565b60405190815260200160405180910390f35b600060208284031215606857600080fd5b81356001600160a01b0381168114607e57600080fd5b939250505056fea2646970667358221220d5f9a3cb202af19cabeb872fad94abfe8679fa864f0547f10b3bcf50662c21fc64736f6c63430008110033",
+    "sourceMap": "232:396:39:-:0;;;;;;;;;;;;;;;;;;;",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x6080604052348015600f57600080fd5b506004361060285760003560e01c806341976e0914602d575b600080fd5b604560383660046057565b50670de0b6b3a764000090565b60405190815260200160405180910390f35b600060208284031215606857600080fd5b81356001600160a01b0381168114607e57600080fd5b939250505056fea2646970667358221220d5f9a3cb202af19cabeb872fad94abfe8679fa864f0547f10b3bcf50662c21fc64736f6c63430008110033",
+    "sourceMap": "232:396:39:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;554:72;;;;;;:::i;:::-;-1:-1:-1;619:4:39;;554:72;;;;451:25:78;;;439:2;424:18;554:72:39;;;;;;;14:286:78;73:6;126:2;114:9;105:7;101:23;97:32;94:52;;;142:1;139;132:12;94:52;168:23;;-1:-1:-1;;;;;220:31:78;;210:42;;200:70;;266:1;263;256:12;200:70;289:5;14:286;-1:-1:-1;;;14:286:78:o",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "getPrice(address)": "41976e09"
+  },
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"getPrice\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"Used for address(0) and WETH price calls to the Oracle\",\"kind\":\"dev\",\"methods\":{\"getPrice(address)\":{\"params\":{\"token\":\"Address of token\"},\"returns\":{\"_0\":\"price Price of token in terms of ETH\"}}},\"title\":\"WETH Oracle\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"getPrice(address)\":{\"notice\":\"Fetches price of a given token in terms of ETH\"}},\"notice\":\"Price Oracle for WETH\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"lib/oracle/src/weth/WETHOracle.sol\":\"WETHOracle\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":controller/=lib/controller/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":oracle/=lib/oracle/src/\",\":solidity-bytes-utils/=lib/controller/lib/solidity-bytes-utils/contracts/\",\":solmate/=lib/solmate/src/\",\":v3-core/=lib/oracle/lib/v3-core/\"]},\"sources\":{\"lib/oracle/src/core/IOracle.sol\":{\"keccak256\":\"0x51c9836ee541402c95bbca8d1d258c7a0611e23e4de4dc47a74ab54639d083d7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://2500f067fc053ff04238a8cab750f85eb703fdb76bae29609b4dddd347f2d414\",\"dweb:/ipfs/QmUpycswLMU7S9AetagrqzCUbA68tE8nWRxBcJQvVFyrx7\"]},\"lib/oracle/src/weth/WETHOracle.sol\":{\"keccak256\":\"0x26e2141481f0e0269d1bdeb740f19116bce3fa8c87664abd5648c8760bc7472f\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://d940a3a60569dc2362910472f54f995703c7d7f70c76b57088d9d8c666d85f26\",\"dweb:/ipfs/Qma7L9zHA8AnBKkqSfBJLz6QNG39q4R9Q8oMHX4zWWRfsb\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.17+commit.8df45f5f"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "getPrice",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {
+          "getPrice(address)": {
+            "params": {
+              "token": "Address of token"
+            },
+            "returns": {
+              "_0": "price Price of token in terms of ETH"
+            }
+          }
+        },
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {
+          "getPrice(address)": {
+            "notice": "Fetches price of a given token in terms of ETH"
+          }
+        },
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        ":controller/=lib/controller/",
+        ":ds-test/=lib/forge-std/lib/ds-test/src/",
+        ":forge-std/=lib/forge-std/src/",
+        ":oracle/=lib/oracle/src/",
+        ":solidity-bytes-utils/=lib/controller/lib/solidity-bytes-utils/contracts/",
+        ":solmate/=lib/solmate/src/",
+        ":v3-core/=lib/oracle/lib/v3-core/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "lib/oracle/src/weth/WETHOracle.sol": "WETHOracle"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "lib/oracle/src/core/IOracle.sol": {
+        "keccak256": "0x51c9836ee541402c95bbca8d1d258c7a0611e23e4de4dc47a74ab54639d083d7",
+        "urls": [
+          "bzz-raw://2500f067fc053ff04238a8cab750f85eb703fdb76bae29609b4dddd347f2d414",
+          "dweb:/ipfs/QmUpycswLMU7S9AetagrqzCUbA68tE8nWRxBcJQvVFyrx7"
+        ],
+        "license": "MIT"
+      },
+      "lib/oracle/src/weth/WETHOracle.sol": {
+        "keccak256": "0x26e2141481f0e0269d1bdeb740f19116bce3fa8c87664abd5648c8760bc7472f",
+        "urls": [
+          "bzz-raw://d940a3a60569dc2362910472f54f995703c7d7f70c76b57088d9d8c666d85f26",
+          "dweb:/ipfs/Qma7L9zHA8AnBKkqSfBJLz6QNG39q4R9Q8oMHX4zWWRfsb"
+        ],
+        "license": "MIT"
+      }
+    },
+    "version": 1
+  },
+  "ast": {
+    "absolutePath": "lib/oracle/src/weth/WETHOracle.sol",
+    "id": 32820,
+    "exportedSymbols": {
+      "IOracle": [
+        32395
+      ],
+      "WETHOracle": [
+        32819
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "32:596:39",
+    "nodes": [
+      {
+        "id": 32802,
+        "nodeType": "PragmaDirective",
+        "src": "32:24:39",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".17"
+        ]
+      },
+      {
+        "id": 32804,
+        "nodeType": "ImportDirective",
+        "src": "58:44:39",
+        "nodes": [],
+        "absolutePath": "lib/oracle/src/core/IOracle.sol",
+        "file": "../core/IOracle.sol",
+        "nameLocation": "-1:-1:-1",
+        "scope": 32820,
+        "sourceUnit": 32396,
+        "symbolAliases": [
+          {
+            "foreign": {
+              "id": 32803,
+              "name": "IOracle",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 32395,
+              "src": "66:7:39",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "id": 32819,
+        "nodeType": "ContractDefinition",
+        "src": "232:396:39",
+        "nodes": [
+          {
+            "id": 32818,
+            "nodeType": "FunctionDefinition",
+            "src": "554:72:39",
+            "nodes": [],
+            "body": {
+              "id": 32817,
+              "nodeType": "Block",
+              "src": "610:16:39",
+              "nodes": [],
+              "statements": [
+                {
+                  "expression": {
+                    "hexValue": "31653138",
+                    "id": 32815,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "kind": "number",
+                    "lValueRequested": false,
+                    "nodeType": "Literal",
+                    "src": "619:4:39",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_rational_1000000000000000000_by_1",
+                      "typeString": "int_const 1000000000000000000"
+                    },
+                    "value": "1e18"
+                  },
+                  "functionReturnParameters": 32814,
+                  "id": 32816,
+                  "nodeType": "Return",
+                  "src": "612:11:39"
+                }
+              ]
+            },
+            "baseFunctions": [
+              32394
+            ],
+            "documentation": {
+              "id": 32808,
+              "nodeType": "StructuredDocumentation",
+              "src": "526:23:39",
+              "text": "@inheritdoc IOracle"
+            },
+            "functionSelector": "41976e09",
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getPrice",
+            "nameLocation": "563:8:39",
+            "parameters": {
+              "id": 32811,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 32810,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 32818,
+                  "src": "572:7:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 32809,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "572:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "571:9:39"
+            },
+            "returnParameters": {
+              "id": 32814,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 32813,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 32818,
+                  "src": "604:4:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 32812,
+                    "name": "uint",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "604:4:39",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "603:6:39"
+            },
+            "scope": 32819,
+            "stateMutability": "pure",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [
+          {
+            "baseName": {
+              "id": 32806,
+              "name": "IOracle",
+              "nameLocations": [
+                "255:7:39"
+              ],
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 32395,
+              "src": "255:7:39"
+            },
+            "id": 32807,
+            "nodeType": "InheritanceSpecifier",
+            "src": "255:7:39"
+          }
+        ],
+        "canonicalName": "WETHOracle",
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": {
+          "id": 32805,
+          "nodeType": "StructuredDocumentation",
+          "src": "104:127:39",
+          "text": "@title WETH Oracle\n@notice Price Oracle for WETH\n@dev Used for address(0) and WETH price calls to the Oracle"
+        },
+        "fullyImplemented": true,
+        "linearizedBaseContracts": [
+          32819,
+          32395
+        ],
+        "name": "WETHOracle",
+        "nameLocation": "241:10:39",
+        "scope": 32820,
+        "usedErrors": []
+      }
+    ],
+    "license": "MIT"
+  },
+  "id": 39
+}

@@ -1,0 +1,524 @@
+{
+  "abi": [
+    {
+      "inputs": [],
+      "name": "AdminOnly",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "feed",
+          "type": "address"
+        }
+      ],
+      "name": "InactivePriceFeed",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "IncorrectDecimals",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "L2SequencerUnavailable",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "feed",
+          "type": "address"
+        }
+      ],
+      "name": "NegativePrice",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "PriceUnavailable",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "feed",
+          "type": "address"
+        }
+      ],
+      "name": "StalePrice",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ZeroAddress",
+      "type": "error"
+    }
+  ],
+  "bytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {},
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"AdminOnly\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"feed\",\"type\":\"address\"}],\"name\":\"InactivePriceFeed\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"IncorrectDecimals\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"L2SequencerUnavailable\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"feed\",\"type\":\"address\"}],\"name\":\"NegativePrice\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PriceUnavailable\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"feed\",\"type\":\"address\"}],\"name\":\"StalePrice\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ZeroAddress\",\"type\":\"error\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"lib/oracle/src/utils/Errors.sol\":\"Errors\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":controller/=lib/controller/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":oracle/=lib/oracle/src/\",\":solidity-bytes-utils/=lib/controller/lib/solidity-bytes-utils/contracts/\",\":solmate/=lib/solmate/src/\",\":v3-core/=lib/oracle/lib/v3-core/\"]},\"sources\":{\"lib/oracle/src/utils/Errors.sol\":{\"keccak256\":\"0x7d4d70d5611d4188eaaf14d181a5a7aa9dfc8f01c416f6796db193fb9fce844e\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://b9aafab4c25baa9bd78ec7940885d790695a48a4f59c73b6a8fd090a4306484d\",\"dweb:/ipfs/QmVTZfjB2Hx3GiqrzrdDqkZkTjkby8K1u8qb9PzFm4Bm1R\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.17+commit.8df45f5f"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "AdminOnly"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "feed",
+              "type": "address"
+            }
+          ],
+          "type": "error",
+          "name": "InactivePriceFeed"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "IncorrectDecimals"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "L2SequencerUnavailable"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "feed",
+              "type": "address"
+            }
+          ],
+          "type": "error",
+          "name": "NegativePrice"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "PriceUnavailable"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "feed",
+              "type": "address"
+            }
+          ],
+          "type": "error",
+          "name": "StalePrice"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "ZeroAddress"
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {},
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {},
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        ":controller/=lib/controller/",
+        ":ds-test/=lib/forge-std/lib/ds-test/src/",
+        ":forge-std/=lib/forge-std/src/",
+        ":oracle/=lib/oracle/src/",
+        ":solidity-bytes-utils/=lib/controller/lib/solidity-bytes-utils/contracts/",
+        ":solmate/=lib/solmate/src/",
+        ":v3-core/=lib/oracle/lib/v3-core/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "lib/oracle/src/utils/Errors.sol": "Errors"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "lib/oracle/src/utils/Errors.sol": {
+        "keccak256": "0x7d4d70d5611d4188eaaf14d181a5a7aa9dfc8f01c416f6796db193fb9fce844e",
+        "urls": [
+          "bzz-raw://b9aafab4c25baa9bd78ec7940885d790695a48a4f59c73b6a8fd090a4306484d",
+          "dweb:/ipfs/QmVTZfjB2Hx3GiqrzrdDqkZkTjkby8K1u8qb9PzFm4Bm1R"
+        ],
+        "license": "MIT"
+      }
+    },
+    "version": 1
+  },
+  "ast": {
+    "absolutePath": "lib/oracle/src/utils/Errors.sol",
+    "id": 32708,
+    "exportedSymbols": {
+      "Errors": [
+        32707
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "32:339:36",
+    "nodes": [
+      {
+        "id": 32680,
+        "nodeType": "PragmaDirective",
+        "src": "32:24:36",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".17"
+        ]
+      },
+      {
+        "id": 32707,
+        "nodeType": "ContractDefinition",
+        "src": "58:313:36",
+        "nodes": [
+          {
+            "id": 32682,
+            "nodeType": "ErrorDefinition",
+            "src": "81:18:36",
+            "nodes": [],
+            "errorSelector": "c15c60b4",
+            "name": "AdminOnly",
+            "nameLocation": "87:9:36",
+            "parameters": {
+              "id": 32681,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "96:2:36"
+            }
+          },
+          {
+            "id": 32684,
+            "nodeType": "ErrorDefinition",
+            "src": "104:20:36",
+            "nodes": [],
+            "errorSelector": "d92e233d",
+            "name": "ZeroAddress",
+            "nameLocation": "110:11:36",
+            "parameters": {
+              "id": 32683,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "121:2:36"
+            }
+          },
+          {
+            "id": 32686,
+            "nodeType": "ErrorDefinition",
+            "src": "129:25:36",
+            "nodes": [],
+            "errorSelector": "cb08be81",
+            "name": "PriceUnavailable",
+            "nameLocation": "135:16:36",
+            "parameters": {
+              "id": 32685,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "151:2:36"
+            }
+          },
+          {
+            "id": 32688,
+            "nodeType": "ErrorDefinition",
+            "src": "159:26:36",
+            "nodes": [],
+            "errorSelector": "436093a5",
+            "name": "IncorrectDecimals",
+            "nameLocation": "165:17:36",
+            "parameters": {
+              "id": 32687,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "182:2:36"
+            }
+          },
+          {
+            "id": 32690,
+            "nodeType": "ErrorDefinition",
+            "src": "190:31:36",
+            "nodes": [],
+            "errorSelector": "bbc1ae1f",
+            "name": "L2SequencerUnavailable",
+            "nameLocation": "196:22:36",
+            "parameters": {
+              "id": 32689,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "218:2:36"
+            }
+          },
+          {
+            "id": 32694,
+            "nodeType": "ErrorDefinition",
+            "src": "226:38:36",
+            "nodes": [],
+            "errorSelector": "ac3a38d8",
+            "name": "InactivePriceFeed",
+            "nameLocation": "232:17:36",
+            "parameters": {
+              "id": 32693,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 32692,
+                  "mutability": "mutable",
+                  "name": "feed",
+                  "nameLocation": "258:4:36",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 32694,
+                  "src": "250:12:36",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 32691,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "250:7:36",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "249:14:36"
+            }
+          },
+          {
+            "id": 32700,
+            "nodeType": "ErrorDefinition",
+            "src": "269:46:36",
+            "nodes": [],
+            "errorSelector": "76b51f2b",
+            "name": "StalePrice",
+            "nameLocation": "275:10:36",
+            "parameters": {
+              "id": 32699,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 32696,
+                  "mutability": "mutable",
+                  "name": "token",
+                  "nameLocation": "294:5:36",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 32700,
+                  "src": "286:13:36",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 32695,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "286:7:36",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 32698,
+                  "mutability": "mutable",
+                  "name": "feed",
+                  "nameLocation": "309:4:36",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 32700,
+                  "src": "301:12:36",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 32697,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "301:7:36",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "285:29:36"
+            }
+          },
+          {
+            "id": 32706,
+            "nodeType": "ErrorDefinition",
+            "src": "320:49:36",
+            "nodes": [],
+            "errorSelector": "7c259698",
+            "name": "NegativePrice",
+            "nameLocation": "326:13:36",
+            "parameters": {
+              "id": 32705,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 32702,
+                  "mutability": "mutable",
+                  "name": "token",
+                  "nameLocation": "348:5:36",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 32706,
+                  "src": "340:13:36",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 32701,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "340:7:36",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 32704,
+                  "mutability": "mutable",
+                  "name": "feed",
+                  "nameLocation": "363:4:36",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 32706,
+                  "src": "355:12:36",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 32703,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "355:7:36",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "339:29:36"
+            }
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "Errors",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "fullyImplemented": true,
+        "linearizedBaseContracts": [
+          32707
+        ],
+        "name": "Errors",
+        "nameLocation": "68:6:36",
+        "scope": 32708,
+        "usedErrors": [
+          32682,
+          32684,
+          32686,
+          32688,
+          32690,
+          32694,
+          32700,
+          32706
+        ]
+      }
+    ],
+    "license": "MIT"
+  },
+  "id": 36
+}

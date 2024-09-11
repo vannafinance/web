@@ -1,0 +1,260 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        }
+      ],
+      "name": "getPrice",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "getPrice(address)": "41976e09"
+  },
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"getPrice\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"getPrice(address)\":{\"params\":{\"token\":\"Address of token\"},\"returns\":{\"_0\":\"price Price of token in terms of ETH\"}}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"getPrice(address)\":{\"notice\":\"Fetches price of a given token in terms of ETH\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"lib/oracle/src/core/IOracle.sol\":\"IOracle\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":controller/=lib/controller/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":oracle/=lib/oracle/src/\",\":solidity-bytes-utils/=lib/controller/lib/solidity-bytes-utils/contracts/\",\":solmate/=lib/solmate/src/\",\":v3-core/=lib/oracle/lib/v3-core/\"]},\"sources\":{\"lib/oracle/src/core/IOracle.sol\":{\"keccak256\":\"0x51c9836ee541402c95bbca8d1d258c7a0611e23e4de4dc47a74ab54639d083d7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://2500f067fc053ff04238a8cab750f85eb703fdb76bae29609b4dddd347f2d414\",\"dweb:/ipfs/QmUpycswLMU7S9AetagrqzCUbA68tE8nWRxBcJQvVFyrx7\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.17+commit.8df45f5f"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "getPrice",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {
+          "getPrice(address)": {
+            "params": {
+              "token": "Address of token"
+            },
+            "returns": {
+              "_0": "price Price of token in terms of ETH"
+            }
+          }
+        },
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {
+          "getPrice(address)": {
+            "notice": "Fetches price of a given token in terms of ETH"
+          }
+        },
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        ":controller/=lib/controller/",
+        ":ds-test/=lib/forge-std/lib/ds-test/src/",
+        ":forge-std/=lib/forge-std/src/",
+        ":oracle/=lib/oracle/src/",
+        ":solidity-bytes-utils/=lib/controller/lib/solidity-bytes-utils/contracts/",
+        ":solmate/=lib/solmate/src/",
+        ":v3-core/=lib/oracle/lib/v3-core/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "lib/oracle/src/core/IOracle.sol": "IOracle"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "lib/oracle/src/core/IOracle.sol": {
+        "keccak256": "0x51c9836ee541402c95bbca8d1d258c7a0611e23e4de4dc47a74ab54639d083d7",
+        "urls": [
+          "bzz-raw://2500f067fc053ff04238a8cab750f85eb703fdb76bae29609b4dddd347f2d414",
+          "dweb:/ipfs/QmUpycswLMU7S9AetagrqzCUbA68tE8nWRxBcJQvVFyrx7"
+        ],
+        "license": "MIT"
+      }
+    },
+    "version": 1
+  },
+  "ast": {
+    "absolutePath": "lib/oracle/src/core/IOracle.sol",
+    "id": 32396,
+    "exportedSymbols": {
+      "IOracle": [
+        32395
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "32:279:32",
+    "nodes": [
+      {
+        "id": 32386,
+        "nodeType": "PragmaDirective",
+        "src": "32:24:32",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".17"
+        ]
+      },
+      {
+        "id": 32395,
+        "nodeType": "ContractDefinition",
+        "src": "58:253:32",
+        "nodes": [
+          {
+            "id": 32394,
+            "nodeType": "FunctionDefinition",
+            "src": "252:57:32",
+            "nodes": [],
+            "documentation": {
+              "id": 32387,
+              "nodeType": "StructuredDocumentation",
+              "src": "83:164:32",
+              "text": "@notice Fetches price of a given token in terms of ETH\n@param token Address of token\n@return price Price of token in terms of ETH"
+            },
+            "functionSelector": "41976e09",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getPrice",
+            "nameLocation": "261:8:32",
+            "parameters": {
+              "id": 32390,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 32389,
+                  "mutability": "mutable",
+                  "name": "token",
+                  "nameLocation": "278:5:32",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 32394,
+                  "src": "270:13:32",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 32388,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "270:7:32",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "269:15:32"
+            },
+            "returnParameters": {
+              "id": 32393,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 32392,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 32394,
+                  "src": "303:4:32",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 32391,
+                    "name": "uint",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "303:4:32",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "302:6:32"
+            },
+            "scope": 32395,
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IOracle",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "fullyImplemented": false,
+        "linearizedBaseContracts": [
+          32395
+        ],
+        "name": "IOracle",
+        "nameLocation": "68:7:32",
+        "scope": 32396,
+        "usedErrors": []
+      }
+    ],
+    "license": "MIT"
+  },
+  "id": 32
+}

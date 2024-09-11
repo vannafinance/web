@@ -1,0 +1,201 @@
+{
+  "abi": [
+    {
+      "inputs": [],
+      "name": "admin",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "admin()": "f851a440"
+  },
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"admin\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/interface/utils/IOwnable.sol\":\"IOwnable\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":controller/=lib/controller/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":oracle/=lib/oracle/src/\",\":solidity-bytes-utils/=lib/controller/lib/solidity-bytes-utils/contracts/\",\":solmate/=lib/solmate/src/\",\":v3-core/=lib/oracle/lib/v3-core/\"]},\"sources\":{\"src/interface/utils/IOwnable.sol\":{\"keccak256\":\"0x2476640ee3618328f863123e85463e62f51ecf1dc465c8f9aa0d5ef2647f5d1e\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://f49a8a80818372051502998b48b4cdc3ea69d3ebee6cce88fbdfef3fee052f57\",\"dweb:/ipfs/QmcRDUCt7ocz5u16zyWuZGcsGdZTA17B9qDCRhbwPvSxgj\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.17+commit.8df45f5f"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "admin",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {},
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {},
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        ":controller/=lib/controller/",
+        ":ds-test/=lib/forge-std/lib/ds-test/src/",
+        ":forge-std/=lib/forge-std/src/",
+        ":oracle/=lib/oracle/src/",
+        ":solidity-bytes-utils/=lib/controller/lib/solidity-bytes-utils/contracts/",
+        ":solmate/=lib/solmate/src/",
+        ":v3-core/=lib/oracle/lib/v3-core/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "src/interface/utils/IOwnable.sol": "IOwnable"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "src/interface/utils/IOwnable.sol": {
+        "keccak256": "0x2476640ee3618328f863123e85463e62f51ecf1dc465c8f9aa0d5ef2647f5d1e",
+        "urls": [
+          "bzz-raw://f49a8a80818372051502998b48b4cdc3ea69d3ebee6cce88fbdfef3fee052f57",
+          "dweb:/ipfs/QmcRDUCt7ocz5u16zyWuZGcsGdZTA17B9qDCRhbwPvSxgj"
+        ],
+        "license": "MIT"
+      }
+    },
+    "version": 1
+  },
+  "ast": {
+    "absolutePath": "src/interface/utils/IOwnable.sol",
+    "id": 37773,
+    "exportedSymbols": {
+      "IOwnable": [
+        37772
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "32:97:63",
+    "nodes": [
+      {
+        "id": 37766,
+        "nodeType": "PragmaDirective",
+        "src": "32:24:63",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".17"
+        ]
+      },
+      {
+        "id": 37772,
+        "nodeType": "ContractDefinition",
+        "src": "58:71:63",
+        "nodes": [
+          {
+            "id": 37771,
+            "nodeType": "FunctionDefinition",
+            "src": "83:44:63",
+            "nodes": [],
+            "functionSelector": "f851a440",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "admin",
+            "nameLocation": "92:5:63",
+            "parameters": {
+              "id": 37767,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "97:2:63"
+            },
+            "returnParameters": {
+              "id": 37770,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 37769,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 37771,
+                  "src": "118:7:63",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 37768,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "118:7:63",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "117:9:63"
+            },
+            "scope": 37772,
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IOwnable",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "fullyImplemented": false,
+        "linearizedBaseContracts": [
+          37772
+        ],
+        "name": "IOwnable",
+        "nameLocation": "68:8:63",
+        "scope": 37773,
+        "usedErrors": []
+      }
+    ],
+    "license": "MIT"
+  },
+  "id": 63
+}

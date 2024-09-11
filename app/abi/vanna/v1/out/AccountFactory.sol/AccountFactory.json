@@ -1,0 +1,920 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_beacon",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "accountManager",
+          "type": "address"
+        }
+      ],
+      "name": "AccountCreated",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "beacon",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "accountManager",
+          "type": "address"
+        }
+      ],
+      "name": "create",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x608060405234801561001057600080fd5b506040516108ea3803806108ea83398101604081905261002f91610054565b600080546001600160a01b0319166001600160a01b0392909216919091179055610084565b60006020828403121561006657600080fd5b81516001600160a01b038116811461007d57600080fd5b9392505050565b610857806100936000396000f3fe608060405234801561001057600080fd5b50600436106100365760003560e01c806359659e901461003b5780639ed933181461006a575b600080fd5b60005461004e906001600160a01b031681565b6040516001600160a01b03909116815260200160405180910390f35b61004e61007836600461011e565b600080546040516001600160a01b0390911690839061009690610111565b6001600160a01b03928316815291166020820152604001604051809103906000f0801580156100c9573d6000803e3d6000fd5b509050816001600160a01b0316816001600160a01b03167fac631f3001b55ea1509cf3d7e74898f85392a61a76e8149181ae1259622dabc860405160405180910390a3919050565b6106d38061014f83390190565b60006020828403121561013057600080fd5b81356001600160a01b038116811461014757600080fd5b939250505056fe608060405234801561001057600080fd5b506040516106d33803806106d383398101604081905261002f916101d1565b61003881610048565b610041826100ec565b505061022b565b6001600160a01b03811661006f5760405163d92e233d60e01b815260040160405180910390fd5b7f7e644d79422f17c01e4894b5f4f588d331ebfa28653d42ae832dc59e38c9798f610098610178565b604080516001600160a01b03928316815291841660208301520160405180910390a16100e96100d660016000805160206106b3833981519152610204565b60001b826101ad60201b61028d1760201c565b50565b6001600160a01b0381166101135760405163d92e233d60e01b815260040160405180910390fd5b6101416100d660017fa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d51610204565b6040516001600160a01b038216907f1cf3b03a6cf19fa2baba4df148e9dcabedea7f8a5c07840e207e5c089be95d3e90600090a250565b60006101a861019660016000805160206106b3833981519152610204565b60001b6101b160201b6102911760201c565b905090565b9055565b5490565b80516001600160a01b03811681146101cc57600080fd5b919050565b600080604083850312156101e457600080fd5b6101ed836101b5565b91506101fb602084016101b5565b90509250929050565b8181038181111561022557634e487b7160e01b600052601160045260246000fd5b92915050565b6104798061023a6000396000f3fe60806040526004361061004e5760003560e01c80632d6b3a6b146100705780636e9960c3146100a15780638f283970146100b6578063aaf10f42146100d6578063d14823f8146100eb57610065565b366100655761006361005e61010b565b61017d565b005b61006361005e61010b565b34801561007c57600080fd5b506100856101a2565b6040516001600160a01b03909116815260200160405180910390f35b3480156100ad57600080fd5b506100856101d6565b3480156100c257600080fd5b506100636100d13660046103db565b610206565b3480156100e257600080fd5b5061008561010b565b3480156100f757600080fd5b506100636101063660046103db565b61024b565b60006101156101a2565b6001600160a01b0316635c60da1b6040518163ffffffff1660e01b81526004016020604051808303816000875af1158015610154573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061017891906103ff565b905090565b60405136600082376000803683855af43d806000843e81801561019e578184f35b8184fd5b60006101786101d260017fa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d5161041c565b5490565b60006101786101d260017fb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d610461041c565b61020e6101d6565b6001600160a01b0316336001600160a01b03161461023f57604051633057182d60e21b815260040160405180910390fd5b61024881610295565b50565b6102536101d6565b6001600160a01b0316336001600160a01b03161461028457604051633057182d60e21b815260040160405180910390fd5b6102488161033a565b9055565b5490565b6001600160a01b0381166102bc5760405163d92e233d60e01b815260040160405180910390fd5b7f7e644d79422f17c01e4894b5f4f588d331ebfa28653d42ae832dc59e38c9798f6102e56101d6565b604080516001600160a01b03928316815291841660208301520160405180910390a161024861033560017fb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d610461041c565b829055565b6001600160a01b0381166103615760405163d92e233d60e01b815260040160405180910390fd5b61038f61033560017fa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d5161041c565b6040516001600160a01b038216907f1cf3b03a6cf19fa2baba4df148e9dcabedea7f8a5c07840e207e5c089be95d3e90600090a250565b6001600160a01b038116811461024857600080fd5b6000602082840312156103ed57600080fd5b81356103f8816103c6565b9392505050565b60006020828403121561041157600080fd5b81516103f8816103c6565b8181038181111561043d57634e487b7160e01b600052601160045260246000fd5b9291505056fea2646970667358221220a18134c737354ec0b73658ad986ceb0a573d8242627579f3a951b475f41ff6ae64736f6c63430008110033b53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6104a2646970667358221220346a5d3cc3c7bb12962f6e8de9430b882fe4bebff1afe3109940e0d5e27e168d64736f6c63430008110033",
+    "sourceMap": "334:1504:47:-:0;;;1067:63;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;1107:6;:16;;-1:-1:-1;;;;;;1107:16:47;-1:-1:-1;;;;;1107:16:47;;;;;;;;;;334:1504;;14:290:78;84:6;137:2;125:9;116:7;112:23;108:32;105:52;;;153:1;150;143:12;105:52;179:16;;-1:-1:-1;;;;;224:31:78;;214:42;;204:70;;270:1;267;260:12;204:70;293:5;14:290;-1:-1:-1;;;14:290:78:o;:::-;334:1504:47;;;;;;",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x608060405234801561001057600080fd5b50600436106100365760003560e01c806359659e901461003b5780639ed933181461006a575b600080fd5b60005461004e906001600160a01b031681565b6040516001600160a01b03909116815260200160405180910390f35b61004e61007836600461011e565b600080546040516001600160a01b0390911690839061009690610111565b6001600160a01b03928316815291166020820152604001604051809103906000f0801580156100c9573d6000803e3d6000fd5b509050816001600160a01b0316816001600160a01b03167fac631f3001b55ea1509cf3d7e74898f85392a61a76e8149181ae1259622dabc860405160405180910390a3919050565b6106d38061014f83390190565b60006020828403121561013057600080fd5b81356001600160a01b038116811461014757600080fd5b939250505056fe608060405234801561001057600080fd5b506040516106d33803806106d383398101604081905261002f916101d1565b61003881610048565b610041826100ec565b505061022b565b6001600160a01b03811661006f5760405163d92e233d60e01b815260040160405180910390fd5b7f7e644d79422f17c01e4894b5f4f588d331ebfa28653d42ae832dc59e38c9798f610098610178565b604080516001600160a01b03928316815291841660208301520160405180910390a16100e96100d660016000805160206106b3833981519152610204565b60001b826101ad60201b61028d1760201c565b50565b6001600160a01b0381166101135760405163d92e233d60e01b815260040160405180910390fd5b6101416100d660017fa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d51610204565b6040516001600160a01b038216907f1cf3b03a6cf19fa2baba4df148e9dcabedea7f8a5c07840e207e5c089be95d3e90600090a250565b60006101a861019660016000805160206106b3833981519152610204565b60001b6101b160201b6102911760201c565b905090565b9055565b5490565b80516001600160a01b03811681146101cc57600080fd5b919050565b600080604083850312156101e457600080fd5b6101ed836101b5565b91506101fb602084016101b5565b90509250929050565b8181038181111561022557634e487b7160e01b600052601160045260246000fd5b92915050565b6104798061023a6000396000f3fe60806040526004361061004e5760003560e01c80632d6b3a6b146100705780636e9960c3146100a15780638f283970146100b6578063aaf10f42146100d6578063d14823f8146100eb57610065565b366100655761006361005e61010b565b61017d565b005b61006361005e61010b565b34801561007c57600080fd5b506100856101a2565b6040516001600160a01b03909116815260200160405180910390f35b3480156100ad57600080fd5b506100856101d6565b3480156100c257600080fd5b506100636100d13660046103db565b610206565b3480156100e257600080fd5b5061008561010b565b3480156100f757600080fd5b506100636101063660046103db565b61024b565b60006101156101a2565b6001600160a01b0316635c60da1b6040518163ffffffff1660e01b81526004016020604051808303816000875af1158015610154573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061017891906103ff565b905090565b60405136600082376000803683855af43d806000843e81801561019e578184f35b8184fd5b60006101786101d260017fa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d5161041c565b5490565b60006101786101d260017fb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d610461041c565b61020e6101d6565b6001600160a01b0316336001600160a01b03161461023f57604051633057182d60e21b815260040160405180910390fd5b61024881610295565b50565b6102536101d6565b6001600160a01b0316336001600160a01b03161461028457604051633057182d60e21b815260040160405180910390fd5b6102488161033a565b9055565b5490565b6001600160a01b0381166102bc5760405163d92e233d60e01b815260040160405180910390fd5b7f7e644d79422f17c01e4894b5f4f588d331ebfa28653d42ae832dc59e38c9798f6102e56101d6565b604080516001600160a01b03928316815291841660208301520160405180910390a161024861033560017fb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d610461041c565b829055565b6001600160a01b0381166103615760405163d92e233d60e01b815260040160405180910390fd5b61038f61033560017fa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d5161041c565b6040516001600160a01b038216907f1cf3b03a6cf19fa2baba4df148e9dcabedea7f8a5c07840e207e5c089be95d3e90600090a250565b6001600160a01b038116811461024857600080fd5b6000602082840312156103ed57600080fd5b81356103f8816103c6565b9392505050565b60006020828403121561041157600080fd5b81516103f8816103c6565b8181038181111561043d57634e487b7160e01b600052601160045260246000fd5b9291505056fea2646970667358221220a18134c737354ec0b73658ad986ceb0a573d8242627579f3a951b475f41ff6ae64736f6c63430008110033b53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6104a2646970667358221220346a5d3cc3c7bb12962f6e8de9430b882fe4bebff1afe3109940e0d5e27e168d64736f6c63430008110033",
+    "sourceMap": "334:1504:47:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;682:21;;;;;-1:-1:-1;;;;;682:21:47;;;;;;-1:-1:-1;;;;;178:32:78;;;160:51;;148:2;133:18;682:21:47;;;;;;;1612:224;;;;;;:::i;:::-;1686:15;1751:6;;1735:39;;-1:-1:-1;;;;;1751:6:47;;;;1759:14;;1735:39;;;:::i;:::-;-1:-1:-1;;;;;743:15:78;;;725:34;;795:15;;790:2;775:18;;768:43;675:2;660:18;1735:39:47;;;;;;;;;;;;;;;;;;;;;;;1717:58;;1814:14;-1:-1:-1;;;;;1790:39:47;1805:7;-1:-1:-1;;;;;1790:39:47;;;;;;;;;;;1612:224;;;:::o;-1:-1:-1:-;;;;;;;;:::o;222:286:78:-;281:6;334:2;322:9;313:7;309:23;305:32;302:52;;;350:1;347;340:12;302:52;376:23;;-1:-1:-1;;;;;428:31:78;;418:42;;408:70;;474:1;471;464:12;408:70;497:5;222:286;-1:-1:-1;;;222:286:78:o",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "beacon()": "59659e90",
+    "create(address)": "9ed93318"
+  },
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_beacon\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"accountManager\",\"type\":\"address\"}],\"name\":\"AccountCreated\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"beacon\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"accountManager\",\"type\":\"address\"}],\"name\":\"create\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"constructor\":{\"params\":{\"_beacon\":\"address of account beacon\"}},\"create(address)\":{\"details\":\"Emits AccountCreated(account, accountManager) event\",\"params\":{\"accountManager\":\"Address of account manager\"},\"returns\":{\"account\":\"Address of account created\"}}},\"title\":\"Account Factory\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"beacon()\":{\"notice\":\"Address of account beacon\"},\"constructor\":{\"notice\":\"Contract constructor\"},\"create(address)\":{\"notice\":\"Account creator\"}},\"notice\":\"Factory that creates Account as a beacon proxy\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/core/AccountFactory.sol\":\"AccountFactory\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":controller/=lib/controller/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":oracle/=lib/oracle/src/\",\":solidity-bytes-utils/=lib/controller/lib/solidity-bytes-utils/contracts/\",\":solmate/=lib/solmate/src/\",\":v3-core/=lib/oracle/lib/v3-core/\"]},\"sources\":{\"src/core/AccountFactory.sol\":{\"keccak256\":\"0xc33823dfd33b3f6a4f12bb0fd2042fc4d2f8c1c5400ced70be3167cae5d95217\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://7319a1d34e7f94bc2c943fadf17e1acf5d359a5765e14174e9ad76f7bb82990a\",\"dweb:/ipfs/Qmf8PWLdr9pxJh8WEPrWuea2EN34C8Y1khcyC7cXHspScs\"]},\"src/interface/core/IAccount.sol\":{\"keccak256\":\"0x29f355ddfced795473c904e6601780afe2ebbaf37ca248615d7b6fb9458e8e5b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://36ad62388f0450e394e54bf0bfe3edb0c6d5f3597a2543e8813ed6b49f9baac8\",\"dweb:/ipfs/QmZZvA3SoxHbaKAHcEAXEnQSzFKgb18Jyu74hEUGwmRhN1\"]},\"src/interface/core/IAccountFactory.sol\":{\"keccak256\":\"0xc79896b78e79c9b90b5adcd9eade19e21c832598111098d5477bc89c658ebeee\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://abf8d9fa04658ed9b67f767d8402cb2e426d351e98ba0054138c3f7039f8b6db\",\"dweb:/ipfs/QmSYFsN7JpFj5cmf9C3B5FKJYGjHCXmupyPZBeFF9ZZfTE\"]},\"src/interface/proxy/IBeacon.sol\":{\"keccak256\":\"0x14ac6100975f3c38e10a71e9c66b4baa831d4229de1c95aa2db17590956e769d\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6edf8e7c55090979b7c00ef1804ef071aedbdb625e5a3d11c6ff4c97369a94fd\",\"dweb:/ipfs/QmWP7MymcCiTE3vNqTWWDfq3s7uVPFH5yWBLy2kCJYbPrP\"]},\"src/proxy/BaseProxy.sol\":{\"keccak256\":\"0x275e18a642ee0adad7dbc00f1ca0f8e27ac3443b6528aefdec3799cc5f583117\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://148ebee156ec958a5ef20a19f57cccbc5a3ae5743ac348e8c3662eb26f9e392e\",\"dweb:/ipfs/QmPFNLEk6NC7ndjBZCuMW6aHw1m9HkHJd4ktyLivpJnaQq\"]},\"src/proxy/BeaconProxy.sol\":{\"keccak256\":\"0x442a7ed8bda2c624342012ea2bbb35f250c5957c6c1022a8907c5066cbb31523\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://ae87f3b00e5f6249ec5474b95ef0c0f322e372665d2c6448a0084e75ecb3f0e9\",\"dweb:/ipfs/QmUNC52hnPmHgYofYSALNoRB3R4xQS8WRJhAxqBMUVQU7X\"]},\"src/utils/Errors.sol\":{\"keccak256\":\"0xd2d5eb79c1c0f682ba1eb3d1d49369957d3f7c6d858f5033e9088f532b04a773\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://e21fe1111ea1e14117d8e339b733fad0d79b2dff5c63120e1f934480852a126b\",\"dweb:/ipfs/QmaeJr7pQTubaqW3fZdWvfRqc82apPeT59yQHHmYnXZfdb\"]},\"src/utils/Storage.sol\":{\"keccak256\":\"0xf77b79da67d0a78cd01b07f58572125dbddb7cffe81e63ee5e2fd94ce2cbbf94\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://fd6bbb3a54b77fbebf6747d7dec816d925faa799954e98b4dbc83cc80b3c3914\",\"dweb:/ipfs/QmezCiy6Lopi8zvpFQbpeYx8vxeSGkspRmMHndpfsNKVoZ\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.17+commit.8df45f5f"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_beacon",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "constructor"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "account",
+              "type": "address",
+              "indexed": true
+            },
+            {
+              "internalType": "address",
+              "name": "accountManager",
+              "type": "address",
+              "indexed": true
+            }
+          ],
+          "type": "event",
+          "name": "AccountCreated",
+          "anonymous": false
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "beacon",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "accountManager",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "create",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "account",
+              "type": "address"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {
+          "constructor": {
+            "params": {
+              "_beacon": "address of account beacon"
+            }
+          },
+          "create(address)": {
+            "details": "Emits AccountCreated(account, accountManager) event",
+            "params": {
+              "accountManager": "Address of account manager"
+            },
+            "returns": {
+              "account": "Address of account created"
+            }
+          }
+        },
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {
+          "beacon()": {
+            "notice": "Address of account beacon"
+          },
+          "constructor": {
+            "notice": "Contract constructor"
+          },
+          "create(address)": {
+            "notice": "Account creator"
+          }
+        },
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        ":controller/=lib/controller/",
+        ":ds-test/=lib/forge-std/lib/ds-test/src/",
+        ":forge-std/=lib/forge-std/src/",
+        ":oracle/=lib/oracle/src/",
+        ":solidity-bytes-utils/=lib/controller/lib/solidity-bytes-utils/contracts/",
+        ":solmate/=lib/solmate/src/",
+        ":v3-core/=lib/oracle/lib/v3-core/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "src/core/AccountFactory.sol": "AccountFactory"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "src/core/AccountFactory.sol": {
+        "keccak256": "0xc33823dfd33b3f6a4f12bb0fd2042fc4d2f8c1c5400ced70be3167cae5d95217",
+        "urls": [
+          "bzz-raw://7319a1d34e7f94bc2c943fadf17e1acf5d359a5765e14174e9ad76f7bb82990a",
+          "dweb:/ipfs/Qmf8PWLdr9pxJh8WEPrWuea2EN34C8Y1khcyC7cXHspScs"
+        ],
+        "license": "MIT"
+      },
+      "src/interface/core/IAccount.sol": {
+        "keccak256": "0x29f355ddfced795473c904e6601780afe2ebbaf37ca248615d7b6fb9458e8e5b",
+        "urls": [
+          "bzz-raw://36ad62388f0450e394e54bf0bfe3edb0c6d5f3597a2543e8813ed6b49f9baac8",
+          "dweb:/ipfs/QmZZvA3SoxHbaKAHcEAXEnQSzFKgb18Jyu74hEUGwmRhN1"
+        ],
+        "license": "MIT"
+      },
+      "src/interface/core/IAccountFactory.sol": {
+        "keccak256": "0xc79896b78e79c9b90b5adcd9eade19e21c832598111098d5477bc89c658ebeee",
+        "urls": [
+          "bzz-raw://abf8d9fa04658ed9b67f767d8402cb2e426d351e98ba0054138c3f7039f8b6db",
+          "dweb:/ipfs/QmSYFsN7JpFj5cmf9C3B5FKJYGjHCXmupyPZBeFF9ZZfTE"
+        ],
+        "license": "MIT"
+      },
+      "src/interface/proxy/IBeacon.sol": {
+        "keccak256": "0x14ac6100975f3c38e10a71e9c66b4baa831d4229de1c95aa2db17590956e769d",
+        "urls": [
+          "bzz-raw://6edf8e7c55090979b7c00ef1804ef071aedbdb625e5a3d11c6ff4c97369a94fd",
+          "dweb:/ipfs/QmWP7MymcCiTE3vNqTWWDfq3s7uVPFH5yWBLy2kCJYbPrP"
+        ],
+        "license": "MIT"
+      },
+      "src/proxy/BaseProxy.sol": {
+        "keccak256": "0x275e18a642ee0adad7dbc00f1ca0f8e27ac3443b6528aefdec3799cc5f583117",
+        "urls": [
+          "bzz-raw://148ebee156ec958a5ef20a19f57cccbc5a3ae5743ac348e8c3662eb26f9e392e",
+          "dweb:/ipfs/QmPFNLEk6NC7ndjBZCuMW6aHw1m9HkHJd4ktyLivpJnaQq"
+        ],
+        "license": "MIT"
+      },
+      "src/proxy/BeaconProxy.sol": {
+        "keccak256": "0x442a7ed8bda2c624342012ea2bbb35f250c5957c6c1022a8907c5066cbb31523",
+        "urls": [
+          "bzz-raw://ae87f3b00e5f6249ec5474b95ef0c0f322e372665d2c6448a0084e75ecb3f0e9",
+          "dweb:/ipfs/QmUNC52hnPmHgYofYSALNoRB3R4xQS8WRJhAxqBMUVQU7X"
+        ],
+        "license": "MIT"
+      },
+      "src/utils/Errors.sol": {
+        "keccak256": "0xd2d5eb79c1c0f682ba1eb3d1d49369957d3f7c6d858f5033e9088f532b04a773",
+        "urls": [
+          "bzz-raw://e21fe1111ea1e14117d8e339b733fad0d79b2dff5c63120e1f934480852a126b",
+          "dweb:/ipfs/QmaeJr7pQTubaqW3fZdWvfRqc82apPeT59yQHHmYnXZfdb"
+        ],
+        "license": "MIT"
+      },
+      "src/utils/Storage.sol": {
+        "keccak256": "0xf77b79da67d0a78cd01b07f58572125dbddb7cffe81e63ee5e2fd94ce2cbbf94",
+        "urls": [
+          "bzz-raw://fd6bbb3a54b77fbebf6747d7dec816d925faa799954e98b4dbc83cc80b3c3914",
+          "dweb:/ipfs/QmezCiy6Lopi8zvpFQbpeYx8vxeSGkspRmMHndpfsNKVoZ"
+        ],
+        "license": "MIT"
+      }
+    },
+    "version": 1
+  },
+  "ast": {
+    "absolutePath": "src/core/AccountFactory.sol",
+    "id": 34643,
+    "exportedSymbols": {
+      "AccountFactory": [
+        34642
+      ],
+      "BeaconProxy": [
+        38069
+      ],
+      "IAccount": [
+        37205
+      ],
+      "IAccountFactory": [
+        37221
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "32:1807:47",
+    "nodes": [
+      {
+        "id": 34592,
+        "nodeType": "PragmaDirective",
+        "src": "32:24:47",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".17"
+        ]
+      },
+      {
+        "id": 34594,
+        "nodeType": "ImportDirective",
+        "src": "58:53:47",
+        "nodes": [],
+        "absolutePath": "src/proxy/BeaconProxy.sol",
+        "file": "../proxy/BeaconProxy.sol",
+        "nameLocation": "-1:-1:-1",
+        "scope": 34643,
+        "sourceUnit": 38070,
+        "symbolAliases": [
+          {
+            "foreign": {
+              "id": 34593,
+              "name": "BeaconProxy",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 38069,
+              "src": "66:11:47",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "id": 34596,
+        "nodeType": "ImportDirective",
+        "src": "112:56:47",
+        "nodes": [],
+        "absolutePath": "src/interface/core/IAccount.sol",
+        "file": "../interface/core/IAccount.sol",
+        "nameLocation": "-1:-1:-1",
+        "scope": 34643,
+        "sourceUnit": 37206,
+        "symbolAliases": [
+          {
+            "foreign": {
+              "id": 34595,
+              "name": "IAccount",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 37205,
+              "src": "120:8:47",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "id": 34598,
+        "nodeType": "ImportDirective",
+        "src": "169:70:47",
+        "nodes": [],
+        "absolutePath": "src/interface/core/IAccountFactory.sol",
+        "file": "../interface/core/IAccountFactory.sol",
+        "nameLocation": "-1:-1:-1",
+        "scope": 34643,
+        "sourceUnit": 37222,
+        "symbolAliases": [
+          {
+            "foreign": {
+              "id": 34597,
+              "name": "IAccountFactory",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 37221,
+              "src": "177:15:47",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "id": 34642,
+        "nodeType": "ContractDefinition",
+        "src": "334:1504:47",
+        "nodes": [
+          {
+            "id": 34604,
+            "nodeType": "VariableDeclaration",
+            "src": "682:21:47",
+            "nodes": [],
+            "constant": false,
+            "documentation": {
+              "id": 34602,
+              "nodeType": "StructuredDocumentation",
+              "src": "640:37:47",
+              "text": "@notice Address of account beacon"
+            },
+            "functionSelector": "59659e90",
+            "mutability": "mutable",
+            "name": "beacon",
+            "nameLocation": "697:6:47",
+            "scope": 34642,
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_address",
+              "typeString": "address"
+            },
+            "typeName": {
+              "id": 34603,
+              "name": "address",
+              "nodeType": "ElementaryTypeName",
+              "src": "682:7:47",
+              "stateMutability": "nonpayable",
+              "typeDescriptions": {
+                "typeIdentifier": "t_address",
+                "typeString": "address"
+              }
+            },
+            "visibility": "public"
+          },
+          {
+            "id": 34615,
+            "nodeType": "FunctionDefinition",
+            "src": "1067:63:47",
+            "nodes": [],
+            "body": {
+              "id": 34614,
+              "nodeType": "Block",
+              "src": "1097:33:47",
+              "nodes": [],
+              "statements": [
+                {
+                  "expression": {
+                    "id": 34612,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "id": 34610,
+                      "name": "beacon",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 34604,
+                      "src": "1107:6:47",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "id": 34611,
+                      "name": "_beacon",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 34607,
+                      "src": "1116:7:47",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "src": "1107:16:47",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "id": 34613,
+                  "nodeType": "ExpressionStatement",
+                  "src": "1107:16:47"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 34605,
+              "nodeType": "StructuredDocumentation",
+              "src": "966:96:47",
+              "text": "@notice Contract constructor\n@param _beacon address of account beacon"
+            },
+            "implemented": true,
+            "kind": "constructor",
+            "modifiers": [],
+            "name": "",
+            "nameLocation": "-1:-1:-1",
+            "parameters": {
+              "id": 34608,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 34607,
+                  "mutability": "mutable",
+                  "name": "_beacon",
+                  "nameLocation": "1088:7:47",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 34615,
+                  "src": "1080:15:47",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 34606,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1080:7:47",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1079:17:47"
+            },
+            "returnParameters": {
+              "id": 34609,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1097:0:47"
+            },
+            "scope": 34642,
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "public"
+          },
+          {
+            "id": 34641,
+            "nodeType": "FunctionDefinition",
+            "src": "1612:224:47",
+            "nodes": [],
+            "body": {
+              "id": 34640,
+              "nodeType": "Block",
+              "src": "1707:129:47",
+              "nodes": [],
+              "statements": [
+                {
+                  "expression": {
+                    "id": 34633,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "id": 34623,
+                      "name": "account",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 34621,
+                      "src": "1717:7:47",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "arguments": [
+                        {
+                          "arguments": [
+                            {
+                              "id": 34629,
+                              "name": "beacon",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 34604,
+                              "src": "1751:6:47",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            },
+                            {
+                              "id": 34630,
+                              "name": "accountManager",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 34618,
+                              "src": "1759:14:47",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            }
+                          ],
+                          "expression": {
+                            "argumentTypes": [
+                              {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              },
+                              {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            ],
+                            "id": 34628,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "lValueRequested": false,
+                            "nodeType": "NewExpression",
+                            "src": "1735:15:47",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_function_creation_nonpayable$_t_address_$_t_address_$returns$_t_contract$_BeaconProxy_$38069_$",
+                              "typeString": "function (address,address) returns (contract BeaconProxy)"
+                            },
+                            "typeName": {
+                              "id": 34627,
+                              "nodeType": "UserDefinedTypeName",
+                              "pathNode": {
+                                "id": 34626,
+                                "name": "BeaconProxy",
+                                "nameLocations": [
+                                  "1739:11:47"
+                                ],
+                                "nodeType": "IdentifierPath",
+                                "referencedDeclaration": 38069,
+                                "src": "1739:11:47"
+                              },
+                              "referencedDeclaration": 38069,
+                              "src": "1739:11:47",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_contract$_BeaconProxy_$38069",
+                                "typeString": "contract BeaconProxy"
+                              }
+                            }
+                          },
+                          "id": 34631,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "kind": "functionCall",
+                          "lValueRequested": false,
+                          "nameLocations": [],
+                          "names": [],
+                          "nodeType": "FunctionCall",
+                          "src": "1735:39:47",
+                          "tryCall": false,
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_contract$_BeaconProxy_$38069",
+                            "typeString": "contract BeaconProxy"
+                          }
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": [
+                          {
+                            "typeIdentifier": "t_contract$_BeaconProxy_$38069",
+                            "typeString": "contract BeaconProxy"
+                          }
+                        ],
+                        "id": 34625,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "lValueRequested": false,
+                        "nodeType": "ElementaryTypeNameExpression",
+                        "src": "1727:7:47",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_type$_t_address_$",
+                          "typeString": "type(address)"
+                        },
+                        "typeName": {
+                          "id": 34624,
+                          "name": "address",
+                          "nodeType": "ElementaryTypeName",
+                          "src": "1727:7:47",
+                          "typeDescriptions": {}
+                        }
+                      },
+                      "id": 34632,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "kind": "typeConversion",
+                      "lValueRequested": false,
+                      "nameLocations": [],
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "1727:48:47",
+                      "tryCall": false,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "src": "1717:58:47",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "id": 34634,
+                  "nodeType": "ExpressionStatement",
+                  "src": "1717:58:47"
+                },
+                {
+                  "eventCall": {
+                    "arguments": [
+                      {
+                        "id": 34636,
+                        "name": "account",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 34621,
+                        "src": "1805:7:47",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      },
+                      {
+                        "id": 34637,
+                        "name": "accountManager",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 34618,
+                        "src": "1814:14:47",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        },
+                        {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      ],
+                      "id": 34635,
+                      "name": "AccountCreated",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 37213,
+                      "src": "1790:14:47",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_event_nonpayable$_t_address_$_t_address_$returns$__$",
+                        "typeString": "function (address,address)"
+                      }
+                    },
+                    "id": 34638,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "nameLocations": [],
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "1790:39:47",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 34639,
+                  "nodeType": "EmitStatement",
+                  "src": "1785:44:47"
+                }
+              ]
+            },
+            "baseFunctions": [
+              37220
+            ],
+            "documentation": {
+              "id": 34616,
+              "nodeType": "StructuredDocumentation",
+              "src": "1392:215:47",
+              "text": "@notice Account creator\n@param accountManager Address of account manager\n@dev Emits AccountCreated(account, accountManager) event\n@return account Address of account created"
+            },
+            "functionSelector": "9ed93318",
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "create",
+            "nameLocation": "1621:6:47",
+            "parameters": {
+              "id": 34619,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 34618,
+                  "mutability": "mutable",
+                  "name": "accountManager",
+                  "nameLocation": "1636:14:47",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 34641,
+                  "src": "1628:22:47",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 34617,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1628:7:47",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1627:24:47"
+            },
+            "returnParameters": {
+              "id": 34622,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 34621,
+                  "mutability": "mutable",
+                  "name": "account",
+                  "nameLocation": "1694:7:47",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 34641,
+                  "src": "1686:15:47",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 34620,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1686:7:47",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1685:17:47"
+            },
+            "scope": 34642,
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [
+          {
+            "baseName": {
+              "id": 34600,
+              "name": "IAccountFactory",
+              "nameLocations": [
+                "361:15:47"
+              ],
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 37221,
+              "src": "361:15:47"
+            },
+            "id": 34601,
+            "nodeType": "InheritanceSpecifier",
+            "src": "361:15:47"
+          }
+        ],
+        "canonicalName": "AccountFactory",
+        "contractDependencies": [
+          38069
+        ],
+        "contractKind": "contract",
+        "documentation": {
+          "id": 34599,
+          "nodeType": "StructuredDocumentation",
+          "src": "241:92:47",
+          "text": "@title Account Factory\n@notice Factory that creates Account as a beacon proxy"
+        },
+        "fullyImplemented": true,
+        "linearizedBaseContracts": [
+          34642,
+          37221
+        ],
+        "name": "AccountFactory",
+        "nameLocation": "343:14:47",
+        "scope": 34643,
+        "usedErrors": []
+      }
+    ],
+    "license": "MIT"
+  },
+  "id": 47
+}

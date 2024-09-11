@@ -1,0 +1,169 @@
+{
+  "abi": [
+    {
+      "inputs": [],
+      "name": "AdminOnly",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ZeroAddress",
+      "type": "error"
+    }
+  ],
+  "bytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {},
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"AdminOnly\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ZeroAddress\",\"type\":\"error\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"lib/controller/src/utils/Errors.sol\":\"Errors\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":controller/=lib/controller/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":oracle/=lib/oracle/src/\",\":solidity-bytes-utils/=lib/controller/lib/solidity-bytes-utils/contracts/\",\":solmate/=lib/solmate/src/\",\":v3-core/=lib/oracle/lib/v3-core/\"]},\"sources\":{\"lib/controller/src/utils/Errors.sol\":{\"keccak256\":\"0x348b3b605ebcfdd5dd96da96cbc2de072bfd229d5f33eb0b4c469e286d50884e\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://3c64761540deb112c767838cd312f0b7f1909eeb5558f228f692f67dbb681dfd\",\"dweb:/ipfs/QmYqj7BzK6sH12mBwUgQWwiyDt6DPn5ArMMjpvRcF83kjy\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.17+commit.8df45f5f"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "AdminOnly"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "ZeroAddress"
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {},
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {},
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        ":controller/=lib/controller/",
+        ":ds-test/=lib/forge-std/lib/ds-test/src/",
+        ":forge-std/=lib/forge-std/src/",
+        ":oracle/=lib/oracle/src/",
+        ":solidity-bytes-utils/=lib/controller/lib/solidity-bytes-utils/contracts/",
+        ":solmate/=lib/solmate/src/",
+        ":v3-core/=lib/oracle/lib/v3-core/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "lib/controller/src/utils/Errors.sol": "Errors"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "lib/controller/src/utils/Errors.sol": {
+        "keccak256": "0x348b3b605ebcfdd5dd96da96cbc2de072bfd229d5f33eb0b4c469e286d50884e",
+        "urls": [
+          "bzz-raw://3c64761540deb112c767838cd312f0b7f1909eeb5558f228f692f67dbb681dfd",
+          "dweb:/ipfs/QmYqj7BzK6sH12mBwUgQWwiyDt6DPn5ArMMjpvRcF83kjy"
+        ],
+        "license": "MIT"
+      }
+    },
+    "version": 1
+  },
+  "ast": {
+    "absolutePath": "lib/controller/src/utils/Errors.sol",
+    "id": 2387,
+    "exportedSymbols": {
+      "Errors": [
+        2386
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "32:95:8",
+    "nodes": [
+      {
+        "id": 2381,
+        "nodeType": "PragmaDirective",
+        "src": "32:24:8",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".17"
+        ]
+      },
+      {
+        "id": 2386,
+        "nodeType": "ContractDefinition",
+        "src": "58:68:8",
+        "nodes": [
+          {
+            "id": 2383,
+            "nodeType": "ErrorDefinition",
+            "src": "81:18:8",
+            "nodes": [],
+            "errorSelector": "c15c60b4",
+            "name": "AdminOnly",
+            "nameLocation": "87:9:8",
+            "parameters": {
+              "id": 2382,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "96:2:8"
+            }
+          },
+          {
+            "id": 2385,
+            "nodeType": "ErrorDefinition",
+            "src": "104:20:8",
+            "nodes": [],
+            "errorSelector": "d92e233d",
+            "name": "ZeroAddress",
+            "nameLocation": "110:11:8",
+            "parameters": {
+              "id": 2384,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "121:2:8"
+            }
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "Errors",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "fullyImplemented": true,
+        "linearizedBaseContracts": [
+          2386
+        ],
+        "name": "Errors",
+        "nameLocation": "68:6:8",
+        "scope": 2387,
+        "usedErrors": [
+          2383,
+          2385
+        ]
+      }
+    ],
+    "license": "MIT"
+  },
+  "id": 8
+}

@@ -1,0 +1,405 @@
+{
+  "abi": [],
+  "bytecode": {
+    "object": "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea2646970667358221220dba1e449f9e4305e114f466819b07c22a278b101df878b500be04fa66bdb7b7164736f6c63430008110033",
+    "sourceMap": "58:303:77:-:0;;;;;;;;;;;;;;;-1:-1:-1;;;58:303:77;;;;;;;;;;;;;;;;;",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x73000000000000000000000000000000000000000030146080604052600080fdfea2646970667358221220dba1e449f9e4305e114f466819b07c22a278b101df878b500be04fa66bdb7b7164736f6c63430008110033",
+    "sourceMap": "58:303:77:-:0;;;;;;;;",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {},
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/utils/Storage.sol\":\"StorageSlot\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":controller/=lib/controller/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":oracle/=lib/oracle/src/\",\":solidity-bytes-utils/=lib/controller/lib/solidity-bytes-utils/contracts/\",\":solmate/=lib/solmate/src/\",\":v3-core/=lib/oracle/lib/v3-core/\"]},\"sources\":{\"src/utils/Storage.sol\":{\"keccak256\":\"0xf77b79da67d0a78cd01b07f58572125dbddb7cffe81e63ee5e2fd94ce2cbbf94\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://fd6bbb3a54b77fbebf6747d7dec816d925faa799954e98b4dbc83cc80b3c3914\",\"dweb:/ipfs/QmezCiy6Lopi8zvpFQbpeYx8vxeSGkspRmMHndpfsNKVoZ\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.17+commit.8df45f5f"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {},
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {},
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        ":controller/=lib/controller/",
+        ":ds-test/=lib/forge-std/lib/ds-test/src/",
+        ":forge-std/=lib/forge-std/src/",
+        ":oracle/=lib/oracle/src/",
+        ":solidity-bytes-utils/=lib/controller/lib/solidity-bytes-utils/contracts/",
+        ":solmate/=lib/solmate/src/",
+        ":v3-core/=lib/oracle/lib/v3-core/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "src/utils/Storage.sol": "StorageSlot"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "src/utils/Storage.sol": {
+        "keccak256": "0xf77b79da67d0a78cd01b07f58572125dbddb7cffe81e63ee5e2fd94ce2cbbf94",
+        "urls": [
+          "bzz-raw://fd6bbb3a54b77fbebf6747d7dec816d925faa799954e98b4dbc83cc80b3c3914",
+          "dweb:/ipfs/QmezCiy6Lopi8zvpFQbpeYx8vxeSGkspRmMHndpfsNKVoZ"
+        ],
+        "license": "MIT"
+      }
+    },
+    "version": 1
+  },
+  "ast": {
+    "absolutePath": "src/utils/Storage.sol",
+    "id": 40557,
+    "exportedSymbols": {
+      "StorageSlot": [
+        40556
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "32:329:77",
+    "nodes": [
+      {
+        "id": 40537,
+        "nodeType": "PragmaDirective",
+        "src": "32:24:77",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".17"
+        ]
+      },
+      {
+        "id": 40556,
+        "nodeType": "ContractDefinition",
+        "src": "58:303:77",
+        "nodes": [
+          {
+            "id": 40546,
+            "nodeType": "FunctionDefinition",
+            "src": "84:135:77",
+            "nodes": [],
+            "body": {
+              "id": 40545,
+              "nodeType": "Block",
+              "src": "154:65:77",
+              "nodes": [],
+              "statements": [
+                {
+                  "AST": {
+                    "nodeType": "YulBlock",
+                    "src": "173:40:77",
+                    "statements": [
+                      {
+                        "nodeType": "YulAssignment",
+                        "src": "187:16:77",
+                        "value": {
+                          "arguments": [
+                            {
+                              "name": "slot",
+                              "nodeType": "YulIdentifier",
+                              "src": "198:4:77"
+                            }
+                          ],
+                          "functionName": {
+                            "name": "sload",
+                            "nodeType": "YulIdentifier",
+                            "src": "192:5:77"
+                          },
+                          "nodeType": "YulFunctionCall",
+                          "src": "192:11:77"
+                        },
+                        "variableNames": [
+                          {
+                            "name": "a",
+                            "nodeType": "YulIdentifier",
+                            "src": "187:1:77"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "evmVersion": "london",
+                  "externalReferences": [
+                    {
+                      "declaration": 40542,
+                      "isOffset": false,
+                      "isSlot": false,
+                      "src": "187:1:77",
+                      "valueSize": 1
+                    },
+                    {
+                      "declaration": 40539,
+                      "isOffset": false,
+                      "isSlot": false,
+                      "src": "198:4:77",
+                      "valueSize": 1
+                    }
+                  ],
+                  "id": 40544,
+                  "nodeType": "InlineAssembly",
+                  "src": "164:49:77"
+                }
+              ]
+            },
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getAddressAt",
+            "nameLocation": "93:12:77",
+            "parameters": {
+              "id": 40540,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 40539,
+                  "mutability": "mutable",
+                  "name": "slot",
+                  "nameLocation": "114:4:77",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 40546,
+                  "src": "106:12:77",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 40538,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "106:7:77",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "105:14:77"
+            },
+            "returnParameters": {
+              "id": 40543,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 40542,
+                  "mutability": "mutable",
+                  "name": "a",
+                  "nameLocation": "151:1:77",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 40546,
+                  "src": "143:9:77",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 40541,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "143:7:77",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "142:11:77"
+            },
+            "scope": 40556,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "internal"
+          },
+          {
+            "id": 40555,
+            "nodeType": "FunctionDefinition",
+            "src": "225:134:77",
+            "nodes": [],
+            "body": {
+              "id": 40554,
+              "nodeType": "Block",
+              "src": "288:71:77",
+              "nodes": [],
+              "statements": [
+                {
+                  "AST": {
+                    "nodeType": "YulBlock",
+                    "src": "307:46:77",
+                    "statements": [
+                      {
+                        "expression": {
+                          "arguments": [
+                            {
+                              "name": "slot",
+                              "nodeType": "YulIdentifier",
+                              "src": "328:4:77"
+                            },
+                            {
+                              "name": "address_",
+                              "nodeType": "YulIdentifier",
+                              "src": "334:8:77"
+                            }
+                          ],
+                          "functionName": {
+                            "name": "sstore",
+                            "nodeType": "YulIdentifier",
+                            "src": "321:6:77"
+                          },
+                          "nodeType": "YulFunctionCall",
+                          "src": "321:22:77"
+                        },
+                        "nodeType": "YulExpressionStatement",
+                        "src": "321:22:77"
+                      }
+                    ]
+                  },
+                  "evmVersion": "london",
+                  "externalReferences": [
+                    {
+                      "declaration": 40550,
+                      "isOffset": false,
+                      "isSlot": false,
+                      "src": "334:8:77",
+                      "valueSize": 1
+                    },
+                    {
+                      "declaration": 40548,
+                      "isOffset": false,
+                      "isSlot": false,
+                      "src": "328:4:77",
+                      "valueSize": 1
+                    }
+                  ],
+                  "id": 40553,
+                  "nodeType": "InlineAssembly",
+                  "src": "298:55:77"
+                }
+              ]
+            },
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setAddressAt",
+            "nameLocation": "234:12:77",
+            "parameters": {
+              "id": 40551,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 40548,
+                  "mutability": "mutable",
+                  "name": "slot",
+                  "nameLocation": "255:4:77",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 40555,
+                  "src": "247:12:77",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 40547,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "247:7:77",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 40550,
+                  "mutability": "mutable",
+                  "name": "address_",
+                  "nameLocation": "269:8:77",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 40555,
+                  "src": "261:16:77",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 40549,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "261:7:77",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "246:32:77"
+            },
+            "returnParameters": {
+              "id": 40552,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "288:0:77"
+            },
+            "scope": 40556,
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "internal"
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "StorageSlot",
+        "contractDependencies": [],
+        "contractKind": "library",
+        "fullyImplemented": true,
+        "linearizedBaseContracts": [
+          40556
+        ],
+        "name": "StorageSlot",
+        "nameLocation": "66:11:77",
+        "scope": 40557,
+        "usedErrors": []
+      }
+    ],
+    "license": "MIT"
+  },
+  "id": 77
+}

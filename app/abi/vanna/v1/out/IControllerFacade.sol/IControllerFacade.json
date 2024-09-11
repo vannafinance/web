@@ -1,0 +1,727 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "target",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "useEth",
+          "type": "bool"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "canCall",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        },
+        {
+          "internalType": "address[]",
+          "name": "",
+          "type": "address[]"
+        },
+        {
+          "internalType": "address[]",
+          "name": "",
+          "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "target",
+          "type": "address"
+        }
+      ],
+      "name": "controllerFor",
+      "outputs": [
+        {
+          "internalType": "contract IController",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        }
+      ],
+      "name": "isTokenAllowed",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "canCall(address,bool,bytes)": "3414d099",
+    "controllerFor(address)": "e1dd1cd0",
+    "isTokenAllowed(address)": "f9eaee0d"
+  },
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"target\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"useEth\",\"type\":\"bool\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"canCall\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"},{\"internalType\":\"address[]\",\"name\":\"\",\"type\":\"address[]\"},{\"internalType\":\"address[]\",\"name\":\"\",\"type\":\"address[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"target\",\"type\":\"address\"}],\"name\":\"controllerFor\",\"outputs\":[{\"internalType\":\"contract IController\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"isTokenAllowed\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"canCall(address,bool,bytes)\":{\"params\":{\"data\":\"Calldata of the call made to target\",\"target\":\"Address of external protocol/interaction\",\"useEth\":\"Specifies if Eth is being sent to the target\"},\"returns\":{\"_0\":\"canCall Specifies if the interaction is accepted\",\"_1\":\"tokensIn List of tokens that the account will receive after the interactions\",\"_2\":\"tokensOut List of tokens that will be removed from the account after the interaction\"}}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"canCall(address,bool,bytes)\":{\"notice\":\"General function that evaluates whether the target contract can be interacted with using the specified calldata\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"lib/controller/src/core/IControllerFacade.sol\":\"IControllerFacade\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":controller/=lib/controller/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":oracle/=lib/oracle/src/\",\":solidity-bytes-utils/=lib/controller/lib/solidity-bytes-utils/contracts/\",\":solmate/=lib/solmate/src/\",\":v3-core/=lib/oracle/lib/v3-core/\"]},\"sources\":{\"lib/controller/src/core/IController.sol\":{\"keccak256\":\"0xf29d0b6924af2a90fe2a67956944a03605c434de6e62c074d371dbb3bc7e4c16\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://01a126a04b64b37852e358114ddfa89202442b4240f87949dfe7c1fc55ab2c7d\",\"dweb:/ipfs/QmeHqAxwZk3FphEYLNfZBkt5CDYHjSawmpHGyDVHoJdNY6\"]},\"lib/controller/src/core/IControllerFacade.sol\":{\"keccak256\":\"0x7e351e071e231aac87019abffcfaaeab2c6d097d599a39d99037f8006e7f677f\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://ec325f2b7a22942ad317bd8c26633afc1df24e2fb540e9861ec9154e1005054a\",\"dweb:/ipfs/QmcazFzV4SHMBMqArbP2YpajqxpzKKsEo4EwVa2fkuv443\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.17+commit.8df45f5f"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "target",
+              "type": "address"
+            },
+            {
+              "internalType": "bool",
+              "name": "useEth",
+              "type": "bool"
+            },
+            {
+              "internalType": "bytes",
+              "name": "data",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "canCall",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            },
+            {
+              "internalType": "address[]",
+              "name": "",
+              "type": "address[]"
+            },
+            {
+              "internalType": "address[]",
+              "name": "",
+              "type": "address[]"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "target",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "controllerFor",
+          "outputs": [
+            {
+              "internalType": "contract IController",
+              "name": "",
+              "type": "address"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "isTokenAllowed",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {
+          "canCall(address,bool,bytes)": {
+            "params": {
+              "data": "Calldata of the call made to target",
+              "target": "Address of external protocol/interaction",
+              "useEth": "Specifies if Eth is being sent to the target"
+            },
+            "returns": {
+              "_0": "canCall Specifies if the interaction is accepted",
+              "_1": "tokensIn List of tokens that the account will receive after the interactions",
+              "_2": "tokensOut List of tokens that will be removed from the account after the interaction"
+            }
+          }
+        },
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {
+          "canCall(address,bool,bytes)": {
+            "notice": "General function that evaluates whether the target contract can be interacted with using the specified calldata"
+          }
+        },
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        ":controller/=lib/controller/",
+        ":ds-test/=lib/forge-std/lib/ds-test/src/",
+        ":forge-std/=lib/forge-std/src/",
+        ":oracle/=lib/oracle/src/",
+        ":solidity-bytes-utils/=lib/controller/lib/solidity-bytes-utils/contracts/",
+        ":solmate/=lib/solmate/src/",
+        ":v3-core/=lib/oracle/lib/v3-core/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "lib/controller/src/core/IControllerFacade.sol": "IControllerFacade"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "lib/controller/src/core/IController.sol": {
+        "keccak256": "0xf29d0b6924af2a90fe2a67956944a03605c434de6e62c074d371dbb3bc7e4c16",
+        "urls": [
+          "bzz-raw://01a126a04b64b37852e358114ddfa89202442b4240f87949dfe7c1fc55ab2c7d",
+          "dweb:/ipfs/QmeHqAxwZk3FphEYLNfZBkt5CDYHjSawmpHGyDVHoJdNY6"
+        ],
+        "license": "MIT"
+      },
+      "lib/controller/src/core/IControllerFacade.sol": {
+        "keccak256": "0x7e351e071e231aac87019abffcfaaeab2c6d097d599a39d99037f8006e7f677f",
+        "urls": [
+          "bzz-raw://ec325f2b7a22942ad317bd8c26633afc1df24e2fb540e9861ec9154e1005054a",
+          "dweb:/ipfs/QmcazFzV4SHMBMqArbP2YpajqxpzKKsEo4EwVa2fkuv443"
+        ],
+        "license": "MIT"
+      }
+    },
+    "version": 1
+  },
+  "ast": {
+    "absolutePath": "lib/controller/src/core/IControllerFacade.sol",
+    "id": 546,
+    "exportedSymbols": {
+      "IController": [
+        507
+      ],
+      "IControllerFacade": [
+        545
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "32:1039:3",
+    "nodes": [
+      {
+        "id": 509,
+        "nodeType": "PragmaDirective",
+        "src": "32:24:3",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".17"
+        ]
+      },
+      {
+        "id": 511,
+        "nodeType": "ImportDirective",
+        "src": "58:46:3",
+        "nodes": [],
+        "absolutePath": "lib/controller/src/core/IController.sol",
+        "file": "./IController.sol",
+        "nameLocation": "-1:-1:-1",
+        "scope": 546,
+        "sourceUnit": 508,
+        "symbolAliases": [
+          {
+            "foreign": {
+              "id": 510,
+              "name": "IController",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 507,
+              "src": "66:11:3",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "id": 545,
+        "nodeType": "ContractDefinition",
+        "src": "106:964:3",
+        "nodes": [
+          {
+            "id": 518,
+            "nodeType": "FunctionDefinition",
+            "src": "140:68:3",
+            "nodes": [],
+            "functionSelector": "f9eaee0d",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "isTokenAllowed",
+            "nameLocation": "149:14:3",
+            "parameters": {
+              "id": 514,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 513,
+                  "mutability": "mutable",
+                  "name": "token",
+                  "nameLocation": "172:5:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 518,
+                  "src": "164:13:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 512,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "164:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "163:15:3"
+            },
+            "returnParameters": {
+              "id": 517,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 516,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 518,
+                  "src": "202:4:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 515,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "202:4:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "201:6:3"
+            },
+            "scope": 545,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 526,
+            "nodeType": "FunctionDefinition",
+            "src": "213:75:3",
+            "nodes": [],
+            "functionSelector": "e1dd1cd0",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "controllerFor",
+            "nameLocation": "222:13:3",
+            "parameters": {
+              "id": 521,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 520,
+                  "mutability": "mutable",
+                  "name": "target",
+                  "nameLocation": "244:6:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 526,
+                  "src": "236:14:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 519,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "236:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "235:16:3"
+            },
+            "returnParameters": {
+              "id": 525,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 524,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 526,
+                  "src": "275:11:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_contract$_IController_$507",
+                    "typeString": "contract IController"
+                  },
+                  "typeName": {
+                    "id": 523,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 522,
+                      "name": "IController",
+                      "nameLocations": [
+                        "275:11:3"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 507,
+                      "src": "275:11:3"
+                    },
+                    "referencedDeclaration": 507,
+                    "src": "275:11:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_IController_$507",
+                      "typeString": "contract IController"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "274:13:3"
+            },
+            "scope": 545,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 544,
+            "nodeType": "FunctionDefinition",
+            "src": "906:162:3",
+            "nodes": [],
+            "documentation": {
+              "id": 527,
+              "nodeType": "StructuredDocumentation",
+              "src": "294:607:3",
+              "text": "@notice General function that evaluates whether the target contract can\nbe interacted with using the specified calldata\n@param target Address of external protocol/interaction\n@param useEth Specifies if Eth is being sent to the target\n@param data Calldata of the call made to target\n@return canCall Specifies if the interaction is accepted\n@return tokensIn List of tokens that the account will receive after the\ninteractions\n@return tokensOut List of tokens that will be removed from the account\nafter the interaction"
+            },
+            "functionSelector": "3414d099",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "canCall",
+            "nameLocation": "915:7:3",
+            "parameters": {
+              "id": 534,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 529,
+                  "mutability": "mutable",
+                  "name": "target",
+                  "nameLocation": "940:6:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 544,
+                  "src": "932:14:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 528,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "932:7:3",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 531,
+                  "mutability": "mutable",
+                  "name": "useEth",
+                  "nameLocation": "961:6:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 544,
+                  "src": "956:11:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 530,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "956:4:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 533,
+                  "mutability": "mutable",
+                  "name": "data",
+                  "nameLocation": "992:4:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 544,
+                  "src": "977:19:3",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_calldata_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 532,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "977:5:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "922:80:3"
+            },
+            "returnParameters": {
+              "id": 543,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 536,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 544,
+                  "src": "1026:4:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 535,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1026:4:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 539,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 544,
+                  "src": "1032:16:3",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_address_$dyn_memory_ptr",
+                    "typeString": "address[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 537,
+                      "name": "address",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "1032:7:3",
+                      "stateMutability": "nonpayable",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "id": 538,
+                    "nodeType": "ArrayTypeName",
+                    "src": "1032:9:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_address_$dyn_storage_ptr",
+                      "typeString": "address[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 542,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 544,
+                  "src": "1050:16:3",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_address_$dyn_memory_ptr",
+                    "typeString": "address[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 540,
+                      "name": "address",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "1050:7:3",
+                      "stateMutability": "nonpayable",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "id": 541,
+                    "nodeType": "ArrayTypeName",
+                    "src": "1050:9:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_address_$dyn_storage_ptr",
+                      "typeString": "address[]"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1025:42:3"
+            },
+            "scope": 545,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IControllerFacade",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "fullyImplemented": false,
+        "linearizedBaseContracts": [
+          545
+        ],
+        "name": "IControllerFacade",
+        "nameLocation": "116:17:3",
+        "scope": 546,
+        "usedErrors": []
+      }
+    ],
+    "license": "MIT"
+  },
+  "id": 3
+}
