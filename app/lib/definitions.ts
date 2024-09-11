@@ -62,3 +62,12 @@ interface SliderProps {
   value: number;
   onChange: (value: number) => void;
 }
+
+type NotificationType = "success" | "error" | "info";
+
+interface NotificationProps {
+  type: NotificationType;
+  message: string;
+  onClose: () => void;
+  duration?: number;
+}

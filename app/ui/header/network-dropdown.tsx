@@ -54,10 +54,10 @@ export const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
                 onClick={() => handleSelect(option)}
               >
                 <Image
-                  src={selectedNetwork.icon}
+                  src={option.icon}
                   width="20"
                   height="20"
-                  alt={selectedNetwork.name}
+                  alt={option.name}
                 />
                 &nbsp;&nbsp;{option.name}
               </button>
