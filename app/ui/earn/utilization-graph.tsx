@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect } from "react";
 import {
   AreaChart,
   Area,
@@ -18,6 +21,11 @@ const data = [
 ];
 
 const UtilizationChart = () => {
+
+  useEffect(() => {
+    // fetch data here
+  }, []);
+
   return (
     <div className="bg-baseComplementary py-6 px-10 rounded-2xl text-baseBlack font-bold">
       <h2 className="text-2xl mb-4">Utilization rate</h2>

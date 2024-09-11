@@ -51,6 +51,10 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
     };
   }, []);
 
+  useEffect(() => {
+    // fetch data here
+  }, []);
+
   return (
     <div className="relative" ref={dropdownRef}>
       <button

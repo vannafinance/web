@@ -14,3 +14,6 @@ export const networkOptions = [
 export const BASE_NETWORK = "base";
 export const ARBITRUM_NETWORK = "arbitrum";
 export const OPTIMISM_NETWORK = "optimism";
+
+export const SECS_PER_YEAR = 31556952;
+export const FEES = 0.01;

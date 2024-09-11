@@ -1,4 +1,7 @@
+'use client';
+
 import React, { useState } from "react";
+// caretdown imported to create custom dropdown, check if needed
 import { CaretDown, Info } from "@phosphor-icons/react";
 import clsx from "clsx";
 import { networkOptions } from "@/app/lib/constants";
