@@ -20,8 +20,7 @@ const data = [
   { name: "100", value: 40 },
 ];
 
-const UtilizationChart = () => {
-
+const UtilizationChart = ({ pool }: { pool: PoolTable }) => {
   useEffect(() => {
     // fetch data here
   }, []);

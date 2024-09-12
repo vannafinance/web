@@ -7,7 +7,7 @@ import { CaretLeft } from "@phosphor-icons/react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
 export default function Page({ params }: { params: { id: string } }) {
@@ -18,6 +18,17 @@ export default function Page({ params }: { params: { id: string } }) {
 
     const [utilizationRate, setUtilizationRate] = useState("-");
     const [uniqueLP, setUniqueLP] = useState("-");
+
+    useEffect(() => {
+      // code goes here
+
+      // if (pool?.name === "") {
+
+      // }
+
+      // setUtilizationRate(); // add new fetch variable here
+      // setUniqueLP(); // add new fetch variable here
+    }, []);
 
     if (!pool) {
       notFound();
@@ -97,7 +108,7 @@ export default function Page({ params }: { params: { id: string } }) {
                 </div>
               </div>
             </div>
-            <PoolDetailTabMenu />
+            <PoolDetailTabMenu pool={pool} />
           </div>
           <div className="flex-none w-2/5">
             <SupplyWithdraw balance="10" currentAPY="1" />

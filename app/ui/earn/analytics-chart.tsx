@@ -105,7 +105,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
   );
 };
 
-const AnalyticsChart = () => {
+const AnalyticsChart = ({ pool }: { pool: PoolTable }) => {
   const [timeFrame, setTimeFrame] = useState("1D");
   const [selectedOption, setSelectedOption] = useState("Deposit APY");
   const options = ["Deposit APY", "Withdrawal APY", "Transfer APY"];

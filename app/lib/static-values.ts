@@ -64,47 +64,47 @@ export const poolsPlaceholder: PoolTable[] = [
 export const poolDetailsPlaceholder = [
   {
     label: "DEPOSIT APY 7D",
-    value: "2.18%",
+    value: "-",
     tooltip: "Average Deposit APY for the last 7 days",
   },
   {
     label: "DEPOSIT APY 30D",
-    value: "1.69%",
+    value: "-",
     tooltip: "Average Deposit APY for the last 30 days",
   },
   { 
     label: "DIESEL RATE", 
-    value: "1.055073",
+    value: "-",
     tooltip: "Current Diesel Rate"
   },
   {
     label: "EXPECTED LIQUIDITY",
-    value: "19.15K ETH",
+    value: "-",
     tooltip: "Expected liquidity in the pool",
   },
   {
     label: "BORROW APY",
-    value: "1.94%",
+    value: "-",
     tooltip: "Current Borrow Annual Percentage Yield",
   },
   {
     label: "TOTAL BORROWED",
-    value: "10.32K ETH",
+    value: "-",
     tooltip: "Total amount borrowed from the pool",
   },
   {
     label: "AVAILABLE LIQUIDITY",
-    value: "8.74K ETH",
+    value: "-",
     tooltip: "Current available liquidity in the pool",
   },
   {
     label: "UNIQUE USERS",
-    value: "1955",
+    value: "-",
     tooltip: "Number of unique users in the pool",
   },
   {
     label: "WITHDRAWAL FEES",
-    value: "0.00%",
+    value: "-",
     tooltip: "Current withdrawal fees",
   },
 ];

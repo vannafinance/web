@@ -8,24 +8,28 @@ import { useNetwork } from "@/app/context/network-context";
 import { getShortenedAddress } from "@/app/lib/web3-constants";
 import { useEffect, useState } from "react";
 
-const PoolDetails = () => {
+const PoolDetails = ({ pool }: { pool: PoolTable }) => {
   const { account, library } = useWeb3React();
   const { currentNetwork } = useNetwork();
   const [details, setDetails] = useState(poolDetailsPlaceholder);
+  const [poolAddress, setPoolAddress] = useState("-");
 
   // useEffect(() => {
-    //   try {
+  //   try {
   //     if (account) {
-//       const fetchValues = async () => {
-  
-          // TODO:: add data fetching here
+  //       const fetchValues = async () => {
 
-          // setDetails();
-          // Note: as done in pool-table.tsx file after data fetching
-          // Note: pools.map, do the same here after data fetching
-          // Note: add condition and assign specific variables to it.
-          // Note: and then update the updatedDetails using setDetails()
-          // Note: function above.
+  // TODO:: add data fetching here
+
+  // for setting pool address, update below variable
+  // setPoolAddress();
+
+  // setDetails();
+  // Note: as done in pool-table.tsx file after data fetching
+  // Note: pools.map, do the same here after data fetching
+  // Note: add condition and assign specific variables to it.
+  // Note: and then update the updatedDetails using setDetails()
+  // Note: function above.
 
   //       };
 
@@ -64,11 +68,11 @@ const PoolDetails = () => {
           <Copy
             size={16}
             color="black"
-            onClick={() => handleCopyAddress(account ? account : "")}
+            onClick={() => handleCopyAddress(poolAddress ? poolAddress : "")}
           />
         </div>
         <div className="font-semibold text-lg mt-1.5">
-          {getShortenedAddress(account ? account : "")}
+          {poolAddress == "-" ? poolAddress : getShortenedAddress(poolAddress)}
         </div>
       </div>
     </div>

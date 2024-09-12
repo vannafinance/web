@@ -2,23 +2,21 @@
 
 import React, { useState } from "react";
 import clsx from "clsx";
-import UtilizationChart from "./utilization-graph";
+import UtilizationChart from "./utilization-chart";
 import AnalyticsChart from "./analytics-chart";
 import PoolDetails from "./pool-details";
 
-const PoolDetailTabMenu = () => {
+const PoolDetailTabMenu = ({ pool }: { pool: PoolTable }) => {
   const [activeTab, setActiveTab] = useState("Details");
 
   const renderTabContent = () => {
     switch (activeTab) {
       case "Details":
-        return (
-          <PoolDetails />
-        );
+        return <PoolDetails pool={pool} />;
       case "Utilization rate":
-        return <UtilizationChart />;
+        return <UtilizationChart pool={pool} />;
       case "Analytics":
-        return <AnalyticsChart />;
+        return <AnalyticsChart pool={pool} />;
       default:
         return null;
     }

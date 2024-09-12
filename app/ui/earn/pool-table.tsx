@@ -1,6 +1,7 @@
 'use client';
 
 import { useNetwork } from "@/app/context/network-context";
+import { BASE_NETWORK } from "@/app/lib/constants";
 import { poolsPlaceholder } from "@/app/lib/static-values";
 import { setPoolsData } from "@/app/store/pools-slice";
 import { RootState } from "@/app/store/store";
@@ -15,6 +16,11 @@ const PoolsTable = () => {
   const { currentNetwork } = useNetwork();
   const dispatch = useDispatch();
   const [pools, setPools] = useState(useSelector((state: RootState) => state.pools.poolsData));
+
+  // network check example
+  if (currentNetwork.name === BASE_NETWORK) {
+    // code goes here
+  }
 
   // useEffect(() => {
   //   try {
