@@ -63,29 +63,29 @@ export const poolsPlaceholder: PoolTable[] = [
 
 export const poolDetailsPlaceholder = [
   {
-    label: "DEPOSIT APY 7D",
+    label: "SUPPLY APY",
     value: "-",
     tooltip: "Average Deposit APY for the last 7 days",
-  },
-  {
-    label: "DEPOSIT APY 30D",
-    value: "-",
-    tooltip: "Average Deposit APY for the last 30 days",
-  },
-  { 
-    label: "DIESEL RATE", 
-    value: "-",
-    tooltip: "Current Diesel Rate"
-  },
-  {
-    label: "EXPECTED LIQUIDITY",
-    value: "-",
-    tooltip: "Expected liquidity in the pool",
   },
   {
     label: "BORROW APY",
     value: "-",
     tooltip: "Current Borrow Annual Percentage Yield",
+  },
+  { 
+    label: "VTOKEN RATE", 
+    value: "-",
+    tooltip: "Current Diesel Rate"
+  },
+  {
+    label: "TOTAL LIQUIDITY",
+    value: "-",
+    tooltip: "Expected liquidity in the pool",
+  },
+  {
+    label: " LIQUIDITY IN DOLLAR",
+    value: "-",
+    tooltip: "Expected liquidity in the pool",
   },
   {
     label: "TOTAL BORROWED",

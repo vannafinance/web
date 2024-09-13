@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from "react";
 import { CaretDown, Info } from "@phosphor-icons/react";
 import clsx from "clsx";
@@ -29,6 +30,132 @@ const LevrageWithdraw = () => {
   const handleNetworkSelect = (network: NetworkOption) => {
     console.log("Selected network:", network);
   };
+  console.log("borrowworks")
+  //while (Deposit){
+
+    // const regitstryContract = new Contract(
+    //   addressList.registryContractAddress,
+    //   Registry.abi,
+    //   signer
+    // );
+
+    // const accountManagerContract = new Contract(
+    //   addressList.accountManagerContractAddress,
+    //   AccountManager.abi,
+    //   signer
+    // );
+
+    // Deposit Main code 
+    // if (tabValue === 0) {
+    //   if (token === "WETH") {
+    //     // await accountManagerContract.depositEth({ value: parseEther(amount) });
+    //     await accountManagerContract.depositEth(activeAccount, {
+    //       value: parseEther(amount),
+    //       gasLimit: 2300000,
+    //     });
+    //   } else if (token === "USDC" || token === "USDT") {
+    //     const erc20Contract = new Contract(tokensAddress[token], ERC20.abi, signer);
+    //     // need to add checksum that is already have allowance or not
+    //     const allowance = await erc20Contract.allowance(
+    //       account,
+    //       addressList.accountManagerContractAddress
+    //     );
+    //     if (allowance < amount) {
+    //       await erc20Contract.approve(
+    //         addressList.accountManagerContractAddress,
+    //         parseUnits(amount, 6),
+    //         { gasLimit: 2300000 }
+    //       );
+    //       await sleep(3000);
+    //     }
+
+    //     await accountManagerContract.deposit(
+    //       activeAccount,
+    //       tokensAddress[token],
+    //       parseUnits(amount, 6),
+    //       { gasLimit: 2300000 }
+    //     );
+    //   } else {
+    //     const erc20Contract = new Contract(tokensAddress[token], ERC20.abi, signer);
+    //     const allowance = await erc20Contract.allowance(
+    //       account,
+    //       addressList.accountManagerContractAddress
+    //     );
+
+    //     if (allowance < amount) {
+    //       await erc20Contract.approve(
+    //         addressList.accountManagerContractAddress,
+    //         parseEther(amount),
+    //         { gasLimit: 2300000 }
+    //       );
+    //       await sleep(3000);
+    //     }
+
+    //     await accountManagerContract.deposit(
+    //       activeAccount,
+    //       tokensAddress[token],
+    //       parseEther(amount),
+    //       { gasLimit: 2300000 }
+    //     );
+    //   }
+    // } 
+
+    // WithDraw Main code 
+    // else {
+    //   if (token === "WETH") {
+    //     await accountManagerContract.withdrawEth(activeAccount, parseEther(amount), {
+    //       gasLimit: 2300000,
+    //     });
+    //   } else if (token === "USDC" || token === "USDT") {
+    //     await accountManagerContract.withdraw(
+    //       activeAccount,
+    //       tokensAddress[token],
+    //       parseUnits(amount, 6),
+    //       { gasLimit: 2300000 }
+    //     );
+    //   } else {
+    //     await accountManagerContract.withdraw(
+    //       activeAccount,
+    //       tokensAddress[token],
+    //       parseEther(amount),
+    //       { gasLimit: 2300000 }
+    //     );
+    //   }
+    // }
+
+    // const accountsArray = await regitstryContract.accountsOwnedBy(account);
+  
+    //metamask balance => account is EOA account
+    // const getTokenBalance = async (tokenName = token) => {
+    //   try {
+    //     if (activeAccount) {
+    //       const signer = await library?.getSigner();
+    //       let bal;
+  
+    //       if (tokenName == "WETH") {
+    //         if (tabValue === 0) {
+    //           bal = await library?.getBalance(account);
+    //         } else {
+    //           bal = await library?.getBalance(activeAccount);
+    //         }
+    //       } else {
+    //         const contract = new Contract(tokensAddress[tokenName], ERC20.abi, signer);
+    //         if (tabValue === 0) {
+    //           bal = await contract.balanceOf(account);
+    //         } else {
+    //           bal = await contract.balanceOf(activeAccount);
+    //         }
+    //       }
+  
+    //       const balInNumber = formatBignumberToUnits(tokenName, bal);
+    //       setCoinBalance(ceilWithPrecision(balInNumber));
+    //     }
+    //   } catch (e) {
+    //     console.error(e);
+    //   }
+    // };
+
+  // }
 
   return (
     <div className="bg-baseComplementary p-2 rounded-3xl w-full text-baseBlack">
