@@ -1,7 +1,6 @@
 "use client";
 
-import { networkOptions } from "@/app/lib/constants";
-import NetworkDropdown from "@/app/ui/header/network-dropdown";
+import TokenDropdown from "@/app/ui/components/token-dropdown";
 import { CaretDown, CaretUp, Lightning } from "@phosphor-icons/react";
 import Image from "next/image";
 import { useState } from "react";
@@ -13,12 +12,12 @@ export default function Page() {
 
   const toggleOpen = () => setIsOpen(!isOpen);
 
-  const handleFromSelect = (network: NetworkOption) => {
-    console.log("Selected network:", network);
+  const handleFromSelect = (token: PoolTable) => {
+    console.log("Selected token:", token);
   };
 
-  const handleToSelect = (network: NetworkOption) => {
-    console.log("Selected network:", network);
+  const handleToSelect = (token: PoolTable) => {
+    console.log("Selected token:", token);
   };
 
   return (
@@ -39,10 +38,8 @@ export default function Page() {
               />
             </div>
             <div className="flex">
-              <NetworkDropdown
-                options={networkOptions}
+              <TokenDropdown
                 onSelect={handleFromSelect}
-                displayName={true}
               />
             </div>
           </div>
@@ -72,10 +69,8 @@ export default function Page() {
               />
             </div>
             <div className="flex">
-              <NetworkDropdown
-                options={networkOptions}
+              <TokenDropdown
                 onSelect={handleToSelect}
-                displayName={true}
               />
             </div>
           </div>

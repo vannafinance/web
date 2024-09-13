@@ -1,19 +1,20 @@
 "use client";
 
+import { poolsPlaceholder } from "@/app/lib/static-values";
 import { CaretDown } from "@phosphor-icons/react";
 import Image from "next/image";
 import { useState } from "react";
 
-export const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
-  options,
+export const TokenDropdown: React.FC<TokenDropdownProps> = ({
   onSelect,
 }) => {
+  const options = poolsPlaceholder;
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedNetwork, setSelectedNetwork] = useState(options[0]);
+  const [selectedToken, setSelectedToken] = useState(options[0]);
 
-  const handleSelect = (network: NetworkOption) => {
-    setSelectedNetwork(network);
-    onSelect(network);
+  const handleSelect = (token: PoolTable) => {
+    setSelectedToken(token);
+    onSelect(token);
     setIsOpen(false);
   };
 
@@ -26,18 +27,20 @@ export const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
           onClick={() => setIsOpen(!isOpen)}
         >
           <Image
-            src={selectedNetwork.icon}
+            src={selectedToken.icon}
             width="20"
             height="20"
-            alt={selectedNetwork.name}
+            alt={selectedToken.name}
           />
+          &nbsp;&nbsp;
+          {selectedToken.name}
           &nbsp;&nbsp;
           <CaretDown color="baseBlack" weight="bold" />
         </button>
       </div>
 
       {isOpen && (
-        <div className="bg-white origin-top-right absolute left-0 mt-2 w-40 rounded-md shadow-xl ring-1 ring-black ring-opacity-5">
+        <div className="z-10 bg-white origin-top-right absolute left-0 mt-2 w-40 rounded-md shadow-xl ring-1 ring-black ring-opacity-5">
           <div
             className="p-1"
             role="menu"
@@ -67,4 +70,4 @@ export const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
   );
 };
 
-export default NetworkDropdown;
+export default TokenDropdown;

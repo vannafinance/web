@@ -2,8 +2,7 @@ export const poolsPlaceholder: PoolTable[] = [
   {
     id: 1,
     name: "WETH",
-    icon1: "/eth-icon.svg",
-    icon2: "/eth-icon.svg",
+    icon: "/eth-icon.svg",
     supply: "-",
     supplyAPY: "-",
     borrowAPY: "-",
@@ -14,8 +13,7 @@ export const poolsPlaceholder: PoolTable[] = [
   {
     id: 2,
     name: "WBTC",
-    icon1: "/eth-icon.svg",
-    icon2: "/eth-icon.svg",
+    icon: "/eth-icon.svg",
     supply: "-",
     supplyAPY: "-",
     borrowAPY: "-",
@@ -26,8 +24,7 @@ export const poolsPlaceholder: PoolTable[] = [
   {
     id: 3,
     name: "USDC",
-    icon1: "/eth-icon.svg",
-    icon2: "/eth-icon.svg",
+    icon: "/eth-icon.svg",
     supply: "-",
     supplyAPY: "-",
     borrowAPY: "-",
@@ -38,8 +35,7 @@ export const poolsPlaceholder: PoolTable[] = [
   {
     id: 4,
     name: "USDT",
-    icon1: "/eth-icon.svg",
-    icon2: "/eth-icon.svg",
+    icon: "/eth-icon.svg",
     supply: "-",
     supplyAPY: "-",
     borrowAPY: "-",
@@ -50,8 +46,7 @@ export const poolsPlaceholder: PoolTable[] = [
   {
     id: 5,
     name: "DAI",
-    icon1: "/eth-icon.svg",
-    icon2: "/eth-icon.svg",
+    icon: "/eth-icon.svg",
     supply: "-",
     supplyAPY: "-",
     borrowAPY: "-",

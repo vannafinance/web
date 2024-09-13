@@ -1,12 +1,13 @@
+"use client";
+
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from "react";
 import { CaretDown, Info } from "@phosphor-icons/react";
 import clsx from "clsx";
-import { networkOptions } from "@/app/lib/constants";
-import NetworkDropdown from "../header/network-dropdown";
 import Tooltip from "../components/tooltip";
 import Image from "next/image";
 import Slider from "./slider";
+import TokenDropdown from "../components/token-dropdown";
 
 const LevrageWithdraw = () => {
   const [isSupply, setIsSupply] = useState(true);
@@ -16,6 +17,9 @@ const LevrageWithdraw = () => {
     null
   );
   const [leverageValue, setLeverageValue] = useState<number>(5);
+  const [coinBalance, setCoinBalance] = useState(0);
+  const [debt, setDebt] = useState(0);
+  const [healthFactor, setHealthFactor] = useState("-");
 
   const balance: string = "1";
   const currentAPY: string = "1";
@@ -27,10 +31,10 @@ const LevrageWithdraw = () => {
     setDepositAmount((parseFloat(balance) * (percentage / 100)).toFixed(3));
   };
 
-  const handleNetworkSelect = (network: NetworkOption) => {
-    console.log("Selected network:", network);
+  const handleTokenSelect = (token: PoolTable) => {
+    console.log("Selected token:", token);
   };
-  console.log("borrowworks")
+
   //while (Deposit){
 
     // const regitstryContract = new Contract(
@@ -208,15 +212,13 @@ const LevrageWithdraw = () => {
               />
             </div>
             <div className="flex">
-              <NetworkDropdown
-                options={networkOptions}
-                onSelect={handleNetworkSelect}
-                displayName={true}
+              <TokenDropdown
+                onSelect={handleTokenSelect}
               />
             </div>
           </div>
           <div className="mt-2">
-            <div className="text-xs text-neutral-500">$30.12</div>
+            <div className="text-xs text-neutral-500">{coinBalance}</div>
           </div>
         </div>
 
@@ -247,15 +249,13 @@ const LevrageWithdraw = () => {
               />
             </div>
             <div className="flex">
-              <NetworkDropdown
-                options={networkOptions}
-                onSelect={handleNetworkSelect}
-                displayName={true}
+              <TokenDropdown
+                onSelect={handleTokenSelect}
               />
             </div>
           </div>
           <div className="flex justify-end items-center mt-2">
-            <div className="text-xs text-neutral-500 mr-2">Debt: 9400</div>
+            <div className="text-xs text-neutral-500 mr-2">Debt: {debt}</div>
             <button className="py-0.5 px-1 bg-gradient-to-r from-gradient-1 to-gradient-2 text-xs rounded-md text-baseWhite">
               Max
             </button>
@@ -270,7 +270,7 @@ const LevrageWithdraw = () => {
           <div className="flex items-center">
             <span className="mr-1">Health Factor</span>
             <span className="text-baseSuccess-300">
-              &nbsp;<u>2.1</u>&nbsp;
+              &nbsp;<u>{healthFactor}</u>&nbsp;
             </span>
             <Tooltip content={"Target token"}>
               <Info size={24} color="#2ea88e" />

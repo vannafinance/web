@@ -1,26 +1,24 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-'use client';
+"use client";
 
 import React, { useState } from "react";
 // caretdown imported to create custom dropdown, check if needed
 import { CaretDown, Info } from "@phosphor-icons/react";
 import clsx from "clsx";
-import { networkOptions } from "@/app/lib/constants";
-import NetworkDropdown from "../header/network-dropdown";
+import TokenDropdown from "../components/token-dropdown";
 import Tooltip from "../components/tooltip";
 import Image from "next/image";
 
-import { BASE_NETWORK } from "@/app/lib/constants"; 
-import { ethers, utils , Contract} from "ethers";
+import { BASE_NETWORK } from "@/app/lib/constants";
+import { ethers, utils, Contract } from "ethers";
 import { formatUnits, parseUnits } from "ethers/lib/utils";
 
-import VEther from "../../abi/vanna/v1/out/VEther.sol/VEther.json"
-import VToken from "../../abi/vanna/v1/out/VToken.sol/VToken.json"
+import VEther from "@/app/abi/vanna/v1/out/VEther.sol/VEther.json";
+import VToken from "@/app/abi/vanna/v1/out/VToken.sol/VToken.json";
 import { addressList } from "@/app/lib/web3-constants";
 
-
-import DefaultRateModel from "../../abi/vanna/v1/out/DefaultRateModel.sol/DefaultRateModel.json";
-import Multicall from "../../abi/vanna/v1/out/Multicall.sol/Multicall.json";
+import DefaultRateModel from "@/app/abi/vanna/v1/out/DefaultRateModel.sol/DefaultRateModel.json";
+import Multicall from "@/app/abi/vanna/v1/out/Multicall.sol/Multicall.json";
 import { ceilWithPrecision6, ceilWithPrecision } from "@/app/lib/helper";
 
 const SupplyWithdraw: React.FC<SupplyWithdrawProps> = ({
@@ -32,144 +30,13 @@ const SupplyWithdraw: React.FC<SupplyWithdrawProps> = ({
   const [selectedPercentage, setSelectedPercentage] = useState<number | null>(
     null
   );
-
-  while(1){
-    //VToken 
-    //+"v" + pool.name 
-    //YouGet
-    // amount * ethperveth
-    //token per vtoken
-    // const ethPerVeth = formatBignumberToUnits(
-    //   token,
-    //   await vEtherContract.convertToShares(parseUnits("1", 18))
-    // );
-
-    // Current APY
-    // pool.supplyAPY
-    
-
-  }
-
-    // if(action) {
-
-    //   const contract = new Contract(
-    //    addressList.vEtherContractAddress, 
-    //    VEther.abi, 
-    //   signer
-    // );
-
-    //   const vBTCtokenContract = new Contract(
-    //     addressList.vWBTCContractAddress,
-    //     VToken.abi,
-    //     signer
-    //   );
-
-    //   const vUSDCtokenContract = new Contract(
-    //     addressList.vUSDCContractAddress,
-    //     VToken.abi,
-    //     signer
-    //   );
-
-    //   const vUSDTtokenContract = new Contract(
-    //     addressList.vUSDTContractAddress,
-    //     VToken.abi,
-    //     signer
-    //   );
-    //   const vDAItokenContract = new Contract(
-    //   addressList.vDaiContractAddress, 
-    //   VToken.abi,
-    //   signer
-    // );
-
-
-    /// ERC20 contract 
-    //   const WBTCContract = new Contract(tokensAddress[token], ERC20.abi, signer);
-    //   const USDCContract = new Contract(tokensAddress[token], ERC20.abi, signer);
-    //   const USDTContract = new Contract(tokensAddress[token], ERC20.abi, signer);
-    //   const DAIContract = new Contract(tokensAddress[token], ERC20.abi, signer);
-
-
-    //if (token === "WETH") {
-    //   await contract.depositEth({ value: parseEther(amount), gasLimit: 2300000 });
-    // } else if (token === "WBTC") {
-    //   // to confirm this abi, address & function
-
-
-    //   const allowance = await WBTCContract.allowance(account, addressList.vWBTCContractAddress);
-
-    //   if (allowance < amount) {
-    //     await WBTCContract.approve(addressList.vWBTCContractAddress, parseEther(amount));
-    //     await sleep(3000);
-    //   }
-
-    //   await vBTCtokenContract.deposit(parseEther(amount), account, { gasLimit: 2300000 });
-    // } else if (token === "USDC") {
-    //   // to confirm this abi, address & function
-
-    //   const allowance = await USDCContract.allowance(account, addressList.vUSDCContractAddress);
-
-    //   if (allowance < amount) {
-    //     await USDCContract.approve(addressList.vUSDCContractAddress, parseUnits(amount, 6));
-    //     await sleep(3000);
-    //   }
-
-    //   await vUSDCtokenContract.deposit(parseUnits(amount, 6), account, { gasLimit: 23000000 });
-    // } else if (token === "USDT") {
-    //   // to confirm this abi, address & function
-
-    //   const allowance = await USDTContract.allowance(account, addressList.vUSDTContractAddress);
-
-    //   if (allowance < amount) {
-    //     await USDTContract.approve(addressList.vUSDTContractAddress, parseUnits(amount, 6));
-    //     await sleep(3000);
-    //   }
-
-    //   await vUSDTtokenContract.deposit(parseUnits(amount, 6), account, { gasLimit: 23000000 });
-    // } else {
-    //   const allowance = await DAIContract.allowance(account, addressList.vDaiContractAddress);
-
-    //   if (allowance < amount) {
-    //     await DAIContract.approve(addressList.vDaiContractAddress, parseEther(amount));
-    //     await sleep(3000);
-    //   }
-
-    //   await vDAItokenContract.deposit(parseEther(amount), account);
-    // }
-    // WITHDRAW
-    // if(withAccount){
-      // if (token === "WETH") {
-      //   const vEthcontract = new Contract(addressList.vEtherContractAddress, VEther.abi, signer);
-      //   if (amount <= (await vEthcontract.balanceOf(account))) {
-      //     await vEthcontract.redeemEth(parseEther(amount), { gasLimit: 2300000 });
-      //   }
-      // } else if (token === "WBTC") {
-      //   const vBTCcontract = new Contract(addressList.vBtcContractAddress, VToken.abi, signer);
-      //   if (amount <= (await vBTCcontract.balanceOf(account))) {
-      //     await vBTCcontract.redeem(parseEther(amount), account, account, { gasLimit: 2300000 });
-      //   }
-      // } else if (token === "USDC") {
-      //   const vUSDCcontract = new Contract(addressList.vUSDCContractAddress, VToken.abi, signer);
-      //   if (amount <= (await vUSDCcontract.balanceOf(account))) {
-      //     await vUSDCcontract.redeem(parseUnits(amount, 6), account, account, {
-      //       gasLimit: 2300000,
-      //     });
-      //   }
-      // } else if (token === "USDT") {
-      //   const vUSDTcontract = new Contract(addressList.vUSDTContractAddress, VToken.abi, signer);
-      //   if (amount <= (await vUSDTcontract.balanceOf(account))) {
-      //     await vUSDTcontract.redeem(parseUnits(amount, 6), account, account, {
-      //       gasLimit: 2300000,
-      //     });
-      //   }
-      // } else if (token === "DAI") {
-      //   const vDaicontract = new Contract(addressList.vDaiContractAddress, VToken.abi, signer);
-      //   if (amount <= (await vDaicontract.balanceOf(account))) {
-      //     await vDaicontract.redeem(parseEther(amount), account, account, { gasLimit: 2300000 });
-      //   }
-      // } else {
-      //   console.error("something went wrong, Please try again.");
-      // }
-    // }
+  const [expected, setExpected] = useState(0);
+  const [coinBalance, setCoinBalance] = useState(0);
+  const [youGet, setYouGet] = useState(0);
+  const [ethPerVeth, setEthPerVeth] = useState("-");
+  const [currentApy, setCurrentApy] = useState("-");
+  const [points, setPoints] = useState();
+  const [availableEthLiq, setAvailableEthLiq] = useState(0);
 
   const handleToggle = () => setIsSupply(!isSupply);
 
@@ -178,9 +45,141 @@ const SupplyWithdraw: React.FC<SupplyWithdrawProps> = ({
     setDepositAmount((parseFloat(balance) * (percentage / 100)).toFixed(3));
   };
 
-  const handleNetworkSelect = (network: NetworkOption) => {
-    console.log("Selected network:", network);
+  const handleTokenSelect = (token: PoolTable) => {
+    console.log("Selected token:", token);
   };
+
+  // while () {
+  //VToken
+  //+"v" + pool.name
+  //YouGet
+  // amount * ethperveth
+  //token per vtoken
+  // const ethPerVeth = formatBignumberToUnits(
+  //   token,
+  //   await vEtherContract.convertToShares(parseUnits("1", 18))
+  // );
+  // Current APY
+  // pool.supplyAPY
+  // }
+
+  // if(action) {
+
+  //   const contract = new Contract(
+  //    addressList.vEtherContractAddress,
+  //    VEther.abi,
+  //   signer
+  // );
+
+  //   const vBTCtokenContract = new Contract(
+  //     addressList.vWBTCContractAddress,
+  //     VToken.abi,
+  //     signer
+  //   );
+
+  //   const vUSDCtokenContract = new Contract(
+  //     addressList.vUSDCContractAddress,
+  //     VToken.abi,
+  //     signer
+  //   );
+
+  //   const vUSDTtokenContract = new Contract(
+  //     addressList.vUSDTContractAddress,
+  //     VToken.abi,
+  //     signer
+  //   );
+  //   const vDAItokenContract = new Contract(
+  //   addressList.vDaiContractAddress,
+  //   VToken.abi,
+  //   signer
+  // );
+
+  /// ERC20 contract
+  //   const WBTCContract = new Contract(tokensAddress[token], ERC20.abi, signer);
+  //   const USDCContract = new Contract(tokensAddress[token], ERC20.abi, signer);
+  //   const USDTContract = new Contract(tokensAddress[token], ERC20.abi, signer);
+  //   const DAIContract = new Contract(tokensAddress[token], ERC20.abi, signer);
+
+  //if (token === "WETH") {
+  //   await contract.depositEth({ value: parseEther(amount), gasLimit: 2300000 });
+  // } else if (token === "WBTC") {
+  //   // to confirm this abi, address & function
+
+  //   const allowance = await WBTCContract.allowance(account, addressList.vWBTCContractAddress);
+
+  //   if (allowance < amount) {
+  //     await WBTCContract.approve(addressList.vWBTCContractAddress, parseEther(amount));
+  //     await sleep(3000);
+  //   }
+
+  //   await vBTCtokenContract.deposit(parseEther(amount), account, { gasLimit: 2300000 });
+  // } else if (token === "USDC") {
+  //   // to confirm this abi, address & function
+
+  //   const allowance = await USDCContract.allowance(account, addressList.vUSDCContractAddress);
+
+  //   if (allowance < amount) {
+  //     await USDCContract.approve(addressList.vUSDCContractAddress, parseUnits(amount, 6));
+  //     await sleep(3000);
+  //   }
+
+  //   await vUSDCtokenContract.deposit(parseUnits(amount, 6), account, { gasLimit: 23000000 });
+  // } else if (token === "USDT") {
+  //   // to confirm this abi, address & function
+
+  //   const allowance = await USDTContract.allowance(account, addressList.vUSDTContractAddress);
+
+  //   if (allowance < amount) {
+  //     await USDTContract.approve(addressList.vUSDTContractAddress, parseUnits(amount, 6));
+  //     await sleep(3000);
+  //   }
+
+  //   await vUSDTtokenContract.deposit(parseUnits(amount, 6), account, { gasLimit: 23000000 });
+  // } else {
+  //   const allowance = await DAIContract.allowance(account, addressList.vDaiContractAddress);
+
+  //   if (allowance < amount) {
+  //     await DAIContract.approve(addressList.vDaiContractAddress, parseEther(amount));
+  //     await sleep(3000);
+  //   }
+
+  //   await vDAItokenContract.deposit(parseEther(amount), account);
+  // }
+  // WITHDRAW
+  // if(withAccount){
+  // if (token === "WETH") {
+  //   const vEthcontract = new Contract(addressList.vEtherContractAddress, VEther.abi, signer);
+  //   if (amount <= (await vEthcontract.balanceOf(account))) {
+  //     await vEthcontract.redeemEth(parseEther(amount), { gasLimit: 2300000 });
+  //   }
+  // } else if (token === "WBTC") {
+  //   const vBTCcontract = new Contract(addressList.vBtcContractAddress, VToken.abi, signer);
+  //   if (amount <= (await vBTCcontract.balanceOf(account))) {
+  //     await vBTCcontract.redeem(parseEther(amount), account, account, { gasLimit: 2300000 });
+  //   }
+  // } else if (token === "USDC") {
+  //   const vUSDCcontract = new Contract(addressList.vUSDCContractAddress, VToken.abi, signer);
+  //   if (amount <= (await vUSDCcontract.balanceOf(account))) {
+  //     await vUSDCcontract.redeem(parseUnits(amount, 6), account, account, {
+  //       gasLimit: 2300000,
+  //     });
+  //   }
+  // } else if (token === "USDT") {
+  //   const vUSDTcontract = new Contract(addressList.vUSDTContractAddress, VToken.abi, signer);
+  //   if (amount <= (await vUSDTcontract.balanceOf(account))) {
+  //     await vUSDTcontract.redeem(parseUnits(amount, 6), account, account, {
+  //       gasLimit: 2300000,
+  //     });
+  //   }
+  // } else if (token === "DAI") {
+  //   const vDaicontract = new Contract(addressList.vDaiContractAddress, VToken.abi, signer);
+  //   if (amount <= (await vDaicontract.balanceOf(account))) {
+  //     await vDaicontract.redeem(parseEther(amount), account, account, { gasLimit: 2300000 });
+  //   }
+  // } else {
+  //   console.error("something went wrong, Please try again.");
+  // }
+  // }
 
   return (
     <div className="bg-baseComplementary p-4 rounded-3xl w-full text-baseBlack">
@@ -232,15 +231,11 @@ const SupplyWithdraw: React.FC<SupplyWithdrawProps> = ({
             />
           </div>
           <div className="flex">
-            <NetworkDropdown
-              options={networkOptions}
-              onSelect={handleNetworkSelect}
-              displayName={true}
-            />
+            <TokenDropdown onSelect={handleTokenSelect} />
           </div>
         </div>
         <div className="flex justify-between mt-2">
-          <div className="text-xs text-neutral-500">Expected 400 USDT</div>
+          <div className="text-xs text-neutral-500">Expected {expected} USDT</div>
           <div className="text-xs text-neutral-500">Balance: {balance} ETH</div>
         </div>
       </div>
@@ -280,11 +275,11 @@ const SupplyWithdraw: React.FC<SupplyWithdrawProps> = ({
         </div>
         <div className="flex justify-between text-sm mb-1">
           <span>You get</span>
-          <span>N/A</span>
+          <span>{youGet}</span>
         </div>
         <div className="flex justify-between text-sm mb-1">
           <span>ETH per swETH/v3</span>
-          <span>N/A</span>
+          <span>{ethPerVeth}</span>
         </div>
         {isSupply && (
           <>
@@ -294,7 +289,7 @@ const SupplyWithdraw: React.FC<SupplyWithdrawProps> = ({
             </div>
             <div className="flex justify-between text-sm">
               <span>Points</span>
-              <span>0.00 Kpts MIle per hour</span>
+              <span>{points} Kpts MIle per hour</span>
             </div>
           </>
         )}
@@ -302,7 +297,7 @@ const SupplyWithdraw: React.FC<SupplyWithdrawProps> = ({
           <>
             <div className="flex justify-between text-sm mb-1">
               <span>Available liquidity</span>
-              <span>N/A</span>
+              <span>{availableEthLiq}</span>
             </div>
           </>
         )}

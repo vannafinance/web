@@ -11,7 +11,7 @@ export const networkOptions = [
   { id: "optimism", name: "OrP Mainnet", icon: "/vanna-white-logo.svg" },
 ];
 
-export const BASE_NETWORK = "Base";
+export const BASE_NETWORK = "base";
 export const ARBITRUM_NETWORK = "arbitrum";
 export const OPTIMISM_NETWORK = "optimism";
 

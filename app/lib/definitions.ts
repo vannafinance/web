@@ -13,7 +13,6 @@ interface NetworkOption {
 interface NetworkDropdownProps {
   options: NetworkOption[];
   onSelect: (network: NetworkOption) => void;
-  displayName?: boolean;
 }
 
 interface TabProps {
@@ -26,8 +25,7 @@ interface TabProps {
 interface PoolTable {
   id: number;
   name: string;
-  icon1: string;
-  icon2?: string;
+  icon: string;
   supply: string;
   supplyAPY: string;
   borrowAPY: string;
@@ -70,4 +68,8 @@ interface NotificationProps {
   message: string;
   onClose: () => void;
   duration?: number;
+}
+
+interface TokenDropdownProps {
+  onSelect: (token: PoolTable) => void;
 }

@@ -17,8 +17,8 @@ import { useSelector } from "react-redux";
 import { BASE_NETWORK } from "@/app/lib/constants";
 import { Contract, utils } from "ethers";
 
-import VEther from "../../../abi/vanna/v1/out/VEther.sol/VEther.json"
-import VToken from "../../../abi/vanna/v1/out/VToken.sol/VToken.json"
+import VEther from "../../../abi/vanna/v1/out/VEther.sol/VEther.json";
+import VToken from "../../../abi/vanna/v1/out/VToken.sol/VToken.json";
 import Multicall from "../../../abi/vanna/v1/out/Multicall.sol/Multicall.json";
 
 import { addressList } from "@/app/lib/web3-constants";
@@ -32,9 +32,9 @@ export default function Page({ params }: { params: { id: string } }) {
     const [utilizationRate, setUtilizationRate] = useState("-");
     const [uniqueLP, setUniqueLP] = useState("-");
     useEffect(() => {
-      if (currentNetwork.name === BASE_NETWORK) {
-        try {
-          if (account) {
+      try {
+        if (account) {
+          if (currentNetwork.id === BASE_NETWORK) {
             const fetchValues = async () => {
               const iFaceEth = new utils.Interface(VEther.abi);
               const iFaceToken = new utils.Interface(VToken.abi);
@@ -46,105 +46,78 @@ export default function Page({ params }: { params: { id: string } }) {
               const calldata = [];
               let tempData;
 
-              // totalBorrow 
+              // totalBorrow
               //ETH
               tempData = utils.arrayify(
-                iFaceEth.encodeFunctionData("getBorrows",
-                  []
-                )
-              )
+                iFaceEth.encodeFunctionData("getBorrows", [])
+              );
               calldata.push([addressList.vEtherContractAddress, tempData]);
 
               //WBTC
               tempData = utils.arrayify(
-                          iFaceToken.encodeFunctionData("getBorrows",
-                            []
-                          )
-              )
+                iFaceToken.encodeFunctionData("getBorrows", [])
+              );
               calldata.push([addressList.vWBTCContractAddress, tempData]);
 
               //USDC
               tempData = utils.arrayify(
-                          iFaceToken.encodeFunctionData("getBorrows",
-                            []
-                          )
-              )
+                iFaceToken.encodeFunctionData("getBorrows", [])
+              );
               calldata.push([addressList.vUSDCContractAddress, tempData]);
 
               //USDT
               tempData = utils.arrayify(
-                          iFaceToken.encodeFunctionData("getBorrows",
-                            []
-                          )
-              )
+                iFaceToken.encodeFunctionData("getBorrows", [])
+              );
               calldata.push([addressList.vUSDTContractAddress, tempData]);
 
               //DAI
               tempData = utils.arrayify(
-                          iFaceToken.encodeFunctionData("getBorrows",
-                            []
-                          )
-              )
+                iFaceToken.encodeFunctionData("getBorrows", [])
+              );
               calldata.push([addressList.vDaiContractAddress, tempData]);
-              
+
               const res = await MCcontract.callStatic.aggregate(calldata);
-      
-              // totalBorrow 
+
+              // totalBorrow
 
               const ethTotalBorrow = res.returnData[10];
               const wbtcTotalBorrow = res.returnData[11];
               const usdcTotalBorrow = res.returnData[12];
               const usdtTotalBorrow = res.returnData[13];
               const daiTotalBorrow = res.returnData[14];
-        
 
-              //  Utilization Rate 
-              if(pool?.name === "WETH") {
-             
-                setUtilizationRate(String(parseFloat(ethTotalBorrow) /parseFloat(String(pool?.supply))));
+              //  Utilization Rate
+              if (pool?.name === "WETH") {
+                setUtilizationRate(
+                  String(
+                    parseFloat(ethTotalBorrow) /
+                      parseFloat(String(pool?.supply))
+                  )
+                );
                 setUniqueLP("5");
-
               }
-              if(pool?.name === "WBTC") {
-
+              if (pool?.name === "WBTC") {
               }
-              if(pool?.name === "WETH") {
-                // const poolDetails = 
+              if (pool?.name === "WETH") {
+                // const poolDetails =
                 // setUtilizationRate = parseFloat(ethTotalBorrow) /parseFloat(String(pool?.supply));
-
-
               }
-              if(pool?.name === "WETH") {
-               // const poolDetails = 
+              if (pool?.name === "WETH") {
+                // const poolDetails =
                 // setUtilizationRate = parseFloat(ethTotalBorrow) /parseFloat(String(pool?.supply));
-
-
               }
-              if(pool?.name === "WETH") {
-                // const poolDetails = 
+              if (pool?.name === "WETH") {
+                // const poolDetails =
                 // setUtilizationRate = parseFloat(ethTotalBorrow) /parseFloat(String(pool?.supply));
-
-
               }
-
-            }
+            };
             fetchValues();
           }
-          
-
-        }catch (error) {
+        }
+      } catch (error) {
         console.error(error);
       }
-
-      }
-      // code goes here
-
-      // if (pool?.name === "") {
-
-      // }
-
-      // setUtilizationRate(); // add new fetch variable here
-      // setUniqueLP(); // add new fetch variable here
     }, []);
 
     if (!pool) {
@@ -163,7 +136,7 @@ export default function Page({ params }: { params: { id: string } }) {
         <div className="flex items-center mb-5 space-x-2">
           <Image
             className="rounded-full shadow-md ring-1 ring-black ring-opacity-20"
-            src={pool.icon1}
+            src={pool.icon}
             alt=""
             width="40"
             height="40"
