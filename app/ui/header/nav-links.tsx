@@ -15,9 +15,26 @@ const links = [
 ];
 
 const tradeSubLinks = [
-  { title: "Options", href: "/trade/options", subtitle: "Options Page" },
-  { title: "Future", href: "/trade/futures", subtitle: "Future Page" },
-  { title: "Spot", href: "/trade/spot", subtitle: "Spot Page" },
+  {
+    title: "Dashboard",
+    href: "/trade/dashboard",
+    subtitle: "Contracts settled in USDT and USDC",
+  },
+  {
+    title: "Future",
+    href: "/trade/future",
+    subtitle: "Contracts settled in cryptocurrency",
+  },
+  {
+    title: "Options",
+    href: "/trade/options",
+    subtitle: "USDT Options with limited downside and affordable entry",
+  },
+  {
+    title: "Spot",
+    href: "/trade/spot",
+    subtitle: "USDT Options with limited downside and affordable entry",
+  },
 ];
 
 export default function NavLinks() {
@@ -30,25 +47,36 @@ export default function NavLinks() {
           pathname === link.href ||
           (link.title !== "Overview" && pathname.startsWith(link.href));
 
+        const sublink =
+          tradeSubLinks.find((subItem) => pathname === subItem.href)?.title ||
+          "";
+
         if (link.title === "Trade") {
           return (
             <div key={link.title} className="relative group">
               <Link
-                key={link.title}
+                key={link.title + "1"}
                 href={link.href}
                 className={clsx(
                   "py-1 px-4 inline-flex items-center whitespace-nowrap",
                   isActive &&
-                    "text-baseBlack font-medium after:content-[''] after:absolute after:-bottom-2/3 after:left-0 after:w-full after:h-[3px] after:bg-gradient-to-r after:from-gradient-1 after:to-gradient-2"
+                    "text-baseBlack font-medium after:content-[''] after:absolute after:-bottom-1/4 after:left-0 after:w-full after:h-[3px] after:bg-gradient-to-r after:from-gradient-1 after:to-gradient-2"
                 )}
               >
                 <span>{link.title}</span>
-                &nbsp;
-                <CaretDown color="baseBlack" />
+                &nbsp;&nbsp;
+                {isActive ? (
+                  <div className="flex flex-row items-center p-2 bg-baseComplementary rounded-full">
+                    <span>{sublink}&nbsp;</span>
+                    <CaretDown />
+                  </div>
+                ) : (
+                  <CaretDown color="gray" />
+                )}
               </Link>
               <div
-                key={link.title}
-                className="absolute left-2 top-10 mt-2 rounded-md shadow-xl bg-white ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300"
+                key={link.title + "2"}
+                className="absolute left-2 top-10 z-10 mt-2 rounded-md shadow-xl bg-white ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300"
               >
                 {tradeSubLinks.map((subItem, index) => (
                   <Link
@@ -57,7 +85,7 @@ export default function NavLinks() {
                     className="block p-1 w-72 text-sm"
                   >
                     <FeatureCard
-                      key={'a' + index}
+                      key={"a" + index}
                       icon=""
                       title={subItem.title}
                       subtitle={subItem.subtitle}
