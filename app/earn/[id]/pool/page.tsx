@@ -14,14 +14,14 @@ import { notFound } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
-import { BASE_NETWORK } from "@/app/lib/constants";
+import { BASE_NETWORK, OPTIMISM_NETWORK } from "@/app/lib/constants";
 import { Contract, utils } from "ethers";
 
 import VEther from "../../../abi/vanna/v1/out/VEther.sol/VEther.json";
 import VToken from "../../../abi/vanna/v1/out/VToken.sol/VToken.json";
 import Multicall from "../../../abi/vanna/v1/out/Multicall.sol/Multicall.json";
 
-import { addressList } from "@/app/lib/web3-constants";
+import { arbAddressList, baseAddressList, opAddressList } from "@/app/lib/web3-constants";
 export default function Page({ params }: { params: { id: string } }) {
   try {
     const id = params.id;
@@ -39,7 +39,7 @@ export default function Page({ params }: { params: { id: string } }) {
               const iFaceEth = new utils.Interface(VEther.abi);
               const iFaceToken = new utils.Interface(VToken.abi);
               const MCcontract = new Contract(
-                addressList.multicallAddress,
+                arbAddressList.multicallAddress,
                 Multicall.abi,
                 library
               );
@@ -51,31 +51,191 @@ export default function Page({ params }: { params: { id: string } }) {
               tempData = utils.arrayify(
                 iFaceEth.encodeFunctionData("getBorrows", [])
               );
-              calldata.push([addressList.vEtherContractAddress, tempData]);
+              calldata.push([arbAddressList.vEtherContractAddress, tempData]);
 
               //WBTC
               tempData = utils.arrayify(
                 iFaceToken.encodeFunctionData("getBorrows", [])
               );
-              calldata.push([addressList.vWBTCContractAddress, tempData]);
+              calldata.push([arbAddressList.vWBTCContractAddress, tempData]);
 
               //USDC
               tempData = utils.arrayify(
                 iFaceToken.encodeFunctionData("getBorrows", [])
               );
-              calldata.push([addressList.vUSDCContractAddress, tempData]);
+              calldata.push([arbAddressList.vUSDCContractAddress, tempData]);
 
               //USDT
               tempData = utils.arrayify(
                 iFaceToken.encodeFunctionData("getBorrows", [])
               );
-              calldata.push([addressList.vUSDTContractAddress, tempData]);
+              calldata.push([arbAddressList.vUSDTContractAddress, tempData]);
 
               //DAI
               tempData = utils.arrayify(
                 iFaceToken.encodeFunctionData("getBorrows", [])
               );
-              calldata.push([addressList.vDaiContractAddress, tempData]);
+              calldata.push([arbAddressList.vDaiContractAddress, tempData]);
+
+              const res = await MCcontract.callStatic.aggregate(calldata);
+
+              // totalBorrow
+
+              const ethTotalBorrow = res.returnData[10];
+              const wbtcTotalBorrow = res.returnData[11];
+              const usdcTotalBorrow = res.returnData[12];
+              const usdtTotalBorrow = res.returnData[13];
+              const daiTotalBorrow = res.returnData[14];
+
+              //  Utilization Rate
+              if (pool?.name === "WETH") {
+                setUtilizationRate(
+                  String(
+                    parseFloat(ethTotalBorrow) /
+                      parseFloat(String(pool?.supply))
+                  )
+                );
+                setUniqueLP("5");
+              }
+              if (pool?.name === "WBTC") {
+              }
+              if (pool?.name === "WETH") {
+                // const poolDetails =
+                // setUtilizationRate = parseFloat(ethTotalBorrow) /parseFloat(String(pool?.supply));
+              }
+              if (pool?.name === "WETH") {
+                // const poolDetails =
+                // setUtilizationRate = parseFloat(ethTotalBorrow) /parseFloat(String(pool?.supply));
+              }
+              if (pool?.name === "WETH") {
+                // const poolDetails =
+                // setUtilizationRate = parseFloat(ethTotalBorrow) /parseFloat(String(pool?.supply));
+              }
+            };
+            fetchValues();
+          }
+          if (currentNetwork.id === OPTIMISM_NETWORK) {
+            const fetchValues = async () => {
+              const iFaceEth = new utils.Interface(VEther.abi);
+              const iFaceToken = new utils.Interface(VToken.abi);
+              const MCcontract = new Contract(
+                opAddressList.multicallAddress,
+                Multicall.abi,
+                library
+              );
+              const calldata = [];
+              let tempData;
+
+              // totalBorrow
+              //ETH
+              tempData = utils.arrayify(
+                iFaceEth.encodeFunctionData("getBorrows", [])
+              );
+              calldata.push([opAddressList.vEtherContractAddress, tempData]);
+
+              //WBTC
+              tempData = utils.arrayify(
+                iFaceToken.encodeFunctionData("getBorrows", [])
+              );
+              calldata.push([opAddressList.vWBTCContractAddress, tempData]);
+
+              //USDC
+              tempData = utils.arrayify(
+                iFaceToken.encodeFunctionData("getBorrows", [])
+              );
+              calldata.push([opAddressList.vUSDCContractAddress, tempData]);
+
+              //USDT
+              tempData = utils.arrayify(
+                iFaceToken.encodeFunctionData("getBorrows", [])
+              );
+              calldata.push([opAddressList.vUSDTContractAddress, tempData]);
+
+              //DAI
+              tempData = utils.arrayify(
+                iFaceToken.encodeFunctionData("getBorrows", [])
+              );
+              calldata.push([opAddressList.vDaiContractAddress, tempData]);
+
+              const res = await MCcontract.callStatic.aggregate(calldata);
+
+              // totalBorrow
+
+              const ethTotalBorrow = res.returnData[10];
+              const wbtcTotalBorrow = res.returnData[11];
+              const usdcTotalBorrow = res.returnData[12];
+              const usdtTotalBorrow = res.returnData[13];
+              const daiTotalBorrow = res.returnData[14];
+
+              //  Utilization Rate
+              if (pool?.name === "WETH") {
+                setUtilizationRate(
+                  String(
+                    parseFloat(ethTotalBorrow) /
+                      parseFloat(String(pool?.supply))
+                  )
+                );
+                setUniqueLP("5");
+              }
+              if (pool?.name === "WBTC") {
+              }
+              if (pool?.name === "WETH") {
+                // const poolDetails =
+                // setUtilizationRate = parseFloat(ethTotalBorrow) /parseFloat(String(pool?.supply));
+              }
+              if (pool?.name === "WETH") {
+                // const poolDetails =
+                // setUtilizationRate = parseFloat(ethTotalBorrow) /parseFloat(String(pool?.supply));
+              }
+              if (pool?.name === "WETH") {
+                // const poolDetails =
+                // setUtilizationRate = parseFloat(ethTotalBorrow) /parseFloat(String(pool?.supply));
+              }
+            };
+            fetchValues();
+          }
+          if (currentNetwork.id === BASE_NETWORK) {
+            const fetchValues = async () => {
+              const iFaceEth = new utils.Interface(VEther.abi);
+              const iFaceToken = new utils.Interface(VToken.abi);
+              const MCcontract = new Contract(
+                baseAddressList.multicallAddress,
+                Multicall.abi,
+                library
+              );
+              const calldata = [];
+              let tempData;
+
+              // totalBorrow
+              //ETH
+              tempData = utils.arrayify(
+                iFaceEth.encodeFunctionData("getBorrows", [])
+              );
+              calldata.push([baseAddressList.vEtherContractAddress, tempData]);
+
+              //WBTC
+              tempData = utils.arrayify(
+                iFaceToken.encodeFunctionData("getBorrows", [])
+              );
+              calldata.push([baseAddressList.vWBTCContractAddress, tempData]);
+
+              //USDC
+              tempData = utils.arrayify(
+                iFaceToken.encodeFunctionData("getBorrows", [])
+              );
+              calldata.push([baseAddressList.vUSDCContractAddress, tempData]);
+
+              //USDT
+              tempData = utils.arrayify(
+                iFaceToken.encodeFunctionData("getBorrows", [])
+              );
+              calldata.push([baseAddressList.vUSDTContractAddress, tempData]);
+
+              //DAI
+              tempData = utils.arrayify(
+                iFaceToken.encodeFunctionData("getBorrows", [])
+              );
+              calldata.push([baseAddressList.vDaiContractAddress, tempData]);
 
               const res = await MCcontract.callStatic.aggregate(calldata);
 
@@ -201,7 +361,7 @@ export default function Page({ params }: { params: { id: string } }) {
             <PoolDetailTabMenu pool={pool} />
           </div>
           <div className="flex-none w-2/5">
-            <SupplyWithdraw balance="10" currentAPY="1" />
+            <SupplyWithdraw pool={pool} />
           </div>
         </div>
       </>

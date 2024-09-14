@@ -21,6 +21,7 @@ const LevrageWithdraw = () => {
   const [debt, setDebt] = useState(0);
   const [healthFactor, setHealthFactor] = useState("-");
 
+
   const balance: string = "1";
   const currentAPY: string = "1";
 
@@ -35,7 +36,10 @@ const LevrageWithdraw = () => {
     console.log("Selected token:", token);
   };
 
-  //while (Deposit){
+  const leverage = async() => {
+    
+  }
+
 
     // const regitstryContract = new Contract(
     //   addressList.registryContractAddress,
@@ -284,7 +288,7 @@ const LevrageWithdraw = () => {
           </div>
         </div>
 
-        <button className="w-full bg-purple text-white py-3 rounded-2xl font-semibold text-xl">
+        <button className="w-full bg-purple text-white py-3 rounded-2xl font-semibold text-xl" onClick={leverage}>
           Enter an amount
         </button>
       </div>
