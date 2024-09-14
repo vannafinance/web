@@ -99,6 +99,6 @@ interface CryptoData {
   volume: string;
 }
 
-interface OpenCloseProps {
+interface PositionOpenCloseProps {
   market: string;
 }

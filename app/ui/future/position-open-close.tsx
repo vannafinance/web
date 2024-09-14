@@ -19,7 +19,7 @@ import VToken from "../../abi/vanna/v1/out/VToken.sol/VToken.json";
 import VEther from "../../abi/vanna/v1/out/VEther.sol/VEther.json";
 import { Interface } from "ethers/lib/utils";
 
-const OpenClose: React.FC<OpenCloseProps> = ({ market }) => {
+const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
   const { account, library } = useWeb3React();
   const { currentNetwork } = useNetwork();
 
@@ -442,7 +442,7 @@ const OpenClose: React.FC<OpenCloseProps> = ({ market }) => {
   // }, []);
 
   return (
-    <div className="bg-baseComplementary p-2 py-6 rounded-3xl w-full text-baseBlack">
+    <div className="bg-baseComplementary p-2 pb-6 rounded-3xl w-full text-baseBlack">
       <div className="flex mb-5 p-1 text-lg">
         <div
           className={clsx(
@@ -692,4 +692,4 @@ const OpenClose: React.FC<OpenCloseProps> = ({ market }) => {
   );
 };
 
-export default OpenClose;
+export default PositionOpenClose;

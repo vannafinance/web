@@ -3,7 +3,7 @@
 import { useNetwork } from "@/app/context/network-context";
 import { ARBITRUM_NETWORK } from "@/app/lib/constants";
 import FutureDropdown from "@/app/ui/future/future-dropdown";
-import OpenClose from "@/app/ui/future/open-close";
+import PositionOpenClose from "@/app/ui/future/position-open-close";
 import PositionsSection from "@/app/ui/future/positions-section";
 import TradingViewChart from "@/app/ui/future/trading-view-chart";
 import { useWeb3React } from "@web3-react/core";
@@ -129,7 +129,7 @@ export default function Page() {
       </div>
 
       <div className="flex-none w-1/3">
-        <OpenClose market={selectedPair.value} />
+        <PositionOpenClose market={selectedPair.value} />
       </div>
     </div>
   );
