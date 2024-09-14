@@ -8,8 +8,27 @@ import Tooltip from "../components/tooltip";
 import Image from "next/image";
 import Slider from "./slider";
 import TokenDropdown from "../components/token-dropdown";
+import { Contract } from "ethers";
+import { useWeb3React } from "@web3-react/core";
+import { useNetwork } from "@/app/context/network-context";
+import { arbAddressList, arbTokensAddress } from "@/app/lib/web3-constants";
+
+import AccountManager from "../../abi/vanna/v1/out/AccountManager.sol/AccountManager.json";
+import Registry from "../../abi/vanna/v1/out/Registry.sol/Registry.json";
+import DefaultRateModel from "../../abi/vanna/v1/out/DefaultRateModel.sol/DefaultRateModel.json";
+import RiskEngine from "../../abi/vanna/v1/out/RiskEngine.sol/RiskEngine.json";
+import VEther from "../../abi/vanna/v1/out/VEther.sol/VEther.json";
+import VToken from "../../abi/vanna/v1/out/VToken.sol/VToken.json";
+import ERC20 from "../../abi/vanna/v1/out/ERC20.sol/ERC20.json";
+import { parseEther } from "ethers/lib/utils";
+
+
 
 const LevrageWithdraw = () => {
+  const { account, library } = useWeb3React();
+  const { currentNetwork } = useNetwork();
+
+  
   const [isSupply, setIsSupply] = useState(true);
   const [depositAmount, setDepositAmount] = useState("");
   const [borrowAmount, setBorrowAmount] = useState("");
@@ -20,10 +39,14 @@ const LevrageWithdraw = () => {
   const [coinBalance, setCoinBalance] = useState(0);
   const [debt, setDebt] = useState(0);
   const [healthFactor, setHealthFactor] = useState("-");
+  const [activeAccount, setActiveAccount] = useState();
 
+  const [depositToken, setDepositToken] = useState<string>();
+  const [borrowToken, setBorrowToken] = useState<string>();
 
   const balance: string = "1";
   const currentAPY: string = "1";
+
 
   const handleToggle = () => setIsSupply(!isSupply);
 
@@ -32,138 +55,175 @@ const LevrageWithdraw = () => {
     setDepositAmount((parseFloat(balance) * (percentage / 100)).toFixed(3));
   };
 
-  const handleTokenSelect = (token: PoolTable) => {
+
+
+  const handleDepositTokenSelect = (token: PoolTable) => {
     console.log("Selected token:", token);
+    setDepositToken(token.name);
   };
 
-  const leverage = async() => {
+  const handleBorrowTokenSelect = (token: PoolTable) => {
+    console.log("Selected token:", token);
+    setBorrowToken(token.name);
+  };
+
+  const regitstryContract = new Contract(
+    arbAddressList .registryContractAddress,
+    Registry.abi,
+    library
+  );
+
+  const accountManagerContract = new Contract(
+    arbAddressList .accountManagerContractAddress,
+    AccountManager.abi,
+    library
+  );
+  const getTokenBalance = async (tokenName = depositToken) => {
+    try {
+      if (activeAccount) {
+        const signer = await library?.getSigner();
+        
+
+        if (tokenName == "WETH") {
+          if (tabValue === 0) {
+            const depositBalance = await library?.getBalance(account);
+          
+            const  = await library?.getBalance(activeAccount);
+          }
+        } else {
+          const contract = new Contract(arbTokensAddress[tokenName], ERC20.abi, signer);
+          if (tabValue === 0) {
+            bal = await contract.balanceOf(account);
+          } else {
+            bal = await contract.balanceOf(activeAccount);
+          }
+        }
+
+        const balInNumber = formatBignumberToUnits(tokenName, bal);
+        setCoinBalance(ceilWithPrecision(balInNumber));
+      }
+    } catch (e) {
+      console.error(e);
+    }
     
   }
 
 
-    // const regitstryContract = new Contract(
-    //   addressList.registryContractAddress,
-    //   Registry.abi,
-    //   signer
-    // );
+  const deposit = async() => {
+    if (depositToken === "WETH") {
+      // await accountManagerContract.depositEth({ value: parseEther(amount) });
+      await accountManagerContract.depositEth(activeAccount, {
+        value: parseEther(amount),
+        gasLimit: 2300000,
+      });
+    } else if (depositToken === "USDC" || depositToken === "USDT") {
+      const erc20Contract = new Contract(arbTokensAddress[token], ERC20.abi, signer);
+      // need to add checksum that is already have allowance or not
+      const allowance = await erc20Contract.allowance(
+        account,
+        arbAddressList .accountManagerContractAddress
+      );
+      if (allowance < amount) {
+        await erc20Contract.approve(
+          arbAddressList .accountManagerContractAddress,
+          parseUnits(amount, 6),
+          { gasLimit: 2300000 }
+        );
+        await sleep(3000);
+      }
 
-    // const accountManagerContract = new Contract(
-    //   addressList.accountManagerContractAddress,
-    //   AccountManager.abi,
-    //   signer
-    // );
+      await accountManagerContract.deposit(
+        activeAccount,
+        arbTokensAddress[token],
+        parseUnits(amount, 6),
+        { gasLimit: 2300000 }
+      );
+    } else {
+      const erc20Contract = new Contract(arbTokensAddress[token], ERC20.abi, signer);
+      const allowance = await erc20Contract.allowance(
+        account,
+        arbAddressList .accountManagerContractAddress
+      );
 
-    // Deposit Main code 
-    // if (tabValue === 0) {
-    //   if (token === "WETH") {
-    //     // await accountManagerContract.depositEth({ value: parseEther(amount) });
-    //     await accountManagerContract.depositEth(activeAccount, {
-    //       value: parseEther(amount),
-    //       gasLimit: 2300000,
-    //     });
-    //   } else if (token === "USDC" || token === "USDT") {
-    //     const erc20Contract = new Contract(tokensAddress[token], ERC20.abi, signer);
-    //     // need to add checksum that is already have allowance or not
-    //     const allowance = await erc20Contract.allowance(
-    //       account,
-    //       addressList.accountManagerContractAddress
-    //     );
-    //     if (allowance < amount) {
-    //       await erc20Contract.approve(
-    //         addressList.accountManagerContractAddress,
-    //         parseUnits(amount, 6),
-    //         { gasLimit: 2300000 }
-    //       );
-    //       await sleep(3000);
-    //     }
+      if (allowance < amount) {
+        await erc20Contract.approve(
+          arbAddressList .accountManagerContractAddress,
+          parseEther(amount),
+          { gasLimit: 2300000 }
+        );
+        await sleep(3000);
+      }
 
-    //     await accountManagerContract.deposit(
-    //       activeAccount,
-    //       tokensAddress[token],
-    //       parseUnits(amount, 6),
-    //       { gasLimit: 2300000 }
-    //     );
-    //   } else {
-    //     const erc20Contract = new Contract(tokensAddress[token], ERC20.abi, signer);
-    //     const allowance = await erc20Contract.allowance(
-    //       account,
-    //       addressList.accountManagerContractAddress
-    //     );
+      await accountManagerContract.deposit(
+        activeAccount,
+        arbTokensAddress[token],
+        parseEther(amount),
+        { gasLimit: 2300000 }
+      );
+    }
+    
+  }
 
-    //     if (allowance < amount) {
-    //       await erc20Contract.approve(
-    //         addressList.accountManagerContractAddress,
-    //         parseEther(amount),
-    //         { gasLimit: 2300000 }
-    //       );
-    //       await sleep(3000);
-    //     }
+  const borrow = async() => {
+      if (token === "USDC" || token === "USDT") {
+        await accountManagerContract.borrow(
+          activeAccount,
+          arbTokensAddress[token],
+          parseUnits(amount, 6),
+          { gasLimit: 2300000 }
+        );
+      } else {
+        result = await accountManagerContract.borrow(
+          activeAccount,
+          arbTokensAddress[token],
+          parseEther(amount),
+          { gasLimit: 2300000 }
+        );
+      }
+  }
+  const repay = async() => {
+    if (token === "USDC" || token === "USDT") {
+            await accountManagerContract.repay(
+              activeAccount,
+              arbTokensAddress[token],
+              parseUnits(amount, 6),
+              { gasLimit: 2300000 }
+            );
+          } else {
+            await accountManagerContract.repay(
+              activeAccount,
+              arbTokensAddress[token],
+              parseEther(amount),
+              { gasLimit: 2300000 }
+            );
+          }
+  }
+  const withdraw = async() => {
+    if (token === "WETH") {
+      await accountManagerContract.withdrawEth(activeAccount, parseEther(amount), {
+        gasLimit: 2300000,
+      });
+    } else if (token === "USDC" || token === "USDT") {
+      await accountManagerContract.withdraw(
+        activeAccount,
+        arbTokensAddress[token],
+        parseUnits(amount, 6),
+        { gasLimit: 2300000 }
+      );
+    } else {
+      await accountManagerContract.withdraw(
+        activeAccount,
+        arbTokensAddress[token],
+        parseEther(amount),
+        { gasLimit: 2300000 }
+      );
+    }
+  }
 
-    //     await accountManagerContract.deposit(
-    //       activeAccount,
-    //       tokensAddress[token],
-    //       parseEther(amount),
-    //       { gasLimit: 2300000 }
-    //     );
-    //   }
-    // } 
+  const accountsArray = await regitstryContract.accountsOwnedBy(account);
 
-    // WithDraw Main code 
-    // else {
-    //   if (token === "WETH") {
-    //     await accountManagerContract.withdrawEth(activeAccount, parseEther(amount), {
-    //       gasLimit: 2300000,
-    //     });
-    //   } else if (token === "USDC" || token === "USDT") {
-    //     await accountManagerContract.withdraw(
-    //       activeAccount,
-    //       tokensAddress[token],
-    //       parseUnits(amount, 6),
-    //       { gasLimit: 2300000 }
-    //     );
-    //   } else {
-    //     await accountManagerContract.withdraw(
-    //       activeAccount,
-    //       tokensAddress[token],
-    //       parseEther(amount),
-    //       { gasLimit: 2300000 }
-    //     );
-    //   }
-    // }
 
-    // const accountsArray = await regitstryContract.accountsOwnedBy(account);
-  
-    //metamask balance => account is EOA account
-    // const getTokenBalance = async (tokenName = token) => {
-    //   try {
-    //     if (activeAccount) {
-    //       const signer = await library?.getSigner();
-    //       let bal;
-  
-    //       if (tokenName == "WETH") {
-    //         if (tabValue === 0) {
-    //           bal = await library?.getBalance(account);
-    //         } else {
-    //           bal = await library?.getBalance(activeAccount);
-    //         }
-    //       } else {
-    //         const contract = new Contract(tokensAddress[tokenName], ERC20.abi, signer);
-    //         if (tabValue === 0) {
-    //           bal = await contract.balanceOf(account);
-    //         } else {
-    //           bal = await contract.balanceOf(activeAccount);
-    //         }
-    //       }
-  
-    //       const balInNumber = formatBignumberToUnits(tokenName, bal);
-    //       setCoinBalance(ceilWithPrecision(balInNumber));
-    //     }
-    //   } catch (e) {
-    //     console.error(e);
-    //   }
-    // };
-
-  // }
+  }
 
   return (
     <div className="bg-baseComplementary p-2 rounded-3xl w-full text-baseBlack">
