@@ -73,3 +73,32 @@ interface NotificationProps {
 interface TokenDropdownProps {
   onSelect: (token: PoolTable) => void;
 }
+
+interface Option {
+  value: string;
+  label: string;
+  icon?: string;
+}
+
+interface FutureDropdownProps {
+  options: Option[];
+  defaultValue: Option;
+  onChange: (option: Option) => void;
+}
+
+interface CryptoData {
+  price: string;
+  change: string;
+  indexPrice: string;
+  markPrice: string;
+  highLow: string;
+  netRatePositive: string;
+  netRateNegative: string;
+  openInterestPositive: string;
+  openInterestNegative: string;
+  volume: string;
+}
+
+interface OpenCloseProps {
+  market: string;
+}

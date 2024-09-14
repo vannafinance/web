@@ -24,7 +24,7 @@ export default function NavbarButtons() {
 
       await activate(injected, undefined, true);
       await checkNetwork();
-      localStorage?.setItem("isWalletConnected", true);
+      localStorage?.setItem("isWalletConnected", "true");
       addNotification("info", "Wallet connected successfully.");
     } catch (e) {
       errorHandlingForConnectWallet(e);

@@ -51,10 +51,6 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
     };
   }, []);
 
-  useEffect(() => {
-    // fetch data here
-  }, []);
-
   return (
     <div className="relative" ref={dropdownRef}>
       <button
@@ -109,6 +105,10 @@ const AnalyticsChart = ({ pool }: { pool: PoolTable }) => {
   const [timeFrame, setTimeFrame] = useState("1D");
   const [selectedOption, setSelectedOption] = useState("Deposit APY");
   const options = ["Deposit APY", "Withdrawal APY", "Transfer APY"];
+
+  useEffect(() => {
+    // fetch data here
+  }, []);
 
   return (
     <div className="bg-baseComplementary py-6 px-10 rounded-2xl text-baseBlack font-bold">
