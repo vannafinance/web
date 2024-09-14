@@ -17,3 +17,5 @@ export const OPTIMISM_NETWORK = "optimism";
 
 export const SECS_PER_YEAR = 31556952;
 export const FEES = 0.01;
+export const oneMonthTimestampInterval = 2629743;
+export const referralCode = "0x0000000000000000000000000000000000000000000000000000000000000000";

@@ -147,7 +147,7 @@ export const OptionType = {
   ShortPutQuote: 4,
 };
 
-export const codeToAsset = {
+export const codeToAsset: { [key: string]: string } = {
   "00": "USDC",
   "01": "USDT",
   "02": "DAI",
@@ -155,7 +155,8 @@ export const codeToAsset = {
   "04": "BTC",
 };
 
-export const CollateralAssetCode = {
+
+export const CollateralAssetCode : { [key: string]: string } = {
   USDC: "00",
   USDT: "01",
   DAI: "02",
@@ -164,3 +165,5 @@ export const CollateralAssetCode = {
   ETH: "03",
   BTC: "04",
 };
+
+
