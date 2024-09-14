@@ -20,15 +20,17 @@ import RiskEngine from "../../abi/vanna/v1/out/RiskEngine.sol/RiskEngine.json";
 import VEther from "../../abi/vanna/v1/out/VEther.sol/VEther.json";
 import VToken from "../../abi/vanna/v1/out/VToken.sol/VToken.json";
 import ERC20 from "../../abi/vanna/v1/out/ERC20.sol/ERC20.json";
-import { parseEther } from "ethers/lib/utils";
-
-
+import { parseEther, parseUnits } from "ethers/lib/utils";
+import {
+  ceilWithPrecision,
+  formatBignumberToUnits,
+  sleep,
+} from "@/app/lib/helper";
 
 const LevrageWithdraw = () => {
   const { account, library } = useWeb3React();
   const { currentNetwork } = useNetwork();
 
-  
   const [isSupply, setIsSupply] = useState(true);
   const [depositAmount, setDepositAmount] = useState("");
   const [borrowAmount, setBorrowAmount] = useState("");
@@ -36,7 +38,9 @@ const LevrageWithdraw = () => {
     null
   );
   const [leverageValue, setLeverageValue] = useState<number>(5);
-  const [coinBalance, setCoinBalance] = useState(0);
+  // const [coinBalance, setCoinBalance] = useState(0);
+  const [depositBalance, setDepositBalance] = useState<string | undefined>();
+  const [borrowBalance, setBorrowBalance] = useState<string | undefined>();
   const [debt, setDebt] = useState(0);
   const [healthFactor, setHealthFactor] = useState("-");
   const [activeAccount, setActiveAccount] = useState();
@@ -47,15 +51,12 @@ const LevrageWithdraw = () => {
   const balance: string = "1";
   const currentAPY: string = "1";
 
-
   const handleToggle = () => setIsSupply(!isSupply);
 
   const handlePercentageClick = (percentage: number) => {
     setSelectedPercentage(percentage);
     setDepositAmount((parseFloat(balance) * (percentage / 100)).toFixed(3));
   };
-
-
 
   const handleDepositTokenSelect = (token: PoolTable) => {
     console.log("Selected token:", token);
@@ -68,65 +69,79 @@ const LevrageWithdraw = () => {
   };
 
   const regitstryContract = new Contract(
-    arbAddressList .registryContractAddress,
+    arbAddressList.registryContractAddress,
     Registry.abi,
     library
   );
 
   const accountManagerContract = new Contract(
-    arbAddressList .accountManagerContractAddress,
+    arbAddressList.accountManagerContractAddress,
     AccountManager.abi,
     library
   );
+
   const getTokenBalance = async (tokenName = depositToken) => {
     try {
       if (activeAccount) {
         const signer = await library?.getSigner();
-        
+        let depositBalance;
+        let borrowBalance;
 
         if (tokenName == "WETH") {
-          if (tabValue === 0) {
-            const depositBalance = await library?.getBalance(account);
-          
-            const  = await library?.getBalance(activeAccount);
-          }
+          depositBalance = await library?.getBalance(account);
+          borrowBalance = await library?.getBalance(activeAccount);
         } else {
-          const contract = new Contract(arbTokensAddress[tokenName], ERC20.abi, signer);
-          if (tabValue === 0) {
-            bal = await contract.balanceOf(account);
-          } else {
-            bal = await contract.balanceOf(activeAccount);
-          }
+          if (tokenName === undefined) return;
+          const contract = new Contract(
+            arbTokensAddress[tokenName],
+            ERC20.abi,
+            signer
+          );
+          depositBalance = await contract.balanceOf(account);
+          borrowBalance = await contract.balanceOf(activeAccount);
         }
 
-        const balInNumber = formatBignumberToUnits(tokenName, bal);
-        setCoinBalance(ceilWithPrecision(balInNumber));
+        const depositBalanceInNumber = formatBignumberToUnits(
+          tokenName,
+          depositBalance
+        );
+        const borrowBalanceInNumber = formatBignumberToUnits(
+          tokenName,
+          borrowBalance
+        );
+        setDepositBalance(ceilWithPrecision(String(depositBalanceInNumber)));
+        setBorrowBalance(ceilWithPrecision(String(borrowBalanceInNumber)));
       }
     } catch (e) {
       console.error(e);
     }
-    
-  }
+  };
 
+  const deposit = async () => {
+    const signer = await library?.getSigner();
 
-  const deposit = async() => {
-    if (depositToken === "WETH") {
-      // await accountManagerContract.depositEth({ value: parseEther(amount) });
+    if (depositToken === undefined) return;
+    else if (depositToken === "WETH") {
+      // await accountManagerContract.depositEth({ value: parseEther(depositAmount) });
       await accountManagerContract.depositEth(activeAccount, {
-        value: parseEther(amount),
+        value: parseEther(depositAmount),
         gasLimit: 2300000,
       });
     } else if (depositToken === "USDC" || depositToken === "USDT") {
-      const erc20Contract = new Contract(arbTokensAddress[token], ERC20.abi, signer);
-      // need to add checksum that is already have allowance or not
+      const erc20Contract = new Contract(
+        arbTokensAddress[depositToken],
+        ERC20.abi,
+        signer
+      );
+      // need to add check that is already have allowance or not
       const allowance = await erc20Contract.allowance(
         account,
-        arbAddressList .accountManagerContractAddress
+        arbAddressList.accountManagerContractAddress
       );
-      if (allowance < amount) {
+      if (allowance < depositAmount) {
         await erc20Contract.approve(
-          arbAddressList .accountManagerContractAddress,
-          parseUnits(amount, 6),
+          arbAddressList.accountManagerContractAddress,
+          parseUnits(depositAmount, 6),
           { gasLimit: 2300000 }
         );
         await sleep(3000);
@@ -134,21 +149,25 @@ const LevrageWithdraw = () => {
 
       await accountManagerContract.deposit(
         activeAccount,
-        arbTokensAddress[token],
-        parseUnits(amount, 6),
+        arbTokensAddress[depositToken],
+        parseUnits(depositAmount, 6),
         { gasLimit: 2300000 }
       );
     } else {
-      const erc20Contract = new Contract(arbTokensAddress[token], ERC20.abi, signer);
+      const erc20Contract = new Contract(
+        arbTokensAddress[depositToken],
+        ERC20.abi,
+        signer
+      );
       const allowance = await erc20Contract.allowance(
         account,
-        arbAddressList .accountManagerContractAddress
+        arbAddressList.accountManagerContractAddress
       );
 
-      if (allowance < amount) {
+      if (allowance < depositAmount) {
         await erc20Contract.approve(
-          arbAddressList .accountManagerContractAddress,
-          parseEther(amount),
+          arbAddressList.accountManagerContractAddress,
+          parseEther(depositAmount),
           { gasLimit: 2300000 }
         );
         await sleep(3000);
@@ -156,74 +175,77 @@ const LevrageWithdraw = () => {
 
       await accountManagerContract.deposit(
         activeAccount,
-        arbTokensAddress[token],
-        parseEther(amount),
+        arbTokensAddress[depositToken],
+        parseEther(depositAmount),
         { gasLimit: 2300000 }
       );
     }
-    
-  }
+  };
 
-  const borrow = async() => {
-      if (token === "USDC" || token === "USDT") {
-        await accountManagerContract.borrow(
-          activeAccount,
-          arbTokensAddress[token],
-          parseUnits(amount, 6),
-          { gasLimit: 2300000 }
-        );
-      } else {
-        result = await accountManagerContract.borrow(
-          activeAccount,
-          arbTokensAddress[token],
-          parseEther(amount),
-          { gasLimit: 2300000 }
-        );
-      }
-  }
-  const repay = async() => {
-    if (token === "USDC" || token === "USDT") {
-            await accountManagerContract.repay(
-              activeAccount,
-              arbTokensAddress[token],
-              parseUnits(amount, 6),
-              { gasLimit: 2300000 }
-            );
-          } else {
-            await accountManagerContract.repay(
-              activeAccount,
-              arbTokensAddress[token],
-              parseEther(amount),
-              { gasLimit: 2300000 }
-            );
-          }
-  }
-  const withdraw = async() => {
-    if (token === "WETH") {
-      await accountManagerContract.withdrawEth(activeAccount, parseEther(amount), {
-        gasLimit: 2300000,
-      });
-    } else if (token === "USDC" || token === "USDT") {
+  const withdraw = async () => {
+    if (depositToken === undefined) return;
+    else if (depositToken === "WETH") {
+      await accountManagerContract.withdrawEth(
+        activeAccount,
+        parseEther(depositAmount),
+        {
+          gasLimit: 2300000,
+        }
+      );
+    } else if (depositToken === "USDC" || depositToken === "USDT") {
       await accountManagerContract.withdraw(
         activeAccount,
-        arbTokensAddress[token],
-        parseUnits(amount, 6),
+        arbTokensAddress[depositToken],
+        parseUnits(depositAmount, 6),
         { gasLimit: 2300000 }
       );
     } else {
       await accountManagerContract.withdraw(
         activeAccount,
-        arbTokensAddress[token],
-        parseEther(amount),
+        arbTokensAddress[depositToken],
+        parseEther(depositAmount),
         { gasLimit: 2300000 }
       );
     }
-  }
+  };
 
-  const accountsArray = await regitstryContract.accountsOwnedBy(account);
+  const borrow = async () => {
+    if (borrowToken === undefined) return;
+    else if (borrowToken === "USDC" || borrowToken === "USDT") {
+      await accountManagerContract.borrow(
+        activeAccount,
+        arbTokensAddress[borrowToken],
+        parseUnits(borrowAmount, 6),
+        { gasLimit: 2300000 }
+      );
+    } else {
+      await accountManagerContract.borrow(
+        activeAccount,
+        arbTokensAddress[borrowToken],
+        parseEther(borrowAmount),
+        { gasLimit: 2300000 }
+      );
+    }
+  };
 
-
-  }
+  const repay = async () => {
+    if (borrowToken === undefined) return;
+    else if (borrowToken === "USDC" || borrowToken === "USDT") {
+      await accountManagerContract.repay(
+        activeAccount,
+        arbTokensAddress[borrowToken],
+        parseUnits(borrowAmount, 6),
+        { gasLimit: 2300000 }
+      );
+    } else {
+      await accountManagerContract.repay(
+        activeAccount,
+        arbTokensAddress[borrowToken],
+        parseEther(borrowAmount),
+        { gasLimit: 2300000 }
+      );
+    }
+  };
 
   return (
     <div className="bg-baseComplementary p-2 rounded-3xl w-full text-baseBlack">
@@ -276,13 +298,11 @@ const LevrageWithdraw = () => {
               />
             </div>
             <div className="flex">
-              <TokenDropdown
-                onSelect={handleTokenSelect}
-              />
+              <TokenDropdown onSelect={handleDepositTokenSelect} />
             </div>
           </div>
           <div className="mt-2">
-            <div className="text-xs text-neutral-500">{coinBalance}</div>
+            <div className="text-xs text-neutral-500">{depositBalance}</div>
           </div>
         </div>
 
@@ -313,9 +333,7 @@ const LevrageWithdraw = () => {
               />
             </div>
             <div className="flex">
-              <TokenDropdown
-                onSelect={handleTokenSelect}
-              />
+              <TokenDropdown onSelect={handleBorrowTokenSelect} />
             </div>
           </div>
           <div className="flex justify-end items-center mt-2">
@@ -348,7 +366,10 @@ const LevrageWithdraw = () => {
           </div>
         </div>
 
-        <button className="w-full bg-purple text-white py-3 rounded-2xl font-semibold text-xl" onClick={leverage}>
+        <button
+          className="w-full bg-purple text-white py-3 rounded-2xl font-semibold text-xl"
+          onClick={deposit}
+        >
           Enter an amount
         </button>
       </div>
