@@ -78,7 +78,7 @@ export const poolDetailsPlaceholder = [
     tooltip: "Expected liquidity in the pool",
   },
   {
-    label: " LIQUIDITY IN DOLLAR",
+    label: "LQ. IN DOLLAR",
     value: "-",
     tooltip: "Expected liquidity in the pool",
   },

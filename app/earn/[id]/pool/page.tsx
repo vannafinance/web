@@ -22,6 +22,8 @@ import VToken from "../../../abi/vanna/v1/out/VToken.sol/VToken.json";
 import Multicall from "../../../abi/vanna/v1/out/Multicall.sol/Multicall.json";
 
 import { arbAddressList, baseAddressList, opAddressList } from "@/app/lib/web3-constants";
+import { formatUnits } from "ethers/lib/utils";
+import { ceilWithPrecision } from "@/app/lib/helper";
 export default function Page({ params }: { params: { id: string } }) {
   try {
     const id = params.id;
@@ -29,8 +31,8 @@ export default function Page({ params }: { params: { id: string } }) {
     const pool = pools.find((pool) => pool.id === Number(id));
     const { account, library } = useWeb3React();
     const { currentNetwork } = useNetwork();
-    const [utilizationRate, setUtilizationRate] = useState("-");
-    const [uniqueLP, setUniqueLP] = useState("-");
+    const [utilizationRate, setUtilizationRate] = useState<string | undefined>();;
+    const [uniqueLP, setUniqueLP] = useState<string | undefined>();;
     useEffect(() => {
       try {
         if (account) {
@@ -77,39 +79,88 @@ export default function Page({ params }: { params: { id: string } }) {
               );
               calldata.push([arbAddressList.vDaiContractAddress, tempData]);
 
+              tempData = utils.arrayify(
+                iFaceEth.encodeFunctionData("totalSupply", [])
+              );
+              calldata.push([arbAddressList.vEtherContractAddress, tempData]);
+  
+              tempData = utils.arrayify(
+                iFaceToken.encodeFunctionData("totalSupply", [])
+              );
+  
+              calldata.push([arbAddressList.vWBTCContractAddress, tempData]);
+              
+              tempData = utils.arrayify(
+                iFaceToken.encodeFunctionData("totalSupply", [])
+              );
+              calldata.push([arbAddressList.vUSDCContractAddress, tempData]);
+              
+              tempData = utils.arrayify(
+                iFaceToken.encodeFunctionData("totalSupply", [])
+              );
+              calldata.push([arbAddressList.vUSDTContractAddress, tempData]);
+              
+              // DAI
+              tempData = utils.arrayify(
+                iFaceToken.encodeFunctionData("totalSupply", [])
+              );
+              calldata.push([arbAddressList.vDaiContractAddress, tempData]);
+
+           
               const res = await MCcontract.callStatic.aggregate(calldata);
+
+              
 
               // totalBorrow
 
-              const ethTotalBorrow = res.returnData[10];
-              const wbtcTotalBorrow = res.returnData[11];
-              const usdcTotalBorrow = res.returnData[12];
-              const usdtTotalBorrow = res.returnData[13];
-              const daiTotalBorrow = res.returnData[14];
+              const ethTotalBorrow = res.returnData[0];
+              const wbtcTotalBorrow = res.returnData[1];
+              const usdcTotalBorrow = res.returnData[2];
+              const usdtTotalBorrow = res.returnData[3];
+              const daiTotalBorrow = res.returnData[4];
+              // total supply 
+              let ethSupply = formatUnits(res.returnData[5]);
+              let wbtcSupply = formatUnits(res.returnData[6]);
+              let usdcSupply = formatUnits(res.returnData[7]);
+              let usdtSupply = formatUnits(res.returnData[8]);
+              let daiSupply = formatUnits(res.returnData[9]);
 
+              
+  
+
+
+              console.log("eth supply",Number(formatUnits(usdtTotalBorrow)) / Number(usdtSupply) )
+              console.log("works1111supply",Number(usdtSupply)  )
+              console.log("works1111borrow",Number(formatUnits(usdtTotalBorrow) ) )
+              let utilizationRate; 
+            
               //  Utilization Rate
               if (pool?.name === "WETH") {
-                setUtilizationRate(
-                  String(
-                    parseFloat(ethTotalBorrow) /
-                      parseFloat(String(pool?.supply))
-                  )
-                );
+               
+                utilizationRate = String((Number(formatUnits(ethTotalBorrow)) /Number(ethSupply))* 100)
+                setUtilizationRate(ceilWithPrecision(utilizationRate) + "%");
                 setUniqueLP("5");
               }
               if (pool?.name === "WBTC") {
+                // if(wbtcSupply = "0") return setUtilizationRate("0" + "%");
+                utilizationRate = String((Number(formatUnits(wbtcTotalBorrow)) /Number(wbtcSupply))* 100)
+                setUtilizationRate(ceilWithPrecision(utilizationRate) + "%");
+                setUniqueLP("0");
               }
-              if (pool?.name === "WETH") {
-                // const poolDetails =
-                // setUtilizationRate = parseFloat(ethTotalBorrow) /parseFloat(String(pool?.supply));
+              if (pool?.name === "USDC") {
+                utilizationRate = String((Number(formatUnits(usdcTotalBorrow)) /Number(usdcSupply))* 100)
+                setUtilizationRate(ceilWithPrecision(utilizationRate) + "%");
+                setUniqueLP("3");
               }
-              if (pool?.name === "WETH") {
-                // const poolDetails =
-                // setUtilizationRate = parseFloat(ethTotalBorrow) /parseFloat(String(pool?.supply));
+              if (pool?.name === "USDT") {
+                utilizationRate = String((Number(formatUnits(usdtTotalBorrow)) /Number(usdtSupply))* 100)
+                setUtilizationRate(ceilWithPrecision(utilizationRate) + "%");
+                setUniqueLP("0");
               }
-              if (pool?.name === "WETH") {
-                // const poolDetails =
-                // setUtilizationRate = parseFloat(ethTotalBorrow) /parseFloat(String(pool?.supply));
+              if (pool?.name === "DAI") {
+                utilizationRate = String((Number(formatUnits(daiTotalBorrow)) /Number(daiSupply))* 100)
+                setUtilizationRate(ceilWithPrecision(utilizationRate) + "%");
+                setUniqueLP("");
               }
             };
             fetchValues();

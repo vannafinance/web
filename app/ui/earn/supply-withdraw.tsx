@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 // caretdown imported to create custom dropdown, check if needed
 import { CaretDown, Info } from "@phosphor-icons/react";
 import clsx from "clsx";
@@ -63,6 +63,7 @@ const SupplyWithdraw = ({ pool }: { pool: PoolTable }) => {
           DefaultRateModel.abi,
           library
         );
+
         const fetchParams = () => {
           try {
             const processParams = async () => {
@@ -128,21 +129,8 @@ const SupplyWithdraw = ({ pool }: { pool: PoolTable }) => {
           }
         };
         fetchParams();
+        
 
-      
-  const deposit = async()=> {
-    if(currentNetwork.id === BASE_NETWORK){
-    // value assigne is pending 
-      try{
-        const signer = await library?.getSigner();
-        // ERC20 contract
-        const WBTCContract = new Contract(arbTokensAddress[pool.name], ERC20.abi, signer);
-        const USDCContract = new Contract(arbTokensAddress[pool.name], ERC20.abi, signer);
-        const USDTContract = new Contract(arbTokensAddress[pool.name], ERC20.abi, signer);
-        const DAIContract = new Contract(arbTokensAddress[pool.name], ERC20.abi, signer);
-        
-        
-        //@TODO: ask meet about this error 
         const getTokenBalance = async (tokenName = pool.name) => {
           try {
             if (account) {
@@ -165,6 +153,25 @@ const SupplyWithdraw = ({ pool }: { pool: PoolTable }) => {
             console.error(e);
           }
         };
+        useEffect(() => {
+          getTokenBalance();
+        }, [account]);
+
+      
+  const deposit = async()=> {
+    if(currentNetwork.id === BASE_NETWORK){
+    // value assigne is pending 
+      try{
+        const signer = await library?.getSigner();
+        // ERC20 contract
+        const WBTCContract = new Contract(arbTokensAddress[pool.name], ERC20.abi, signer);
+        const USDCContract = new Contract(arbTokensAddress[pool.name], ERC20.abi, signer);
+        const USDTContract = new Contract(arbTokensAddress[pool.name], ERC20.abi, signer);
+        const DAIContract = new Contract(arbTokensAddress[pool.name], ERC20.abi, signer);
+        
+        
+        //@TODO: ask meet about this error 
+        
 
         
 

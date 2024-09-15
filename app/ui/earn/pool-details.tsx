@@ -201,11 +201,11 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                     value: pool.supply + " " + pool.name,
                   };
                 }
-                if (detail.label === "LIQUIDITY IN DOLLAR") {
+                if (detail.label === "LQ. IN DOLLAR") {
                   return {
                     ...detail,
                     // TODO: add logic of mux price
-                    value: pool.supply + " " + pool.name,
+                    value: pool.supply,
                   };
                 }
 
@@ -239,6 +239,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 }
                 return detail;
               });
+              setPoolAddress(arbAddressList.vEtherContractAddress)
               setDetails(updatedPoolDetails);
             }
             if (pool.name === "WBTC") {
@@ -267,11 +268,11 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                     value: pool.supply + " " + pool.name,
                   };
                 }
-                if (detail.label === "LIQUIDITY IN DOLLAR") {
+                if (detail.label === "LQ. IN DOLLAR") {
                   return {
                     ...detail,
                     // TODO: add logic of mux price
-                    value: pool.supply + " " + pool.name,
+                    value: pool.supply,
                   };
                 }
 
@@ -305,6 +306,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 }
                 return detail;
               });
+              setPoolAddress(arbAddressList.vWBTCContractAddress)
               setDetails(updatedPoolDetails);
             }
             if (pool.name === "USDC") {
@@ -333,11 +335,11 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                     value: pool.supply + " " + pool.name,
                   };
                 }
-                if (detail.label === "LIQUIDITY IN DOLLAR") {
+                if (detail.label === "LQ. IN DOLLAR") {
                   return {
                     ...detail,
                     // TODO: add logic of mux price
-                    value: pool.supply + " " + pool.name,
+                    value: pool.supply,
                   };
                 }
 
@@ -371,7 +373,9 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 }
                 return detail;
               });
+              setPoolAddress(arbAddressList.vUSDCContractAddress)
               setDetails(updatedPoolDetails);
+            
             }
             if (pool.name === "USDT") {
               const updatedPoolDetails = details.map((detail) => {
@@ -399,11 +403,11 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                     value: pool.supply + " " + pool.name,
                   };
                 }
-                if (detail.label === "LIQUIDITY IN DOLLAR") {
+                if (detail.label === "LQ. IN DOLLAR") {
                   return {
                     ...detail,
                     // TODO: add logic of mux price
-                    value: pool.supply + " " + pool.name,
+                    value: pool.supply,
                   };
                 }
 
@@ -437,6 +441,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 }
                 return detail;
               });
+              setPoolAddress(arbAddressList.vUSDTContractAddress)
               setDetails(updatedPoolDetails);
             }
             if (pool.name === "DAI") {
@@ -465,11 +470,11 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                     value: pool.supply + " " + pool.name,
                   };
                 }
-                if (detail.label === "LIQUIDITY IN DOLLAR") {
+                if (detail.label === "LQ. IN DOLLAR") {
                   return {
                     ...detail,
                     // TODO: add logic of mux price
-                    value: pool.supply + " " + pool.name,
+                    value: pool.supply,
                   };
                 }
 
@@ -503,6 +508,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 }
                 return detail;
               });
+              setPoolAddress(arbAddressList.vDaiContractAddress)
               setDetails(updatedPoolDetails);
             }
           };
@@ -979,11 +985,11 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                     value: pool.supply + " " + pool.name,
                   };
                 }
-                if (detail.label === "LIQUIDITY IN DOLLAR") {
+                if (detail.label === "LQ. IN DOLLAR") {
                   return {
                     ...detail,
                     // TODO: add logic of mux price
-                    value: pool.supply + " " + pool.name,
+                    value: pool.supply,
                   };
                 }
 
@@ -1045,11 +1051,11 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                     value: pool.supply + " " + pool.name,
                   };
                 }
-                if (detail.label === "LIQUIDITY IN DOLLAR") {
+                if (detail.label === "LQ. IN DOLLAR") {
                   return {
                     ...detail,
                     // TODO: add logic of mux price
-                    value: pool.supply + " " + pool.name,
+                    value: pool.supply,
                   };
                 }
 
@@ -1111,11 +1117,11 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                     value: pool.supply + " " + pool.name,
                   };
                 }
-                if (detail.label === "LIQUIDITY IN DOLLAR") {
+                if (detail.label === "LQ. IN DOLLAR") {
                   return {
                     ...detail,
                     // TODO: add logic of mux price
-                    value: pool.supply + " " + pool.name,
+                    value: pool.supply,
                   };
                 }
 
@@ -1177,11 +1183,11 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                     value: pool.supply + " " + pool.name,
                   };
                 }
-                if (detail.label === "LIQUIDITY IN DOLLAR") {
+                if (detail.label === "LQ. IN DOLLAR") {
                   return {
                     ...detail,
                     // TODO: add logic of mux price
-                    value: pool.supply + " " + pool.name,
+                    value: pool.supply,
                   };
                 }
 
@@ -1243,11 +1249,11 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                     value: pool.supply + " " + pool.name,
                   };
                 }
-                if (detail.label === "LIQUIDITY IN DOLLAR") {
+                if (detail.label === "LQ. IN DOLLAR") {
                   return {
                     ...detail,
                     // TODO: add logic of mux price
-                    value: pool.supply + " " + pool.name,
+                    value: pool.supply,
                   };
                 }
 
