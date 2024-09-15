@@ -159,3 +159,14 @@ interface FutureDeltaData {
   future: string[];
   average: string[];
 }
+
+interface OptionData {
+  delta: number;
+  iv: number;
+  volume: number;
+  bidSize: number;
+  bidPrice: number;
+  askPrice: number;
+  askSize: number;
+  strike: number;
+}

@@ -3,6 +3,7 @@
 import { useNetwork } from "@/app/context/network-context";
 import OptionPayoffChart from "@/app/dashboard/option-payoff-chart";
 import { SimpleTableComponent } from "@/app/dashboard/simple-table";
+import { calculateRemainingTime } from "@/app/lib/helper";
 import FutureDropdown from "@/app/ui/future/future-dropdown";
 import { CheckSquare, Square } from "@phosphor-icons/react";
 import { useWeb3React } from "@web3-react/core";
@@ -229,16 +230,6 @@ export default function Page() {
     month: "short",
     year: "numeric",
   });
-
-  const calculateRemainingTime = (expiryDate: string): string => {
-    const now = new Date();
-    const expiry = new Date(expiryDate);
-    const diff = expiry.getTime() - now.getTime();
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    return `${days}d ${hours}h ${minutes}m`;
-  };
 
   return (
     <div className="pt-4 px-10">

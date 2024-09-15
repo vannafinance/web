@@ -37,11 +37,37 @@ export const formatBignumberToUnits = (coin: string, balance: number) => {
   return formatUnits(balance, units);
 };
 
-export const formatStringToUnits = (coin:string, balance:number) => {
+export const formatStringToUnits = (coin: string, balance: number) => {
   let units = 18;
   if (coin == "USDC" || coin == "USDT") {
     units = 6;
   }
 
   return parseUnits(String(balance), units);
+};
+
+export const calculateRemainingTime = (expiryDate: string): string => {
+  const now = new Date();
+  const expiry = new Date(expiryDate);
+  const diff = expiry.getTime() - now.getTime();
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  return `${days}d ${hours}h ${minutes}m`;
+};
+
+export const generateDummyData = (
+  baseStrike: number,
+  count: number
+): OptionData[] => {
+  return Array.from({ length: count }, (_, i) => ({
+    delta: Math.random(),
+    iv: 6 + Math.random() * 4,
+    bidSize: Math.random() * 10,
+    bidPrice: Math.random() * 50,
+    askPrice: Math.random() * 50,
+    askSize: Math.random() * 10,
+    volume: Math.random() * 100,
+    strike: baseStrike + i * 100,
+  }));
 };

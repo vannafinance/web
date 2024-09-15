@@ -78,7 +78,7 @@ export default function Page() {
           </div>
         </div>
 
-        <div className="flex flex-row space-x-9 text-sm px-6 py-4 border border-neutral-300 rounded-xl font-semibold mb-2">
+        <div className="flex flex-row justify-between text-sm px-6 py-4 border border-neutral-300 rounded-xl font-semibold mb-2">
           <div>
             <p className="text-neutral-500 text-xs">Index Price</p>
             <p className="text-sm">{cryptoData.indexPrice}</p>
@@ -91,7 +91,7 @@ export default function Page() {
             <p className="text-neutral-500 text-xs">24H High/Low</p>
             <p className="text-sm">{cryptoData.highLow}</p>
           </div>
-          <div className="col-span-2">
+          <div className="">
             <p className="text-neutral-500 text-xs">Net Rate/1Hr</p>
             <div className="flex items-center space-x-1">
               <span className="text-green-500 text-sm">
@@ -102,7 +102,7 @@ export default function Page() {
               </span>
             </div>
           </div>
-          <div className="col-span-2">
+          <div className="">
             <p className="text-neutral-500 text-xs">Open Interest (45%/55%)</p>
             <div className="flex items-center space-x-1">
               <span className="text-green-500 text-sm">

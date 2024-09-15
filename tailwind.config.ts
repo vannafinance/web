@@ -31,7 +31,12 @@ const config: Config = {
         baseComplementary: "#f4f4ff",
         lightBlueBG: "#d2d2f7",
         baseSuccess: {
+          100: "#caf1e8",
           300: "#2ea88e",
+        },
+        baseSecondary: {
+          300: "#f8c0b8",
+          500: "#ed6755",
         },
       },
       backgroundImage: {
