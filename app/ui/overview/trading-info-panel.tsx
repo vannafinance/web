@@ -1,3 +1,5 @@
+"use client";
+
 import { Info } from "@phosphor-icons/react";
 import React, { useState } from "react";
 
@@ -18,7 +20,9 @@ const InfoRow: React.FC<InfoRowProps> = ({ label, value, subValue }) => (
     <div className="font-semibold text-2xl">
       {value}
       {subValue && (
-        <span className="text-baseSuccess-300 text-base font-medium ml-1">({subValue})</span>
+        <span className="text-baseSuccess-300 text-base font-medium ml-1">
+          ({subValue})
+        </span>
       )}
     </div>
   </div>

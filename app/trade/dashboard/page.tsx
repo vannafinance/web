@@ -1,17 +1,17 @@
 "use client";
 
-import { useNetwork } from "@/app/context/network-context";
 import OptionPayoffChart from "@/app/dashboard/option-payoff-chart";
 import { SimpleTableComponent } from "@/app/dashboard/simple-table";
 import { calculateRemainingTime } from "@/app/lib/helper";
 import FutureDropdown from "@/app/ui/future/future-dropdown";
 import { CheckSquare, Square } from "@phosphor-icons/react";
-import { useWeb3React } from "@web3-react/core";
+// import { useNetwork } from "@/app/context/network-context";
+// import { useWeb3React } from "@web3-react/core";
 import { useState } from "react";
 
 export default function Page() {
-  const { account, library } = useWeb3React();
-  const { currentNetwork } = useNetwork();
+  // const { account, library } = useWeb3React();
+  // const { currentNetwork } = useNetwork();
 
   const pairOptions: Option[] = [
     { value: "ETH", label: "ETH/USD", icon: "/eth-icon.svg" },
@@ -310,7 +310,7 @@ export default function Page() {
 
             <div className="flex-none w-2/3 h-[4.5rem] flex flex-row justify-between px-6 py-4 border border-neutral-100 rounded-xl font-semibold mb-2">
               <div>
-                <p className="text-neutral-500 text-xs">Today's Date</p>
+                <p className="text-neutral-500 text-xs">Today&apos;s Date</p>
                 <p className="text-sm">{today}</p>
               </div>
               <div>

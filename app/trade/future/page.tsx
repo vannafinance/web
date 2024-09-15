@@ -6,11 +6,11 @@ import FutureDropdown from "@/app/ui/future/future-dropdown";
 import PositionOpenClose from "@/app/ui/future/position-open-close";
 import PositionsSection from "@/app/ui/future/positions-section";
 import TradingViewChart from "@/app/ui/future/trading-view-chart";
-import { useWeb3React } from "@web3-react/core";
+// import { useWeb3React } from "@web3-react/core";
 import { useEffect, useState } from "react";
 
 export default function Page() {
-  const { account, library } = useWeb3React();
+  // const { account, library } = useWeb3React();
   const { currentNetwork } = useNetwork();
 
   const pairOptions: Option[] = [

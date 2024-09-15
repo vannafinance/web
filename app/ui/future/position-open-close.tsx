@@ -1,6 +1,8 @@
-import { useNetwork } from "@/app/context/network-context";
+"use client";
+
+// import { useNetwork } from "@/app/context/network-context";
 import {
-  ARBITRUM_NETWORK,
+  // ARBITRUM_NETWORK,
   oneMonthTimestampInterval,
   referralCode,
 } from "@/app/lib/constants";
@@ -11,42 +13,35 @@ import React, { useEffect, useState } from "react";
 import FutureDropdown from "./future-dropdown";
 import FutureSlider from "./future-slider";
 import axios from "axios";
-import {
-  ceilWithPrecision6,
-  formatBignumberToUnits,
-  formatStringToUnits,
-  sleep,
-} from "@/app/lib/helper";
+import { formatStringToUnits, sleep } from "@/app/lib/helper";
 import { BigNumber, Contract } from "ethers";
 import {
   arbAddressList,
-  arbTokensAddress,
-  codeToAsset,
+  // arbTokensAddress,
+  // codeToAsset,
   CollateralAssetCode,
 } from "@/app/lib/web3-constants";
 import AccountManager from "../../abi/vanna/v1/out/AccountManager.sol/AccountManager.json";
 import MUX from "../../abi/vanna/v1/out/MUX.sol/MUX.json";
-import ERC20 from "../../abi/vanna/v1/out/ERC20.sol/ERC20.json";
+// import ERC20 from "../../abi/vanna/v1/out/ERC20.sol/ERC20.json";
 import Registry from "../../abi/vanna/v1/out/Registry.sol/Registry.json";
-import LiquidityPool from "../../abi/vanna/v1/out/LiquidityPool.sol/LiquidityPool.json";
-import VToken from "../../abi/vanna/v1/out/VToken.sol/VToken.json";
-import VEther from "../../abi/vanna/v1/out/VEther.sol/VEther.json";
+// import LiquidityPool from "../../abi/vanna/v1/out/LiquidityPool.sol/LiquidityPool.json";
 import { Interface } from "ethers/lib/utils";
 
 const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
   const { account, library } = useWeb3React();
-  const { currentNetwork } = useNetwork();
+  // const { currentNetwork } = useNetwork();
 
-  const pairOptions: Option[] = [
-    { value: "ETH/USD", label: "ETH/USD", icon: "/eth-icon.svg" },
-    { value: "BTC/USD", label: "BTC/USD", icon: "/btc-icon.svg" },
-  ];
-  const protocolOptions: Option[] = [
-    { value: "MUX", label: "MUX" },
-    ...(currentNetwork.id === ARBITRUM_NETWORK
-      ? [{ value: "dYdX", label: "dYdX" }]
-      : []),
-  ];
+  // const pairOptions: Option[] = [
+  //   { value: "ETH/USD", label: "ETH/USD", icon: "/eth-icon.svg" },
+  //   { value: "BTC/USD", label: "BTC/USD", icon: "/btc-icon.svg" },
+  // ];
+  // const protocolOptions: Option[] = [
+  //   { value: "MUX", label: "MUX" },
+  //   ...(currentNetwork.id === ARBITRUM_NETWORK
+  //     ? [{ value: "dYdX", label: "dYdX" }]
+  //     : []),
+  // ];
   const optionType: Option[] = [
     { value: "Market", label: "Market" },
     { value: "Limit", label: "Limit" },
@@ -61,10 +56,10 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
   ];
 
   const [isOpen, setIsOpen] = useState(true);
-  const [selectedPair, setSelectedPair] = useState<Option>(pairOptions[0]);
-  const [selectedProtocol, setSelectedProtocol] = useState<Option>(
-    protocolOptions[0]
-  );
+  // const [selectedPair, setSelectedPair] = useState<Option>(pairOptions[0]);
+  // const [selectedProtocol, setSelectedProtocol] = useState<Option>(
+  //   protocolOptions[0]
+  // );
   const [selectedOptionType, setSelectedOptionType] = useState<Option>(
     optionType[0]
   );
@@ -73,7 +68,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
   );
   const [stopUsdcValue, setStopUsdcValue] = useState("");
   const [selectedToken, setSelectedToken] = useState<Option>(tokenOptions[0]);
-  const [amount, setAmount] = useState("");
+  // const [amount, setAmount] = useState("");
   const [leverageValue, setLeverageValue] = useState<number>(5);
   const [isEnabled, setIsEnabled] = useState(true);
   const [takeProfit, setTakeProfit] = useState("");
@@ -83,10 +78,10 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
   );
   const [assetAmount, setAssetAmount] = useState<string | undefined>(undefined);
 
-  const [marketPrice, setMarketPrice] = useState(0.0);
+  // const [marketPrice, setMarketPrice] = useState(0.0);
   const [assetsPrice, setAssetsPrice] = useState();
   const [activeAccount, setActiveAccount] = useState();
-  const [coinBalance, setCoinBalance] = useState(0); // balance of selectedToken
+  // const [coinBalance, setCoinBalance] = useState(0); // balance of selectedToken
   const [coin, setCoin] = useState("");
 
   const handleToggle = () => setIsOpen(!isOpen);
@@ -94,9 +89,9 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
     setIsEnabled(!isEnabled);
   };
 
-  useEffect(() => {
-    setSelectedProtocol(protocolOptions[0]);
-  }, [currentNetwork]);
+  // useEffect(() => {
+  //   setSelectedProtocol(protocolOptions[0]);
+  // }, [currentNetwork]);
 
   useEffect(() => {
     setCoin(selectedToken.value);
@@ -152,7 +147,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
     setAssetsPrice(rsp.data.assets);
 
     if (shouldSetMarketPrice) {
-      setMarketPrice(price);
+      // setMarketPrice(price);
     }
 
     return price;
@@ -160,12 +155,13 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
 
   const getPriceFromAssetsArray = (
     tokenSymbol: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     assets: { [key: string]: any } | undefined = assetsPrice
   ) => {
     tokenSymbol = tokenSymbol === "WETH" ? "ETH" : tokenSymbol;
     if (assets) {
       if (Array.isArray(assets)) {
-        for (let asset of assets) {
+        for (const asset of assets) {
           if (asset?.symbol === tokenSymbol) {
             return asset.price;
           }
@@ -179,151 +175,152 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
     getAssetPrice();
   }, []);
 
-  const getTokenBalance = async (tokenName = coin) => {
-    try {
-      if (activeAccount) {
-        const signer = await library?.getSigner();
-        let bal = 0;
+  // const getTokenBalance = async (tokenName = coin) => {
+  //   try {
+  //     if (activeAccount) {
+  //       const signer = await library?.getSigner();
+  //       let bal = 0;
 
-        if (tokenName == "WETH") {
-          bal = await library?.getBalance(activeAccount);
-        } else {
-          const contract = new Contract(
-            arbTokensAddress[tokenName],
-            ERC20.abi,
-            signer
-          );
-          bal = await contract.balanceOf(activeAccount);
-        }
+  //       if (tokenName == "WETH") {
+  //         bal = await library?.getBalance(activeAccount);
+  //       } else {
+  //         const contract = new Contract(
+  //           arbTokensAddress[tokenName],
+  //           ERC20.abi,
+  //           signer
+  //         );
+  //         bal = await contract.balanceOf(activeAccount);
+  //       }
 
-        // setCoinBalance(
-        //   ceilWithPrecision6(formatBignumberToUnits(tokenName, bal))
-        // );
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  };
+  //       // setCoinBalance(
+  //       //   ceilWithPrecision6(formatBignumberToUnits(tokenName, bal))
+  //       // );
+  //     }
+  //   } catch (e) {
+  //     console.error(e);
+  //   }
+  // };
 
-  useEffect(() => {
-    getTokenBalance();
-  }, [activeAccount]);
-  const calcPnl = (
-    currentPrice: number,
-    entryPrice: number,
-    size: number,
-    IsLong: number
-  ) => {
-    let PNL;
-    if (IsLong == 1) {
-      PNL = (currentPrice - entryPrice) * size;
-    } else {
-      PNL = (entryPrice - currentPrice) * size;
-    }
-    return PNL;
-  };
+  // useEffect(() => {
+  //   getTokenBalance();
+  // }, [activeAccount]);
 
-  const fetchPositions = async (account: string) => {
-    if (account) {
-      let renderedRows = [];
-      const signer = await library?.getSigner();
-      const liquidityPoolContract = new Contract(
-        arbAddressList.muxLiquidityPoolAddress,
-        LiquidityPool.abi,
-        signer
-      );
+  // const calcPnl = (
+  //   currentPrice: number,
+  //   entryPrice: number,
+  //   size: number,
+  //   IsLong: number
+  // ) => {
+  //   let PNL;
+  //   if (IsLong == 1) {
+  //     PNL = (currentPrice - entryPrice) * size;
+  //   } else {
+  //     PNL = (entryPrice - currentPrice) * size;
+  //   }
+  //   return PNL;
+  // };
 
-      // let price = 0;
-      let subAccountId;
+  // const fetchPositions = async (account: string) => {
+  //   if (account) {
+  //     // let renderedRows = [];
+  //     const signer = await library?.getSigner();
+  //     const liquidityPoolContract = new Contract(
+  //       arbAddressList.muxLiquidityPoolAddress,
+  //       LiquidityPool.abi,
+  //       signer
+  //     );
 
-      // for (let i = 0; i < 5; i++) {
-      const i = 3;
-      for (let j = 3; j < 5; j++) {
-        for (let k = 0; k < 2; k++) {
-          subAccountId =
-            account.toString() +
-            "0" +
-            i +
-            "0" +
-            j +
-            "0" +
-            k +
-            "000000000000000000";
-          const result = await liquidityPoolContract.getSubAccount(
-            subAccountId
-          );
-          const size = result.size / 1e18;
+  //     // let price = 0;
+  //     let subAccountId;
 
-          if (size != 0) {
-            const indexPrice = await getAssetPrice(codeToAsset["0" + j], false);
-            const netValue = indexPrice * size;
-            const collateralPrice = result.collateral / 1e18;
-            const entryPrice = result.entryPrice / 1e18;
-            const liquidation =
-              entryPrice - (collateralPrice * entryPrice) / size;
-            const pnl = calcPnl(indexPrice, entryPrice, size, k);
-            // price += pnl;
+  //     // for (let i = 0; i < 5; i++) {
+  //     const i = 3;
+  //     for (let j = 3; j < 5; j++) {
+  //       for (let k = 0; k < 2; k++) {
+  //         subAccountId =
+  //           account.toString() +
+  //           "0" +
+  //           i +
+  //           "0" +
+  //           j +
+  //           "0" +
+  //           k +
+  //           "000000000000000000";
+  //         const result = await liquidityPoolContract.getSubAccount(
+  //           subAccountId
+  //         );
+  //         const size = result.size / 1e18;
 
-            let row = {};
-            // row["market"] = (
-            //   <>
-            //     <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>ETH/USD</p>
-            //     <p style={{ color: "white", fontWeight: "400", fontSize: "10px" }}>
-            //       {k === 1 ? "Long" : "Short"}
-            //     </p>
-            //   </>
-            // );
-            // row["netValue"] = (
-            //   <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>
-            //     {formatUSD(netValue)}
-            //   </p>
-            // );
-            // row["collateral"] = (
-            //   <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>
-            //     {collateralPrice}
-            //   </p>
-            // );
-            // row["entryPrice"] = (
-            //   <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>
-            //     {formatUSD(entryPrice)}
-            //   </p>
-            // );
-            // row["indexPrice"] = (
-            //   <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>
-            //     {formatUSD(indexPrice)}
-            //   </p>
-            // );
-            // row["liqPrice"] = (
-            //   <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>
-            //     {formatUSD(liquidation)}
-            //   </p>
-            // );
-            // row["pnlAndRow"] = (
-            //   <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>
-            //     {formatUSD(pnl)}
-            //   </p>
-            // );
-            // row["actions"] = (
-            //   <VuiButton
-            //     className={"btn-option"}
-            //     onClick={() => {
-            //       closePosition(i, j, k, result.size);
-            //     }}
-            //   >
-            //     Close
-            //   </VuiButton>
-            // );
+  //         if (size != 0) {
+  //           const indexPrice = await getAssetPrice(codeToAsset["0" + j], false);
+  //           // const netValue = indexPrice * size;
+  //           const collateralPrice = result.collateral / 1e18;
+  //           const entryPrice = result.entryPrice / 1e18;
+  //           // const liquidation =
+  //           //   entryPrice - (collateralPrice * entryPrice) / size;
+  //           // const pnl = calcPnl(indexPrice, entryPrice, size, k);
+  //           // price += pnl;
 
-            // renderedRows.push(row);
-          }
-        }
-        // }
-      }
+  //           // let row = {};
+  //           // row["market"] = (
+  //           //   <>
+  //           //     <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>ETH/USD</p>
+  //           //     <p style={{ color: "white", fontWeight: "400", fontSize: "10px" }}>
+  //           //       {k === 1 ? "Long" : "Short"}
+  //           //     </p>
+  //           //   </>
+  //           // );
+  //           // row["netValue"] = (
+  //           //   <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>
+  //           //     {formatUSD(netValue)}
+  //           //   </p>
+  //           // );
+  //           // row["collateral"] = (
+  //           //   <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>
+  //           //     {collateralPrice}
+  //           //   </p>
+  //           // );
+  //           // row["entryPrice"] = (
+  //           //   <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>
+  //           //     {formatUSD(entryPrice)}
+  //           //   </p>
+  //           // );
+  //           // row["indexPrice"] = (
+  //           //   <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>
+  //           //     {formatUSD(indexPrice)}
+  //           //   </p>
+  //           // );
+  //           // row["liqPrice"] = (
+  //           //   <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>
+  //           //     {formatUSD(liquidation)}
+  //           //   </p>
+  //           // );
+  //           // row["pnlAndRow"] = (
+  //           //   <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>
+  //           //     {formatUSD(pnl)}
+  //           //   </p>
+  //           // );
+  //           // row["actions"] = (
+  //           //   <VuiButton
+  //           //     className={"btn-option"}
+  //           //     onClick={() => {
+  //           //       closePosition(i, j, k, result.size);
+  //           //     }}
+  //           //   >
+  //           //     Close
+  //           //   </VuiButton>
+  //           // );
 
-      // setRows(renderedRows);
-      // return price;
-    }
-  };
+  //           // renderedRows.push(row);
+  //         }
+  //       }
+  //       // }
+  //     }
+
+  //     // setRows(renderedRows);
+  //     // return price;
+  //   }
+  // };
 
   const openPosition = async (buySell: string) => {
     try {
@@ -343,10 +340,10 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
           collateralAmount ? Number(collateralAmount) : 0
         )
       );
-      let units = 18;
-      if (coin == "USDC" || coin == "USDT") {
-        units = 6;
-      }
+      // let units = 18;
+      // if (coin == "USDC" || coin == "USDT") {
+      //   units = 6;
+      // }
       const size = BigNumber.from(
         formatStringToUnits(
           coin,
@@ -375,8 +372,8 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
         tpslProfitTokenId: 0,
         tpslDeadline: tsplDeadline,
       };
-      let iface = new Interface(MUX.abi);
-      let encodedData = iface.encodeFunctionData("placePositionOrder3", [
+      const iface = new Interface(MUX.abi);
+      const encodedData = iface.encodeFunctionData("placePositionOrder3", [
         subAccountId,
         collateralAmountForPosition,
         size,
@@ -395,86 +392,86 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
         { gasLimit: 2300000 }
       );
       await sleep(3000);
-      getTokenBalance();
+      // getTokenBalance();
     } catch (e) {
       console.error(e);
     }
   };
-  const closePosition = async (
-    assetCode: string,
-    collateralCode: string,
-    longShort: string | number,
-    size: any
-  ) => {
-    try {
-      if (activeAccount == undefined) {
-        return;
-      }
-      const subAccountId =
-        activeAccount +
-        "0" +
-        assetCode +
-        "0" +
-        collateralCode +
-        "0" +
-        longShort +
-        "000000000000000000";
+  // const closePosition = async (
+  //   assetCode: string,
+  //   collateralCode: string,
+  //   longShort: string | number,
+  //   size: any
+  // ) => {
+  //   try {
+  //     if (activeAccount == undefined) {
+  //       return;
+  //     }
+  //     const subAccountId =
+  //       activeAccount +
+  //       "0" +
+  //       assetCode +
+  //       "0" +
+  //       collateralCode +
+  //       "0" +
+  //       longShort +
+  //       "000000000000000000";
 
-      let collateralAmountForPosition = 0;
+  //     let collateralAmountForPosition = 0;
 
-      // this will changes, temporary static value
-      const flags = 96;
+  //     // this will changes, temporary static value
+  //     const flags = 96;
 
-      // fetch transaction -> determine long / short ? -> if long get asset code if short get colletral code
-      const profitTokenId = longShort == 1 ? collateralCode : 0;
+  //     // fetch transaction -> determine long / short ? -> if long get asset code if short get colletral code
+  //     const profitTokenId = longShort == 1 ? collateralCode : 0;
 
-      const tsplDeadline =
-        Math.floor(Date.now() / 1000) + oneMonthTimestampInterval;
+  //     const tsplDeadline =
+  //       Math.floor(Date.now() / 1000) + oneMonthTimestampInterval;
 
-      const positionOrderExtras = {
-        tpPrice: 0,
-        slPrice: 0,
-        tpslProfitTokenId: profitTokenId,
-        tpslDeadline: tsplDeadline,
-      };
+  //     const positionOrderExtras = {
+  //       tpPrice: 0,
+  //       slPrice: 0,
+  //       tpslProfitTokenId: profitTokenId,
+  //       tpslDeadline: tsplDeadline,
+  //     };
 
-      let iface = new Interface(MUX.abi);
+  //     let iface = new Interface(MUX.abi);
 
-      let encodedData = iface.encodeFunctionData("placePositionOrder3", [
-        subAccountId,
-        collateralAmountForPosition,
-        size,
-        0,
-        profitTokenId,
-        flags,
-        0,
-        referralCode,
-        positionOrderExtras,
-      ]);
+  //     let encodedData = iface.encodeFunctionData("placePositionOrder3", [
+  //       subAccountId,
+  //       collateralAmountForPosition,
+  //       size,
+  //       0,
+  //       profitTokenId,
+  //       flags,
+  //       0,
+  //       referralCode,
+  //       positionOrderExtras,
+  //     ]);
 
-      const signer = await library?.getSigner();
+  //     const signer = await library?.getSigner();
 
-      const accountManagerContract = new Contract(
-        arbAddressList.accountManagerContractAddress,
-        AccountManager.abi,
-        signer
-      );
+  //     const accountManagerContract = new Contract(
+  //       arbAddressList.accountManagerContractAddress,
+  //       AccountManager.abi,
+  //       signer
+  //     );
 
-      await accountManagerContract.exec(
-        activeAccount,
-        arbAddressList.muxFutureContractAddress,
-        collateralAmountForPosition,
-        encodedData,
-        { gasLimit: 2300000 }
-      );
+  //     await accountManagerContract.exec(
+  //       activeAccount,
+  //       arbAddressList.muxFutureContractAddress,
+  //       collateralAmountForPosition,
+  //       encodedData,
+  //       { gasLimit: 2300000 }
+  //     );
 
-      await sleep(3000);
-      fetchPositions(activeAccount);
-      getTokenBalance();
-    } catch (e) {
-      console.error(e);
-    }
-  };
+  //     await sleep(3000);
+  //     fetchPositions(activeAccount);
+  //     getTokenBalance();
+  //   } catch (e) {
+  //     console.error(e);
+  //   }
+  // };
 
   // useEffect(() => {
   //   const intervalId = setInterval(getAssetPrice, 1000); // Calls fetchData every second

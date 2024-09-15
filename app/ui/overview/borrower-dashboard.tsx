@@ -1,3 +1,5 @@
+"use client";
+
 import { ArrowCircleUpRight } from "@phosphor-icons/react";
 import TradingInfoPanel from "./trading-info-panel";
 

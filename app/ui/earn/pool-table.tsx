@@ -4,7 +4,7 @@
 import { useNetwork } from "@/app/context/network-context";
 import {
   BASE_NETWORK,
-  ARBITRUM_NETWORK,
+  // ARBITRUM_NETWORK,
   OPTIMISM_NETWORK,
 } from "@/app/lib/constants";
 import { poolsPlaceholder } from "@/app/lib/static-values";

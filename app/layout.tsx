@@ -1,3 +1,5 @@
+"use client";
+
 import Navbar from "./ui/header/navbar";
 import { publicSans } from "./ui/fonts";
 import "./globals.css";

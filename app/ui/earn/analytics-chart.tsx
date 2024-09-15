@@ -107,6 +107,7 @@ const AnalyticsChart = ({ pool }: { pool: PoolTable }) => {
   const options = ["Deposit APY", "Withdrawal APY", "Transfer APY"];
 
   useEffect(() => {
+    if (pool) {}
     // fetch data here
   }, []);
 

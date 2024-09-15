@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect } from "react";
 import { X, CheckCircle, WarningCircle, Info } from "@phosphor-icons/react";
 

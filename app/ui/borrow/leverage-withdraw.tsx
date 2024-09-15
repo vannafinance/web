@@ -2,23 +2,22 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from "react";
-import { CaretDown, Info, Question } from "@phosphor-icons/react";
+import { Question } from "@phosphor-icons/react";
 import clsx from "clsx";
 import Tooltip from "../components/tooltip";
-import Image from "next/image";
 import Slider from "./slider";
 import TokenDropdown from "../components/token-dropdown";
 import { Contract } from "ethers";
 import { useWeb3React } from "@web3-react/core";
-import { useNetwork } from "@/app/context/network-context";
-import { arbAddressList, arbTokensAddress, baseTokensAddress } from "@/app/lib/web3-constants";
+// import { useNetwork } from "@/app/context/network-context";
+import {
+  arbAddressList,
+  arbTokensAddress,
+  baseTokensAddress,
+} from "@/app/lib/web3-constants";
 
 import AccountManager from "../../abi/vanna/v1/out/AccountManager.sol/AccountManager.json";
-import Registry from "../../abi/vanna/v1/out/Registry.sol/Registry.json";
-import DefaultRateModel from "../../abi/vanna/v1/out/DefaultRateModel.sol/DefaultRateModel.json";
-import RiskEngine from "../../abi/vanna/v1/out/RiskEngine.sol/RiskEngine.json";
-import VEther from "../../abi/vanna/v1/out/VEther.sol/VEther.json";
-import VToken from "../../abi/vanna/v1/out/VToken.sol/VToken.json";
+// import Registry from "../../abi/vanna/v1/out/Registry.sol/Registry.json";
 import ERC20 from "../../abi/vanna/v1/out/ERC20.sol/ERC20.json";
 import { parseEther, parseUnits } from "ethers/lib/utils";
 import {
@@ -29,18 +28,18 @@ import {
 
 const LevrageWithdraw = () => {
   const { account, library } = useWeb3React();
-  const { currentNetwork } = useNetwork();
+  // const { currentNetwork } = useNetwork();
 
   const [isSupply, setIsSupply] = useState(true);
   const [depositAmount, setDepositAmount] = useState("");
   const [borrowAmount, setBorrowAmount] = useState("");
-  const [selectedPercentage, setSelectedPercentage] = useState<number | null>(
-    null
-  );
+  // const [selectedPercentage, setSelectedPercentage] = useState<number | null>(
+  //   null
+  // );
   const [leverageValue, setLeverageValue] = useState<number>(5);
   // const [coinBalance, setCoinBalance] = useState(0);
   const [depositBalance, setDepositBalance] = useState<string | undefined>("-");
-  const [borrowBalance, setBorrowBalance] = useState<string | undefined>("-");
+  // const [borrowBalance, setBorrowBalance] = useState<string | undefined>("-");
   const [debt, setDebt] = useState(0);
   const [healthFactor, setHealthFactor] = useState("-");
   const [activeAccount, setActiveAccount] = useState();
@@ -54,7 +53,7 @@ const LevrageWithdraw = () => {
   const handleToggle = () => setIsSupply(!isSupply);
 
   const handlePercentageClick = (percentage: number) => {
-    setSelectedPercentage(percentage);
+    // setSelectedPercentage(percentage);
     setDepositAmount((parseFloat(balance) * (percentage / 100)).toFixed(3));
   };
 
@@ -66,11 +65,11 @@ const LevrageWithdraw = () => {
     setBorrowToken(token.name);
   };
 
-  const regitstryContract = new Contract(
-    arbAddressList.registryContractAddress,
-    Registry.abi,
-    library
-  );
+  // const regitstryContract = new Contract(
+  //   arbAddressList.registryContractAddress,
+  //   Registry.abi,
+  //   library
+  // );
 
   const accountManagerContract = new Contract(
     arbAddressList.accountManagerContractAddress,
@@ -111,16 +110,12 @@ const LevrageWithdraw = () => {
           tokenName,
           depositBalance
         );
-        const borrowBalanceInNumber = formatBignumberToUnits(
-          tokenName,
-          borrowBalance
-        );
+        // const borrowBalanceInNumber = formatBignumberToUnits(
+        //   tokenName,
+        //   borrowBalance
+        // );
         setDepositBalance(ceilWithPrecision(String(depositBalanceInNumber)));
-        setBorrowBalance(ceilWithPrecision(String(borrowBalanceInNumber)));
-        console.log(borrowBalanceInNumber);
-        console.log(depositBalanceInNumber);
-        
-        
+        // setBorrowBalance(ceilWithPrecision(String(borrowBalanceInNumber)));
       }
     } catch (e) {
       console.error(e);
@@ -196,70 +191,70 @@ const LevrageWithdraw = () => {
     }
   };
 
-  const withdraw = async () => {
-    if (depositToken === undefined) return;
-    else if (depositToken === "WETH") {
-      await accountManagerContract.withdrawEth(
-        activeAccount,
-        parseEther(depositAmount),
-        {
-          gasLimit: 2300000,
-        }
-      );
-    } else if (depositToken === "USDC" || depositToken === "USDT") {
-      await accountManagerContract.withdraw(
-        activeAccount,
-        arbTokensAddress[depositToken],
-        parseUnits(depositAmount, 6),
-        { gasLimit: 2300000 }
-      );
-    } else {
-      await accountManagerContract.withdraw(
-        activeAccount,
-        arbTokensAddress[depositToken],
-        parseEther(depositAmount),
-        { gasLimit: 2300000 }
-      );
-    }
-  };
+  // const withdraw = async () => {
+  //   if (depositToken === undefined) return;
+  //   else if (depositToken === "WETH") {
+  //     await accountManagerContract.withdrawEth(
+  //       activeAccount,
+  //       parseEther(depositAmount),
+  //       {
+  //         gasLimit: 2300000,
+  //       }
+  //     );
+  //   } else if (depositToken === "USDC" || depositToken === "USDT") {
+  //     await accountManagerContract.withdraw(
+  //       activeAccount,
+  //       arbTokensAddress[depositToken],
+  //       parseUnits(depositAmount, 6),
+  //       { gasLimit: 2300000 }
+  //     );
+  //   } else {
+  //     await accountManagerContract.withdraw(
+  //       activeAccount,
+  //       arbTokensAddress[depositToken],
+  //       parseEther(depositAmount),
+  //       { gasLimit: 2300000 }
+  //     );
+  //   }
+  // };
 
-  const borrow = async () => {
-    if (borrowToken === undefined) return;
-    else if (borrowToken === "USDC" || borrowToken === "USDT") {
-      await accountManagerContract.borrow(
-        activeAccount,
-        arbTokensAddress[borrowToken],
-        parseUnits(borrowAmount, 6),
-        { gasLimit: 2300000 }
-      );
-    } else {
-      await accountManagerContract.borrow(
-        activeAccount,
-        arbTokensAddress[borrowToken],
-        parseEther(borrowAmount),
-        { gasLimit: 2300000 }
-      );
-    }
-  };
+  // const borrow = async () => {
+  //   if (borrowToken === undefined) return;
+  //   else if (borrowToken === "USDC" || borrowToken === "USDT") {
+  //     await accountManagerContract.borrow(
+  //       activeAccount,
+  //       arbTokensAddress[borrowToken],
+  //       parseUnits(borrowAmount, 6),
+  //       { gasLimit: 2300000 }
+  //     );
+  //   } else {
+  //     await accountManagerContract.borrow(
+  //       activeAccount,
+  //       arbTokensAddress[borrowToken],
+  //       parseEther(borrowAmount),
+  //       { gasLimit: 2300000 }
+  //     );
+  //   }
+  // };
 
-  const repay = async () => {
-    if (borrowToken === undefined) return;
-    else if (borrowToken === "USDC" || borrowToken === "USDT") {
-      await accountManagerContract.repay(
-        activeAccount,
-        arbTokensAddress[borrowToken],
-        parseUnits(borrowAmount, 6),
-        { gasLimit: 2300000 }
-      );
-    } else {
-      await accountManagerContract.repay(
-        activeAccount,
-        arbTokensAddress[borrowToken],
-        parseEther(borrowAmount),
-        { gasLimit: 2300000 }
-      );
-    }
-  };
+  // const repay = async () => {
+  //   if (borrowToken === undefined) return;
+  //   else if (borrowToken === "USDC" || borrowToken === "USDT") {
+  //     await accountManagerContract.repay(
+  //       activeAccount,
+  //       arbTokensAddress[borrowToken],
+  //       parseUnits(borrowAmount, 6),
+  //       { gasLimit: 2300000 }
+  //     );
+  //   } else {
+  //     await accountManagerContract.repay(
+  //       activeAccount,
+  //       arbTokensAddress[borrowToken],
+  //       parseEther(borrowAmount),
+  //       { gasLimit: 2300000 }
+  //     );
+  //   }
+  // };
 
   return (
     <div className="bg-baseComplementary p-2 rounded-3xl w-full text-baseBlack">

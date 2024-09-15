@@ -122,11 +122,11 @@ export default function Page({ params }: { params: { id: string } }) {
               const usdtTotalBorrow = res.returnData[3];
               const daiTotalBorrow = res.returnData[4];
               // total supply
-              let ethSupply = formatUnits(res.returnData[5]);
-              let wbtcSupply = formatUnits(res.returnData[6]);
-              let usdcSupply = formatUnits(res.returnData[7]);
-              let usdtSupply = formatUnits(res.returnData[8]);
-              let daiSupply = formatUnits(res.returnData[9]);
+              const ethSupply = formatUnits(res.returnData[5]);
+              const wbtcSupply = formatUnits(res.returnData[6]);
+              const usdcSupply = formatUnits(res.returnData[7]);
+              const usdtSupply = formatUnits(res.returnData[8]);
+              const daiSupply = formatUnits(res.returnData[9]);
 
               let utilizationRate;
 

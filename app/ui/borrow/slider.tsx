@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import React from "react";
 
@@ -65,9 +67,7 @@ const Slider: React.FC<SliderProps> = ({ value, onChange }) => {
         {/* Tick marks */}
         <div className="absolute w-full flex justify-between mt-7">
           {[...Array(10)].map((_, i) => (
-            <span key={i}>
-              {i + 1}
-            </span>
+            <span key={i}>{i + 1}</span>
           ))}
         </div>
       </div>

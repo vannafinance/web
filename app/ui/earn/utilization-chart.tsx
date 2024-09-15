@@ -22,6 +22,7 @@ const data = [
 
 const UtilizationChart = ({ pool }: { pool: PoolTable }) => {
   useEffect(() => {
+    if (pool) {}
     // fetch data here
   }, []);
 

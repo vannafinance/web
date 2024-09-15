@@ -1,17 +1,16 @@
 "use client";
 
-import { useNetwork } from "@/app/context/network-context";
-import { ARBITRUM_NETWORK } from "@/app/lib/constants";
+// import { useNetwork } from "@/app/context/network-context";
+// import { ARBITRUM_NETWORK } from "@/app/lib/constants";
 import { generateDummyData } from "@/app/lib/helper";
 import FutureDropdown from "@/app/ui/future/future-dropdown";
 import OptionSlider from "@/app/ui/options/option-slider";
 import PositionsSection from "@/app/ui/options/positions-section";
-import { CaretDown, Cross, Plus, PlusSquare, X } from "@phosphor-icons/react";
+import { CaretDown, Plus, PlusSquare, X } from "@phosphor-icons/react";
 import { TrendDown, TrendUp } from "@phosphor-icons/react/dist/ssr";
-import { useWeb3React } from "@web3-react/core";
-import clsx from "clsx";
+// import { useWeb3React } from "@web3-react/core";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 type OptionType = "All" | "Calls" | "Puts";
 type DateOption =
@@ -27,8 +26,8 @@ type DateOption =
 type GreekOption = "Delta" | "Mark Price" | "Gamma" | "Vega" | "Theta";
 
 export default function Page() {
-  const { account, library } = useWeb3React();
-  const { currentNetwork } = useNetwork();
+  // const { account, library } = useWeb3React();
+  // const { currentNetwork } = useNetwork();
 
   const pairOptions: Option[] = [
     { value: "ETH", label: "ETH/USD", icon: "/eth-icon.svg" },
@@ -98,8 +97,8 @@ export default function Page() {
   const baseStrike = Math.floor(currentPrice / 100) * 100 - 300;
   const dummyData = generateDummyData(baseStrike, 6);
 
-  const tableRef = useRef<HTMLDivElement>(null);
-  const [labelPosition, setLabelPosition] = useState<number>(0);
+  // const tableRef = useRef<HTMLDivElement>(null);
+  // const [labelPosition, setLabelPosition] = useState<number>(0);
 
   const [size, setSize] = useState<string | undefined>(undefined);
   const [limitPrice, setLimitPrice] = useState<string | undefined>(undefined);

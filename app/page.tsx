@@ -1,3 +1,5 @@
+"use client";
+
 import OverviewTabMenu from "./ui/overview/overview-tab-menu";
 
 export default function Page() {

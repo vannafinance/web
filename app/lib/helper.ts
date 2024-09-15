@@ -2,7 +2,7 @@ import { formatUnits, parseUnits } from "ethers/lib/utils";
 
 export const sleep = (duration: number) => {
   // duration = 1000 => 1 second
-  return new Promise<void>(function (resolve, _reject) {
+  return new Promise<void>(function (resolve) {
     setTimeout(() => {
       resolve();
     }, duration);
@@ -10,7 +10,7 @@ export const sleep = (duration: number) => {
 };
 
 export const ceilWithPrecision = (n: string, precision = 3) => {
-  let num = parseFloat(n);
+  const num = parseFloat(n);
   // Check if the conversion was successful
   if (isNaN(num)) {
     return n;
@@ -20,7 +20,7 @@ export const ceilWithPrecision = (n: string, precision = 3) => {
 };
 
 export const ceilWithPrecision6 = (n: string, precision = 6) => {
-  let num = parseFloat(n);
+  const num = parseFloat(n);
   // Check if the conversion was successful
   if (isNaN(num)) {
     return n;

@@ -47,6 +47,7 @@ export default function NavbarButtons() {
         params: [{ chainId: "0xa4b1" }],
       });
       await sleep(3000);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (switchError: any) {
       if (switchError.code === 4902) {
         try {
@@ -77,6 +78,7 @@ export default function NavbarButtons() {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const errorHandlingForConnectWallet = (err: any) => {
     let errMsg = null;
     console.error(err.name);

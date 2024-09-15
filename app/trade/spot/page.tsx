@@ -2,9 +2,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-import { useNetwork } from "@/app/context/network-context";
+// import { useNetwork } from "@/app/context/network-context";
 import {
-  ceilWithPrecision,
   formatBignumberToUnits,
   formatStringToUnits,
   sleep,
@@ -26,17 +25,17 @@ import Registry from "../../abi/vanna/v1/out/Registry.sol/Registry.json";
 export default function Page() {
   const { account, library } = useWeb3React();
   const [activeAccount, setActiveAccount] = useState();
-  const { currentNetwork } = useNetwork();
+  // const { currentNetwork } = useNetwork();
   const [payInput, setPayInput] = useState("");
   const [receiveInput, setReceiveInput] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [payCoin, setPayCoin] = useState("WETH");
   const [receiveCoin, setReceiveCoin] = useState("USDC");
-  const [balList, setBalList] = useState<{ [key: string]: string } | undefined>(
-    undefined
-  );
-  const [payBalance, setPayBalance] = useState();
-  const [receiveBalance, setReceiveBalance] = useState();
+  // const [balList, setBalList] = useState<{ [key: string]: string } | undefined>(
+  //   undefined
+  // );
+  // const [payBalance, setPayBalance] = useState();
+  // const [receiveBalance, setReceiveBalance] = useState();
 
   const toggleOpen = () => setIsOpen(!isOpen);
 
@@ -118,7 +117,7 @@ export default function Page() {
         listOfBalance["USDT"] = formatBignumberToUnits("USDT", usdtBalOfSA);
         listOfBalance["DAI"] = formatBignumberToUnits("DAI", wbtcBalOfSA);
 
-        setBalList(listOfBalance);
+        // setBalList(listOfBalance);
       }
     } catch (e) {
       console.error(e);

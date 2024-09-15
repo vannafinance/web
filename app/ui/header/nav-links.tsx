@@ -61,7 +61,9 @@ export default function NavLinks() {
                   "py-1 px-4 inline-flex items-center whitespace-nowrap",
                   isActive &&
                     "text-baseBlack font-medium after:content-[''] after:absolute after:left-0 after:w-full after:h-[3px] after:bg-gradient-to-r after:from-gradient-1 after:to-gradient-2",
-                  isActive && sublink != "" ? " after:-bottom-1/4" : "after:-bottom-2/3"
+                  isActive && sublink != ""
+                    ? " after:-bottom-1/4"
+                    : "after:-bottom-2/3"
                 )}
               >
                 <span>{link.title}</span>

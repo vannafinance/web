@@ -1,3 +1,6 @@
+/* eslint-disable */
+"use client";
+
 export const SimpleTableComponent: React.FC<{
   title: string;
   data: any;
@@ -25,7 +28,7 @@ export const SimpleTableComponent: React.FC<{
         </thead>
         <tbody>
           {Object.entries(data).map(([asset, values], rowIndex) => (
-            <tr key={asset}>
+            <tr key={rowIndex}>
               <td className="py-1 px-3 text-baseBlack text-xs font-semibold border-r border-neutral-300">
                 {asset}
               </td>
@@ -38,7 +41,7 @@ export const SimpleTableComponent: React.FC<{
                       : ""
                   }`}
                 >
-                  {values[header] || ""}
+                  {(values as Record<string, any>)[header] || ""}
                 </td>
               ))}
             </tr>

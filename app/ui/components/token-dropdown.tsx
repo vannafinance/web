@@ -5,9 +5,7 @@ import { CaretDown } from "@phosphor-icons/react";
 import Image from "next/image";
 import { useState } from "react";
 
-export const TokenDropdown: React.FC<TokenDropdownProps> = ({
-  onSelect,
-}) => {
+export const TokenDropdown: React.FC<TokenDropdownProps> = ({ onSelect }) => {
   const options = poolsPlaceholder;
   const [isOpen, setIsOpen] = useState(false);
   const [selectedToken, setSelectedToken] = useState(options[0]);

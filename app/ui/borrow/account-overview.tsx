@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import Tooltip from "../components/tooltip";
 import { CaretRight, Question } from "@phosphor-icons/react";

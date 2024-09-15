@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 
 const PositionsComponent = () => <div>Positions Component</div>;
@@ -29,8 +31,8 @@ const PositionsSection = () => {
     },
   ];
 
-  const ActiveComponent =
-    navItems.find((item) => item.name === activeTab)?.component || (() => null);
+  // const ActiveComponent =
+  //   navItems.find((item) => item.name === activeTab)?.component || (() => null);
 
   return (
     <div className="border border-neutral-100 rounded-xl p-1">
@@ -55,9 +57,7 @@ const PositionsSection = () => {
           ))}
         </ul>
       </nav>
-      <div className="pt-5">
-        {/* <ActiveComponent /> */}
-      </div>
+      <div className="pt-5">{/* <ActiveComponent /> */}</div>
     </div>
   );
 };

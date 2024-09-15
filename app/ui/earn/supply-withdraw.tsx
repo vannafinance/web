@@ -2,19 +2,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-// caretdown imported to create custom dropdown, check if needed
-import { CaretDown, Info } from "@phosphor-icons/react";
+import { Info } from "@phosphor-icons/react";
 import clsx from "clsx";
 import TokenDropdown from "../components/token-dropdown";
 import Tooltip from "../components/tooltip";
 import Image from "next/image";
 
-import {
-  BASE_NETWORK,
-  FEES,
-  OPTIMISM_NETWORK,
-  SECS_PER_YEAR,
-} from "@/app/lib/constants";
+import { BASE_NETWORK, OPTIMISM_NETWORK } from "@/app/lib/constants";
 import { ethers, utils, Contract } from "ethers";
 import { formatUnits, parseEther, parseUnits } from "ethers/lib/utils";
 
@@ -30,10 +24,9 @@ import {
 } from "@/app/lib/web3-constants";
 
 import DefaultRateModel from "@/app/abi/vanna/v1/out/DefaultRateModel.sol/DefaultRateModel.json";
-import Multicall from "@/app/abi/vanna/v1/out/Multicall.sol/Multicall.json";
+// import Multicall from "@/app/abi/vanna/v1/out/Multicall.sol/Multicall.json";
 import ERC20 from "../../abi/vanna/v1/out/ERC20.sol/ERC20.json";
 import {
-  ceilWithPrecision6,
   ceilWithPrecision,
   sleep,
   formatBignumberToUnits,
@@ -46,9 +39,9 @@ const SupplyWithdraw = ({ pool }: { pool: PoolTable }) => {
   const { currentNetwork } = useNetwork();
   const [isSupply, setIsSupply] = useState(true);
   const [amount, setAmount] = useState("");
-  const [selectedPercentage, setSelectedPercentage] = useState<number | null>(
-    null
-  );
+  // const [selectedPercentage, setSelectedPercentage] = useState<number | null>(
+  //   null
+  // );
   const [expected, setExpected] = useState(0);
   const [coinBalance, setCoinBalance] = useState("-");
   const [youGet, setYouGet] = useState(0);
@@ -60,7 +53,7 @@ const SupplyWithdraw = ({ pool }: { pool: PoolTable }) => {
   const handleToggle = () => setIsSupply(!isSupply);
 
   const handlePercentageClick = (percentage: number) => {
-    setSelectedPercentage(percentage);
+    // setSelectedPercentage(percentage);
     setAmount(
       (parseFloat(String(coinBalance)) * (percentage / 100)).toFixed(3)
     );
@@ -94,11 +87,11 @@ const SupplyWithdraw = ({ pool }: { pool: PoolTable }) => {
     VToken.abi,
     library
   );
-  const rateModelContract = new Contract(
-    arbAddressList.rateModelContractAddress,
-    DefaultRateModel.abi,
-    library
-  );
+  // const rateModelContract = new Contract(
+  //   arbAddressList.rateModelContractAddress,
+  //   DefaultRateModel.abi,
+  //   library
+  // );
 
   const fetchParams = () => {
     try {
@@ -679,53 +672,53 @@ const SupplyWithdraw = ({ pool }: { pool: PoolTable }) => {
           signer
         );
 
-        const fetchParams = () => {
-          try {
-            const processParams = async () => {
-              if (pool.name == "WETH") {
-                const ethPerVeth = formatBignumberToUnits(
-                  pool.name,
-                  await vEtherContract.convertToShares(parseUnits("1", 18))
-                );
-                setEthPerVeth(ceilWithPrecision(ethPerVeth, 6));
-              } else if (pool.name === "WBTC") {
-                const btcPerVbtc = formatBignumberToUnits(
-                  pool.name,
-                  await vWbtcContract.convertToShares(parseUnits("1", 18))
-                );
+        // const fetchParams = () => {
+        //   try {
+        //     const processParams = async () => {
+        //       if (pool.name == "WETH") {
+        //         const ethPerVeth = formatBignumberToUnits(
+        //           pool.name,
+        //           await vEtherContract.convertToShares(parseUnits("1", 18))
+        //         );
+        //         setEthPerVeth(ceilWithPrecision(ethPerVeth, 6));
+        //       } else if (pool.name === "WBTC") {
+        //         const btcPerVbtc = formatBignumberToUnits(
+        //           pool.name,
+        //           await vWbtcContract.convertToShares(parseUnits("1", 18))
+        //         );
 
-                setEthPerVeth(ceilWithPrecision(btcPerVbtc, 6));
-              } else if (pool.name === "USDC") {
-                const usdcPerVusdc = formatBignumberToUnits(
-                  pool.name,
-                  await vUsdcContract.convertToShares(parseUnits("1", 6))
-                );
+        //         setEthPerVeth(ceilWithPrecision(btcPerVbtc, 6));
+        //       } else if (pool.name === "USDC") {
+        //         const usdcPerVusdc = formatBignumberToUnits(
+        //           pool.name,
+        //           await vUsdcContract.convertToShares(parseUnits("1", 6))
+        //         );
 
-                setEthPerVeth(ceilWithPrecision(usdcPerVusdc, 6));
-              } else if (pool.name === "USDT") {
-                const usdtPerVusdt = formatBignumberToUnits(
-                  pool.name,
-                  await vUsdtContract.convertToShares(parseUnits("1", 6))
-                );
+        //         setEthPerVeth(ceilWithPrecision(usdcPerVusdc, 6));
+        //       } else if (pool.name === "USDT") {
+        //         const usdtPerVusdt = formatBignumberToUnits(
+        //           pool.name,
+        //           await vUsdtContract.convertToShares(parseUnits("1", 6))
+        //         );
 
-                setEthPerVeth(ceilWithPrecision(usdtPerVusdt, 6));
-              } else if (pool.name === "DAI") {
-                const daiPerVdai = formatBignumberToUnits(
-                  pool.name,
-                  await vDaiContract.convertToShares(parseUnits("1", 18))
-                );
+        //         setEthPerVeth(ceilWithPrecision(usdtPerVusdt, 6));
+        //       } else if (pool.name === "DAI") {
+        //         const daiPerVdai = formatBignumberToUnits(
+        //           pool.name,
+        //           await vDaiContract.convertToShares(parseUnits("1", 18))
+        //         );
 
-                setEthPerVeth(ceilWithPrecision(daiPerVdai, 6));
-              } else {
-                console.error("Something went wrong, token = ", pool.name);
-              }
-            };
+        //         setEthPerVeth(ceilWithPrecision(daiPerVdai, 6));
+        //       } else {
+        //         console.error("Something went wrong, token = ", pool.name);
+        //       }
+        //     };
 
-            processParams();
-          } catch (e) {
-            console.error(e);
-          }
-        };
+        //     processParams();
+        //   } catch (e) {
+        //     console.error(e);
+        //   }
+        // };
 
         if (isSupply) {
           if (pool.name === "WETH") {

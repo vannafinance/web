@@ -1,3 +1,5 @@
+"use client";
+
 const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, subtitle }) => {
   return (
     <div className="bg-white rounded-lg px-2 py-3 flex items-center hover:bg-neutral-100">

@@ -8,23 +8,21 @@ import Tooltip from "../components/tooltip";
 import { useWeb3React } from "@web3-react/core";
 import { useNetwork } from "@/app/context/network-context";
 import {
-  baseAddressList,
+  // baseAddressList,
   getShortenedAddress,
   opAddressList,
 } from "@/app/lib/web3-constants";
 import { useEffect, useState } from "react";
 import { BASE_NETWORK, OPTIMISM_NETWORK } from "@/app/lib/constants";
-import { ethers, utils, Contract } from "ethers";
+import { utils, Contract } from "ethers";
 import { formatUnits, parseUnits } from "ethers/lib/utils";
 
 import VEther from "@/app/abi/vanna/v1/out/VEther.sol/VEther.json";
 import VToken from "@/app/abi/vanna/v1/out/VToken.sol/VToken.json";
 import { arbAddressList } from "@/app/lib/web3-constants";
 
-import DefaultRateModel from "@/app/abi/vanna/v1/out/DefaultRateModel.sol/DefaultRateModel.json";
 import Multicall from "@/app/abi/vanna/v1/out/Multicall.sol/Multicall.json";
 import { ceilWithPrecision6, ceilWithPrecision } from "@/app/lib/helper";
-import { SECS_PER_YEAR, FEES } from "@/app/lib/constants";
 
 const PoolDetails = ({ pool }: { pool: PoolTable }) => {
   const { account, library } = useWeb3React();
