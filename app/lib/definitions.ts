@@ -102,3 +102,60 @@ interface CryptoData {
 interface PositionOpenCloseProps {
   market: string;
 }
+
+interface UserData {
+  availableBalance: string;
+  marginUsage: string;
+  totalPnl: string;
+  healthFactor: string;
+  borrowRate: string;
+}
+
+interface OptionPosition {
+  id: number;
+  selected: boolean;
+  strikePrice: number;
+  cp: "CE" | "PE";
+  units: number;
+  traded: number;
+  price: number;
+  delta: number;
+  iv: number;
+}
+
+interface FuturePosition {
+  id: number;
+  selected: boolean;
+  marketPrice: number;
+  entryPrice: number;
+  size: number;
+  leverage: number;
+  liqPrice: number;
+  delta: number;
+  pnl: number;
+}
+
+interface PortfolioSummaryProps {
+  future: number;
+  premium: number;
+  option: number;
+  grossPnl: number;
+  netBal: number;
+  theta: number;
+  vega: number;
+  gamma: number;
+}
+
+interface OptionsDeltaData {
+  assets: string[];
+  call: string[];
+  put: string[];
+  total: string[];
+}
+
+interface FutureDeltaData {
+  assets: string[];
+  equity: string[];
+  future: string[];
+  average: string[];
+}
