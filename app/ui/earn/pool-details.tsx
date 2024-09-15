@@ -7,7 +7,11 @@ import { Copy, Info } from "@phosphor-icons/react";
 import Tooltip from "../components/tooltip";
 import { useWeb3React } from "@web3-react/core";
 import { useNetwork } from "@/app/context/network-context";
-import { baseAddressList, getShortenedAddress, opAddressList } from "@/app/lib/web3-constants";
+import {
+  baseAddressList,
+  getShortenedAddress,
+  opAddressList,
+} from "@/app/lib/web3-constants";
 import { useEffect, useState } from "react";
 import { BASE_NETWORK, OPTIMISM_NETWORK } from "@/app/lib/constants";
 import { ethers, utils, Contract } from "ethers";
@@ -170,7 +174,6 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
             const usdcToVusdc = res.returnData[12];
             const usdtToVusdt = res.returnData[13];
             const daiToVdai = res.returnData[14];
-            console.log("ethToVeth",ethToVeth);
 
             // utilazation rate
             // let ethUtilization = ethTotalBorrow/parseFloat(formatUnits(pool.supply));
@@ -239,7 +242,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 }
                 return detail;
               });
-              setPoolAddress(arbAddressList.vEtherContractAddress)
+              setPoolAddress(arbAddressList.vEtherContractAddress);
               setDetails(updatedPoolDetails);
             }
             if (pool.name === "WBTC") {
@@ -306,7 +309,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 }
                 return detail;
               });
-              setPoolAddress(arbAddressList.vWBTCContractAddress)
+              setPoolAddress(arbAddressList.vWBTCContractAddress);
               setDetails(updatedPoolDetails);
             }
             if (pool.name === "USDC") {
@@ -373,9 +376,8 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 }
                 return detail;
               });
-              setPoolAddress(arbAddressList.vUSDCContractAddress)
+              setPoolAddress(arbAddressList.vUSDCContractAddress);
               setDetails(updatedPoolDetails);
-            
             }
             if (pool.name === "USDT") {
               const updatedPoolDetails = details.map((detail) => {
@@ -441,7 +443,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 }
                 return detail;
               });
-              setPoolAddress(arbAddressList.vUSDTContractAddress)
+              setPoolAddress(arbAddressList.vUSDTContractAddress);
               setDetails(updatedPoolDetails);
             }
             if (pool.name === "DAI") {
@@ -508,7 +510,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 }
                 return detail;
               });
-              setPoolAddress(arbAddressList.vDaiContractAddress)
+              setPoolAddress(arbAddressList.vDaiContractAddress);
               setDetails(updatedPoolDetails);
             }
           };
@@ -555,7 +557,6 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
         //     )
         //     calldata.push([arbAddressList.wbtcTokenAddress, tempData]);
 
-        //     console.log("works");
         //     // USDC
         //     tempData = utils.arrayify(
         //                 iFaceToken.encodeFunctionData("totalSupply",
@@ -700,8 +701,6 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
         //     let avaibaleUSDT = res.returnData[7];
         //     let avaibaleDai = res.returnData[9];
 
-        //     console.log("avaibaleETH",avaibaleETH);
-
         //      // totalBorrow
 
         //      let ethTotalBorrow = res.returnData[10];
@@ -710,10 +709,6 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
         //      let usdtTotalBorrow = res.returnData[13];
         //      let daiTotalBorrow = res.returnData[14];
 
-        //      console.log("ethTotalBorrow",ethTotalBorrow);
-        //      console.log("f-ethTotalBorrow",formatUnits(ethTotalBorrow));
-        //      console.log("P-ethTotalBorrow",ethTotalBorrow);
-
         //     // Utilization Rate
 
         //     let ethUtilization = parseFloat(ethTotalBorrow) /parseFloat(ethSupply) ;
@@ -721,7 +716,6 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
         //     let usdcUtilization = parseFloat(usdcTotalBorrow)/parseFloat(usdcSupply);
         //     let usdtUtilization = parseFloat(usdtTotalBorrow)/parseFloat(usdtSupply);
         //     let daiUtilization = parseFloat(daiTotalBorrow)/parseFloat(daiSupply);
-        //     console.log("ethUtilization",ethUtilization);
 
         //     // Your Balance
         //     const ethBal = formatUnits(res.returnData[15], 18);
@@ -729,8 +723,6 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
         //     const usdcBal = formatUnits(res.returnData[17], 18);
         //     const usdtBal = formatUnits(res.returnData[18], 18);
         //     const daiBal = formatUnits(res.returnData[19], 18);
-
-        //     console.log("ethBal",ethBal);
 
         //     // Dependent varibale data fetching
         //     let calldata1 = [];
@@ -779,8 +771,6 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
         //     calldata1.push([arbAddressList.rateModelContractAddress, tempData1]);
 
         //     var res1 = await MCcontract.callStatic.aggregate(calldata1);
-
-        //     // console.log(res1);
 
         //     const ethBorrowAPY = res1.returnData[0];
         //     const ethBorrowApy = ethTotalBorrow != 0 ? parseFloat(formatUnits(ethBorrowAPY)) * SECS_PER_YEAR * 1e3 : 0;
@@ -1333,7 +1323,6 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
         //     )
         //     calldata.push([opAddressList.wbtcTokenAddress, tempData]);
 
-        //     console.log("works");
         //     // USDC
         //     tempData = utils.arrayify(
         //                 iFaceToken.encodeFunctionData("totalSupply",
@@ -1478,8 +1467,6 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
         //     let avaibaleUSDT = res.returnData[7];
         //     let avaibaleDai = res.returnData[9];
 
-        //     console.log("avaibaleETH",avaibaleETH);
-
         //      // totalBorrow
 
         //      let ethTotalBorrow = res.returnData[10];
@@ -1488,10 +1475,6 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
         //      let usdtTotalBorrow = res.returnData[13];
         //      let daiTotalBorrow = res.returnData[14];
 
-        //      console.log("ethTotalBorrow",ethTotalBorrow);
-        //      console.log("f-ethTotalBorrow",formatUnits(ethTotalBorrow));
-        //      console.log("P-ethTotalBorrow",ethTotalBorrow);
-
         //     // Utilization Rate
 
         //     let ethUtilization = parseFloat(ethTotalBorrow) /parseFloat(ethSupply) ;
@@ -1499,7 +1482,6 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
         //     let usdcUtilization = parseFloat(usdcTotalBorrow)/parseFloat(usdcSupply);
         //     let usdtUtilization = parseFloat(usdtTotalBorrow)/parseFloat(usdtSupply);
         //     let daiUtilization = parseFloat(daiTotalBorrow)/parseFloat(daiSupply);
-        //     console.log("ethUtilization",ethUtilization);
 
         //     // Your Balance
         //     const ethBal = formatUnits(res.returnData[15], 18);
@@ -1507,8 +1489,6 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
         //     const usdcBal = formatUnits(res.returnData[17], 18);
         //     const usdtBal = formatUnits(res.returnData[18], 18);
         //     const daiBal = formatUnits(res.returnData[19], 18);
-
-        //     console.log("ethBal",ethBal);
 
         //     // Dependent varibale data fetching
         //     let calldata1 = [];
@@ -1557,8 +1537,6 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
         //     calldata1.push([opAddressList.rateModelContractAddress, tempData1]);
 
         //     var res1 = await MCcontract.callStatic.aggregate(calldata1);
-
-        //     // console.log(res1);
 
         //     const ethBorrowAPY = res1.returnData[0];
         //     const ethBorrowApy = ethTotalBorrow != 0 ? parseFloat(formatUnits(ethBorrowAPY)) * SECS_PER_YEAR * 1e3 : 0;
@@ -1733,7 +1711,6 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //         const usdcToVusdc = res.returnData[12];
     //         const usdtToVusdt = res.returnData[13];
     //         const daiToVdai = res.returnData[14];
-    //         console.log("ethToVeth",ethToVeth);
 
     //         // utilazation rate
     //         // let ethUtilization = ethTotalBorrow/parseFloat(formatUnits(pool.supply));
@@ -2112,7 +2089,6 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //     //     )
     //     //     calldata.push([baseAddressList.wbtcTokenAddress, tempData]);
 
-    //     //     console.log("works");
     //     //     // USDC
     //     //     tempData = utils.arrayify(
     //     //                 iFaceToken.encodeFunctionData("totalSupply",
@@ -2257,8 +2233,6 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //     //     let avaibaleUSDT = res.returnData[7];
     //     //     let avaibaleDai = res.returnData[9];
 
-    //     //     console.log("avaibaleETH",avaibaleETH);
-
     //     //      // totalBorrow
 
     //     //      let ethTotalBorrow = res.returnData[10];
@@ -2267,10 +2241,6 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //     //      let usdtTotalBorrow = res.returnData[13];
     //     //      let daiTotalBorrow = res.returnData[14];
 
-    //     //      console.log("ethTotalBorrow",ethTotalBorrow);
-    //     //      console.log("f-ethTotalBorrow",formatUnits(ethTotalBorrow));
-    //     //      console.log("P-ethTotalBorrow",ethTotalBorrow);
-
     //     //     // Utilization Rate
 
     //     //     let ethUtilization = parseFloat(ethTotalBorrow) /parseFloat(ethSupply) ;
@@ -2278,7 +2248,6 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //     //     let usdcUtilization = parseFloat(usdcTotalBorrow)/parseFloat(usdcSupply);
     //     //     let usdtUtilization = parseFloat(usdtTotalBorrow)/parseFloat(usdtSupply);
     //     //     let daiUtilization = parseFloat(daiTotalBorrow)/parseFloat(daiSupply);
-    //     //     console.log("ethUtilization",ethUtilization);
 
     //     //     // Your Balance
     //     //     const ethBal = formatUnits(res.returnData[15], 18);
@@ -2286,8 +2255,6 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //     //     const usdcBal = formatUnits(res.returnData[17], 18);
     //     //     const usdtBal = formatUnits(res.returnData[18], 18);
     //     //     const daiBal = formatUnits(res.returnData[19], 18);
-
-    //     //     console.log("ethBal",ethBal);
 
     //     //     // Dependent varibale data fetching
     //     //     let calldata1 = [];
@@ -2337,8 +2304,6 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
 
     //     //     var res1 = await MCcontract.callStatic.aggregate(calldata1);
 
-    //     //     // console.log(res1);
-
     //     //     const ethBorrowAPY = res1.returnData[0];
     //     //     const ethBorrowApy = ethTotalBorrow != 0 ? parseFloat(formatUnits(ethBorrowAPY)) * SECS_PER_YEAR * 1e3 : 0;
     //     //     const ethSupplyApy = ethBorrowApy - ethBorrowApy * FEES;
@@ -2371,7 +2336,6 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //     console.error(error);
     //   }
     // }
-
   }, [account]);
 
   const handleCopyAddress = (address: string) => {

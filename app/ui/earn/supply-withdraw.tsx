@@ -9,25 +9,39 @@ import TokenDropdown from "../components/token-dropdown";
 import Tooltip from "../components/tooltip";
 import Image from "next/image";
 
-import { BASE_NETWORK, FEES, OPTIMISM_NETWORK, SECS_PER_YEAR } from "@/app/lib/constants";
+import {
+  BASE_NETWORK,
+  FEES,
+  OPTIMISM_NETWORK,
+  SECS_PER_YEAR,
+} from "@/app/lib/constants";
 import { ethers, utils, Contract } from "ethers";
 import { formatUnits, parseEther, parseUnits } from "ethers/lib/utils";
 
 import VEther from "@/app/abi/vanna/v1/out/VEther.sol/VEther.json";
 import VToken from "@/app/abi/vanna/v1/out/VToken.sol/VToken.json";
-import { arbAddressList, baseAddressList, opAddressList, arbTokensAddress, opTokensAddress, baseTokensAddress } from "@/app/lib/web3-constants";
-
+import {
+  arbAddressList,
+  baseAddressList,
+  opAddressList,
+  arbTokensAddress,
+  opTokensAddress,
+  baseTokensAddress,
+} from "@/app/lib/web3-constants";
 
 import DefaultRateModel from "@/app/abi/vanna/v1/out/DefaultRateModel.sol/DefaultRateModel.json";
 import Multicall from "@/app/abi/vanna/v1/out/Multicall.sol/Multicall.json";
 import ERC20 from "../../abi/vanna/v1/out/ERC20.sol/ERC20.json";
-import { ceilWithPrecision6, ceilWithPrecision, sleep, formatBignumberToUnits } from "@/app/lib/helper";
+import {
+  ceilWithPrecision6,
+  ceilWithPrecision,
+  sleep,
+  formatBignumberToUnits,
+} from "@/app/lib/helper";
 import { useNetwork } from "@/app/context/network-context";
 import { useWeb3React } from "@web3-react/core";
 
-
 const SupplyWithdraw = ({ pool }: { pool: PoolTable }) => {
-  
   const { account, library } = useWeb3React();
   const { currentNetwork } = useNetwork();
   const [isSupply, setIsSupply] = useState(true);
@@ -47,625 +61,826 @@ const SupplyWithdraw = ({ pool }: { pool: PoolTable }) => {
 
   const handlePercentageClick = (percentage: number) => {
     setSelectedPercentage(percentage);
-    setAmount((parseFloat(String(coinBalance)) * (percentage / 100)).toFixed(3));
+    setAmount(
+      (parseFloat(String(coinBalance)) * (percentage / 100)).toFixed(3)
+    );
   };
 
   const handleTokenSelect = (token: PoolTable) => {
-    console.log("Selected token:", token);
+    // TODO: add action here
   };
-  const vEtherContract = new Contract(arbAddressList.vEtherContractAddress, VEther.abi, library);
-        const vDaiContract = new Contract(arbAddressList.vDaiContractAddress, VToken.abi, library);
-        const vUsdcContract = new Contract(arbAddressList.vUSDCContractAddress, VToken.abi, library);
-        const vUsdtContract = new Contract(arbAddressList.vUSDTContractAddress, VToken.abi, library);
-        const vWbtcContract = new Contract(arbAddressList.vWBTCContractAddress, VToken.abi, library);
+  const vEtherContract = new Contract(
+    arbAddressList.vEtherContractAddress,
+    VEther.abi,
+    library
+  );
+  const vDaiContract = new Contract(
+    arbAddressList.vDaiContractAddress,
+    VToken.abi,
+    library
+  );
+  const vUsdcContract = new Contract(
+    arbAddressList.vUSDCContractAddress,
+    VToken.abi,
+    library
+  );
+  const vUsdtContract = new Contract(
+    arbAddressList.vUSDTContractAddress,
+    VToken.abi,
+    library
+  );
+  const vWbtcContract = new Contract(
+    arbAddressList.vWBTCContractAddress,
+    VToken.abi,
+    library
+  );
+  const rateModelContract = new Contract(
+    arbAddressList.rateModelContractAddress,
+    DefaultRateModel.abi,
+    library
+  );
+
+  const fetchParams = () => {
+    try {
+      const processParams = async () => {
+        if (pool.name == "WETH") {
+          const ethPerVeth = formatBignumberToUnits(
+            pool.name,
+            await vEtherContract.convertToShares(parseUnits("1", 18))
+          );
+          setEthPerVeth(ceilWithPrecision(ethPerVeth));
+        } else if (pool.name === "WBTC") {
+          const btcPerVbtc = formatBignumberToUnits(
+            pool.name,
+            await vWbtcContract.convertToShares(parseUnits("1", 18))
+          );
+
+          setEthPerVeth(ceilWithPrecision(btcPerVbtc, 6));
+        } else if (pool.name === "USDC") {
+          const usdcPerVusdc = formatBignumberToUnits(
+            pool.name,
+            await vUsdcContract.convertToShares(parseUnits("1", 6))
+          );
+
+          setEthPerVeth(ceilWithPrecision(usdcPerVusdc, 6));
+        } else if (pool.name === "USDT") {
+          const usdtPerVusdt = formatBignumberToUnits(
+            pool.name,
+            await vUsdtContract.convertToShares(parseUnits("1", 6))
+          );
+
+          setEthPerVeth(ceilWithPrecision(usdtPerVusdt, 6));
+        } else if (pool.name === "DAI") {
+          const daiPerVdai = formatBignumberToUnits(
+            pool.name,
+            await vDaiContract.convertToShares(parseUnits("1", 18))
+          );
+
+          setEthPerVeth(ceilWithPrecision(daiPerVdai, 6));
+        } else {
+          console.error("Something went wrong, token = ", pool.name);
+        }
+      };
+
+      processParams();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+  fetchParams();
+
+  const getTokenBalance = async (tokenName = pool.name) => {
+    try {
+      if (account) {
+        const signer = await library?.getSigner();
+
+        let bal;
+
+        if (tokenName == "WETH") {
+          bal = await library?.getBalance(account);
+        } else {
+          const contract = new Contract(
+            arbTokensAddress[tokenName],
+            ERC20.abi,
+            signer
+          );
+          bal = await contract.balanceOf(account);
+        }
+
+        const balInNumber = ceilWithPrecision(
+          formatBignumberToUnits(tokenName, bal)
+        );
+        setCoinBalance(balInNumber);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+  useEffect(() => {
+    getTokenBalance();
+  }, [account]);
+
+  const deposit = async () => {
+    if (currentNetwork.id === BASE_NETWORK) {
+      // value assigne is pending
+      try {
+        const signer = await library?.getSigner();
+        // ERC20 contract
+        const WBTCContract = new Contract(
+          arbTokensAddress[pool.name],
+          ERC20.abi,
+          signer
+        );
+        const USDCContract = new Contract(
+          arbTokensAddress[pool.name],
+          ERC20.abi,
+          signer
+        );
+        const USDTContract = new Contract(
+          arbTokensAddress[pool.name],
+          ERC20.abi,
+          signer
+        );
+        const DAIContract = new Contract(
+          arbTokensAddress[pool.name],
+          ERC20.abi,
+          signer
+        );
+
+        //@TODO: ask meet about this error
+
+        if (isSupply) {
+          if (pool.name === "WETH") {
+            await vEtherContract.depositEth({
+              value: parseEther(amount),
+              gasLimit: 2300000,
+            });
+          } else if (pool.name === "WBTC") {
+            // to confirm this abi, address & function
+
+            const allowance = await WBTCContract.allowance(
+              account,
+              arbAddressList.vWBTCContractAddress
+            );
+
+            if (allowance < amount) {
+              await WBTCContract.approve(
+                arbAddressList.vWBTCContractAddress,
+                parseEther(amount)
+              );
+              await sleep(3000);
+            }
+
+            await vWbtcContract.deposit(parseEther(amount), account, {
+              gasLimit: 2300000,
+            });
+          } else if (pool.name === "USDC") {
+            // to confirm this abi, address & function
+
+            const allowance = await USDCContract.allowance(
+              account,
+              arbAddressList.vUSDCContractAddress
+            );
+
+            if (allowance < amount) {
+              await USDCContract.approve(
+                arbAddressList.vUSDCContractAddress,
+                parseUnits(amount, 6)
+              );
+              await sleep(3000);
+            }
+
+            await vUsdcContract.deposit(parseUnits(amount, 6), account, {
+              gasLimit: 23000000,
+            });
+          } else if (pool.name === "USDT") {
+            // to confirm this abi, address & function
+
+            const allowance = await USDTContract.allowance(
+              account,
+              arbAddressList.vUSDTContractAddress
+            );
+
+            if (allowance < amount) {
+              await USDTContract.approve(
+                arbAddressList.vUSDTContractAddress,
+                parseUnits(amount, 6)
+              );
+              await sleep(3000);
+            }
+
+            await vUsdtContract.deposit(parseUnits(amount, 6), account, {
+              gasLimit: 23000000,
+            });
+          } else {
+            const allowance = await DAIContract.allowance(
+              account,
+              arbAddressList.vDaiContractAddress
+            );
+
+            if (allowance < amount) {
+              await DAIContract.approve(
+                arbAddressList.vDaiContractAddress,
+                parseEther(amount)
+              );
+              await sleep(3000);
+            }
+
+            await vDaiContract.deposit(parseEther(amount), account);
+          }
+        } else {
+          if (pool.name === "WETH") {
+            const vEthcontract = new Contract(
+              arbAddressList.vEtherContractAddress,
+              VEther.abi,
+              signer
+            );
+            if (amount <= (await vEthcontract.balanceOf(account))) {
+              await vEthcontract.redeemEth(parseEther(amount), {
+                gasLimit: 2300000,
+              });
+            }
+          } else if (pool.name === "WBTC") {
+            const vBTCcontract = new Contract(
+              arbAddressList.vWBTCContractAddress,
+              VToken.abi,
+              signer
+            );
+            if (amount <= (await vBTCcontract.balanceOf(account))) {
+              await vBTCcontract.redeem(parseEther(amount), account, account, {
+                gasLimit: 2300000,
+              });
+            }
+          } else if (pool.name === "USDC") {
+            const vUSDCcontract = new Contract(
+              arbAddressList.vUSDCContractAddress,
+              VToken.abi,
+              signer
+            );
+            if (amount <= (await vUSDCcontract.balanceOf(account))) {
+              await vUSDCcontract.redeem(
+                parseUnits(amount, 6),
+                account,
+                account,
+                {
+                  gasLimit: 2300000,
+                }
+              );
+            }
+          } else if (pool.name === "USDT") {
+            const vUSDTcontract = new Contract(
+              arbAddressList.vUSDTContractAddress,
+              VToken.abi,
+              signer
+            );
+            if (amount <= (await vUSDTcontract.balanceOf(account))) {
+              await vUSDTcontract.redeem(
+                parseUnits(amount, 6),
+                account,
+                account,
+                {
+                  gasLimit: 2300000,
+                }
+              );
+            }
+          } else if (pool.name === "DAI") {
+            const vDaicontract = new Contract(
+              arbAddressList.vDaiContractAddress,
+              VToken.abi,
+              signer
+            );
+            if (amount <= (await vDaicontract.balanceOf(account))) {
+              await vDaicontract.redeem(parseEther(amount), account, account, {
+                gasLimit: 2300000,
+              });
+            }
+          } else {
+            console.error("something went wrong, Please try again.");
+          }
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    if (currentNetwork.id === OPTIMISM_NETWORK) {
+      // value assigne is pending
+      try {
+        const signer = await library?.getSigner();
+
+        const vEtherContract = new Contract(
+          opAddressList.vEtherContractAddress,
+          VEther.abi,
+          library
+        );
+        const vDaiContract = new Contract(
+          opAddressList.vDaiContractAddress,
+          VToken.abi,
+          library
+        );
+        const vUsdcContract = new Contract(
+          opAddressList.vUSDCContractAddress,
+          VToken.abi,
+          library
+        );
+        const vUsdtContract = new Contract(
+          opAddressList.vUSDTContractAddress,
+          VToken.abi,
+          library
+        );
+        const vWbtcContract = new Contract(
+          opAddressList.vWBTCContractAddress,
+          VToken.abi,
+          library
+        );
         const rateModelContract = new Contract(
-          arbAddressList.rateModelContractAddress,
+          opAddressList.rateModelContractAddress,
           DefaultRateModel.abi,
           library
+        );
+
+        // ERC20 contract
+        const WBTCContract = new Contract(
+          opTokensAddress[pool.name],
+          ERC20.abi,
+          signer
+        );
+        const USDCContract = new Contract(
+          opTokensAddress[pool.name],
+          ERC20.abi,
+          signer
+        );
+        const USDTContract = new Contract(
+          opTokensAddress[pool.name],
+          ERC20.abi,
+          signer
+        );
+        const DAIContract = new Contract(
+          opTokensAddress[pool.name],
+          ERC20.abi,
+          signer
         );
 
         const fetchParams = () => {
           try {
             const processParams = async () => {
               if (pool.name == "WETH") {
-                
                 const ethPerVeth = formatBignumberToUnits(
                   pool.name,
                   await vEtherContract.convertToShares(parseUnits("1", 18))
                 );
-                console.log("ethPerVethhere",(ethPerVeth));
-                setEthPerVeth(ceilWithPrecision(ethPerVeth));
-
-
+                setEthPerVeth(ceilWithPrecision(ethPerVeth, 6));
               } else if (pool.name === "WBTC") {
                 const btcPerVbtc = formatBignumberToUnits(
                   pool.name,
                   await vWbtcContract.convertToShares(parseUnits("1", 18))
                 );
-                
-      
-                setEthPerVeth(ceilWithPrecision(btcPerVbtc, 6));
 
-                
+                setEthPerVeth(ceilWithPrecision(btcPerVbtc, 6));
               } else if (pool.name === "USDC") {
-                
                 const usdcPerVusdc = formatBignumberToUnits(
                   pool.name,
                   await vUsdcContract.convertToShares(parseUnits("1", 6))
-                );       
-      
-                setEthPerVeth(ceilWithPrecision(usdcPerVusdc, 6));
+                );
 
+                setEthPerVeth(ceilWithPrecision(usdcPerVusdc, 6));
               } else if (pool.name === "USDT") {
-                
                 const usdtPerVusdt = formatBignumberToUnits(
                   pool.name,
                   await vUsdtContract.convertToShares(parseUnits("1", 6))
                 );
-              
-      
+
                 setEthPerVeth(ceilWithPrecision(usdtPerVusdt, 6));
-                
               } else if (pool.name === "DAI") {
-                
                 const daiPerVdai = formatBignumberToUnits(
                   pool.name,
                   await vDaiContract.convertToShares(parseUnits("1", 18))
                 );
-                
-              
-      
-                setEthPerVeth(ceilWithPrecision(daiPerVdai, 6));
 
-                
+                setEthPerVeth(ceilWithPrecision(daiPerVdai, 6));
               } else {
                 console.error("Something went wrong, token = ", pool.name);
               }
             };
-      
+
             processParams();
           } catch (e) {
             console.error(e);
           }
         };
-        fetchParams();
-        
 
-        const getTokenBalance = async (tokenName = pool.name) => {
-          try {
-            if (account) {
-              const signer = await library?.getSigner();
-      
-              let bal;
-      
-              if (tokenName == "WETH") {
-                bal = await library?.getBalance(account);
-              } else {
-                const contract = new Contract(arbTokensAddress[tokenName], ERC20.abi, signer);
-                bal = await contract.balanceOf(account);
-              }
-      
-              const balInNumber = ceilWithPrecision(formatBignumberToUnits(tokenName, bal));
-              setCoinBalance(balInNumber);
-            }
-            
-          } catch (e) {
-            console.error(e);
-          }
-        };
-        useEffect(() => {
-          getTokenBalance();
-        }, [account]);
-
-      
-  const deposit = async()=> {
-    if(currentNetwork.id === BASE_NETWORK){
-    // value assigne is pending 
-      try{
-        const signer = await library?.getSigner();
-        // ERC20 contract
-        const WBTCContract = new Contract(arbTokensAddress[pool.name], ERC20.abi, signer);
-        const USDCContract = new Contract(arbTokensAddress[pool.name], ERC20.abi, signer);
-        const USDTContract = new Contract(arbTokensAddress[pool.name], ERC20.abi, signer);
-        const DAIContract = new Contract(arbTokensAddress[pool.name], ERC20.abi, signer);
-        
-        
-        //@TODO: ask meet about this error 
-        
-
-        
-
-        if(isSupply){
+        if (isSupply) {
           if (pool.name === "WETH") {
-            await vEtherContract.depositEth({ value: parseEther(amount), gasLimit: 2300000 });
+            await vEtherContract.depositEth({
+              value: parseEther(amount),
+              gasLimit: 2300000,
+            });
           } else if (pool.name === "WBTC") {
             // to confirm this abi, address & function
-        
-            const allowance = await WBTCContract.allowance(account, arbAddressList.vWBTCContractAddress);
-        
+
+            const allowance = await WBTCContract.allowance(
+              account,
+              opAddressList.vWBTCContractAddress
+            );
+
             if (allowance < amount) {
-              await WBTCContract.approve(arbAddressList.vWBTCContractAddress, parseEther(amount));
+              await WBTCContract.approve(
+                opAddressList.vWBTCContractAddress,
+                parseEther(amount)
+              );
               await sleep(3000);
             }
-        
-            await vWbtcContract.deposit(parseEther(amount), account, { gasLimit: 2300000 });
+
+            await vWbtcContract.deposit(parseEther(amount), account, {
+              gasLimit: 2300000,
+            });
           } else if (pool.name === "USDC") {
             // to confirm this abi, address & function
-        
-            const allowance = await USDCContract.allowance(account, arbAddressList.vUSDCContractAddress);
-        
+
+            const allowance = await USDCContract.allowance(
+              account,
+              opAddressList.vUSDCContractAddress
+            );
+
             if (allowance < amount) {
-              await USDCContract.approve(arbAddressList.vUSDCContractAddress, parseUnits(amount, 6));
+              await USDCContract.approve(
+                opAddressList.vUSDCContractAddress,
+                parseUnits(amount, 6)
+              );
               await sleep(3000);
             }
-        
-            await vUsdcContract.deposit(parseUnits(amount, 6), account, { gasLimit: 23000000 });
+
+            await vUsdcContract.deposit(parseUnits(amount, 6), account, {
+              gasLimit: 23000000,
+            });
           } else if (pool.name === "USDT") {
             // to confirm this abi, address & function
-        
-            const allowance = await USDTContract.allowance(account, arbAddressList.vUSDTContractAddress);
-        
+
+            const allowance = await USDTContract.allowance(
+              account,
+              opAddressList.vUSDTContractAddress
+            );
+
             if (allowance < amount) {
-              await USDTContract.approve(arbAddressList.vUSDTContractAddress, parseUnits(amount, 6));
+              await USDTContract.approve(
+                opAddressList.vUSDTContractAddress,
+                parseUnits(amount, 6)
+              );
               await sleep(3000);
             }
-        
-            await vUsdtContract.deposit(parseUnits(amount, 6), account, { gasLimit: 23000000 });
+
+            await vUsdtContract.deposit(parseUnits(amount, 6), account, {
+              gasLimit: 23000000,
+            });
           } else {
-            const allowance = await DAIContract.allowance(account, arbAddressList.vDaiContractAddress);
-        
+            const allowance = await DAIContract.allowance(
+              account,
+              opAddressList.vDaiContractAddress
+            );
+
             if (allowance < amount) {
-              await DAIContract.approve(arbAddressList.vDaiContractAddress, parseEther(amount));
+              await DAIContract.approve(
+                opAddressList.vDaiContractAddress,
+                parseEther(amount)
+              );
               await sleep(3000);
             }
-        
+
             await vDaiContract.deposit(parseEther(amount), account);
           }
-        }
-        else {
+        } else {
           if (pool.name === "WETH") {
-            const vEthcontract = new Contract(arbAddressList.vEtherContractAddress, VEther.abi, signer);
+            const vEthcontract = new Contract(
+              opAddressList.vEtherContractAddress,
+              VEther.abi,
+              signer
+            );
             if (amount <= (await vEthcontract.balanceOf(account))) {
-              await vEthcontract.redeemEth(parseEther(amount), { gasLimit: 2300000 });
+              await vEthcontract.redeemEth(parseEther(amount), {
+                gasLimit: 2300000,
+              });
             }
           } else if (pool.name === "WBTC") {
-            const vBTCcontract = new Contract(arbAddressList.vWBTCContractAddress, VToken.abi, signer);
+            const vBTCcontract = new Contract(
+              opAddressList.vWBTCContractAddress,
+              VToken.abi,
+              signer
+            );
             if (amount <= (await vBTCcontract.balanceOf(account))) {
-              await vBTCcontract.redeem(parseEther(amount), account, account, { gasLimit: 2300000 });
+              await vBTCcontract.redeem(parseEther(amount), account, account, {
+                gasLimit: 2300000,
+              });
             }
           } else if (pool.name === "USDC") {
-            const vUSDCcontract = new Contract(arbAddressList.vUSDCContractAddress, VToken.abi, signer);
+            const vUSDCcontract = new Contract(
+              opAddressList.vUSDCContractAddress,
+              VToken.abi,
+              signer
+            );
             if (amount <= (await vUSDCcontract.balanceOf(account))) {
-              await vUSDCcontract.redeem(parseUnits(amount, 6), account, account, {
-                gasLimit: 2300000,
-              });
+              await vUSDCcontract.redeem(
+                parseUnits(amount, 6),
+                account,
+                account,
+                {
+                  gasLimit: 2300000,
+                }
+              );
             }
           } else if (pool.name === "USDT") {
-            const vUSDTcontract = new Contract(arbAddressList.vUSDTContractAddress, VToken.abi, signer);
+            const vUSDTcontract = new Contract(
+              opAddressList.vUSDTContractAddress,
+              VToken.abi,
+              signer
+            );
             if (amount <= (await vUSDTcontract.balanceOf(account))) {
-              await vUSDTcontract.redeem(parseUnits(amount, 6), account, account, {
-                gasLimit: 2300000,
-              });
+              await vUSDTcontract.redeem(
+                parseUnits(amount, 6),
+                account,
+                account,
+                {
+                  gasLimit: 2300000,
+                }
+              );
             }
           } else if (pool.name === "DAI") {
-            const vDaicontract = new Contract(arbAddressList.vDaiContractAddress, VToken.abi, signer);
+            const vDaicontract = new Contract(
+              opAddressList.vDaiContractAddress,
+              VToken.abi,
+              signer
+            );
             if (amount <= (await vDaicontract.balanceOf(account))) {
-              await vDaicontract.redeem(parseEther(amount), account, account, { gasLimit: 2300000 });
+              await vDaicontract.redeem(parseEther(amount), account, account, {
+                gasLimit: 2300000,
+              });
             }
           } else {
             console.error("something went wrong, Please try again.");
           }
         }
-
-      }catch (error) {
-          console.error(error);
+      } catch (error) {
+        console.error(error);
       }
     }
-    if(currentNetwork.id === OPTIMISM_NETWORK){
-      // value assigne is pending 
-        try{
-          const signer = await library?.getSigner();
-          
-          const vEtherContract = new Contract(opAddressList.vEtherContractAddress, VEther.abi, library);
-          const vDaiContract = new Contract(opAddressList.vDaiContractAddress, VToken.abi, library);
-          const vUsdcContract = new Contract(opAddressList.vUSDCContractAddress, VToken.abi, library);
-          const vUsdtContract = new Contract(opAddressList.vUSDTContractAddress, VToken.abi, library);
-          const vWbtcContract = new Contract(opAddressList.vWBTCContractAddress, VToken.abi, library);
-          const rateModelContract = new Contract(
-            opAddressList.rateModelContractAddress,
-            DefaultRateModel.abi,
-            library
-          );
-  
+    if (currentNetwork.id === BASE_NETWORK) {
+      // value assigne is pending
+      try {
+        const signer = await library?.getSigner();
+
+        const vEtherContract = new Contract(
+          baseAddressList.vEtherContractAddress,
+          VEther.abi,
+          library
+        );
+        const vDaiContract = new Contract(
+          baseAddressList.vDaiContractAddress,
+          VToken.abi,
+          library
+        );
+        const vUsdcContract = new Contract(
+          baseAddressList.vUSDCContractAddress,
+          VToken.abi,
+          library
+        );
+        const vUsdtContract = new Contract(
+          baseAddressList.vUSDTContractAddress,
+          VToken.abi,
+          library
+        );
+        const vWbtcContract = new Contract(
+          baseAddressList.vWBTCContractAddress,
+          VToken.abi,
+          library
+        );
+        const rateModelContract = new Contract(
+          baseAddressList.rateModelContractAddress,
+          DefaultRateModel.abi,
+          library
+        );
+
         // ERC20 contract
-          const WBTCContract = new Contract(opTokensAddress[pool.name], ERC20.abi, signer);
-          const USDCContract = new Contract(opTokensAddress[pool.name], ERC20.abi, signer);
-          const USDTContract = new Contract(opTokensAddress[pool.name], ERC20.abi, signer);
-          const DAIContract = new Contract(opTokensAddress[pool.name], ERC20.abi, signer);
-          //@TODO: ask meet about this error 
-          const getTokenBalance = async (tokenName = pool.name) => {
-            try {
-              if (account) {
-                const signer = await library?.getSigner();
-        
-                let bal;
-        
-                if (tokenName == "WETH") {
-                  bal = await library?.getBalance(account);
-                } else {
-                  const contract = new Contract(opTokensAddress[tokenName], ERC20.abi, signer);
-                  bal = await contract.balanceOf(account);
-                }
-        
-                const balInNumber = ceilWithPrecision(formatBignumberToUnits(tokenName, bal));
-                setCoinBalance(balInNumber);
-              }
-              
-            } catch (e) {
-              console.error(e);
-            }
-          };
-  
-          const fetchParams = () => {
-            try {
-              const processParams = async () => {
-                if (pool.name == "WETH") {
-                  
-                  const ethPerVeth = formatBignumberToUnits(
-                    pool.name,
-                    await vEtherContract.convertToShares(parseUnits("1", 18))
-                  );
-                  setEthPerVeth(ceilWithPrecision(ethPerVeth, 6));
-  
-                } else if (pool.name === "WBTC") {
-                  const btcPerVbtc = formatBignumberToUnits(
-                    pool.name,
-                    await vWbtcContract.convertToShares(parseUnits("1", 18))
-                  );
-                  
-        
-                  setEthPerVeth(ceilWithPrecision(btcPerVbtc, 6));
-  
-                  
-                } else if (pool.name === "USDC") {
-                  
-                  const usdcPerVusdc = formatBignumberToUnits(
-                    pool.name,
-                    await vUsdcContract.convertToShares(parseUnits("1", 6))
-                  );       
-        
-                  setEthPerVeth(ceilWithPrecision(usdcPerVusdc, 6));
-  
-                } else if (pool.name === "USDT") {
-                  
-                  const usdtPerVusdt = formatBignumberToUnits(
-                    pool.name,
-                    await vUsdtContract.convertToShares(parseUnits("1", 6))
-                  );
-                
-        
-                  setEthPerVeth(ceilWithPrecision(usdtPerVusdt, 6));
-                  
-                } else if (pool.name === "DAI") {
-                  
-                  const daiPerVdai = formatBignumberToUnits(
-                    pool.name,
-                    await vDaiContract.convertToShares(parseUnits("1", 18))
-                  );
-                  
-                
-        
-                  setEthPerVeth(ceilWithPrecision(daiPerVdai, 6));
-  
-                  
-                } else {
-                  console.error("Something went wrong, token = ", pool.name);
-                }
-              };
-        
-              processParams();
-            } catch (e) {
-              console.error(e);
-            }
-          };
-  
-          if(isSupply){
-            if (pool.name === "WETH") {
-              await vEtherContract.depositEth({ value: parseEther(amount), gasLimit: 2300000 });
-            } else if (pool.name === "WBTC") {
-              // to confirm this abi, address & function
-          
-              const allowance = await WBTCContract.allowance(account, opAddressList.vWBTCContractAddress);
-          
-              if (allowance < amount) {
-                await WBTCContract.approve(opAddressList.vWBTCContractAddress, parseEther(amount));
-                await sleep(3000);
-              }
-          
-              await vWbtcContract.deposit(parseEther(amount), account, { gasLimit: 2300000 });
-            } else if (pool.name === "USDC") {
-              // to confirm this abi, address & function
-          
-              const allowance = await USDCContract.allowance(account, opAddressList.vUSDCContractAddress);
-          
-              if (allowance < amount) {
-                await USDCContract.approve(opAddressList.vUSDCContractAddress, parseUnits(amount, 6));
-                await sleep(3000);
-              }
-          
-              await vUsdcContract.deposit(parseUnits(amount, 6), account, { gasLimit: 23000000 });
-            } else if (pool.name === "USDT") {
-              // to confirm this abi, address & function
-          
-              const allowance = await USDTContract.allowance(account, opAddressList.vUSDTContractAddress);
-          
-              if (allowance < amount) {
-                await USDTContract.approve(opAddressList.vUSDTContractAddress, parseUnits(amount, 6));
-                await sleep(3000);
-              }
-          
-              await vUsdtContract.deposit(parseUnits(amount, 6), account, { gasLimit: 23000000 });
-            } else {
-              const allowance = await DAIContract.allowance(account, opAddressList.vDaiContractAddress);
-          
-              if (allowance < amount) {
-                await DAIContract.approve(opAddressList.vDaiContractAddress, parseEther(amount));
-                await sleep(3000);
-              }
-          
-              await vDaiContract.deposit(parseEther(amount), account);
-            }
-          }
-          else {
-            if (pool.name === "WETH") {
-              const vEthcontract = new Contract(opAddressList.vEtherContractAddress, VEther.abi, signer);
-              if (amount <= (await vEthcontract.balanceOf(account))) {
-                await vEthcontract.redeemEth(parseEther(amount), { gasLimit: 2300000 });
-              }
-            } else if (pool.name === "WBTC") {
-              const vBTCcontract = new Contract(opAddressList.vWBTCContractAddress, VToken.abi, signer);
-              if (amount <= (await vBTCcontract.balanceOf(account))) {
-                await vBTCcontract.redeem(parseEther(amount), account, account, { gasLimit: 2300000 });
-              }
-            } else if (pool.name === "USDC") {
-              const vUSDCcontract = new Contract(opAddressList.vUSDCContractAddress, VToken.abi, signer);
-              if (amount <= (await vUSDCcontract.balanceOf(account))) {
-                await vUSDCcontract.redeem(parseUnits(amount, 6), account, account, {
-                  gasLimit: 2300000,
-                });
-              }
-            } else if (pool.name === "USDT") {
-              const vUSDTcontract = new Contract(opAddressList.vUSDTContractAddress, VToken.abi, signer);
-              if (amount <= (await vUSDTcontract.balanceOf(account))) {
-                await vUSDTcontract.redeem(parseUnits(amount, 6), account, account, {
-                  gasLimit: 2300000,
-                });
-              }
-            } else if (pool.name === "DAI") {
-              const vDaicontract = new Contract(opAddressList.vDaiContractAddress, VToken.abi, signer);
-              if (amount <= (await vDaicontract.balanceOf(account))) {
-                await vDaicontract.redeem(parseEther(amount), account, account, { gasLimit: 2300000 });
-              }
-            } else {
-              console.error("something went wrong, Please try again.");
-            }
-          }
-  
-        }catch (error) {
-            console.error(error);
-        }
-    }
-    if(currentNetwork.id === BASE_NETWORK){
-        // value assigne is pending 
-          try{
-            const signer = await library?.getSigner();
-            
-            const vEtherContract = new Contract(baseAddressList.vEtherContractAddress, VEther.abi, library);
-            const vDaiContract = new Contract(baseAddressList.vDaiContractAddress, VToken.abi, library);
-            const vUsdcContract = new Contract(baseAddressList.vUSDCContractAddress, VToken.abi, library);
-            const vUsdtContract = new Contract(baseAddressList.vUSDTContractAddress, VToken.abi, library);
-            const vWbtcContract = new Contract(baseAddressList.vWBTCContractAddress, VToken.abi, library);
-            const rateModelContract = new Contract(
-              baseAddressList.rateModelContractAddress,
-              DefaultRateModel.abi,
-              library
-            );
-    
-          // ERC20 contract
-            const WBTCContract = new Contract(baseTokensAddress[pool.name], ERC20.abi, signer);
-            const USDCContract = new Contract(baseTokensAddress[pool.name], ERC20.abi, signer);
-            const USDTContract = new Contract(baseTokensAddress[pool.name], ERC20.abi, signer);
-            const DAIContract = new Contract(baseTokensAddress[pool.name], ERC20.abi, signer);
-            //@TODO: ask meet about this error 
-            const getTokenBalance = async (tokenName = pool.name) => {
-              try {
-                if (account) {
-                  const signer = await library?.getSigner();
-          
-                  let bal;
-          
-                  if (tokenName == "WETH") {
-                    bal = await library?.getBalance(account);
-                  } else {
-                    const contract = new Contract(baseTokensAddress[tokenName], ERC20.abi, signer);
-                    bal = await contract.balanceOf(account);
-                  }
-          
-                  const balInNumber = ceilWithPrecision(formatBignumberToUnits(tokenName, bal));
-                  setCoinBalance(balInNumber);
-                }
-                
-              } catch (e) {
-                console.error(e);
-              }
-            };
-    
-            const fetchParams = () => {
-              try {
-                const processParams = async () => {
-                  if (pool.name == "WETH") {
-                    
-                    const ethPerVeth = formatBignumberToUnits(
-                      pool.name,
-                      await vEtherContract.convertToShares(parseUnits("1", 18))
-                    );
-                    setEthPerVeth(ceilWithPrecision(ethPerVeth, 6));
-    
-                  } else if (pool.name === "WBTC") {
-                    const btcPerVbtc = formatBignumberToUnits(
-                      pool.name,
-                      await vWbtcContract.convertToShares(parseUnits("1", 18))
-                    );
-                    
-          
-                    setEthPerVeth(ceilWithPrecision(btcPerVbtc, 6));
-    
-                    
-                  } else if (pool.name === "USDC") {
-                    
-                    const usdcPerVusdc = formatBignumberToUnits(
-                      pool.name,
-                      await vUsdcContract.convertToShares(parseUnits("1", 6))
-                    );       
-          
-                    setEthPerVeth(ceilWithPrecision(usdcPerVusdc, 6));
-    
-                  } else if (pool.name === "USDT") {
-                    
-                    const usdtPerVusdt = formatBignumberToUnits(
-                      pool.name,
-                      await vUsdtContract.convertToShares(parseUnits("1", 6))
-                    );
-                  
-          
-                    setEthPerVeth(ceilWithPrecision(usdtPerVusdt, 6));
-                    
-                  } else if (pool.name === "DAI") {
-                    
-                    const daiPerVdai = formatBignumberToUnits(
-                      pool.name,
-                      await vDaiContract.convertToShares(parseUnits("1", 18))
-                    );
-                    
-                  
-          
-                    setEthPerVeth(ceilWithPrecision(daiPerVdai, 6));
-    
-                    
-                  } else {
-                    console.error("Something went wrong, token = ", pool.name);
-                  }
-                };
-          
-                processParams();
-              } catch (e) {
-                console.error(e);
-              }
-            };
-    
-            if(isSupply){
-              if (pool.name === "WETH") {
-                await vEtherContract.depositEth({ value: parseEther(amount), gasLimit: 2300000 });
+        const WBTCContract = new Contract(
+          baseTokensAddress[pool.name],
+          ERC20.abi,
+          signer
+        );
+        const USDCContract = new Contract(
+          baseTokensAddress[pool.name],
+          ERC20.abi,
+          signer
+        );
+        const USDTContract = new Contract(
+          baseTokensAddress[pool.name],
+          ERC20.abi,
+          signer
+        );
+        const DAIContract = new Contract(
+          baseTokensAddress[pool.name],
+          ERC20.abi,
+          signer
+        );
+
+        const fetchParams = () => {
+          try {
+            const processParams = async () => {
+              if (pool.name == "WETH") {
+                const ethPerVeth = formatBignumberToUnits(
+                  pool.name,
+                  await vEtherContract.convertToShares(parseUnits("1", 18))
+                );
+                setEthPerVeth(ceilWithPrecision(ethPerVeth, 6));
               } else if (pool.name === "WBTC") {
-                // to confirm this abi, address & function
-            
-                const allowance = await WBTCContract.allowance(account, baseAddressList.vWBTCContractAddress);
-            
-                if (allowance < amount) {
-                  await WBTCContract.approve(baseAddressList.vWBTCContractAddress, parseEther(amount));
-                  await sleep(3000);
-                }
-            
-                await vWbtcContract.deposit(parseEther(amount), account, { gasLimit: 2300000 });
+                const btcPerVbtc = formatBignumberToUnits(
+                  pool.name,
+                  await vWbtcContract.convertToShares(parseUnits("1", 18))
+                );
+
+                setEthPerVeth(ceilWithPrecision(btcPerVbtc, 6));
               } else if (pool.name === "USDC") {
-                // to confirm this abi, address & function
-            
-                const allowance = await USDCContract.allowance(account, baseAddressList.vUSDCContractAddress);
-            
-                if (allowance < amount) {
-                  await USDCContract.approve(baseAddressList.vUSDCContractAddress, parseUnits(amount, 6));
-                  await sleep(3000);
-                }
-            
-                await vUsdcContract.deposit(parseUnits(amount, 6), account, { gasLimit: 23000000 });
+                const usdcPerVusdc = formatBignumberToUnits(
+                  pool.name,
+                  await vUsdcContract.convertToShares(parseUnits("1", 6))
+                );
+
+                setEthPerVeth(ceilWithPrecision(usdcPerVusdc, 6));
               } else if (pool.name === "USDT") {
-                // to confirm this abi, address & function
-            
-                const allowance = await USDTContract.allowance(account, baseAddressList.vUSDTContractAddress);
-            
-                if (allowance < amount) {
-                  await USDTContract.approve(baseAddressList.vUSDTContractAddress, parseUnits(amount, 6));
-                  await sleep(3000);
-                }
-            
-                await vUsdtContract.deposit(parseUnits(amount, 6), account, { gasLimit: 23000000 });
-              } else {
-                const allowance = await DAIContract.allowance(account, baseAddressList.vDaiContractAddress);
-            
-                if (allowance < amount) {
-                  await DAIContract.approve(baseAddressList.vDaiContractAddress, parseEther(amount));
-                  await sleep(3000);
-                }
-            
-                await vDaiContract.deposit(parseEther(amount), account);
-              }
-            }
-            else {
-              if (pool.name === "WETH") {
-                const vEthcontract = new Contract(baseAddressList.vEtherContractAddress, VEther.abi, signer);
-                if (amount <= (await vEthcontract.balanceOf(account))) {
-                  await vEthcontract.redeemEth(parseEther(amount), { gasLimit: 2300000 });
-                }
-              } else if (pool.name === "WBTC") {
-                const vBTCcontract = new Contract(baseAddressList.vWBTCContractAddress, VToken.abi, signer);
-                if (amount <= (await vBTCcontract.balanceOf(account))) {
-                  await vBTCcontract.redeem(parseEther(amount), account, account, { gasLimit: 2300000 });
-                }
-              } else if (pool.name === "USDC") {
-                const vUSDCcontract = new Contract(baseAddressList.vUSDCContractAddress, VToken.abi, signer);
-                if (amount <= (await vUSDCcontract.balanceOf(account))) {
-                  await vUSDCcontract.redeem(parseUnits(amount, 6), account, account, {
-                    gasLimit: 2300000,
-                  });
-                }
-              } else if (pool.name === "USDT") {
-                const vUSDTcontract = new Contract(baseAddressList.vUSDTContractAddress, VToken.abi, signer);
-                if (amount <= (await vUSDTcontract.balanceOf(account))) {
-                  await vUSDTcontract.redeem(parseUnits(amount, 6), account, account, {
-                    gasLimit: 2300000,
-                  });
-                }
+                const usdtPerVusdt = formatBignumberToUnits(
+                  pool.name,
+                  await vUsdtContract.convertToShares(parseUnits("1", 6))
+                );
+
+                setEthPerVeth(ceilWithPrecision(usdtPerVusdt, 6));
               } else if (pool.name === "DAI") {
-                const vDaicontract = new Contract(baseAddressList.vDaiContractAddress, VToken.abi, signer);
-                if (amount <= (await vDaicontract.balanceOf(account))) {
-                  await vDaicontract.redeem(parseEther(amount), account, account, { gasLimit: 2300000 });
-                }
+                const daiPerVdai = formatBignumberToUnits(
+                  pool.name,
+                  await vDaiContract.convertToShares(parseUnits("1", 18))
+                );
+
+                setEthPerVeth(ceilWithPrecision(daiPerVdai, 6));
               } else {
-                console.error("something went wrong, Please try again.");
+                console.error("Something went wrong, token = ", pool.name);
               }
-            }
-    
-          }catch (error) {
-              console.error(error);
+            };
+
+            processParams();
+          } catch (e) {
+            console.error(e);
           }
+        };
+
+        if (isSupply) {
+          if (pool.name === "WETH") {
+            await vEtherContract.depositEth({
+              value: parseEther(amount),
+              gasLimit: 2300000,
+            });
+          } else if (pool.name === "WBTC") {
+            // to confirm this abi, address & function
+
+            const allowance = await WBTCContract.allowance(
+              account,
+              baseAddressList.vWBTCContractAddress
+            );
+
+            if (allowance < amount) {
+              await WBTCContract.approve(
+                baseAddressList.vWBTCContractAddress,
+                parseEther(amount)
+              );
+              await sleep(3000);
+            }
+
+            await vWbtcContract.deposit(parseEther(amount), account, {
+              gasLimit: 2300000,
+            });
+          } else if (pool.name === "USDC") {
+            // to confirm this abi, address & function
+
+            const allowance = await USDCContract.allowance(
+              account,
+              baseAddressList.vUSDCContractAddress
+            );
+
+            if (allowance < amount) {
+              await USDCContract.approve(
+                baseAddressList.vUSDCContractAddress,
+                parseUnits(amount, 6)
+              );
+              await sleep(3000);
+            }
+
+            await vUsdcContract.deposit(parseUnits(amount, 6), account, {
+              gasLimit: 23000000,
+            });
+          } else if (pool.name === "USDT") {
+            // to confirm this abi, address & function
+
+            const allowance = await USDTContract.allowance(
+              account,
+              baseAddressList.vUSDTContractAddress
+            );
+
+            if (allowance < amount) {
+              await USDTContract.approve(
+                baseAddressList.vUSDTContractAddress,
+                parseUnits(amount, 6)
+              );
+              await sleep(3000);
+            }
+
+            await vUsdtContract.deposit(parseUnits(amount, 6), account, {
+              gasLimit: 23000000,
+            });
+          } else {
+            const allowance = await DAIContract.allowance(
+              account,
+              baseAddressList.vDaiContractAddress
+            );
+
+            if (allowance < amount) {
+              await DAIContract.approve(
+                baseAddressList.vDaiContractAddress,
+                parseEther(amount)
+              );
+              await sleep(3000);
+            }
+
+            await vDaiContract.deposit(parseEther(amount), account);
+          }
+        } else {
+          if (pool.name === "WETH") {
+            const vEthcontract = new Contract(
+              baseAddressList.vEtherContractAddress,
+              VEther.abi,
+              signer
+            );
+            if (amount <= (await vEthcontract.balanceOf(account))) {
+              await vEthcontract.redeemEth(parseEther(amount), {
+                gasLimit: 2300000,
+              });
+            }
+          } else if (pool.name === "WBTC") {
+            const vBTCcontract = new Contract(
+              baseAddressList.vWBTCContractAddress,
+              VToken.abi,
+              signer
+            );
+            if (amount <= (await vBTCcontract.balanceOf(account))) {
+              await vBTCcontract.redeem(parseEther(amount), account, account, {
+                gasLimit: 2300000,
+              });
+            }
+          } else if (pool.name === "USDC") {
+            const vUSDCcontract = new Contract(
+              baseAddressList.vUSDCContractAddress,
+              VToken.abi,
+              signer
+            );
+            if (amount <= (await vUSDCcontract.balanceOf(account))) {
+              await vUSDCcontract.redeem(
+                parseUnits(amount, 6),
+                account,
+                account,
+                {
+                  gasLimit: 2300000,
+                }
+              );
+            }
+          } else if (pool.name === "USDT") {
+            const vUSDTcontract = new Contract(
+              baseAddressList.vUSDTContractAddress,
+              VToken.abi,
+              signer
+            );
+            if (amount <= (await vUSDTcontract.balanceOf(account))) {
+              await vUSDTcontract.redeem(
+                parseUnits(amount, 6),
+                account,
+                account,
+                {
+                  gasLimit: 2300000,
+                }
+              );
+            }
+          } else if (pool.name === "DAI") {
+            const vDaicontract = new Contract(
+              baseAddressList.vDaiContractAddress,
+              VToken.abi,
+              signer
+            );
+            if (amount <= (await vDaicontract.balanceOf(account))) {
+              await vDaicontract.redeem(parseEther(amount), account, account, {
+                gasLimit: 2300000,
+              });
+            }
+          } else {
+            console.error("something went wrong, Please try again.");
+          }
+        }
+      } catch (error) {
+        console.error(error);
+      }
     }
-
-  }
-
-  // while () {
-  //VToken
-  //+"v" + pool.name
-  //YouGet
-  // amount * ethperveth
-  //token per vtoken
-  // const ethPerVeth = formatBignumberToUnits(
-  //   token,
-  //   await vEtherContract.convertToShares(parseUnits("1", 18))
-  // );
-  // Current APY
-  // pool.supplyAPY
-  // }
-
+  };
 
   return (
     <div className="bg-baseComplementary p-4 rounded-3xl w-full text-baseBlack">
@@ -721,8 +936,12 @@ const SupplyWithdraw = ({ pool }: { pool: PoolTable }) => {
           </div>
         </div>
         <div className="flex justify-between mt-2">
-          <div className="text-xs text-neutral-500">Expected {expected} USDT</div>
-          <div className="text-xs text-neutral-500">Balance: {coinBalance} ETH</div>
+          <div className="text-xs text-neutral-500">
+            Expected {expected} USDT
+          </div>
+          <div className="text-xs text-neutral-500">
+            Balance: {coinBalance} {coinBalance !== "-" ? pool.name : ""}
+          </div>
         </div>
       </div>
 
@@ -750,13 +969,13 @@ const SupplyWithdraw = ({ pool }: { pool: PoolTable }) => {
           </div>
           <div className="flex items-center">
             <Image
-              src="/eth-icon.svg"
-              alt="swETH logo"
+              src={pool.icon}
+              alt={pool.name + " token"}
               className="w-6 h-6 mr-1 rounded-full"
               width={16}
               height={16}
             />
-            <span className="font-semibold">swETH/v3</span>
+            <span className="font-semibold">{pool.vToken}</span>
           </div>
         </div>
         <div className="flex justify-between text-sm mb-1">
@@ -764,7 +983,7 @@ const SupplyWithdraw = ({ pool }: { pool: PoolTable }) => {
           <span>{youGet}</span>
         </div>
         <div className="flex justify-between text-sm mb-1">
-          <span>ETH per swETH/v3</span>
+          <span>{pool.name + " per " + pool.vToken}</span>
           <span>{ethPerVeth}</span>
         </div>
         {isSupply && (
@@ -789,7 +1008,10 @@ const SupplyWithdraw = ({ pool }: { pool: PoolTable }) => {
         )}
       </div>
 
-      <button className="w-full bg-purple text-white py-3 rounded-2xl font-semibold text-xl" onClick={deposit}>
+      <button
+        className="w-full bg-purple text-white py-3 rounded-2xl font-semibold text-xl"
+        onClick={deposit}
+      >
         Deposit
       </button>
     </div>

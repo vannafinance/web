@@ -21,7 +21,11 @@ import VEther from "../../../abi/vanna/v1/out/VEther.sol/VEther.json";
 import VToken from "../../../abi/vanna/v1/out/VToken.sol/VToken.json";
 import Multicall from "../../../abi/vanna/v1/out/Multicall.sol/Multicall.json";
 
-import { arbAddressList, baseAddressList, opAddressList } from "@/app/lib/web3-constants";
+import {
+  arbAddressList,
+  baseAddressList,
+  opAddressList,
+} from "@/app/lib/web3-constants";
 import { formatUnits } from "ethers/lib/utils";
 import { ceilWithPrecision } from "@/app/lib/helper";
 export default function Page({ params }: { params: { id: string } }) {
@@ -31,8 +35,10 @@ export default function Page({ params }: { params: { id: string } }) {
     const pool = pools.find((pool) => pool.id === Number(id));
     const { account, library } = useWeb3React();
     const { currentNetwork } = useNetwork();
-    const [utilizationRate, setUtilizationRate] = useState<string | undefined>();;
-    const [uniqueLP, setUniqueLP] = useState<string | undefined>();;
+    const [utilizationRate, setUtilizationRate] = useState<
+      string | undefined
+    >();
+    const [uniqueLP, setUniqueLP] = useState<string | undefined>();
     useEffect(() => {
       try {
         if (account) {
@@ -83,33 +89,30 @@ export default function Page({ params }: { params: { id: string } }) {
                 iFaceEth.encodeFunctionData("totalSupply", [])
               );
               calldata.push([arbAddressList.vEtherContractAddress, tempData]);
-  
+
               tempData = utils.arrayify(
                 iFaceToken.encodeFunctionData("totalSupply", [])
               );
-  
+
               calldata.push([arbAddressList.vWBTCContractAddress, tempData]);
-              
+
               tempData = utils.arrayify(
                 iFaceToken.encodeFunctionData("totalSupply", [])
               );
               calldata.push([arbAddressList.vUSDCContractAddress, tempData]);
-              
+
               tempData = utils.arrayify(
                 iFaceToken.encodeFunctionData("totalSupply", [])
               );
               calldata.push([arbAddressList.vUSDTContractAddress, tempData]);
-              
+
               // DAI
               tempData = utils.arrayify(
                 iFaceToken.encodeFunctionData("totalSupply", [])
               );
               calldata.push([arbAddressList.vDaiContractAddress, tempData]);
 
-           
               const res = await MCcontract.callStatic.aggregate(calldata);
-
-              
 
               // totalBorrow
 
@@ -118,47 +121,54 @@ export default function Page({ params }: { params: { id: string } }) {
               const usdcTotalBorrow = res.returnData[2];
               const usdtTotalBorrow = res.returnData[3];
               const daiTotalBorrow = res.returnData[4];
-              // total supply 
+              // total supply
               let ethSupply = formatUnits(res.returnData[5]);
               let wbtcSupply = formatUnits(res.returnData[6]);
               let usdcSupply = formatUnits(res.returnData[7]);
               let usdtSupply = formatUnits(res.returnData[8]);
               let daiSupply = formatUnits(res.returnData[9]);
 
-              
-  
+              let utilizationRate;
 
-
-              console.log("eth supply",Number(formatUnits(usdtTotalBorrow)) / Number(usdtSupply) )
-              console.log("works1111supply",Number(usdtSupply)  )
-              console.log("works1111borrow",Number(formatUnits(usdtTotalBorrow) ) )
-              let utilizationRate; 
-            
               //  Utilization Rate
               if (pool?.name === "WETH") {
-               
-                utilizationRate = String((Number(formatUnits(ethTotalBorrow)) /Number(ethSupply))* 100)
+                utilizationRate = String(
+                  (Number(formatUnits(ethTotalBorrow)) / Number(ethSupply)) *
+                    100
+                );
                 setUtilizationRate(ceilWithPrecision(utilizationRate) + "%");
                 setUniqueLP("5");
               }
               if (pool?.name === "WBTC") {
                 // if(wbtcSupply = "0") return setUtilizationRate("0" + "%");
-                utilizationRate = String((Number(formatUnits(wbtcTotalBorrow)) /Number(wbtcSupply))* 100)
+                utilizationRate = String(
+                  (Number(formatUnits(wbtcTotalBorrow)) / Number(wbtcSupply)) *
+                    100
+                );
                 setUtilizationRate(ceilWithPrecision(utilizationRate) + "%");
                 setUniqueLP("0");
               }
               if (pool?.name === "USDC") {
-                utilizationRate = String((Number(formatUnits(usdcTotalBorrow)) /Number(usdcSupply))* 100)
+                utilizationRate = String(
+                  (Number(formatUnits(usdcTotalBorrow)) / Number(usdcSupply)) *
+                    100
+                );
                 setUtilizationRate(ceilWithPrecision(utilizationRate) + "%");
                 setUniqueLP("3");
               }
               if (pool?.name === "USDT") {
-                utilizationRate = String((Number(formatUnits(usdtTotalBorrow)) /Number(usdtSupply))* 100)
+                utilizationRate = String(
+                  (Number(formatUnits(usdtTotalBorrow)) / Number(usdtSupply)) *
+                    100
+                );
                 setUtilizationRate(ceilWithPrecision(utilizationRate) + "%");
                 setUniqueLP("0");
               }
               if (pool?.name === "DAI") {
-                utilizationRate = String((Number(formatUnits(daiTotalBorrow)) /Number(daiSupply))* 100)
+                utilizationRate = String(
+                  (Number(formatUnits(daiTotalBorrow)) / Number(daiSupply)) *
+                    100
+                );
                 setUtilizationRate(ceilWithPrecision(utilizationRate) + "%");
                 setUniqueLP("");
               }
@@ -373,7 +383,8 @@ export default function Page({ params }: { params: { id: string } }) {
                   Supply
                 </div>
                 <div className="pt-2 text-2xl font-bold text-baseBlack">
-                  {pool.supply}
+                  {pool.supply + " "}
+                  {pool.supply !== "-" && pool.name}
                 </div>
               </div>
               <div className="p-6 pr-0">

@@ -1,4 +1,5 @@
 import { CaretDown, DiscordLogo } from "@phosphor-icons/react";
+import Link from "next/link";
 import React, { useState } from "react";
 
 interface FAQItem {
@@ -12,8 +13,8 @@ const faqs: FAQItem[] = [
     answer: "The yield comes from...",
   },
   {
-    question: "How safe is lending on Gearbox?",
-    answer: "Lending on Gearbox is...",
+    question: "How safe is lending on Vanna?",
+    answer: "Lending on Vanna is...",
   },
   {
     question: "Are these passive pools or can I be liquidated?",
@@ -42,19 +43,18 @@ const FAQAccordion = () => {
         <div className="flex-none w-4/12">
           <h2 className="text-5xl font-bold mb-4">FAQs</h2>
           <p className="text-neutral-500 mb-6">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
-            varius enim in eros elementum tristique.
+            Some basic questions related to Vanna
           </p>
-          <button className="bg-purpleBG-lighter text-purple px-4 py-2 rounded-lg flex items-center space-x-2">
-            <DiscordLogo size={24} color="#7a45da" weight="fill" />
-            <span className="font-semibold">Join Discord</span>
-          </button>
+          <Link href="https://discord.gg/zwZGkNd3Fb" target="_blank">
+            <button className="bg-purpleBG-lighter text-purple px-4 py-2 rounded-lg flex items-center space-x-2">
+              <DiscordLogo size={24} color="#7a45da" weight="fill" />
+              <span className="font-semibold">Join Discord</span>
+            </button>
+          </Link>
         </div>
         <div className="flex flex-col w-full gap-0">
           {faqs.map((faq, index) => (
-            <div
-              key={index}
-            >
+            <div key={index}>
               <button
                 className="w-full text-left py-4 flex justify-between items-center border-b border-neutral-300 focus:outline-none"
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
@@ -67,7 +67,9 @@ const FAQAccordion = () => {
                 />
               </button>
               {openIndex === index && (
-                <div className="mt-4 pl-2 mb-6 text-neutral-500">{faq.answer}</div>
+                <div className="mt-4 pl-2 mb-6 text-neutral-500">
+                  {faq.answer}
+                </div>
               )}
             </div>
           ))}

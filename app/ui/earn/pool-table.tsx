@@ -21,7 +21,11 @@ import { formatUnits } from "ethers/lib/utils";
 
 import VEther from "@/app/abi/vanna/v1/out/VEther.sol/VEther.json";
 import VToken from "@/app/abi/vanna/v1/out/VToken.sol/VToken.json";
-import { arbAddressList, baseAddressList, opAddressList } from "@/app/lib/web3-constants";
+import {
+  arbAddressList,
+  baseAddressList,
+  opAddressList,
+} from "@/app/lib/web3-constants";
 import DefaultRateModel from "@/app/abi/vanna/v1/out/DefaultRateModel.sol/DefaultRateModel.json";
 import Multicall from "@/app/abi/vanna/v1/out/Multicall.sol/Multicall.json";
 import { ceilWithPrecision6, ceilWithPrecision } from "@/app/lib/helper";
@@ -78,7 +82,6 @@ const PoolsTable = () => {
             );
             calldata.push([arbAddressList.wbtcTokenAddress, tempData]);
 
-            console.log("works");
             // USDC
             tempData = utils.arrayify(
               iFaceToken.encodeFunctionData("totalSupply", [])
@@ -182,7 +185,6 @@ const PoolsTable = () => {
             calldata.push([arbAddressList.vDaiContractAddress, tempData]);
 
             const res = await MCcontract.callStatic.aggregate(calldata);
-            // console.log(res);
 
             // assigne value
             //supply
@@ -209,21 +211,12 @@ const PoolsTable = () => {
             const usdtTotalBorrow = res.returnData[13];
             const daiTotalBorrow = res.returnData[14];
 
-            console.log("ethTotalBorrow", ethTotalBorrow);
-            console.log("f-ethTotalBorrow", formatUnits(ethTotalBorrow));
-            console.log(
-              "P-ethTotalBorrow1e18",
-              parseFloat(formatUnits(ethTotalBorrow))
-            );
-
             //User Asset balance
             const ethBal = formatUnits(res.returnData[15], 18);
             const wbtcBal = formatUnits(res.returnData[16], 18);
             const usdcBal = formatUnits(res.returnData[17], 18);
             const usdtBal = formatUnits(res.returnData[18], 18);
             const daiBal = formatUnits(res.returnData[19], 18);
-
-            console.log("ethBal", ethBal);
 
             // Dependent varibale data fetching
             const calldata1 = [];
@@ -238,7 +231,10 @@ const PoolsTable = () => {
                 ethTotalBorrow,
               ])
             );
-            calldata1.push([arbAddressList.rateModelContractAddress, tempData1]);
+            calldata1.push([
+              arbAddressList.rateModelContractAddress,
+              tempData1,
+            ]);
 
             //BTC
             tempData1 = utils.arrayify(
@@ -247,7 +243,10 @@ const PoolsTable = () => {
                 wbtcTotalBorrow,
               ])
             );
-            calldata1.push([arbAddressList.rateModelContractAddress, tempData1]);
+            calldata1.push([
+              arbAddressList.rateModelContractAddress,
+              tempData1,
+            ]);
 
             //USDC
             tempData1 = utils.arrayify(
@@ -256,7 +255,10 @@ const PoolsTable = () => {
                 usdcTotalBorrow,
               ])
             );
-            calldata1.push([arbAddressList.rateModelContractAddress, tempData1]);
+            calldata1.push([
+              arbAddressList.rateModelContractAddress,
+              tempData1,
+            ]);
 
             //USDT
             tempData1 = utils.arrayify(
@@ -265,7 +267,10 @@ const PoolsTable = () => {
                 usdtTotalBorrow,
               ])
             );
-            calldata1.push([arbAddressList.rateModelContractAddress, tempData1]);
+            calldata1.push([
+              arbAddressList.rateModelContractAddress,
+              tempData1,
+            ]);
 
             //DAI
             tempData1 = utils.arrayify(
@@ -274,10 +279,12 @@ const PoolsTable = () => {
                 daiTotalBorrow,
               ])
             );
-            calldata1.push([arbAddressList.rateModelContractAddress, tempData1]);
+            calldata1.push([
+              arbAddressList.rateModelContractAddress,
+              tempData1,
+            ]);
 
             const res1 = await MCcontract.callStatic.aggregate(calldata1);
-            // console.log(res1);
 
             const ethBorrowAPY = res1.returnData[0];
             const ethBorrowApy =
@@ -318,7 +325,7 @@ const PoolsTable = () => {
               if (pool.name === "WETH") {
                 return {
                   ...pool,
-                  supply: "$" + ceilWithPrecision6(ethSupply),
+                  supply: ceilWithPrecision6(ethSupply),
                   supplyAPY: ceilWithPrecision(String(ethSupplyApy)) + "%",
                   borrowAPY: ceilWithPrecision(String(ethBorrowApy)) + "%",
                   yourBalance: ceilWithPrecision6(ethBal),
@@ -327,7 +334,7 @@ const PoolsTable = () => {
               if (pool.name === "WBTC") {
                 return {
                   ...pool,
-                  supply: "$" + ceilWithPrecision6(wbtcSupply),
+                  supply: ceilWithPrecision6(wbtcSupply),
                   supplyAPY: ceilWithPrecision(String(wbtcSupplyApy)) + "%",
                   borrowAPY: ceilWithPrecision(String(wbtcBorrowApy)) + "%",
                   yourBalance: ceilWithPrecision6(wbtcBal),
@@ -336,7 +343,7 @@ const PoolsTable = () => {
               if (pool.name === "USDC") {
                 return {
                   ...pool,
-                  supply: "$" + ceilWithPrecision6(usdcSupply),
+                  supply: ceilWithPrecision6(usdcSupply),
                   supplyAPY: ceilWithPrecision(String(usdcSupplyApy)) + "%",
                   borrowAPY: ceilWithPrecision(String(usdcBorrowApy)) + "%",
                   yourBalance: ceilWithPrecision6(usdcBal),
@@ -345,7 +352,7 @@ const PoolsTable = () => {
               if (pool.name === "USDT") {
                 return {
                   ...pool,
-                  supply: "$" + ceilWithPrecision6(usdtSupply),
+                  supply: ceilWithPrecision6(usdtSupply),
                   supplyAPY: ceilWithPrecision(String(usdtSupplyApy)) + "%",
                   borrowAPY: ceilWithPrecision(String(usdtBorrowApy)) + "%",
                   yourBalance: ceilWithPrecision6(usdtBal),
@@ -354,7 +361,7 @@ const PoolsTable = () => {
               if (pool.name === "DAI") {
                 return {
                   ...pool,
-                  supply: "$" + ceilWithPrecision6(daiSupply),
+                  supply: ceilWithPrecision6(daiSupply),
                   supplyAPY: ceilWithPrecision(String(daiSupplyApy)) + "%",
                   borrowAPY: ceilWithPrecision(String(daiBorrowApy)) + "%",
                   yourBalance: ceilWithPrecision6(daiBal),
@@ -367,8 +374,7 @@ const PoolsTable = () => {
             dispatch(setPoolsData(updatedPools));
           };
           fetchValues();
-        } 
-        else if (currentNetwork.id === OPTIMISM_NETWORK){
+        } else if (currentNetwork.id === OPTIMISM_NETWORK) {
           const fetchValues = async () => {
             const iFaceEth = new utils.Interface(VEther.abi);
             const iFaceToken = new utils.Interface(VToken.abi);
@@ -407,7 +413,6 @@ const PoolsTable = () => {
             );
             calldata.push([opAddressList.wbtcTokenAddress, tempData]);
 
-            console.log("works");
             // USDC
             tempData = utils.arrayify(
               iFaceToken.encodeFunctionData("totalSupply", [])
@@ -511,7 +516,6 @@ const PoolsTable = () => {
             calldata.push([opAddressList.vDaiContractAddress, tempData]);
 
             const res = await MCcontract.callStatic.aggregate(calldata);
-            // console.log(res);
 
             // assigne value
             //supply
@@ -538,21 +542,12 @@ const PoolsTable = () => {
             const usdtTotalBorrow = res.returnData[13];
             const daiTotalBorrow = res.returnData[14];
 
-            console.log("ethTotalBorrow", ethTotalBorrow);
-            console.log("f-ethTotalBorrow", formatUnits(ethTotalBorrow));
-            console.log(
-              "P-ethTotalBorrow1e18",
-              parseFloat(formatUnits(ethTotalBorrow))
-            );
-
             //User Asset balance
             const ethBal = formatUnits(res.returnData[15], 18);
             const wbtcBal = formatUnits(res.returnData[16], 18);
             const usdcBal = formatUnits(res.returnData[17], 18);
             const usdtBal = formatUnits(res.returnData[18], 18);
             const daiBal = formatUnits(res.returnData[19], 18);
-
-            console.log("ethBal", ethBal);
 
             // Dependent varibale data fetching
             const calldata1 = [];
@@ -606,7 +601,6 @@ const PoolsTable = () => {
             calldata1.push([opAddressList.rateModelContractAddress, tempData1]);
 
             const res1 = await MCcontract.callStatic.aggregate(calldata1);
-            // console.log(res1);
 
             const ethBorrowAPY = res1.returnData[0];
             const ethBorrowApy =
@@ -647,7 +641,7 @@ const PoolsTable = () => {
               if (pool.name === "WETH") {
                 return {
                   ...pool,
-                  supply: "$" + ceilWithPrecision6(ethSupply),
+                  supply: ceilWithPrecision6(ethSupply),
                   supplyAPY: ceilWithPrecision(String(ethSupplyApy)) + "%",
                   borrowAPY: ceilWithPrecision(String(ethBorrowApy)) + "%",
                   yourBalance: ceilWithPrecision6(ethBal),
@@ -656,7 +650,7 @@ const PoolsTable = () => {
               if (pool.name === "WBTC") {
                 return {
                   ...pool,
-                  supply: "$" + ceilWithPrecision6(wbtcSupply),
+                  supply: ceilWithPrecision6(wbtcSupply),
                   supplyAPY: ceilWithPrecision(String(wbtcSupplyApy)) + "%",
                   borrowAPY: ceilWithPrecision(String(wbtcBorrowApy)) + "%",
                   yourBalance: ceilWithPrecision6(wbtcBal),
@@ -665,7 +659,7 @@ const PoolsTable = () => {
               if (pool.name === "USDC") {
                 return {
                   ...pool,
-                  supply: "$" + ceilWithPrecision6(usdcSupply),
+                  supply: ceilWithPrecision6(usdcSupply),
                   supplyAPY: ceilWithPrecision(String(usdcSupplyApy)) + "%",
                   borrowAPY: ceilWithPrecision(String(usdcBorrowApy)) + "%",
                   yourBalance: ceilWithPrecision6(usdcBal),
@@ -674,7 +668,7 @@ const PoolsTable = () => {
               if (pool.name === "USDT") {
                 return {
                   ...pool,
-                  supply: "$" + ceilWithPrecision6(usdtSupply),
+                  supply: ceilWithPrecision6(usdtSupply),
                   supplyAPY: ceilWithPrecision(String(usdtSupplyApy)) + "%",
                   borrowAPY: ceilWithPrecision(String(usdtBorrowApy)) + "%",
                   yourBalance: ceilWithPrecision6(usdtBal),
@@ -683,7 +677,7 @@ const PoolsTable = () => {
               if (pool.name === "DAI") {
                 return {
                   ...pool,
-                  supply: "$" + ceilWithPrecision6(daiSupply),
+                  supply: ceilWithPrecision6(daiSupply),
                   supplyAPY: ceilWithPrecision(String(daiSupplyApy)) + "%",
                   borrowAPY: ceilWithPrecision(String(daiBorrowApy)) + "%",
                   yourBalance: ceilWithPrecision6(daiBal),
@@ -696,9 +690,7 @@ const PoolsTable = () => {
             dispatch(setPoolsData(updatedPools));
           };
           fetchValues();
-
-        }
-        else if (currentNetwork.id === BASE_NETWORK){
+        } else if (currentNetwork.id === BASE_NETWORK) {
           const fetchValues = async () => {
             const iFaceEth = new utils.Interface(VEther.abi);
             const iFaceToken = new utils.Interface(VToken.abi);
@@ -737,7 +729,6 @@ const PoolsTable = () => {
             );
             calldata.push([baseAddressList.wbtcTokenAddress, tempData]);
 
-            console.log("works");
             // USDC
             tempData = utils.arrayify(
               iFaceToken.encodeFunctionData("totalSupply", [])
@@ -841,7 +832,6 @@ const PoolsTable = () => {
             calldata.push([baseAddressList.vDaiContractAddress, tempData]);
 
             const res = await MCcontract.callStatic.aggregate(calldata);
-            // console.log(res);
 
             // assigne value
             //supply
@@ -868,21 +858,12 @@ const PoolsTable = () => {
             const usdtTotalBorrow = res.returnData[13];
             const daiTotalBorrow = res.returnData[14];
 
-            console.log("ethTotalBorrow", ethTotalBorrow);
-            console.log("f-ethTotalBorrow", formatUnits(ethTotalBorrow));
-            console.log(
-              "P-ethTotalBorrow1e18",
-              parseFloat(formatUnits(ethTotalBorrow))
-            );
-
             //User Asset balance
             const ethBal = formatUnits(res.returnData[15], 18);
             const wbtcBal = formatUnits(res.returnData[16], 18);
             const usdcBal = formatUnits(res.returnData[17], 18);
             const usdtBal = formatUnits(res.returnData[18], 18);
             const daiBal = formatUnits(res.returnData[19], 18);
-
-            console.log("ethBal", ethBal);
 
             // Dependent varibale data fetching
             const calldata1 = [];
@@ -897,7 +878,10 @@ const PoolsTable = () => {
                 ethTotalBorrow,
               ])
             );
-            calldata1.push([baseAddressList.rateModelContractAddress, tempData1]);
+            calldata1.push([
+              baseAddressList.rateModelContractAddress,
+              tempData1,
+            ]);
 
             //BTC
             tempData1 = utils.arrayify(
@@ -906,7 +890,10 @@ const PoolsTable = () => {
                 wbtcTotalBorrow,
               ])
             );
-            calldata1.push([baseAddressList.rateModelContractAddress, tempData1]);
+            calldata1.push([
+              baseAddressList.rateModelContractAddress,
+              tempData1,
+            ]);
 
             //USDC
             tempData1 = utils.arrayify(
@@ -915,7 +902,10 @@ const PoolsTable = () => {
                 usdcTotalBorrow,
               ])
             );
-            calldata1.push([baseAddressList.rateModelContractAddress, tempData1]);
+            calldata1.push([
+              baseAddressList.rateModelContractAddress,
+              tempData1,
+            ]);
 
             //USDT
             tempData1 = utils.arrayify(
@@ -924,7 +914,10 @@ const PoolsTable = () => {
                 usdtTotalBorrow,
               ])
             );
-            calldata1.push([baseAddressList.rateModelContractAddress, tempData1]);
+            calldata1.push([
+              baseAddressList.rateModelContractAddress,
+              tempData1,
+            ]);
 
             //DAI
             tempData1 = utils.arrayify(
@@ -933,10 +926,12 @@ const PoolsTable = () => {
                 daiTotalBorrow,
               ])
             );
-            calldata1.push([baseAddressList.rateModelContractAddress, tempData1]);
+            calldata1.push([
+              baseAddressList.rateModelContractAddress,
+              tempData1,
+            ]);
 
             const res1 = await MCcontract.callStatic.aggregate(calldata1);
-            // console.log(res1);
 
             const ethBorrowAPY = res1.returnData[0];
             const ethBorrowApy =
@@ -977,7 +972,7 @@ const PoolsTable = () => {
               if (pool.name === "WETH") {
                 return {
                   ...pool,
-                  supply: "$" + ceilWithPrecision6(ethSupply),
+                  supply: ceilWithPrecision6(ethSupply),
                   supplyAPY: ceilWithPrecision(String(ethSupplyApy)) + "%",
                   borrowAPY: ceilWithPrecision(String(ethBorrowApy)) + "%",
                   yourBalance: ceilWithPrecision6(ethBal),
@@ -986,7 +981,7 @@ const PoolsTable = () => {
               if (pool.name === "WBTC") {
                 return {
                   ...pool,
-                  supply: "$" + ceilWithPrecision6(wbtcSupply),
+                  supply: ceilWithPrecision6(wbtcSupply),
                   supplyAPY: ceilWithPrecision(String(wbtcSupplyApy)) + "%",
                   borrowAPY: ceilWithPrecision(String(wbtcBorrowApy)) + "%",
                   yourBalance: ceilWithPrecision6(wbtcBal),
@@ -995,7 +990,7 @@ const PoolsTable = () => {
               if (pool.name === "USDC") {
                 return {
                   ...pool,
-                  supply: "$" + ceilWithPrecision6(usdcSupply),
+                  supply: ceilWithPrecision6(usdcSupply),
                   supplyAPY: ceilWithPrecision(String(usdcSupplyApy)) + "%",
                   borrowAPY: ceilWithPrecision(String(usdcBorrowApy)) + "%",
                   yourBalance: ceilWithPrecision6(usdcBal),
@@ -1004,7 +999,7 @@ const PoolsTable = () => {
               if (pool.name === "USDT") {
                 return {
                   ...pool,
-                  supply: "$" + ceilWithPrecision6(usdtSupply),
+                  supply: ceilWithPrecision6(usdtSupply),
                   supplyAPY: ceilWithPrecision(String(usdtSupplyApy)) + "%",
                   borrowAPY: ceilWithPrecision(String(usdtBorrowApy)) + "%",
                   yourBalance: ceilWithPrecision6(usdtBal),
@@ -1013,7 +1008,7 @@ const PoolsTable = () => {
               if (pool.name === "DAI") {
                 return {
                   ...pool,
-                  supply: "$" + ceilWithPrecision6(daiSupply),
+                  supply: ceilWithPrecision6(daiSupply),
                   supplyAPY: ceilWithPrecision(String(daiSupplyApy)) + "%",
                   borrowAPY: ceilWithPrecision(String(daiBorrowApy)) + "%",
                   yourBalance: ceilWithPrecision6(daiBal),
@@ -1026,7 +1021,7 @@ const PoolsTable = () => {
             dispatch(setPoolsData(updatedPools));
           };
           fetchValues();
-        }else {
+        } else {
           setPools(poolsPlaceholder);
         }
       }
@@ -1037,11 +1032,11 @@ const PoolsTable = () => {
 
   return (
     <div className="mt-4 overflow-x-auto">
-      <div className="min-w-full text-base font-medium text-baseBlack">
+      <div className="min-w-full text-base font-medium text-baseBlack text-center">
         {/* Header */}
-        <div className="bg-baseComplementary grid grid-cols-7 rounded-xl px-6 py-3 font-semibold">
+        <div className="bg-baseComplementary grid grid-cols-6 rounded-xl px-6 py-3 font-semibold">
           <div className="text-center">#</div>
-          <div className="col-span-2">Pool</div>
+          <div className=" text-left">Pool</div>
           <div>Supply</div>
           <div>Supply APY</div>
           <div>Borrow APY</div>
@@ -1049,19 +1044,19 @@ const PoolsTable = () => {
         </div>
 
         {/* Body */}
-        <div className="bg-white text-center pt-6">
+        <div className="bg-white text-center pt-6 text-base font-medium">
           {pools.map((pool: PoolTable) => (
             <Link
               href={`/earn/${pool.id}/pool`}
               key={pool.id}
               className="block group"
             >
-              <div className="relative grid grid-cols-7 px-6 py-3 whitespace-nowrap transition-all duration-200 ease-in-out rounded-xl">
+              <div className="relative grid grid-cols-6 px-6 py-4 whitespace-nowrap transition-all duration-200 ease-in-out rounded-xl">
                 <div className="z-10">{pool.id}</div>
-                <div className="z-10 col-span-2">
+                <div className="z-10 ">
                   <div className="flex items-center">
                     <Image
-                      className="rounded-full shadow-md ring-1 ring-black ring-opacity-20"
+                      className=""
                       src={pool.icon}
                       alt=""
                       width="24"

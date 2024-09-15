@@ -6,9 +6,9 @@ export const poolMap: Map<string, Pool> = new Map<string, Pool>([
 ]);
 
 export const networkOptions = [
-  { id: "base", name: "Base", icon: "/eth-icon.svg" },
-  { id: "arbitrum", name: "Arbitrum One", icon: "/vanna-logo.svg" },
-  { id: "optimism", name: "OrP Mainnet", icon: "/vanna-white-logo.svg" },
+  { id: "base", name: "Base", icon: "/base-icon.svg" },
+  { id: "arbitrum", name: "Arbitrum One", icon: "/arbitrum-icon.svg" },
+  { id: "optimism", name: "OP Mainnet", icon: "/optimism-icon.svg" },
 ];
 
 export const BASE_NETWORK = "base";

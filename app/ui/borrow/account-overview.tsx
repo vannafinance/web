@@ -14,7 +14,7 @@ const AccountOverview = () => {
           </div>
           <div className="flex items-center">
             <Image
-              src="/eth-icon.svg"
+              src="/usdc-icon.svg"
               alt="logo"
               className="w-6 h-6 mr-1 rounded-full"
               width={16}

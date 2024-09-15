@@ -23,7 +23,7 @@ const PoolDetailTabMenu = ({ pool }: { pool: PoolTable }) => {
   };
 
   return (
-    <div className="bg-white mt-14 rounded-lg shadow-sm">
+    <div className="bg-white mt-14 rounded-lg">
       <div className="flex space-x-4 mb-6 border-b border-neutral-100 pb-2 text-base">
         {["Details", "Utilization rate", "Analytics"].map((tab) => (
           <div

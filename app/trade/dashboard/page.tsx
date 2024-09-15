@@ -15,7 +15,7 @@ export default function Page() {
 
   const pairOptions: Option[] = [
     { value: "ETH", label: "ETH/USD", icon: "/eth-icon.svg" },
-    { value: "BTC", label: "BTC/USD", icon: "/eth-icon.svg" },
+    { value: "BTC", label: "BTC/USD", icon: "/btc-icon.svg" },
   ];
 
   const userData: UserData = {

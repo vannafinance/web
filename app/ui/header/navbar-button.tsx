@@ -20,8 +20,6 @@ export default function NavbarButtons() {
 
   const walletConnect = useCallback(async () => {
     try {
-      console.log("wallet connect");
-
       await activate(injected, undefined, true);
       await checkNetwork();
       localStorage?.setItem("isWalletConnected", "true");
@@ -81,7 +79,7 @@ export default function NavbarButtons() {
 
   const errorHandlingForConnectWallet = (err: any) => {
     let errMsg = null;
-    console.log(err.name);
+    console.error(err.name);
     if (
       err.name === "NoEthereumProviderError" ||
       err.message?.includes("No Ethereum provider was found")
@@ -99,7 +97,7 @@ export default function NavbarButtons() {
       return;
     } else {
       errMsg = err.message ?? "Something went wrong logging in";
-      console.log(err);
+      console.error(err);
     }
     addNotification("error", errMsg);
   };

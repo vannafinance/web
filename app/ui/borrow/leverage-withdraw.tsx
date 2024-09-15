@@ -1,8 +1,8 @@
 "use client";
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useState } from "react";
-import { CaretDown, Info } from "@phosphor-icons/react";
+import React, { useEffect, useState } from "react";
+import { CaretDown, Info, Question } from "@phosphor-icons/react";
 import clsx from "clsx";
 import Tooltip from "../components/tooltip";
 import Image from "next/image";
@@ -11,7 +11,7 @@ import TokenDropdown from "../components/token-dropdown";
 import { Contract } from "ethers";
 import { useWeb3React } from "@web3-react/core";
 import { useNetwork } from "@/app/context/network-context";
-import { arbAddressList, arbTokensAddress } from "@/app/lib/web3-constants";
+import { arbAddressList, arbTokensAddress, baseTokensAddress } from "@/app/lib/web3-constants";
 
 import AccountManager from "../../abi/vanna/v1/out/AccountManager.sol/AccountManager.json";
 import Registry from "../../abi/vanna/v1/out/Registry.sol/Registry.json";
@@ -39,8 +39,8 @@ const LevrageWithdraw = () => {
   );
   const [leverageValue, setLeverageValue] = useState<number>(5);
   // const [coinBalance, setCoinBalance] = useState(0);
-  const [depositBalance, setDepositBalance] = useState<string | undefined>();
-  const [borrowBalance, setBorrowBalance] = useState<string | undefined>();
+  const [depositBalance, setDepositBalance] = useState<string | undefined>("-");
+  const [borrowBalance, setBorrowBalance] = useState<string | undefined>("-");
   const [debt, setDebt] = useState(0);
   const [healthFactor, setHealthFactor] = useState("-");
   const [activeAccount, setActiveAccount] = useState();
@@ -59,12 +59,10 @@ const LevrageWithdraw = () => {
   };
 
   const handleDepositTokenSelect = (token: PoolTable) => {
-    console.log("Selected token:", token);
     setDepositToken(token.name);
   };
 
   const handleBorrowTokenSelect = (token: PoolTable) => {
-    console.log("Selected token:", token);
     setBorrowToken(token.name);
   };
 
@@ -82,23 +80,31 @@ const LevrageWithdraw = () => {
 
   const getTokenBalance = async (tokenName = depositToken) => {
     try {
-      if (activeAccount) {
+      console.log("here in token bal");
+
+      if (account) {
+        console.log("in if");
+
         const signer = await library?.getSigner();
         let depositBalance;
         let borrowBalance;
 
         if (tokenName == "WETH") {
           depositBalance = await library?.getBalance(account);
-          borrowBalance = await library?.getBalance(activeAccount);
+          if (activeAccount) {
+            borrowBalance = await library?.getBalance(activeAccount);
+          }
         } else {
           if (tokenName === undefined) return;
           const contract = new Contract(
-            arbTokensAddress[tokenName],
+            baseTokensAddress[tokenName],
             ERC20.abi,
             signer
           );
           depositBalance = await contract.balanceOf(account);
-          borrowBalance = await contract.balanceOf(activeAccount);
+          if (activeAccount) {
+            borrowBalance = await contract.balanceOf(activeAccount);
+          }
         }
 
         const depositBalanceInNumber = formatBignumberToUnits(
@@ -111,11 +117,19 @@ const LevrageWithdraw = () => {
         );
         setDepositBalance(ceilWithPrecision(String(depositBalanceInNumber)));
         setBorrowBalance(ceilWithPrecision(String(borrowBalanceInNumber)));
+        console.log(borrowBalanceInNumber);
+        console.log(depositBalanceInNumber);
+        
+        
       }
     } catch (e) {
       console.error(e);
     }
   };
+
+  useEffect(() => {
+    getTokenBalance();
+  }, [account, activeAccount]);
 
   const deposit = async () => {
     const signer = await library?.getSigner();
@@ -288,7 +302,9 @@ const LevrageWithdraw = () => {
         <div className="bg-white rounded-2xl p-4 mb-3">
           <div className="flex justify-between mb-2">
             <div className="flex flex-col">
-              <span className="font-medium text-sm mb-2">Deposit</span>
+              <span className="font-medium text-sm mb-2">
+                {isSupply ? "Deposit" : "Withdraw"}
+              </span>
               <input
                 type="number"
                 value={depositAmount}
@@ -301,8 +317,11 @@ const LevrageWithdraw = () => {
               <TokenDropdown onSelect={handleDepositTokenSelect} />
             </div>
           </div>
-          <div className="mt-2">
-            <div className="text-xs text-neutral-500">{depositBalance}</div>
+          <div className="mt-2 flex justify-end">
+            <div className="text-xs text-neutral-500">
+              Balance: {depositBalance}{" "}
+              {depositBalance !== "-" ? depositToken : ""}
+            </div>
           </div>
         </div>
 
@@ -323,7 +342,9 @@ const LevrageWithdraw = () => {
         <div className="bg-white rounded-2xl p-4 mb-10">
           <div className="flex justify-between mb-2">
             <div className="flex flex-col">
-              <span className="font-medium text-sm mb-2">Borrow</span>
+              <span className="font-medium text-sm mb-2">
+                {isSupply ? "Borrow" : "Repay"}
+              </span>
               <input
                 type="number"
                 value={borrowAmount}
@@ -352,10 +373,10 @@ const LevrageWithdraw = () => {
           <div className="flex items-center">
             <span className="mr-1">Health Factor</span>
             <span className="text-baseSuccess-300">
-              &nbsp;<u>{healthFactor}</u>&nbsp;
+              &nbsp;<u>{healthFactor !== "-" ? healthFactor : ""}</u>&nbsp;
             </span>
             <Tooltip content={"Target token"}>
-              <Info size={24} color="#2ea88e" />
+              <Question size={24} color="#2ea88e" />
             </Tooltip>
           </div>
           <div className="flex items-center">

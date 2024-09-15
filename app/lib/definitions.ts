@@ -32,6 +32,7 @@ interface PoolTable {
   yourBalance: string;
   isActive?: boolean;
   version?: number;
+  vToken: string;
 }
 
 interface Pool {
