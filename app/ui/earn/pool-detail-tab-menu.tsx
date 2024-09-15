@@ -5,6 +5,7 @@ import clsx from "clsx";
 import UtilizationChart from "./utilization-chart";
 import AnalyticsChart from "./analytics-chart";
 import PoolDetails from "./pool-details";
+import { ChartBar, ChartLineUp, FileText } from "@phosphor-icons/react";
 
 const PoolDetailTabMenu = ({ pool }: { pool: PoolTable }) => {
   const [activeTab, setActiveTab] = useState("Details");
@@ -29,14 +30,21 @@ const PoolDetailTabMenu = ({ pool }: { pool: PoolTable }) => {
           <div
             key={tab}
             className={clsx(
-              "pb-2 relative font-medium cursor-pointer",
+              "pb-2 relative font-medium cursor-pointer flex flex-row",
               activeTab === tab
                 ? "text-baseBlack after:content-[''] after:absolute after:-bottom-1/3 after:left-0 after:w-full after:h-[3px] after:bg-gradient-to-r after:from-gradient-1 after:to-gradient-2"
                 : "text-neutral-500"
             )}
             onClick={() => setActiveTab(tab)}
           >
-            {/* TDOD: add logo here */}
+            {tab === "Details" ? (
+              <FileText size={24} />
+            ) : tab === "Utilization rate" ? (
+              <ChartBar size={24} />
+            ) : (
+              <ChartLineUp size={24} />
+            )}
+            &nbsp;&nbsp;
             {tab}
           </div>
         ))}
