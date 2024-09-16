@@ -12,7 +12,7 @@ import { sleep } from "@/app/lib/helper";
 import Notification from "../components/notification";
 
 export default function NavbarButtons() {
-  const { isDarkMode, toggleDarkMode } = useDarkMode();
+  const { toggleDarkMode } = useDarkMode();
   const { setCurrentNetwork, networks } = useNetwork();
 
   const [buttonText, setButtonText] = useState("");
@@ -152,10 +152,10 @@ export default function NavbarButtons() {
 
   return (
     <div className="flex flex-row gap-2 items-center justify-center my-auto">
-      <div className="p-2 border border-neutral-100 rounded-lg cursor-pointer">
+      <div className="p-2 border border-neutral-100 rounded-lg cursor-pointer text-purple">
         <SunDim
           size={24}
-          color={isDarkMode ? "white" : "black"}
+          // color={isDarkMode ? "white" : "black"}
           weight="fill"
           onClick={toggleDarkMode}
         />
