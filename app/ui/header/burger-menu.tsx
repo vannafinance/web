@@ -1,7 +1,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { CaretDown, CaretUp } from "@phosphor-icons/react";
-import NavbarButtons from "./navbar-button";
 
 const links = [
   { title: "Overview", href: "/" },

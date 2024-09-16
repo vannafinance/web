@@ -12,7 +12,7 @@ import { sleep } from "@/app/lib/helper";
 import Notification from "../components/notification";
 
 export default function NavbarButtons() {
-  const { isDarkMode, toggleDarkMode } = useDarkMode();
+  const { toggleDarkMode } = useDarkMode();
   const { setCurrentNetwork, networks } = useNetwork();
 
   const [buttonText, setButtonText] = useState("");
