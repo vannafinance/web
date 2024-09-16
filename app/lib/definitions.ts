@@ -173,3 +173,7 @@ interface OptionData {
   askSize: number;
   strike: number;
 }
+
+interface BurgerMenuProps {
+  onClose: () => void;
+}
