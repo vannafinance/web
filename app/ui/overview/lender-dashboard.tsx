@@ -108,7 +108,7 @@ const PositionsInPools: React.FC = () => (
       </div>
 
       <div className="bg-white rounded-3xl border border-purpleBG-lighter text-baseBlack p-4 mb-3">
-        <div className="flex items-center mb-6 text-base font-medium">
+        <div className="flex items-center mb-8 text-base font-medium">
           <span className="mr-4 text-neutral-500">1</span>
           <div className="relative w-6 h-6 mr-2">
             <Image
@@ -121,7 +121,7 @@ const PositionsInPools: React.FC = () => (
           <span className="font-bold text-lg">{"WBTC"}</span>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-base">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-4 text-base">
           <div>
             <p className="text-sm text-gray-500 mb-1">In Pool</p>
             <p className="">$200.00</p>
@@ -143,7 +143,7 @@ const PositionsInPools: React.FC = () => (
       </div>
 
       <div className="bg-white rounded-3xl border border-purpleBG-lighter text-baseBlack p-4 mb-3">
-        <div className="flex items-center mb-6 text-base font-medium">
+        <div className="flex items-center mb-8 text-base font-medium">
           <span className="mr-4 text-neutral-500">2</span>
           <div className="relative w-6 h-6 mr-2">
             <Image
@@ -156,7 +156,7 @@ const PositionsInPools: React.FC = () => (
           <span className="font-bold text-lg">{"USDT"}</span>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-base">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-4 text-base">
           <div>
             <p className="text-sm text-gray-500 mb-1">In Pool</p>
             <p className="">$200.00</p>
@@ -176,7 +176,7 @@ const PositionsInPools: React.FC = () => (
       </div>
 
       <div className="bg-white rounded-3xl border border-purpleBG-lighter text-baseBlack p-4 mb-3">
-        <div className="flex items-center mb-6 text-base font-medium">
+        <div className="flex items-center mb-8 text-base font-medium">
           <span className="mr-4 text-neutral-500">3</span>
           <div className="relative w-6 h-6 mr-2">
             <Image
@@ -189,7 +189,7 @@ const PositionsInPools: React.FC = () => (
           <span className="font-bold text-lg">{"USDC"}</span>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-base">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-4 text-base">
           <div>
             <p className="text-sm text-gray-500 mb-1">In Pool</p>
             <p className="">$200.00</p>
@@ -209,7 +209,7 @@ const PositionsInPools: React.FC = () => (
       </div>
 
       <div className="bg-white rounded-3xl border border-purpleBG-lighter text-baseBlack p-4 mb-3">
-        <div className="flex items-center mb-6 text-base font-medium">
+        <div className="flex items-center mb-8 text-base font-medium">
           <span className="mr-4 text-neutral-500">4</span>
           <div className="relative w-6 h-6 mr-2">
             <Image
@@ -222,7 +222,7 @@ const PositionsInPools: React.FC = () => (
           <span className="font-bold text-lg">{"WETH"}</span>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-base">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-4 text-base">
           <div>
             <p className="text-sm text-gray-500 mb-1">In Pool</p>
             <p className="">$200.00</p>
