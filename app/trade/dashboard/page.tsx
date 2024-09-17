@@ -1,7 +1,7 @@
 "use client";
 
-import OptionPayoffChart from "@/app/dashboard/option-payoff-chart";
-import { SimpleTableComponent } from "@/app/dashboard/simple-table";
+import OptionPayoffChart from "@/app/ui/dashboard/option-payoff-chart";
+import { SimpleTableComponent } from "@/app/ui/dashboard/simple-table";
 import { calculateRemainingTime } from "@/app/lib/helper";
 import FutureDropdown from "@/app/ui/future/future-dropdown";
 import { CheckSquare, Square } from "@phosphor-icons/react";

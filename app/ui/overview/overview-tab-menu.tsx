@@ -93,11 +93,11 @@ const OverviewTabMenu = () => {
 
       <div className="container mx-auto pt-2">
         <div className="flex flex-col lg:flex-row">
-          <div className="w-full lg:w-1/3 pr-0 lg:pr-4 mb-4 lg:mb-0">
+          <div className="w-full lg:w-1/2 xl:w-1/3 pr-0 lg:pr-4 mb-4 lg:mb-0">
             <TotalHoldings />
             <Rewards />
           </div>
-          <div className="w-full lg:w-2/3">{renderTabContent()}</div>
+          <div className="w-full lg:w-1/2 xl:w-2/3">{renderTabContent()}</div>
         </div>
       </div>
     </div>

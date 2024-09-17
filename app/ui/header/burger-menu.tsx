@@ -7,7 +7,7 @@ const links = [
   { title: "Earn", href: "/earn" },
   { title: "Borrow", href: "/borrow" },
   { title: "Trade", href: "/trade" },
-  { title: "Analytics", href: "/analystics" },
+  // { title: "Analytics", href: "/analytics" },
 ];
 
 const tradeSubLinks = [
@@ -17,7 +17,7 @@ const tradeSubLinks = [
     subtitle: "Contracts settled in USDT and USDC",
   },
   {
-    title: "Future",
+    title: "Perps",
     href: "/trade/future",
     subtitle: "Contracts settled in cryptocurrency",
   },
