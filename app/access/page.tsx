@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { generateToken, isValidAccessCode } from "../lib/access-utils";
 
 export default function AccessPage() {
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
-  const router = useRouter();
+  // const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
