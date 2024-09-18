@@ -79,10 +79,8 @@ const LevrageWithdraw = () => {
 
   const getTokenBalance = async (tokenName = depositToken) => {
     try {
-      console.log("here in token bal");
 
       if (account) {
-        console.log("in if");
 
         const signer = await library?.getSigner();
         let depositBalance;
