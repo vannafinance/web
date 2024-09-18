@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 interface FeatureCardProps {
-  icon: React.ReactNode;
+  icon: string;
   title: string;
   subtitle: string;
 }

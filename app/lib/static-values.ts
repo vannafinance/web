@@ -108,3 +108,38 @@ export const poolDetailsPlaceholder = [
     tooltip: "Current withdrawal fees",
   },
 ];
+
+export const menuLinks = [
+  { title: "Overview", href: "/" },
+  { title: "Earn", href: "/earn" },
+  { title: "Borrow", href: "/borrow" },
+  { title: "Trade", href: "/trade" },
+  // { title: "Analytics", href: "/analytics" },
+];
+
+export const tradeMenuSubLinks = [
+  {
+    title: "Dashboard",
+    href: "/trade/dashboard",
+    subtitle: "Contracts settled in USDT and USDC",
+    icon: "/dashboard-menu-icon.svg",
+  },
+  {
+    title: "Perps",
+    href: "/trade/future",
+    subtitle: "Contracts settled in cryptocurrency",
+    icon: "/perps-menu-icon.svg",
+  },
+  {
+    title: "Options",
+    href: "/trade/options",
+    subtitle: "USDT Options with limited downside and affordable entry",
+    icon: "/options-menu-icon.svg",
+  },
+  {
+    title: "Spot",
+    href: "/trade/spot",
+    subtitle: "USDT Options with limited downside and affordable entry",
+    icon: "/spot-menu-icon.svg",
+  },
+];

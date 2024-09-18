@@ -5,50 +5,20 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CaretDown } from "@phosphor-icons/react";
 import FeatureCard from "./feature-card";
-
-const links = [
-  { title: "Overview", href: "/" },
-  { title: "Earn", href: "/earn" },
-  { title: "Borrow", href: "/borrow" },
-  { title: "Trade", href: "/trade" },
-  // { title: "Analytics", href: "/analytics" },
-];
-
-const tradeSubLinks = [
-  {
-    title: "Dashboard",
-    href: "/trade/dashboard",
-    subtitle: "Contracts settled in USDT and USDC",
-  },
-  {
-    title: "Perps",
-    href: "/trade/future",
-    subtitle: "Contracts settled in cryptocurrency",
-  },
-  {
-    title: "Options",
-    href: "/trade/options",
-    subtitle: "USDT Options with limited downside and affordable entry",
-  },
-  {
-    title: "Spot",
-    href: "/trade/spot",
-    subtitle: "USDT Options with limited downside and affordable entry",
-  },
-];
+import { menuLinks, tradeMenuSubLinks } from "@/app/lib/static-values";
 
 export default function NavLinks() {
   const pathname = usePathname();
 
   return (
     <div className="flex flex-row gap-2 items-center justify-center text-sm text-neutral-500">
-      {links.map((link) => {
+      {menuLinks.map((link) => {
         const isActive =
           pathname === link.href ||
           (link.title !== "Overview" && pathname.startsWith(link.href));
 
         const sublink =
-          tradeSubLinks.find((subItem) => pathname === subItem.href)?.title ||
+          tradeMenuSubLinks.find((subItem) => pathname === subItem.href)?.title ||
           "";
 
         if (link.title === "Trade") {
@@ -81,7 +51,7 @@ export default function NavLinks() {
                 key={link.title + "2"}
                 className="absolute left-2 top-10 z-50 mt-2 rounded-md shadow-xl bg-white ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300"
               >
-                {tradeSubLinks.map((subItem, index) => (
+                {tradeMenuSubLinks.map((subItem, index) => (
                   <Link
                     key={index}
                     href={subItem.href}
@@ -89,7 +59,7 @@ export default function NavLinks() {
                   >
                     <FeatureCard
                       key={"a" + index}
-                      icon=""
+                      icon={subItem.icon}
                       title={subItem.title}
                       subtitle={subItem.subtitle}
                     />

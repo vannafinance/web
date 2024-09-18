@@ -1,9 +1,11 @@
 "use client";
 
+import Image from "next/image";
+
 const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, subtitle }) => {
   return (
-    <div className="bg-white rounded-lg px-2 py-3 flex items-center hover:bg-neutral-100">
-      <div className="flex-shrink-0 w-8 h-3.5">{icon}</div>
+    <div className="bg-white rounded-lg px-2 py-3 flex items-start space-x-2 hover:bg-neutral-100">
+      <Image width="24" height="24" src={icon} alt={title + " menu icon"} className="mt-1" />
       <div>
         <h3 className="text-sm text-baseBlack">{title}</h3>
         <p className="text-xs text-neutral-500">{subtitle}</p>
