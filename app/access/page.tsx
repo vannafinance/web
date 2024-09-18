@@ -19,9 +19,12 @@ export default function AccessPage() {
       const date = new Date();
       date.setTime(date.getTime() + 43200000);
       const expires = "; expires=" + date.toUTCString();
-      document.cookie = "authToken=" + (token || "") + expires + "; path=/";
+      document.cookie = "authToken=" + (token || "") + expires + "; path=/;";
 
-      router.push("/");
+      setCode("");
+
+      // router.push("/");
+      window.location.href = '/'
     } else {
       setError("Invalid access code. Please try again.");
     }
