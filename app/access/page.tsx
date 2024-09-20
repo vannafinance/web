@@ -41,7 +41,7 @@ export default function AccessPage() {
               value={code}
               onChange={(e) => setCode(e.target.value)}
               className="w-full mb-4 p-2 border text-baseBlack border-neutral-300 rounded-lg"
-              placeholder="84886C054FAC"
+              placeholder="4886"
               required
             />
             <button className="w-full bg-purple text-white py-3 rounded-2xl font-medium text-xl hover:bg-purple-600 transition-colors">

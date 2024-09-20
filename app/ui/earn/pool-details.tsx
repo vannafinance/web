@@ -2344,7 +2344,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-12 px-4 border border-neutral-300 rounded-2xl">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-4 p-5 sm:p-7 xl:py-12 xl:px-4 border border-neutral-300 rounded-2xl">
       {details.map((item, index) => (
         <div key={index} className="flex flex-col">
           <div className="flex items-center">

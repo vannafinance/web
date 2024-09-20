@@ -27,7 +27,7 @@ const UtilizationChart = ({ pool }: { pool: PoolTable }) => {
   }, []);
 
   return (
-    <div className="bg-baseComplementary py-6 px-10 rounded-2xl text-baseBlack font-bold">
+    <div className="bg-baseComplementary py-6 px-4 sm:px-10 rounded-2xl text-baseBlack font-bold">
       <h2 className="text-2xl mb-4">Utilization rate</h2>
       <div className="flex flex-col mb-2">
         <span className="text-xl mr-2">64.5%</span>

@@ -112,14 +112,14 @@ const AnalyticsChart = ({ pool }: { pool: PoolTable }) => {
   }, []);
 
   return (
-    <div className="bg-baseComplementary py-6 px-10 rounded-2xl text-baseBlack font-bold">
-      <div className="flex justify-between items-center mb-4">
+    <div className="bg-baseComplementary py-6 px-4 sm:px-10 rounded-2xl text-baseBlack font-bold">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-4">
         <CustomDropdown
           options={options}
           selected={selectedOption}
           onSelect={setSelectedOption}
         />
-        <div className="flex space-x-2">
+        <div className="flex space-x-2 mt-4 sm:mt-0">
           {["1D", "7D", "30D", "1Y"].map((frame) => (
             <button
               key={frame}
@@ -178,7 +178,7 @@ const AnalyticsChart = ({ pool }: { pool: PoolTable }) => {
             <YAxis
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#0a0a0b", fontSize: 14 }}
+              tick={{ fill: "#0a0a0b", fontSize: 14, dx: 20 }}
               orientation="right"
               domain={["dataMin - 0.1", "dataMax + 0.1"]}
               tickFormatter={(value) => value.toFixed(2)}

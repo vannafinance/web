@@ -15,7 +15,7 @@ const TabMenu = () => {
   return (
     <div className="w-full">
       <div className="border-b border-neutral-100">
-        <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+        <nav className="-mb-px flex space-x-4" aria-label="Tabs">
           {tabs.map((tab) => (
             <Link
               key={tab.name}

@@ -1032,9 +1032,9 @@ const PoolsTable = () => {
 
   return (
     <div className="mt-4 overflow-x-auto">
-      <div className="min-w-full text-base font-medium text-baseBlack text-center">
+      <div className="hidden sm:block min-w-full text-base font-medium text-baseBlack text-center">
         {/* Header */}
-        <div className="bg-baseComplementary grid grid-cols-6 rounded-xl px-6 py-3 font-semibold">
+        <div className="bg-baseComplementary grid grid-cols-6 rounded-xl px-3 py-1.5 md:px-6 md:py-4 font-semibold">
           <div className="text-center">#</div>
           <div className=" text-left">Pool</div>
           <div>Supply</div>
@@ -1051,7 +1051,7 @@ const PoolsTable = () => {
               key={pool.id}
               className="block group"
             >
-              <div className="relative grid grid-cols-6 px-6 py-4 whitespace-nowrap transition-all duration-200 ease-in-out rounded-xl">
+              <div className="relative grid grid-cols-6 px-3 py-1.5 md:px-6 md:py-4 whitespace-nowrap transition-all duration-200 ease-in-out rounded-xl">
                 <div className="z-10">{pool.id}</div>
                 <div className="z-10 ">
                   <div className="flex items-center">
@@ -1091,6 +1091,67 @@ const PoolsTable = () => {
             </Link>
           ))}
         </div>
+      </div>
+
+      <div className="sm:hidden">
+        {pools.map((pool: PoolTable) => (
+          <Link
+            href={`/earn/${pool.id}/pool`}
+            key={pool.id}
+            className="block group"
+          >
+            <div className="relative bg-white rounded-3xl border border-purpleBG-lighter text-baseBlack p-4 mb-2">
+              <div className="flex items-center mb-4 text-base font-medium">
+                <span className="mr-2 text-neutral-500 px-4">{pool.id}</span>
+                <div className="relative w-6 h-6 mr-2">
+                  <Image
+                    src={pool.icon}
+                    alt={pool.name}
+                    layout="fill"
+                    className="rounded-full"
+                  />
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="font-bold text-lg">{pool.name}</span>
+                  {pool.version != undefined && pool.version > 0 && (
+                    <span className="px-2 inline-flex text-xs leading-4 font-medium rounded-md bg-purpleBG-lighter text-purple">
+                      v{pool.version}
+                    </span>
+                  )}
+                  {pool.isActive && (
+                    <span className="px-2 inline-flex text-xs leading-4 font-medium rounded-md bg-purpleBG-lighter text-purple">
+                      Active
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 text-base">
+                <div className="px-2 py-3">
+                  <p className="text-sm text-gray-500 mb-1">Supply</p>
+                  <p>{pool.supply}</p>
+                </div>
+                <div className="px-2 py-3">
+                  <p className="text-sm text-gray-500 mb-1">Supply APY</p>
+                  <p>{pool.supplyAPY}</p>
+                </div>
+                <div className="px-2 py-3">
+                  <p className="text-sm text-gray-500 mb-1">Borrow APY</p>
+                  <p>{pool.borrowAPY}</p>
+                </div>
+                <div className="px-2 py-3">
+                  <p className="text-sm text-gray-500 mb-1">In Pool</p>
+                  <p>{pool.yourBalance}</p>
+                </div>
+              </div>
+
+              <div className="absolute inset-0 rounded-xl bg-transparent z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-out pointer-events-none">
+                <div className="absolute inset-0 bg-gradient-to-r from-gradient-1 to-gradient-2 rounded-xl"></div>
+                <div className="absolute inset-[1px] bg-white rounded-xl"></div>
+              </div>
+            </div>
+          </Link>
+        ))}
       </div>
     </div>
   );

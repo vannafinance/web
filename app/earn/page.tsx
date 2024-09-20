@@ -10,7 +10,7 @@ export default function Page() {
   return (
     <>
       <TabMenu />
-      <div className="mt-8 flex items-center space-x-4">
+      <div className="mt-6 flex items-center space-x-4">
         <label className="flex items-center cursor-pointer">
           <div className="relative">
             <input
@@ -32,7 +32,7 @@ export default function Page() {
           </div>
         </label>
       </div>
-      <div className="mt-8">
+      <div className="mt-6">
         <PoolsTable />
         <FAQAccordion />
       </div>

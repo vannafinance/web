@@ -1,4 +1,4 @@
-const VALID_ACCESS_CODE = "1E28614720A9";
+const VALID_ACCESS_CODE = "2861";
 const ENCRYPTION_KEY = "your-encryption-key";
 
 export function encryptAccessCode(code: string): string {

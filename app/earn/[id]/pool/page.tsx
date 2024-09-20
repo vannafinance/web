@@ -35,10 +35,10 @@ export default function Page({ params }: { params: { id: string } }) {
     const pool = pools.find((pool) => pool.id === Number(id));
     const { account, library } = useWeb3React();
     const { currentNetwork } = useNetwork();
-    const [utilizationRate, setUtilizationRate] = useState<
-      string | undefined
-    >();
-    const [uniqueLP, setUniqueLP] = useState<string | undefined>();
+    const [utilizationRate, setUtilizationRate] = useState<string | undefined>(
+      "-"
+    );
+    const [uniqueLP, setUniqueLP] = useState<string | undefined>("-");
     useEffect(() => {
       try {
         if (account) {
@@ -375,10 +375,10 @@ export default function Page({ params }: { params: { id: string } }) {
           )}
         </div>
 
-        <div className="flex flex-row gap-10 text-base">
-          <div className="bg-white pt-4 w-full mx-auto mb-6">
-            <div className="grid grid-cols-3 gap-2 mb-4">
-              <div className="p-6 pr-0">
+        <div className="flex flex-col-reverse lg:flex-row lg:gap-5 xl:gap-10 text-base">
+          <div className="bg-white pt-4 w-full lg:w-1/2 xl:w-full mx-auto mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-2 mb-10">
+              <div className="py-5 px-4 pr-0">
                 <div className="text-sm font-semibold text-neutral-500">
                   Supply
                 </div>
@@ -387,7 +387,7 @@ export default function Page({ params }: { params: { id: string } }) {
                   {pool.supply !== "-" && pool.name}
                 </div>
               </div>
-              <div className="p-6 pr-0">
+              <div className="py-5 px-4 pr-0">
                 <div className="text-sm font-semibold text-neutral-500">
                   Supply APY
                 </div>
@@ -395,7 +395,7 @@ export default function Page({ params }: { params: { id: string } }) {
                   {pool.supplyAPY}
                 </div>
               </div>
-              <div className="p-6 pr-0">
+              <div className="py-5 px-4 pr-0">
                 <div className="text-sm font-semibold text-neutral-500">
                   Utilization rate
                 </div>
@@ -403,7 +403,7 @@ export default function Page({ params }: { params: { id: string } }) {
                   {utilizationRate}
                 </div>
               </div>
-              <div className="p-6 pr-0">
+              <div className="py-5 px-4 pr-0">
                 <div className="text-sm font-semibold text-neutral-500">
                   Unique LP
                 </div>
@@ -411,7 +411,7 @@ export default function Page({ params }: { params: { id: string } }) {
                   {uniqueLP}
                 </div>
               </div>
-              <div className="p-6 pr-0">
+              <div className="py-5 px-4 pr-0">
                 <div className="text-sm font-semibold text-neutral-500">
                   Your Balance
                 </div>
@@ -422,7 +422,7 @@ export default function Page({ params }: { params: { id: string } }) {
             </div>
             <PoolDetailTabMenu pool={pool} />
           </div>
-          <div className="flex-none w-2/5">
+          <div className="flex-none md:w-full lg:w-1/2 xl:w-2/5 pb-10 lg:pb-0">
             <SupplyWithdraw pool={pool} />
           </div>
         </div>

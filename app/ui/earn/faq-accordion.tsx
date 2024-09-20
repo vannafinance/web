@@ -41,8 +41,8 @@ const FAQAccordion = () => {
 
   return (
     <div className="mx-auto py-16">
-      <div className="flex flex-row gap-10 text-base">
-        <div className="flex-none w-4/12">
+      <div className="flex flex-col sm:flex-row gap-10 text-base">
+        <div className="sm:flex-none w-full sm:w-4/12">
           <h2 className="text-5xl font-bold mb-4">FAQs</h2>
           <p className="text-neutral-500 mb-6">
             Some basic questions related to Vanna

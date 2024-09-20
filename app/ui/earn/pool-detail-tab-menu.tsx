@@ -24,8 +24,8 @@ const PoolDetailTabMenu = ({ pool }: { pool: PoolTable }) => {
   };
 
   return (
-    <div className="bg-white mt-14 rounded-lg">
-      <div className="flex space-x-4 mb-6 border-b border-neutral-100 pb-2 text-base">
+    <div className="bg-white rounded-lg">
+      <div className="flex space-x-4 mb-6 border-b border-neutral-100 pb-2 text-xs sm:text-base">
         {["Details", "Utilization rate", "Analytics"].map((tab) => (
           <div
             key={tab}
@@ -38,11 +38,11 @@ const PoolDetailTabMenu = ({ pool }: { pool: PoolTable }) => {
             onClick={() => setActiveTab(tab)}
           >
             {tab === "Details" ? (
-              <FileText size={24} />
+              <FileText className="text-sm sm:text-2xl" />
             ) : tab === "Utilization rate" ? (
-              <ChartBar size={24} />
+              <ChartBar className="text-sm sm:text-2xl" />
             ) : (
-              <ChartLineUp size={24} />
+              <ChartLineUp className="text-sm sm:text-2xl" />
             )}
             &nbsp;&nbsp;
             {tab}
