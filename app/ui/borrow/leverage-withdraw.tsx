@@ -362,7 +362,7 @@ const LevrageWithdraw = () => {
           <Slider value={leverageValue} onChange={setLeverageValue} />
         </div>
 
-        <div className="flex justify-between items-center text-xl mb-8">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center text-xl mb-8 gap-2 sm:gap-0">
           <div className="flex items-center">
             <span className="mr-1">Health Factor</span>
             <span className="text-baseSuccess-300">
@@ -381,7 +381,7 @@ const LevrageWithdraw = () => {
         </div>
 
         <button
-          className="w-full bg-purple text-white py-3 rounded-2xl font-semibold text-xl"
+          className="w-full bg-purple text-white py-3 rounded-2xl font-semibold text-xl mb-6"
           onClick={deposit}
         >
           Enter an amount

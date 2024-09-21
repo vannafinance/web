@@ -55,3 +55,10 @@ body {
 .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #718096;
 }
+
+.gradient-text {
+  background: var(--Gradient-1, linear-gradient(91deg, #F5ABA1 0.04%, #703AE6 100.04%));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

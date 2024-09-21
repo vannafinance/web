@@ -2,12 +2,25 @@
 
 import Image from "next/image";
 import Tooltip from "../components/tooltip";
-import { CaretRight, Question } from "@phosphor-icons/react";
+import { Info } from "@phosphor-icons/react";
 
 const AccountOverview = () => {
   return (
     <>
-      <div className="text-2xl">Account Overview</div>
+      <div className="flex flex-row space-x-2">
+        <Image
+          src="/vanna-tilted-white-logo.svg"
+          alt="Smart account logo"
+          width="55"
+          height="55"
+        />
+        <div className="flex flex-col">
+          <span className="text-2xl font-semibold">Margin Account</span>
+          <span className="text-base font-medium gradient-text">
+            Create your smart account
+          </span>
+        </div>
+      </div>
 
       <div className="bg-baseComplementary p-6 rounded-3xl mb-4">
         <div className="flex justify-between items-center mb-4">
@@ -39,7 +52,7 @@ const AccountOverview = () => {
           <div className="flex items-center">
             <span className="mr-1">Collateral</span>
             <Tooltip content={"Collateral"}>
-              <Question weight="fill" size={16} color="black" />
+              <Info size={16} color="black" />
             </Tooltip>
           </div>
           <div className="flex items-center">
@@ -47,15 +60,33 @@ const AccountOverview = () => {
           </div>
         </div>
 
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center mb-4">
           <div className="flex items-center">
-            <span className="mr-1">Exposure</span>
-            <Tooltip content={"Exposure"}>
-              <Question weight="fill" size={16} color="black" />
+            <span className="mr-1">Account Value</span>
+            <Tooltip content={"Account Value"}>
+              <Info size={16} color="black" />
             </Tooltip>
           </div>
           <div className="flex items-center">
             <span className="font-semibold">10000</span>
+          </div>
+        </div>
+
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center">
+            <span className="mr-1">Debt</span>
+          </div>
+          <div className="flex items-center">
+            <span className="font-semibold">8000</span>
+          </div>
+        </div>
+
+        <div className="flex justify-between items-center">
+          <div className="flex items-center">
+            <span className="mr-1">Health Factor</span>
+          </div>
+          <div className="flex items-center">
+            <span className="font-semibold text-baseSuccess-300 underline">1.2</span>
           </div>
         </div>
       </div>
@@ -65,7 +96,7 @@ const AccountOverview = () => {
           <div className="flex items-center">
             <span className="mr-1">Borrow Rate</span>
             <Tooltip content={"Borrow rate"}>
-              <Question weight="fill" size={16} color="black" />
+              <Info size={16} color="black" />
             </Tooltip>
           </div>
           <div className="flex items-center">
@@ -77,24 +108,11 @@ const AccountOverview = () => {
           <div className="flex items-center">
             <span className="mr-1">Liquidation Price</span>
             <Tooltip content={"Liquidation Price"}>
-              <Question weight="fill" size={16} color="black" />
+              <Info size={16} color="black" />
             </Tooltip>
           </div>
           <div className="flex items-center">
             <span className="font-semibold">N/A</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-baseComplementary p-6 rounded-3xl mb-4">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center">
-            <span className="mr-1">Oravles and LTs</span>
-          </div>
-          <div className="flex items-center">
-            <span className="font-semibold">
-              <CaretRight size={16} color="black" />
-            </span>
           </div>
         </div>
       </div>
