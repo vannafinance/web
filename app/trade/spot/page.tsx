@@ -286,8 +286,8 @@ export default function Page() {
   };
 
   return (
-    <div className="w-full md:w-[40rem] mx-auto">
-      <p className="text-4xl font-bold mb-8">Spot</p>
+    <div className="w-full lg:w-[35rem] xl:w-[40rem] mx-auto">
+      <p className="text-4xl font-bold mb-6">Spot</p>
 
       <div className="bg-baseComplementary rounded-3xl p-4 relative mb-4">
         <div className="bg-white rounded-2xl p-4 mb-1">
@@ -348,7 +348,7 @@ export default function Page() {
         Swap
       </button>
 
-      <div className="w-full max-w-md mx-auto bg-white rounded-lg p-4">
+      <div className="w-full lg:max-w-md mx-auto bg-white rounded-lg p-6">
         <div
           className="flex justify-between items-center cursor-pointer"
           onClick={toggleOpen}
