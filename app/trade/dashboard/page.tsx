@@ -232,9 +232,9 @@ export default function Page() {
   });
 
   return (
-    <div className="pt-4 px-10">
-      <div className="flex flex-row space-x-5 text-base">
-        <div className="flex flex-col w-4/12 h-[4.5rem] border border-neutral-100 rounded-xl px-2 pt-2 font-semibold text-xl">
+    <div className="pt-5 sm:pt-7 lg:pt-10 pb-5 px-2.5 md:px-5 lg:px-7 xl:px-10">
+      <div className="flex flex-col lg:flex-row space-y-2.5 mb-0 lg:mb-1.5 lg:space-y-0 lg:space-x-2.5 xl:space-x-5 text-base">
+        <div className="flex flex-col w-fit lg:w-5/12 xl:w-4/12 h-[4.5rem] border border-neutral-100 rounded-xl px-2 pt-2 font-semibold text-base xl:text-xl">
           <div className="text-neutral-500 text-xs font-medium mb-1">
             Select Pair
           </div>
@@ -244,42 +244,42 @@ export default function Page() {
               defaultValue={selectedPair}
               onChange={setSelectedPair}
             />
-            <span className="text-green-500 ml-2">58250.3</span>
-            <span className="text-sm text-green-500 ml-1">+1.09%</span>
+            <span className="text-green-500 font-normal ml-2">58250.3</span>
+            <span className="text-xs xl:text-sm text-green-500 ml-1">+1.09%</span>
           </div>
         </div>
 
-        <div className="w-full h-[4.5rem] flex flex-row justify-between px-6 py-4 border border-neutral-100 rounded-xl font-semibold mb-2">
+        <div className="w-full h-[4.5rem] flex flex-row justify-between px-2.5 xl:px-6 py-4 border border-neutral-100 rounded-xl font-semibold">
           <div>
-            <p className="text-neutral-500 text-xs">Available Balance</p>
-            <p className="text-sm">{userData.availableBalance}</p>
+            <p className="text-neutral-500 font-normal text-xs">Available Balance</p>
+            <p className="text-xs xl:text-sm">{userData.availableBalance}</p>
           </div>
           <div>
-            <p className="text-neutral-500 text-xs">Margin Usage</p>
-            <p className="text-sm">{userData.marginUsage}</p>
+            <p className="text-neutral-500 font-normal text-xs">Margin Usage</p>
+            <p className="text-xs xl:text-sm">{userData.marginUsage}</p>
           </div>
           <div>
-            <p className="text-neutral-500 text-xs">Total P&L</p>
-            <p className="text-sm">{userData.totalPnl}</p>
+            <p className="text-neutral-500 font-normal text-xs">Total P&L</p>
+            <p className="text-xs xl:text-sm">{userData.totalPnl}</p>
           </div>
           <div>
-            <p className="text-neutral-500 text-xs">Health Factor</p>
-            <p className="text-sm">{userData.healthFactor}</p>
+            <p className="text-neutral-500 font-normal text-xs">Health Factor</p>
+            <p className="text-xs xl:text-sm">{userData.healthFactor}</p>
           </div>
           <div>
-            <p className="text-neutral-500 text-xs">Borrow Rate</p>
-            <p className="text-sm">{userData.borrowRate}</p>
+            <p className="text-neutral-500 font-normal text-xs">Borrow Rate</p>
+            <p className="text-xs xl:text-sm">{userData.borrowRate}</p>
           </div>
         </div>
       </div>
 
-      <div className="flex flex-row space-x-5 text-base pt-1">
-        <div className="flex-none w-2/5">
+      <div className="flex flex-col-reverse xl:flex-row gap-5 text-base pt-2.5 lg:pt-1">
+        <div className="flex-none xl:w-2/5">
           <div className="mb-5 w-full">
             <OptionPayoffChart />
           </div>
 
-          <div className="flex flex-row gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <SimpleTableComponent
               title="Options"
               data={options}
@@ -294,12 +294,12 @@ export default function Page() {
         </div>
 
         <div className="w-full">
-          <div className="flex flex-row gap-4">
-            <div className="flex flex-col w-full h-[4.5rem] border border-neutral-100 rounded-xl px-2 pt-2 font-semibold text-xl">
+          <div className="flex flex-col sm:flex-row gap-2.5 xl:gap-4">
+            <div className="flex flex-col w-fit sm:w-full h-[4.5rem] border border-neutral-100 rounded-xl px-2 pt-2 font-semibold text-base xl:text-xl">
               <div className="text-neutral-500 text-xs font-medium mb-1">
                 Select Pair
               </div>
-              <div className="flex flex-row items-center text-lg">
+              <div className="flex flex-row items-center">
                 <FutureDropdown
                   options={expiryOptions}
                   defaultValue={selectedExpiry}
@@ -308,24 +308,24 @@ export default function Page() {
               </div>
             </div>
 
-            <div className="flex-none w-2/3 h-[4.5rem] flex flex-row justify-between px-6 py-4 border border-neutral-100 rounded-xl font-semibold mb-2">
+            <div className="flex-none w-full sm:w-2/3 lg:w-3/4 xl:w-2/3 h-[4.5rem] flex flex-row justify-between px-2.5 xl:px-6 py-4 border border-neutral-100 rounded-xl font-semibold mb-2.5">
               <div>
-                <p className="text-neutral-500 text-xs">Today&apos;s Date</p>
-                <p className="text-sm">{today}</p>
+                <p className="text-neutral-500 font-normal text-xs">Today&apos;s Date</p>
+                <p className="text-xs xl:text-sm">{today}</p>
               </div>
               <div>
-                <p className="text-neutral-500 text-xs">Rem Time</p>
-                <p className="text-sm">
+                <p className="text-neutral-500 font-normal text-xs">Rem Time</p>
+                <p className="text-xs xl:text-sm">
                   {calculateRemainingTime(selectedExpiry.value)}
                 </p>
               </div>
               <div>
-                <p className="text-neutral-500 text-xs">CIV</p>
-                <p className="text-sm">16</p>
+                <p className="text-neutral-500 font-normal text-xs">CIV</p>
+                <p className="text-xs xl:text-sm">16</p>
               </div>
               <div>
-                <p className="text-neutral-500 text-xs">PIV</p>
-                <p className="text-sm">19</p>
+                <p className="text-neutral-500 font-normal text-xs">PIV</p>
+                <p className="text-xs xl:text-sm">19</p>
               </div>
             </div>
           </div>
@@ -498,38 +498,38 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="w-full flex flex-row justify-between px-6 py-4 border border-neutral-100 rounded-xl font-semibold mb-2 bg-white">
+      <div className="w-full grid grid-cols-4 sm:grid-cols-8 gap-2.5 lg:gap-5 justify-between px-2.5 lg:px-5 py-5 border border-neutral-100 rounded-xl font-semibold mb-2.5 bg-white text-xs">
         <div>
-          <p className="text-neutral-500 text-xs">FUTURE</p>
-          <p className="text-sm">${portfolioSummary.future.toFixed(2)}</p>
+          <p className="text-neutral-500 font-normal">FUTURE</p>
+          <p className="">${portfolioSummary.future.toFixed(2)}</p>
         </div>
         <div>
-          <p className="text-neutral-500 text-xs">PREMIUM</p>
-          <p className="text-sm">${portfolioSummary.premium.toFixed(2)}</p>
+          <p className="text-neutral-500 font-normal">PREMIUM</p>
+          <p className="">${portfolioSummary.premium.toFixed(2)}</p>
         </div>
         <div>
-          <p className="text-neutral-500 text-xs">OPTION</p>
-          <p className="text-sm">${portfolioSummary.option.toFixed(2)}</p>
+          <p className="text-neutral-500 font-normal">OPTION</p>
+          <p className="">${portfolioSummary.option.toFixed(2)}</p>
         </div>
         <div>
-          <p className="text-neutral-500 text-xs">GROSS PNL</p>
-          <p className="text-sm">${portfolioSummary.grossPnl.toFixed(2)}</p>
+          <p className="text-neutral-500 font-normal">GROSS PNL</p>
+          <p className="">${portfolioSummary.grossPnl.toFixed(2)}</p>
         </div>
         <div>
-          <p className="text-neutral-500 text-xs">NET BAL</p>
-          <p className="text-sm">${portfolioSummary.netBal.toFixed(2)}</p>
+          <p className="text-neutral-500 font-normal">NET BAL</p>
+          <p className="">${portfolioSummary.netBal.toFixed(2)}</p>
         </div>
         <div>
-          <p className="text-neutral-500 text-xs">THETA</p>
-          <p className="text-sm">${portfolioSummary.theta.toFixed(2)}</p>
+          <p className="text-neutral-500 font-normal">THETA</p>
+          <p className="">${portfolioSummary.theta.toFixed(2)}</p>
         </div>
         <div>
-          <p className="text-neutral-500 text-xs">VEGA</p>
-          <p className="text-sm">${portfolioSummary.vega.toFixed(2)}</p>
+          <p className="text-neutral-500 font-normal">VEGA</p>
+          <p className="">${portfolioSummary.vega.toFixed(2)}</p>
         </div>
         <div>
-          <p className="text-neutral-500 text-xs">GAMMA</p>
-          <p className="text-sm">${portfolioSummary.gamma.toFixed(2)}</p>
+          <p className="text-neutral-500 font-normal">GAMMA</p>
+          <p className="">${portfolioSummary.gamma.toFixed(2)}</p>
         </div>
       </div>
     </div>
