@@ -77,6 +77,11 @@ interface TokenDropdownProps {
   onSelect: (token: PoolTable) => void;
 }
 
+interface AccountOverviewProps {
+  creditToken: PoolTable | undefined;
+  leverage: number;
+}
+
 interface Option {
   value: string;
   label: string;

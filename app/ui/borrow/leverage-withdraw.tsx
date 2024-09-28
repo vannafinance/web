@@ -25,12 +25,13 @@ import {
   formatBignumberToUnits,
   sleep,
 } from "@/app/lib/helper";
+import AccountOverview from "./account-overview";
 
 const LevrageWithdraw = () => {
   const { account, library } = useWeb3React();
   // const { currentNetwork } = useNetwork();
 
-  const [isSupply, setIsSupply] = useState(true);
+  const [isLeverage, setIsLeverage] = useState(true);
   const [depositAmount, setDepositAmount] = useState("");
   const [borrowAmount, setBorrowAmount] = useState("");
   // const [selectedPercentage, setSelectedPercentage] = useState<number | null>(
@@ -44,13 +45,20 @@ const LevrageWithdraw = () => {
   const [healthFactor, setHealthFactor] = useState("-");
   const [activeAccount, setActiveAccount] = useState();
 
-  const [depositToken, setDepositToken] = useState<string>();
-  const [borrowToken, setBorrowToken] = useState<string>();
+  const [depositToken, setDepositToken] = useState<PoolTable>();
+  const [borrowToken, setBorrowToken] = useState<PoolTable>();
 
   const balance: string = "1";
   const currentAPY: string = "1";
 
-  const handleToggle = () => setIsSupply(!isSupply);
+  const handleToggle = (value: String) => {
+    if (
+      (value === "withdraw" && isLeverage) ||
+      (value === "leverage" && !isLeverage)
+    ) {
+      setIsLeverage(!isLeverage);
+    }
+  };
 
   const handlePercentageClick = (percentage: number) => {
     // setSelectedPercentage(percentage);
@@ -58,11 +66,15 @@ const LevrageWithdraw = () => {
   };
 
   const handleDepositTokenSelect = (token: PoolTable) => {
-    setDepositToken(token.name);
+    setDepositToken(token);
   };
 
   const handleBorrowTokenSelect = (token: PoolTable) => {
-    setBorrowToken(token.name);
+    setBorrowToken(token);
+  };
+
+  const handleMaxClick = () => {
+    setDepositAmount(String(debt));
   };
 
   // const regitstryContract = new Contract(
@@ -77,24 +89,22 @@ const LevrageWithdraw = () => {
     library
   );
 
-  const getTokenBalance = async (tokenName = depositToken) => {
+  const getTokenBalance = async (token = depositToken) => {
     try {
-
       if (account) {
-
         const signer = await library?.getSigner();
         let depositBalance;
         let borrowBalance;
 
-        if (tokenName == "WETH") {
+        if (token?.name == "WETH") {
           depositBalance = await library?.getBalance(account);
           if (activeAccount) {
             borrowBalance = await library?.getBalance(activeAccount);
           }
         } else {
-          if (tokenName === undefined) return;
+          if (token?.name === undefined) return;
           const contract = new Contract(
-            baseTokensAddress[tokenName],
+            baseTokensAddress[token?.name],
             ERC20.abi,
             signer
           );
@@ -105,11 +115,11 @@ const LevrageWithdraw = () => {
         }
 
         const depositBalanceInNumber = formatBignumberToUnits(
-          tokenName,
+          token?.name,
           depositBalance
         );
         // const borrowBalanceInNumber = formatBignumberToUnits(
-        //   tokenName,
+        //   token?.name,
         //   borrowBalance
         // );
         setDepositBalance(ceilWithPrecision(String(depositBalanceInNumber)));
@@ -128,15 +138,15 @@ const LevrageWithdraw = () => {
     const signer = await library?.getSigner();
 
     if (depositToken === undefined) return;
-    else if (depositToken === "WETH") {
+    else if (depositToken?.name === "WETH") {
       // await accountManagerContract.depositEth({ value: parseEther(depositAmount) });
       await accountManagerContract.depositEth(activeAccount, {
         value: parseEther(depositAmount),
         gasLimit: 2300000,
       });
-    } else if (depositToken === "USDC" || depositToken === "USDT") {
+    } else if (depositToken?.name === "USDC" || depositToken?.name === "USDT") {
       const erc20Contract = new Contract(
-        arbTokensAddress[depositToken],
+        arbTokensAddress[depositToken?.name],
         ERC20.abi,
         signer
       );
@@ -156,13 +166,13 @@ const LevrageWithdraw = () => {
 
       await accountManagerContract.deposit(
         activeAccount,
-        arbTokensAddress[depositToken],
+        arbTokensAddress[depositToken?.name],
         parseUnits(depositAmount, 6),
         { gasLimit: 2300000 }
       );
     } else {
       const erc20Contract = new Contract(
-        arbTokensAddress[depositToken],
+        arbTokensAddress[depositToken?.name],
         ERC20.abi,
         signer
       );
@@ -182,7 +192,7 @@ const LevrageWithdraw = () => {
 
       await accountManagerContract.deposit(
         activeAccount,
-        arbTokensAddress[depositToken],
+        arbTokensAddress[depositToken?.name],
         parseEther(depositAmount),
         { gasLimit: 2300000 }
       );
@@ -190,8 +200,8 @@ const LevrageWithdraw = () => {
   };
 
   // const withdraw = async () => {
-  //   if (depositToken === undefined) return;
-  //   else if (depositToken === "WETH") {
+  //   if (depositToken?.name === undefined) return;
+  //   else if (depositToken?.name === "WETH") {
   //     await accountManagerContract.withdrawEth(
   //       activeAccount,
   //       parseEther(depositAmount),
@@ -199,17 +209,17 @@ const LevrageWithdraw = () => {
   //         gasLimit: 2300000,
   //       }
   //     );
-  //   } else if (depositToken === "USDC" || depositToken === "USDT") {
+  //   } else if (depositToken?.name === "USDC" || depositToken?.name === "USDT") {
   //     await accountManagerContract.withdraw(
   //       activeAccount,
-  //       arbTokensAddress[depositToken],
+  //       arbTokensAddress[depositToken?.name],
   //       parseUnits(depositAmount, 6),
   //       { gasLimit: 2300000 }
   //     );
   //   } else {
   //     await accountManagerContract.withdraw(
   //       activeAccount,
-  //       arbTokensAddress[depositToken],
+  //       arbTokensAddress[depositToken?.name],
   //       parseEther(depositAmount),
   //       { gasLimit: 2300000 }
   //     );
@@ -218,17 +228,17 @@ const LevrageWithdraw = () => {
 
   // const borrow = async () => {
   //   if (borrowToken === undefined) return;
-  //   else if (borrowToken === "USDC" || borrowToken === "USDT") {
+  //   else if (borrowToken?.name === "USDC" || borrowToken?.name === "USDT") {
   //     await accountManagerContract.borrow(
   //       activeAccount,
-  //       arbTokensAddress[borrowToken],
+  //       arbTokensAddress[borrowToken?.name],
   //       parseUnits(borrowAmount, 6),
   //       { gasLimit: 2300000 }
   //     );
   //   } else {
   //     await accountManagerContract.borrow(
   //       activeAccount,
-  //       arbTokensAddress[borrowToken],
+  //       arbTokensAddress[borrowToken?.name],
   //       parseEther(borrowAmount),
   //       { gasLimit: 2300000 }
   //     );
@@ -237,17 +247,17 @@ const LevrageWithdraw = () => {
 
   // const repay = async () => {
   //   if (borrowToken === undefined) return;
-  //   else if (borrowToken === "USDC" || borrowToken === "USDT") {
+  //   else if (borrowToken?.name === "USDC" || borrowToken?.name === "USDT") {
   //     await accountManagerContract.repay(
   //       activeAccount,
-  //       arbTokensAddress[borrowToken],
+  //       arbTokensAddress[borrowToken?.name],
   //       parseUnits(borrowAmount, 6),
   //       { gasLimit: 2300000 }
   //     );
   //   } else {
   //     await accountManagerContract.repay(
   //       activeAccount,
-  //       arbTokensAddress[borrowToken],
+  //       arbTokensAddress[borrowToken?.name],
   //       parseEther(borrowAmount),
   //       { gasLimit: 2300000 }
   //     );
@@ -255,137 +265,154 @@ const LevrageWithdraw = () => {
   // };
 
   return (
-    <div className="bg-baseComplementary p-2 rounded-3xl w-full text-baseBlack">
-      <div className="flex mb-8 text-lg">
-        <div
-          className={clsx(
-            "flex-1 p-[1px] rounded-2xl",
-            isSupply ? "bg-gradient-to-r from-gradient-1 to-gradient-2" : ""
-          )}
-        >
-          <button
-            className={clsx(
-              "w-full py-3 px-2 rounded-2xl",
-              isSupply ? "bg-white" : "bg-transparent"
-            )}
-            onClick={handleToggle}
-          >
-            Leverage your Assets
-          </button>
-        </div>
-        <div
-          className={clsx(
-            "flex-1 p-[1px] rounded-2xl",
-            !isSupply ? "bg-gradient-to-r from-gradient-1 to-gradient-2" : ""
-          )}
-        >
-          <button
-            className={clsx(
-              "w-full py-3 px-2 rounded-2xl",
-              !isSupply ? "bg-white" : "bg-transparent"
-            )}
-            onClick={handleToggle}
-          >
-            Withdraw your Assets
-          </button>
-        </div>
-      </div>
-
-      <div className="px-4">
-        <div className="bg-white rounded-2xl p-4 mb-3">
-          <div className="flex justify-between mb-2">
-            <div className="flex flex-col">
-              <span className="font-medium text-sm mb-2">
-                {isSupply ? "Deposit" : "Withdraw"}
-              </span>
-              <input
-                type="number"
-                value={depositAmount}
-                onChange={(e) => setDepositAmount(e.target.value)}
-                className="w-full text-baseBlack text-2xl font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                placeholder="0"
-              />
-            </div>
-            <div className="flex">
-              <TokenDropdown onSelect={handleDepositTokenSelect} />
-            </div>
-          </div>
-          <div className="mt-2 flex justify-end">
-            <div className="text-xs text-neutral-500">
-              Balance: {depositBalance}{" "}
-              {depositBalance !== "-" ? depositToken : ""}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex justify-between mb-10">
-          {[1, 10, 50, 100].map((percent) => (
-            <button
-              key={percent}
-              onClick={() => handlePercentageClick(percent)}
+    <div className="flex flex-col lg:flex-row gap-10 text-base">
+      <div className="bg-white w-full mx-auto mb-6">
+        <div className="bg-baseComplementary p-2 rounded-3xl w-full text-baseBlack">
+          <div className="flex mb-8 text-lg">
+            <div
               className={clsx(
-                "w-1/5 h-12 bg-lightBlueBG font-semibold text-base rounded-lg"
+                "flex-1 p-[1px] rounded-2xl",
+                isLeverage
+                  ? "bg-gradient-to-r from-gradient-1 to-gradient-2"
+                  : ""
               )}
             >
-              {percent}%
-            </button>
-          ))}
-        </div>
-
-        <div className="bg-white rounded-2xl p-4 mb-10">
-          <div className="flex justify-between mb-2">
-            <div className="flex flex-col">
-              <span className="font-medium text-sm mb-2">
-                {isSupply ? "Borrow" : "Repay"}
-              </span>
-              <input
-                type="number"
-                value={borrowAmount}
-                onChange={(e) => setBorrowAmount(e.target.value)}
-                className="w-full text-baseBlack text-2xl font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                placeholder="0"
-              />
+              <button
+                className={clsx(
+                  "w-full py-3 px-2 rounded-2xl",
+                  isLeverage ? "bg-white" : "bg-transparent"
+                )}
+                onClick={() => handleToggle("leverage")}
+              >
+                Leverage your Assets
+              </button>
             </div>
-            <div className="flex">
-              <TokenDropdown onSelect={handleBorrowTokenSelect} />
+            <div
+              className={clsx(
+                "flex-1 p-[1px] rounded-2xl",
+                !isLeverage
+                  ? "bg-gradient-to-r from-gradient-1 to-gradient-2"
+                  : ""
+              )}
+            >
+              <button
+                className={clsx(
+                  "w-full py-3 px-2 rounded-2xl",
+                  !isLeverage ? "bg-white" : "bg-transparent"
+                )}
+                onClick={() => handleToggle("withdraw")}
+              >
+                Withdraw your Assets
+              </button>
             </div>
           </div>
-          <div className="flex justify-end items-center mt-2">
-            <div className="text-xs text-neutral-500 mr-2">Debt: {debt}</div>
-            <button className="py-0.5 px-1 bg-gradient-to-r from-gradient-1 to-gradient-2 text-xs rounded-md text-baseWhite">
-              Max
+
+          <div className="px-4">
+            <div className="bg-white rounded-2xl p-4 mb-3">
+              <div className="flex justify-between mb-2">
+                <div className="flex flex-col">
+                  <span className="font-medium text-sm mb-2">
+                    {isLeverage ? "Deposit" : "Withdraw"}
+                  </span>
+                  <input
+                    type="number"
+                    value={depositAmount}
+                    onChange={(e) => setDepositAmount(e.target.value)}
+                    className="w-full text-baseBlack text-2xl font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    placeholder="0"
+                  />
+                </div>
+                <div className="flex">
+                  <TokenDropdown onSelect={handleDepositTokenSelect} />
+                </div>
+              </div>
+              <div className="mt-2 flex justify-end">
+                <div className="text-xs text-neutral-500">
+                  Balance: {depositBalance}{" "}
+                  {depositBalance !== "-" ? depositToken?.name : ""}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-between mb-10">
+              {[1, 10, 50, 100].map((percent) => (
+                <button
+                  key={percent}
+                  onClick={() => handlePercentageClick(percent)}
+                  className={clsx(
+                    "w-1/5 h-12 bg-lightBlueBG font-semibold text-base rounded-lg"
+                  )}
+                >
+                  {percent}%
+                </button>
+              ))}
+            </div>
+
+            <div className="bg-white rounded-2xl p-4 mb-10">
+              <div className="flex justify-between mb-2">
+                <div className="flex flex-col">
+                  <span className="font-medium text-sm mb-2">
+                    {isLeverage ? "Borrow" : "Repay"}
+                  </span>
+                  <input
+                    type="number"
+                    value={borrowAmount}
+                    onChange={(e) => setBorrowAmount(e.target.value)}
+                    className="w-full text-baseBlack text-2xl font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    placeholder="0"
+                  />
+                </div>
+                <div className="flex">
+                  <TokenDropdown onSelect={handleBorrowTokenSelect} />
+                </div>
+              </div>
+              <div className="flex justify-end items-center mt-2">
+                <div className="text-xs text-neutral-500 mr-2">
+                  Debt: {debt}
+                </div>
+                <button
+                  className="py-0.5 px-1 bg-gradient-to-r from-gradient-1 to-gradient-2 text-xs rounded-md text-baseWhite"
+                  onClick={handleMaxClick}
+                >
+                  Max
+                </button>
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center mb-14">
+              <Slider value={leverageValue} onChange={setLeverageValue} />
+            </div>
+
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center text-xl mb-8 gap-2 sm:gap-0">
+              <div className="flex items-center">
+                <span className="mr-1">Health Factor</span>
+                <span className="text-baseSuccess-300">
+                  &nbsp;<u>{healthFactor !== "-" ? healthFactor : ""}</u>&nbsp;
+                </span>
+                <Tooltip content={"Target token"}>
+                  <Question size={24} color="#2ea88e" />
+                </Tooltip>
+              </div>
+              <div className="flex items-center">
+                <span className="font-semibold">LTV &nbsp;70.00%</span>
+                &nbsp;&nbsp;
+                <span className="text-xs text-neutral-500 mr-2 self-end">
+                  from 96%
+                </span>
+              </div>
+            </div>
+
+            <button
+              className="w-full bg-purple text-white py-3 rounded-2xl font-semibold text-xl mb-6"
+              onClick={deposit}
+            >
+              Enter an amount
             </button>
           </div>
         </div>
-
-        <div className="flex justify-between items-center mb-14">
-          <Slider value={leverageValue} onChange={setLeverageValue} />
-        </div>
-
-        <div className="flex flex-col sm:flex-row justify-between sm:items-center text-xl mb-8 gap-2 sm:gap-0">
-          <div className="flex items-center">
-            <span className="mr-1">Health Factor</span>
-            <span className="text-baseSuccess-300">
-              &nbsp;<u>{healthFactor !== "-" ? healthFactor : ""}</u>&nbsp;
-            </span>
-            <Tooltip content={"Target token"}>
-              <Question size={24} color="#2ea88e" />
-            </Tooltip>
-          </div>
-          <div className="flex items-center">
-            <span className="font-semibold">LTV &nbsp;70.00%</span>&nbsp;&nbsp;
-            <span className="text-xs text-neutral-500 mr-2 self-end">
-              from 96%
-            </span>
-          </div>
-        </div>
-
-        <button
-          className="w-full bg-purple text-white py-3 rounded-2xl font-semibold text-xl mb-6"
-          onClick={deposit}
-        >
-          Enter an amount
-        </button>
+      </div>
+      <div className="flex-none w-full lg:w-2/5 xl:w-1/3 space-y-6 text-baseBlack font-medium">
+        <AccountOverview creditToken={borrowToken} leverage={leverageValue} />
       </div>
     </div>
   );

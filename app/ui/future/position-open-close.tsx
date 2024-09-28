@@ -84,7 +84,15 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
   // const [coinBalance, setCoinBalance] = useState(0); // balance of selectedToken
   const [coin, setCoin] = useState("");
 
-  const handleToggle = () => setIsOpen(!isOpen);
+  const handleToggle = (value: String) => {
+    if (
+      (value === "close" && isOpen) ||
+      (value === "open" && !isOpen)
+    ) {
+      setIsOpen(!isOpen)
+    }
+  };
+
   const toggleOptions = () => {
     setIsEnabled(!isEnabled);
   };
@@ -492,7 +500,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
               "w-full py-3 px-2 rounded-2xl",
               isOpen ? "bg-white" : "bg-transparent"
             )}
-            onClick={handleToggle}
+            onClick={() => handleToggle("open")}
           >
             Open
           </button>
@@ -508,7 +516,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
               "w-full py-3 px-2 rounded-2xl",
               !isOpen ? "bg-white" : "bg-transparent"
             )}
-            onClick={handleToggle}
+            onClick={() => handleToggle("close")}
           >
             Close
           </button>

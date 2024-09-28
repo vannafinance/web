@@ -50,7 +50,14 @@ const SupplyWithdraw = ({ pool }: { pool: PoolTable }) => {
   const [points, setPoints] = useState();
   const [availableEthLiq, setAvailableEthLiq] = useState(0);
 
-  const handleToggle = () => setIsSupply(!isSupply);
+  const handleToggle = (value: String) => {
+    if (
+      (value === "withdraw" && isSupply) ||
+      (value === "supply" && !isSupply)
+    ) {
+      setIsSupply(!isSupply);
+    }
+  };
 
   const handlePercentageClick = (percentage: number) => {
     // setSelectedPercentage(percentage);
@@ -889,7 +896,7 @@ const SupplyWithdraw = ({ pool }: { pool: PoolTable }) => {
               "w-full py-3 px-2 rounded-2xl",
               isSupply ? "bg-white" : "bg-transparent"
             )}
-            onClick={handleToggle}
+            onClick={() => handleToggle("supply")}
           >
             Supply
           </button>
@@ -905,7 +912,7 @@ const SupplyWithdraw = ({ pool }: { pool: PoolTable }) => {
               "w-full py-3 px-2 rounded-2xl",
               !isSupply ? "bg-white" : "bg-transparent"
             )}
-            onClick={handleToggle}
+            onClick={() => handleToggle("withdraw")}
           >
             Withdraw
           </button>

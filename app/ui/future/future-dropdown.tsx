@@ -1,7 +1,7 @@
 "use client";
 
 import { CaretDown } from "@phosphor-icons/react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const FutureDropdown: React.FC<FutureDropdownProps> = ({
   options,
@@ -10,6 +10,7 @@ const FutureDropdown: React.FC<FutureDropdownProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selectedOption, setSelectedOption] = useState<Option>(defaultValue);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const handleSelect = (option: Option) => {
     setSelectedOption(option);
@@ -17,8 +18,25 @@ const FutureDropdown: React.FC<FutureDropdownProps> = ({
     onChange(option);
   };
 
+  useEffect(() => {
+    onChange(selectedOption);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
-    <div className="relative">
+    <div className="relative" ref={dropdownRef}>
       <button
         className="flex items-center space-x-2 bg-white rounded"
         onClick={() => setIsOpen(!isOpen)}

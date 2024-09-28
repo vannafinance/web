@@ -3,12 +3,13 @@
 import { poolsPlaceholder } from "@/app/lib/static-values";
 import { CaretDown } from "@phosphor-icons/react";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 export const TokenDropdown: React.FC<TokenDropdownProps> = ({ onSelect }) => {
   const options = poolsPlaceholder;
   const [isOpen, setIsOpen] = useState(false);
   const [selectedToken, setSelectedToken] = useState(options[0]);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const handleSelect = (token: PoolTable) => {
     setSelectedToken(token);
@@ -16,8 +17,25 @@ export const TokenDropdown: React.FC<TokenDropdownProps> = ({ onSelect }) => {
     setIsOpen(false);
   };
 
+  useEffect(() => {
+    onSelect(selectedToken);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
-    <div className="relative inline-block text-left">
+    <div className="relative inline-block text-left" ref={dropdownRef}>
       <div>
         <button
           type="button"
@@ -38,7 +56,7 @@ export const TokenDropdown: React.FC<TokenDropdownProps> = ({ onSelect }) => {
       </div>
 
       {isOpen && (
-        <div className="z-10 bg-white origin-top-right absolute left-0 mt-2 w-40 rounded-md shadow-xl ring-1 ring-black ring-opacity-5">
+        <div className="z-30 bg-white origin-top-right absolute left-0 mt-2 w-40 rounded-md shadow-xl ring-1 ring-black ring-opacity-5">
           <div
             className="p-1"
             role="menu"

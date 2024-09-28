@@ -3,8 +3,19 @@
 import Image from "next/image";
 import Tooltip from "../components/tooltip";
 import { Info } from "@phosphor-icons/react";
+import { useState } from "react";
 
-const AccountOverview = () => {
+const AccountOverview: React.FC<AccountOverviewProps> = ({
+  creditToken,
+  leverage,
+}) => {
+  const [collateral, setCollateral] = useState("-");
+  const [accountValue, setAccountValue] = useState("-");
+  const [debt, setDebt] = useState("-");
+  const [healthFactor, setHealthFactor] = useState("-");
+  const [borrowRate, setBorrowRate] = useState("-");
+  const [liquidationPrice, setLiquidationPrice] = useState("-");
+
   return (
     <>
       <div className="flex flex-row space-x-2">
@@ -29,13 +40,13 @@ const AccountOverview = () => {
           </div>
           <div className="flex items-center">
             <Image
-              src="/usdc-icon.svg"
-              alt="logo"
+              src={creditToken?.icon ? creditToken?.icon : ""}
+              alt={creditToken?.name + "logo"}
               className="w-6 h-6 mr-1 rounded-full"
               width={16}
               height={16}
             />
-            <span className="font-semibold">USDC</span>
+            <span className="font-semibold">{creditToken?.name}</span>
           </div>
         </div>
 
@@ -44,7 +55,7 @@ const AccountOverview = () => {
             <span className="mr-1">Leverage Used</span>
           </div>
           <div className="flex items-center">
-            <span className="font-semibold">5x</span>
+            <span className="font-semibold">{leverage}x</span>
           </div>
         </div>
 
@@ -56,7 +67,7 @@ const AccountOverview = () => {
             </Tooltip>
           </div>
           <div className="flex items-center">
-            <span className="font-semibold">2000</span>
+            <span className="font-semibold">{collateral}</span>
           </div>
         </div>
 
@@ -68,7 +79,7 @@ const AccountOverview = () => {
             </Tooltip>
           </div>
           <div className="flex items-center">
-            <span className="font-semibold">10000</span>
+            <span className="font-semibold">{accountValue}</span>
           </div>
         </div>
 
@@ -77,7 +88,7 @@ const AccountOverview = () => {
             <span className="mr-1">Debt</span>
           </div>
           <div className="flex items-center">
-            <span className="font-semibold">8000</span>
+            <span className="font-semibold">{debt}</span>
           </div>
         </div>
 
@@ -86,7 +97,13 @@ const AccountOverview = () => {
             <span className="mr-1">Health Factor</span>
           </div>
           <div className="flex items-center">
-            <span className="font-semibold text-baseSuccess-300 underline">1.2</span>
+            {healthFactor === "-" ? (
+              healthFactor
+            ) : (
+              <span className="font-semibold text-baseSuccess-300 underline">
+                {healthFactor}
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -100,7 +117,7 @@ const AccountOverview = () => {
             </Tooltip>
           </div>
           <div className="flex items-center">
-            <span className="font-semibold">N/A</span>
+            <span className="font-semibold">{borrowRate}</span>
           </div>
         </div>
 
@@ -112,7 +129,7 @@ const AccountOverview = () => {
             </Tooltip>
           </div>
           <div className="flex items-center">
-            <span className="font-semibold">N/A</span>
+            <span className="font-semibold">{liquidationPrice}</span>
           </div>
         </div>
       </div>
