@@ -136,14 +136,24 @@ const LevrageWithdraw = () => {
 
   const deposit = async () => {
     const signer = await library?.getSigner();
+    const accountManagerContract1 = new Contract(
+      arbAddressList.accountManagerContractAddress,
+      AccountManager.abi,
+      signer
+    );
+   
+    
 
     if (depositToken === undefined) return;
     else if (depositToken?.name === "WETH") {
+      
+    
       // await accountManagerContract.depositEth({ value: parseEther(depositAmount) });
-      await accountManagerContract.depositEth(activeAccount, {
+      await accountManagerContract1.depositEth("0xe93dDe42d9A17636B62b894B9911baa1Bdb1fD2e", {
         value: parseEther(depositAmount),
         gasLimit: 2300000,
       });
+     
     } else if (depositToken?.name === "USDC" || depositToken?.name === "USDT") {
       const erc20Contract = new Contract(
         arbTokensAddress[depositToken?.name],
@@ -199,70 +209,91 @@ const LevrageWithdraw = () => {
     }
   };
 
-  // const withdraw = async () => {
-  //   if (depositToken?.name === undefined) return;
-  //   else if (depositToken?.name === "WETH") {
-  //     await accountManagerContract.withdrawEth(
-  //       activeAccount,
-  //       parseEther(depositAmount),
-  //       {
-  //         gasLimit: 2300000,
-  //       }
-  //     );
-  //   } else if (depositToken?.name === "USDC" || depositToken?.name === "USDT") {
-  //     await accountManagerContract.withdraw(
-  //       activeAccount,
-  //       arbTokensAddress[depositToken?.name],
-  //       parseUnits(depositAmount, 6),
-  //       { gasLimit: 2300000 }
-  //     );
-  //   } else {
-  //     await accountManagerContract.withdraw(
-  //       activeAccount,
-  //       arbTokensAddress[depositToken?.name],
-  //       parseEther(depositAmount),
-  //       { gasLimit: 2300000 }
-  //     );
-  //   }
-  // };
+  const withdraw = async () => {
+    const signer = await library?.getSigner();
+    const accountManagerContract1 = new Contract(
+      arbAddressList.accountManagerContractAddress,
+      AccountManager.abi,
+      signer
+    );
+   
+    
+    if (depositToken?.name === undefined) return;
+    else if (depositToken?.name === "WETH") {
+      await accountManagerContract1.withdrawEth(
+        "0xe93dDe42d9A17636B62b894B9911baa1Bdb1fD2e",
+        parseEther(depositAmount),
+        {
+          gasLimit: 2300000,
+        }
+      );
+    } else if (depositToken?.name === "USDC" || depositToken?.name === "USDT") {
+      await accountManagerContract.withdraw(
+        "0xe93dDe42d9A17636B62b894B9911baa1Bdb1fD2e",
+        arbTokensAddress[depositToken?.name],
+        parseUnits(depositAmount, 6),
+        { gasLimit: 2300000 }
+      );
+    } else {
+      await accountManagerContract.withdraw(
+        "0xe93dDe42d9A17636B62b894B9911baa1Bdb1fD2e",
+        arbTokensAddress[depositToken?.name],
+        parseEther(depositAmount),
+        { gasLimit: 2300000 }
+      );
+    }
+  };
 
-  // const borrow = async () => {
-  //   if (borrowToken === undefined) return;
-  //   else if (borrowToken?.name === "USDC" || borrowToken?.name === "USDT") {
-  //     await accountManagerContract.borrow(
-  //       activeAccount,
-  //       arbTokensAddress[borrowToken?.name],
-  //       parseUnits(borrowAmount, 6),
-  //       { gasLimit: 2300000 }
-  //     );
-  //   } else {
-  //     await accountManagerContract.borrow(
-  //       activeAccount,
-  //       arbTokensAddress[borrowToken?.name],
-  //       parseEther(borrowAmount),
-  //       { gasLimit: 2300000 }
-  //     );
-  //   }
-  // };
+  const borrow = async () => {
+    const signer = await library?.getSigner();
+    const accountManagerContract1 = new Contract(
+      arbAddressList.accountManagerContractAddress,
+      AccountManager.abi,
+      signer
+    );
+    if (borrowToken === undefined) return;
+    else if (borrowToken?.name === "USDC" || borrowToken?.name === "USDT") {
+      await accountManagerContract1.borrow(
+        "0xe93dDe42d9A17636B62b894B9911baa1Bdb1fD2e",
+        arbTokensAddress[borrowToken?.name],
+        parseUnits(borrowAmount, 6),
+        { gasLimit: 2300000 }
+      );
+    } else {
+      await accountManagerContract1.borrow(
+        "0xe93dDe42d9A17636B62b894B9911baa1Bdb1fD2e",
+        arbTokensAddress[borrowToken?.name],
+        parseEther(borrowAmount),
+        { gasLimit: 2300000 }
+      );
+    }
+  };
 
-  // const repay = async () => {
-  //   if (borrowToken === undefined) return;
-  //   else if (borrowToken?.name === "USDC" || borrowToken?.name === "USDT") {
-  //     await accountManagerContract.repay(
-  //       activeAccount,
-  //       arbTokensAddress[borrowToken?.name],
-  //       parseUnits(borrowAmount, 6),
-  //       { gasLimit: 2300000 }
-  //     );
-  //   } else {
-  //     await accountManagerContract.repay(
-  //       activeAccount,
-  //       arbTokensAddress[borrowToken?.name],
-  //       parseEther(borrowAmount),
-  //       { gasLimit: 2300000 }
-  //     );
-  //   }
-  // };
+  const repay = async () => {
+    const signer = await library?.getSigner();
+    const accountManagerContract1 = new Contract(
+      arbAddressList.accountManagerContractAddress,
+      AccountManager.abi,
+      signer
+    );
+   
+    if (borrowToken === undefined) return;
+    else if (borrowToken?.name === "USDC" || borrowToken?.name === "USDT") {
+      await accountManagerContract1.repay(
+        "0xe93dDe42d9A17636B62b894B9911baa1Bdb1fD2e",
+        arbTokensAddress[borrowToken?.name],
+        parseUnits(borrowAmount, 6),
+        { gasLimit: 2300000 }
+      );
+    } else {
+      await accountManagerContract1.repay(
+        "0xe93dDe42d9A17636B62b894B9911baa1Bdb1fD2e",
+        arbTokensAddress[borrowToken?.name],
+        parseEther(borrowAmount),
+        { gasLimit: 2300000 }
+      );
+    }
+  };
 
   return (
     <div className="flex flex-col lg:flex-row gap-10 text-base">
@@ -404,7 +435,7 @@ const LevrageWithdraw = () => {
 
             <button
               className="w-full bg-purple text-white py-3 rounded-2xl font-semibold text-xl mb-6"
-              onClick={deposit}
+              onClick={withdraw}
             >
               Enter an amount
             </button>
