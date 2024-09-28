@@ -46,6 +46,9 @@ const config: Config = {
       fontFamily: {
         sans: ["var(--font-public-sans)"],
       },
+      screens: {
+        xs: "480px", // Define the xs breakpoint
+      },
     },
   },
   plugins: [],

@@ -183,6 +183,12 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
     getAssetPrice();
   }, []);
 
+  useEffect(() => {
+    if (collateralAmount) {
+      setAssetAmount(String(Number(collateralAmount) * Number(leverageValue)));
+    }
+  }, [leverageValue]);
+
   // const getTokenBalance = async (tokenName = coin) => {
   //   try {
   //     if (activeAccount) {
