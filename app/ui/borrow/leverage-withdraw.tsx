@@ -51,7 +51,7 @@ const LevrageWithdraw = () => {
   const balance: string = "1";
   const currentAPY: string = "1";
 
-  const handleToggle = (value: String) => {
+  const handleToggle = (value: string) => {
     if (
       (value === "withdraw" && isLeverage) ||
       (value === "leverage" && !isLeverage)

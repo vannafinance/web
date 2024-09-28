@@ -50,7 +50,7 @@ const SupplyWithdraw = ({ pool }: { pool: PoolTable }) => {
   const [points, setPoints] = useState();
   const [availableEthLiq, setAvailableEthLiq] = useState(0);
 
-  const handleToggle = (value: String) => {
+  const handleToggle = (value: string) => {
     if (
       (value === "withdraw" && isSupply) ||
       (value === "supply" && !isSupply)

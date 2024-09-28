@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Tooltip from "../components/tooltip";
 import { Info } from "@phosphor-icons/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const AccountOverview: React.FC<AccountOverviewProps> = ({
   creditToken,
@@ -15,6 +15,16 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({
   const [healthFactor, setHealthFactor] = useState("-");
   const [borrowRate, setBorrowRate] = useState("-");
   const [liquidationPrice, setLiquidationPrice] = useState("-");
+
+  // TODO: delete below useEffect
+  useEffect(() => {
+    setCollateral("-");
+    setAccountValue("-");
+    setDebt("-");
+    setHealthFactor("-");
+    setBorrowRate("-");
+    setLiquidationPrice("-");
+  }, []);
 
   return (
     <>

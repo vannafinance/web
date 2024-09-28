@@ -83,11 +83,18 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
   const [activeAccount, setActiveAccount] = useState();
   // const [coinBalance, setCoinBalance] = useState(0); // balance of selectedToken
   const [coin, setCoin] = useState("");
-  const [useValue, setUseValue] = useState();
-  const [longValue, setLongValue] = useState();
-  const [coinBalance, setCoinBalance] = useState();
+  const [useValue, setUseValue] = useState("");
+  const [longValue, setLongValue] = useState("");
+  const [coinBalance, setCoinBalance] = useState("");
 
-  const handleToggle = (value: String) => {
+  // TODO: delete below useEffect
+  useEffect(() => {
+    setUseValue("");
+    setLongValue("");
+    setCoinBalance("");
+  }, []);
+
+  const handleToggle = (value: string) => {
     if ((value === "close" && isOpen) || (value === "open" && !isOpen)) {
       setIsOpen(!isOpen);
     }
