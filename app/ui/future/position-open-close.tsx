@@ -69,8 +69,8 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
   const [stopUsdcValue, setStopUsdcValue] = useState("");
   const [selectedToken, setSelectedToken] = useState<Option>(tokenOptions[0]);
   // const [amount, setAmount] = useState("");
-  const [leverageValue, setLeverageValue] = useState<number>(5);
-  const [isEnabled, setIsEnabled] = useState(true);
+  const [leverageValue, setLeverageValue] = useState<number>(1);
+  const [isEnabled, setIsEnabled] = useState(false);
   const [takeProfit, setTakeProfit] = useState("");
   const [stopLoss, setStopLoss] = useState("");
   const [collateralAmount, setCollateralAmount] = useState<string | undefined>(
@@ -83,13 +83,13 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
   const [activeAccount, setActiveAccount] = useState();
   // const [coinBalance, setCoinBalance] = useState(0); // balance of selectedToken
   const [coin, setCoin] = useState("");
+  const [useValue, setUseValue] = useState();
+  const [longValue, setLongValue] = useState();
+  const [coinBalance, setCoinBalance] = useState();
 
   const handleToggle = (value: String) => {
-    if (
-      (value === "close" && isOpen) ||
-      (value === "open" && !isOpen)
-    ) {
-      setIsOpen(!isOpen)
+    if ((value === "close" && isOpen) || (value === "open" && !isOpen)) {
+      setIsOpen(!isOpen);
     }
   };
 
@@ -543,42 +543,57 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
         </div>
       </div>
 
-      <div className="flex flex-row justify-between mb-2 rounded-xl bg-white py-2">
-        <div className="flex self-stretch pl-2">
-          <input
-            type="number"
-            value={collateralAmount}
-            onChange={(e) => setCollateralAmount(e.target.value)}
-            className="w-full text-baseBlack text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-            placeholder="Enter Amount"
-          />
+      <div className="flex flex-col mb-2 rounded-xl bg-white py-2">
+        <div className="mb-3 flex flex-row justify-between px-2 text-xs text-neutral-500">
+          <div>Use {useValue ? " : $" + useValue : ""}</div>
+          <div>Balance {coinBalance ? " : " + coinBalance : ""}</div>
         </div>
-        <div className="flex items-center text-base px-2 rounded-xl">
-          <FutureDropdown
-            options={tokenOptions}
-            defaultValue={selectedToken}
-            onChange={setSelectedToken}
-          />
-        </div>
-      </div>
-      <div className="flex flex-row justify-between mb-2 rounded-xl bg-white py-2">
-        <div className="flex self-stretch pl-2">
-          <input
-            type="number"
-            value={assetAmount}
-            onChange={(e) => setAssetAmount(e.target.value)}
-            className="w-full text-baseBlack text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-            placeholder="Enter Amount"
-          />
-        </div>
-        <div className="flex items-center text-base px-2 rounded-xl">
-          <FutureDropdown
-            options={tokenOptions}
-            defaultValue={selectedToken}
-            onChange={setSelectedToken}
-          />
+        <div className="flex flex-row justify-between">
+          <div className="flex self-stretch pl-2">
+            <input
+              type="number"
+              value={collateralAmount}
+              onChange={(e) => setCollateralAmount(e.target.value)}
+              className="w-full text-baseBlack text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              placeholder="Enter Amount"
+            />
+          </div>
+          <div className="flex items-center text-base px-2 rounded-xl">
+            <FutureDropdown
+              options={tokenOptions}
+              defaultValue={selectedToken}
+              onChange={setSelectedToken}
+            />
+          </div>
         </div>
       </div>
+
+      <div className="flex flex-col mb-2 rounded-xl bg-white py-2">
+        <div className="mb-3 flex flex-row justify-between px-2">
+          <div className="text-xs text-neutral-500">
+            Long {longValue ? " : " + longValue : ""}
+          </div>
+        </div>
+        <div className="flex flex-row justify-between">
+          <div className="flex self-stretch pl-2">
+            <input
+              type="number"
+              value={assetAmount}
+              onChange={(e) => setAssetAmount(e.target.value)}
+              className="w-full text-baseBlack text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              placeholder="Enter Amount"
+            />
+          </div>
+          <div className="flex items-center text-base px-2 rounded-xl">
+            <FutureDropdown
+              options={tokenOptions}
+              defaultValue={selectedToken}
+              onChange={setSelectedToken}
+            />
+          </div>
+        </div>
+      </div>
+
       {selectedOptionType.value === "Limit" && (
         <div className="flex flex-row justify-between mb-5 rounded-xl bg-white py-2">
           <div className="flex self-stretch pl-2">
