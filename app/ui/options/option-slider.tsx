@@ -28,7 +28,7 @@ const OptionSlider: React.FC<SliderProps> = ({ value, onChange }) => {
 
           {/* Hexagon thumb with logo placeholder */}
           <div
-            className="absolute top-1/3 -translate-y-1/4 -translate-x-2/3 z-10 pointer-events-none"
+            className="absolute top-1/3 -translate-y-1/4 -translate-x-1/2 z-10 pointer-events-none"
             style={{ left: `${percentage}%` }}
           >
             <div
@@ -68,7 +68,7 @@ const OptionSlider: React.FC<SliderProps> = ({ value, onChange }) => {
           />
 
           {/* Tick marks */}
-          <div className="absolute w-full flex justify-between mt-7 text-xs font-semibold">
+          <div className="absolute w-full flex justify-between mt-7 text-xs font-semibold text-neutral-500">
             {[1, 25, 50, 75, 100].map((val, i) => (
               <span key={i}>{val}x</span>
             ))}
