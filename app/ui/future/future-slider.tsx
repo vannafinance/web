@@ -61,17 +61,17 @@ const FutureSlider: React.FC<SliderProps> = ({ value, onChange }) => {
         {/* Slider */}
         <div className="flex-grow relative">
           {/* Background track */}
-          <div className="absolute top-1/2 h-1 w-[90%] left-[5%] bg-gray-200 -translate-y-1/2 self-center"></div>
+          <div className="absolute h-1 w-[90%] left-[5%] bg-gray-200 -translate-y-3/4 self-center"></div>
 
           {/* Gradient track */}
           <div
-            className="absolute top-1/2 h-1 bg-gradient-to-r from-gradient-1 to-gradient-2 -translate-y-1/2"
+            className="absolute h-1 bg-gradient-to-r from-gradient-1 to-gradient-2 -translate-y-3/4"
             style={{ width: `${percentage}%`, left: "5%" }}
           ></div>
 
           {/* Hexagon thumb with logo placeholder */}
           <div
-            className="absolute top-1/3 -translate-y-1/2 -translate-x-1/4 z-10 pointer-events-none"
+            className="absolute -translate-y-[60%] -translate-x-1/4 z-10 pointer-events-none"
             style={{ left: `${percentage}%` }}
           >
             <div
@@ -106,11 +106,11 @@ const FutureSlider: React.FC<SliderProps> = ({ value, onChange }) => {
             step="1"
             value={value}
             onChange={handleSliderChange}
-            className="absolute top-1/2 left-0 w-full -translate-y-1/2 h-8 opacity-0 cursor-pointer z-20"
+            className="absolute left-0 w-full -translate-y-3/4 h-8 opacity-0 cursor-pointer z-20"
           />
 
           {/* Tick marks */}
-          <div className="absolute w-full flex justify-between mt-5 text-xs font-semibold text-neutral-500 pl-1.5">
+          <div className="absolute w-full flex justify-between mt-3.5 text-xs font-semibold text-neutral-500 pl-1.5">
             {[1, 25, 50, 75, 100].map((val, i) => (
               <span key={i}>{val}x</span>
             ))}

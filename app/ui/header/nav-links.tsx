@@ -15,11 +15,12 @@ export default function NavLinks() {
       {menuLinks.map((link) => {
         const isActive =
           pathname === link.href ||
-          (link.title !== "Overview" && pathname.startsWith(link.href));
+          (link.title !== "Overview" && pathname.startsWith(link.href)) ||
+          (link.href === "/trade/dashboard" && pathname.includes("/trade/"));
 
         const sublink =
-          tradeMenuSubLinks.find((subItem) => pathname === subItem.href)?.title ||
-          "";
+          tradeMenuSubLinks.find((subItem) => pathname === subItem.href)
+            ?.title || "";
 
         if (link.title === "Trade") {
           return (
@@ -29,10 +30,8 @@ export default function NavLinks() {
                 href={link.href}
                 className={clsx(
                   "py-1 px-4 inline-flex items-center whitespace-nowrap",
-                  isActive &&
-                    "text-baseBlack font-medium after:content-[''] after:absolute after:left-0 after:w-full after:h-[3px] after:bg-gradient-to-r after:from-gradient-1 after:to-gradient-2",
                   isActive && sublink != ""
-                    ? " after:-bottom-1/4"
+                    ? "text-baseBlack font-medium after:content-[''] after:absolute after:left-0 after:w-full after:h-[3px] after:bg-gradient-to-r after:from-gradient-1 after:to-gradient-2 after:-bottom-1/4"
                     : "after:-bottom-2/3"
                 )}
               >

@@ -47,9 +47,9 @@ export default function Page() {
   };
 
   return (
-    <div className="flex flex-row space-x-5 text-base pt-4 px-10">
+    <div className="flex flex-col lg:flex-row space-x-0 lg:space-x-5 text-base pt-4 px-2.5 md:px-5 lg:px-7 xl:px-10">
       <div className="w-full mx-auto mb-6">
-        <div className="flex justify-between items-center mb-2">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-2">
           <div className="flex flex-col border border-neutral-100 rounded-xl px-2 py-2 font-semibold text-xl">
             <div className="text-neutral-500 text-xs font-medium mb-1">
               Select Pair
@@ -60,12 +60,12 @@ export default function Page() {
                 defaultValue={selectedPair}
                 onChange={setSelectedPair}
               />
-              <span className="text-green-500 ml-2">58250.3</span>
+              <span className="text-green-500 font-semibold ml-2">58250.3</span>
               <span className="text-sm text-green-500 ml-1">+1.09%</span>
             </div>
           </div>
-          <div className="ml-auto flex flex-col items-center border border-neutral-100 rounded-xl px-2 py-2">
-            <div className="text-neutral-500 text-xs font-semibold mb-1">
+          <div className="ml-0 sm:ml-auto mt-2 sm:mt-0 flex flex-row sm:flex-col justify-between sm:justify-normal items-center border border-neutral-100 rounded-xl px-2 py-2">
+            <div className="text-neutral-500 text-xs font-semibold sm:mb-1">
               Chart protocol
             </div>
             <div className="flex flex-row items-center font-medium text-sm pl-1">
@@ -78,7 +78,7 @@ export default function Page() {
           </div>
         </div>
 
-        <div className="flex flex-row justify-between text-sm px-6 py-4 border border-neutral-300 rounded-xl font-semibold mb-2">
+        <div className="grid grid-cols-3 xs:grid-cols-4 xl:grid-cols-6 justify-between gap-5 text-sm p-5 border border-neutral-300 rounded-xl font-semibold mb-2">
           <div>
             <p className="text-neutral-500 text-xs">Index Price</p>
             <p className="text-sm">{cryptoData.indexPrice}</p>
@@ -91,7 +91,7 @@ export default function Page() {
             <p className="text-neutral-500 text-xs">24H High/Low</p>
             <p className="text-sm">{cryptoData.highLow}</p>
           </div>
-          <div className="">
+          <div className="col-span-2 sm:col-auto">
             <p className="text-neutral-500 text-xs">Net Rate/1Hr</p>
             <div className="flex items-center space-x-1">
               <span className="text-green-500 text-sm">
@@ -102,7 +102,7 @@ export default function Page() {
               </span>
             </div>
           </div>
-          <div className="">
+          <div className="col-span-2 sm:col-auto">
             <p className="text-neutral-500 text-xs">Open Interest (45%/55%)</p>
             <div className="flex items-center space-x-1">
               <span className="text-green-500 text-sm">
@@ -128,7 +128,7 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="flex-none w-1/3">
+      <div className="flex-none w-full lg:w-[30%]">
         <PositionOpenClose market={selectedPair.value} />
       </div>
     </div>

@@ -133,9 +133,9 @@ export default function Page() {
   // }, [currentPrice]);
 
   return (
-    <div className="flex flex-row space-x-5 text-base pt-4 px-10 custom-scrollbar">
-      <div className="w-2/3 mx-auto mb-6">
-        <div className="flex justify-between items-center mb-2 gap-4">
+    <div className="flex flex-col lg:flex-row space-x-0 lg:space-x-5 text-base pt-8 px-3 xs:px-5 lg:px-6 custom-scrollbar">
+      <div className="w-full lg:w-[70%] mx-auto mb-6">
+        <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-2 gap-4">
           <div className="flex flex-col h-[4.5rem] border border-neutral-100 rounded-xl px-2 py-2 font-semibold text-xl">
             <div className="text-neutral-500 text-xs font-medium mb-1">
               Select Pair
@@ -146,17 +146,17 @@ export default function Page() {
                 defaultValue={selectedPair}
                 onChange={setSelectedPair}
               />
-              <span className="text-green-500 ml-2">58250.3</span>
+              <span className="text-green-500 ml-2 font-semibold">58250.3</span>
               <span className="text-sm text-green-500 ml-1">+1.09%</span>
             </div>
           </div>
 
-          <div className="w-full h-[4.5rem] flex flex-row justify-between px-6 py-4 border border-neutral-100 rounded-xl font-semibold mb-2 text-baseBlack">
-            <div>
+          <div className="w-full xs:h-[4.5rem] flex flex-row flex-wrap xs:flex-nowrap justify-between px-6 py-2 xs:py-4 border border-neutral-100 rounded-xl font-semibold text-baseBlack">
+            <div className="my-1.5 xs:my-0">
               <p className="text-neutral-500 text-xs">24H Volume</p>
               <p className="text-sm">$2.11m</p>
             </div>
-            <div className="col-span-2">
+            <div className="col-span-2 my-1.5 xs:my-0">
               <p className="text-neutral-500 text-xs">
                 Open Interest (45%/55%)
               </p>
@@ -167,7 +167,7 @@ export default function Page() {
                 <span className="text-sm">$805.5k</span>
               </div>
             </div>
-            <div>
+            <div className="my-1.5 xs:my-0">
               <p className="text-neutral-500 text-xs">24H Trade</p>
               <p className="text-sm">58,289.70</p>
             </div>
@@ -175,8 +175,8 @@ export default function Page() {
         </div>
 
         <div className="py-4 rounded-lg mb-5">
-          <div className="flex flex-row justify-between items-center">
-            <div className="flex flex-wrap gap-4 ml-1.5 mb-4 text-base font-semibold">
+          <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-4 space-y-3.5 xl:space-y-0">
+            <div className="flex flex-wrap gap-4 ml-1.5 text-base font-semibold">
               {optionTypes.map((option) => (
                 <button
                   key={option}
@@ -184,7 +184,7 @@ export default function Page() {
                   className={`px-4 py-2 rounded-md ${
                     selectedOption === option
                       ? "bg-purpleBG-lighter border border-purple"
-                      : "border border-neutral-300"
+                      : ""
                   }`}
                 >
                   {option}
@@ -228,12 +228,12 @@ export default function Page() {
             </div>
           </div>
 
-          <div className="flex flex-wrap justify-between text-xs font-semibold">
+          <div className="flex flex-wrap sm:flex-nowrap sm:justify-between text-xs font-semibold">
             {dateOptions.map((date) => (
               <button
                 key={date}
                 onClick={() => handleDateChange(date)}
-                className={`px-5 py-2 rounded-md ${
+                className={`px-2.5 xl:px-5 ml-2.5 sm:ml-0 mt-2.5 sm:mt-0 py-2.5 rounded-md ${
                   selectedDate === date
                     ? "bg-purpleBG-lighter border border-purple"
                     : "border border-neutral-300"
@@ -242,14 +242,14 @@ export default function Page() {
                 {date}
               </button>
             ))}
-            <button className="px-2.5 py-2 rounded-lg text-xs font-semibold border border-neutral-300 flex items-center">
+            <button className="px-2.5 py-2 ml-2.5 sm:ml-0 mt-2.5 sm:mt-0 rounded-lg text-xs font-semibold border border-neutral-300 flex items-center">
               Next month <CaretDown size={16} className="ml-2" />
             </button>
           </div>
         </div>
 
         <div className="relative mb-2.5 w-full h-96">
-          <div className="overflow-auto max-w-full max-h-full">
+          <div className="overflow-auto max-w-full 2xl:w-full max-h-full">
             <table className="bg-white">
               <thead>
                 <tr className="text-base text-baseBlack font-medium border border-neutral-100">
@@ -392,7 +392,7 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="flex-none w-1/3">
+      <div className="flex-none w-full lg:w-[30%]">
         <div className="bg-baseComplementary p-2 px-3 pb-6 rounded-3xl w-full text-baseBlack">
           <div className="ml-auto flex items-center justify-between py-2 mb-5">
             <div className="text-2xl font-normal">Long Call</div>
@@ -483,7 +483,7 @@ export default function Page() {
             <OptionSlider value={leverageValue} onChange={setLeverageValue} />
           </div>
 
-          <div className="space-y-2 text-xs font-normal p-5 mb-5">
+          <div className="space-y-2 text-xs font-normal py-5 px-4 mb-5 border-y border-purpleBG-lighter">
             <div className="flex justify-between">
               <span>Min Received</span>
               <span>$215.70</span>

@@ -113,7 +113,7 @@ export const menuLinks = [
   { title: "Overview", href: "/" },
   { title: "Earn", href: "/earn" },
   { title: "Borrow", href: "/borrow" },
-  { title: "Trade", href: "/trade" },
+  { title: "Trade", href: "/trade/dashboard" },
   // { title: "Analytics", href: "/analytics" },
 ];
 
