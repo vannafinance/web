@@ -32,13 +32,16 @@ export default function Page({ params }: { params: { id: string } }) {
   try {
     const id = params.id;
     const pools = useSelector((state: RootState) => state.pools.poolsData);
-    const pool = pools.find((pool) => pool.id === Number(id));
+    const [pool, setPool] = useState(
+      pools.find((pool) => pool.id === Number(id))
+    );
     const { account, library } = useWeb3React();
     const { currentNetwork } = useNetwork();
     const [utilizationRate, setUtilizationRate] = useState<string | undefined>(
       "-"
     );
     const [uniqueLP, setUniqueLP] = useState<string | undefined>("-");
+
     useEffect(() => {
       try {
         if (account) {
@@ -345,6 +348,10 @@ export default function Page({ params }: { params: { id: string } }) {
       notFound();
     }
 
+    const handleTokenUpdate = (token: PoolTable) => {
+      setPool(pools.find((pool) => pool.id === Number(token.id)));
+    };
+
     return (
       <>
         <Link href="/earn" className="flex items-center mb-6">
@@ -397,14 +404,6 @@ export default function Page({ params }: { params: { id: string } }) {
               </div>
               <div className="py-5 px-4 pr-0">
                 <div className="text-sm font-semibold text-neutral-500">
-                  Utilization rate
-                </div>
-                <div className="pt-2 text-2xl font-bold text-baseBlack">
-                  {utilizationRate}
-                </div>
-              </div>
-              <div className="py-5 px-4 pr-0">
-                <div className="text-sm font-semibold text-neutral-500">
                   Unique LP
                 </div>
                 <div className="pt-2 text-2xl font-bold text-baseBlack">
@@ -413,7 +412,15 @@ export default function Page({ params }: { params: { id: string } }) {
               </div>
               <div className="py-5 px-4 pr-0">
                 <div className="text-sm font-semibold text-neutral-500">
-                  Your Balance
+                  Utilization rate
+                </div>
+                <div className="pt-2 text-2xl font-bold text-baseBlack">
+                  {utilizationRate}
+                </div>
+              </div>
+              <div className="py-5 px-4 pr-0">
+                <div className="text-sm font-semibold text-neutral-500">
+                  Your LP Balance
                 </div>
                 <div className="pt-2 text-2xl font-bold text-baseBlack">
                   {pool.yourBalance}
@@ -423,7 +430,7 @@ export default function Page({ params }: { params: { id: string } }) {
             <PoolDetailTabMenu pool={pool} />
           </div>
           <div className="flex-none md:w-full lg:w-1/2 xl:w-2/5 pb-10 lg:pb-0">
-            <SupplyWithdraw pool={pool} />
+            <SupplyWithdraw pool={pool} onTokenUpdate={handleTokenUpdate} />
           </div>
         </div>
       </>

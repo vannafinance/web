@@ -23,7 +23,7 @@ export default function Navbar() {
             alt="Vanna Logo"
             width={35}
             height={35}
-            src="/vanna-logo.svg"
+            src="/vanna-tilted-logo.svg"
           />
           <p className="font-extrabold text-2xl">&nbsp;VANNA</p>
         </Link>
