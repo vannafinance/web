@@ -26,6 +26,7 @@ import {
   sleep,
 } from "@/app/lib/helper";
 import AccountOverview from "./account-overview";
+import CreateSmartAccountModal from "./create-smart-account-model";
 import Loader from "../components/loader";
 
 const LevrageWithdraw = () => {
@@ -36,6 +37,8 @@ const LevrageWithdraw = () => {
   const [disableBtn, setDisableBtn] = useState(true);
   const [btnValue, setBtnValue] = useState("Enter an amount");
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const [isLeverage, setIsLeverage] = useState(true);
   const [depositAmount, setDepositAmount] = useState<number | undefined>();
   const [borrowAmount, setBorrowAmount] = useState<number | undefined>();
@@ -43,6 +46,7 @@ const LevrageWithdraw = () => {
   //   null
   // );
   const [leverageValue, setLeverageValue] = useState<number>(5);
+  const [leverageAmount, setLeverageAmount] = useState<number | undefined>();
   const [depositBalance, setDepositBalance] = useState<string | undefined>("-");
   // const [borrowBalance, setBorrowBalance] = useState<string | undefined>("-");
   const [debt, setDebt] = useState(0);
@@ -128,7 +132,9 @@ const LevrageWithdraw = () => {
             signer
           );
 
-          const accountsArray = await regitstryContract.accountsOwnedBy(account);
+          const accountsArray = await regitstryContract.accountsOwnedBy(
+            account
+          );
           let tempAccount;
 
           if (accountsArray.length > 0) {
@@ -190,8 +196,18 @@ const LevrageWithdraw = () => {
 
   useEffect(() => {
     accountCheck();
+  }, [isModalOpen]);
+
+  useEffect(() => {
+    accountCheck();
     getTokenBalance();
   }, [account, activeAccount]);
+
+  useEffect(() => {
+    if (borrowAmount && borrowAmount > 0) {
+      setLeverageAmount(borrowAmount * leverageValue);
+    }
+  }, [leverageValue, borrowAmount]);
 
   const process = async () => {
     if (isLeverage) {
@@ -215,7 +231,12 @@ const LevrageWithdraw = () => {
       signer
     );
 
-    if (depositToken === undefined || depositAmount === undefined || !activeAccount) return;
+    if (
+      depositToken === undefined ||
+      depositAmount === undefined ||
+      !activeAccount
+    )
+      return;
     else if (depositToken?.name === "WETH") {
       // await accountManagerContract.depositEth({ value: parseEther(depositAmount) });
       await accountManagerContract.depositEth(
@@ -467,7 +488,11 @@ const LevrageWithdraw = () => {
                   <TokenDropdown onSelect={handleBorrowTokenSelect} />
                 </div>
               </div>
-              <div className="flex justify-end items-center mt-2">
+              <div className="flex justify-between items-center mt-2">
+                <div className="text-xs text-neutral-500">
+                  Leverage Value: {leverageAmount ? leverageAmount : "-"}
+                </div>
+                <div className="flex">
                 <div className="text-xs text-neutral-500 mr-2">
                   Debt: {debt}
                 </div>
@@ -477,6 +502,7 @@ const LevrageWithdraw = () => {
                 >
                   Max
                 </button>
+                </div>
               </div>
             </div>
 
@@ -513,25 +539,44 @@ const LevrageWithdraw = () => {
                 <Loader />
               </button>
             )}
-            {account && !loading && disableBtn && (
-              <button className="w-full bg-neutral-500 text-white py-3 rounded-2xl font-semibold text-xl mb-6">
-                {btnValue}
-              </button>
-            )}
-            {account && !loading && !disableBtn && (
+            {account && activeAccount === undefined && !loading && (
               <button
                 className="w-full bg-purple text-white py-3 rounded-2xl font-semibold text-xl mb-6"
-                onClick={process}
+                onClick={() => setIsModalOpen(true)}
               >
-                {btnValue}
+                Create your Smart Account
               </button>
             )}
+            {account &&
+              activeAccount !== undefined &&
+              !loading &&
+              disableBtn && (
+                <button className="w-full bg-neutral-500 text-white py-3 rounded-2xl font-semibold text-xl mb-6">
+                  {btnValue}
+                </button>
+              )}
+            {account &&
+              activeAccount !== undefined &&
+              !loading &&
+              !disableBtn && (
+                <button
+                  className="w-full bg-purple text-white py-3 rounded-2xl font-semibold text-xl mb-6"
+                  onClick={process}
+                >
+                  {btnValue}
+                </button>
+              )}
           </div>
         </div>
       </div>
       <div className="flex-none w-full lg:w-2/5 xl:w-1/3 space-y-6 text-baseBlack font-medium">
         <AccountOverview creditToken={borrowToken} leverage={leverageValue} />
       </div>
+
+      <CreateSmartAccountModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 };

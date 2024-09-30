@@ -183,3 +183,8 @@ interface OptionData {
 interface BurgerMenuProps {
   onClose: () => void;
 }
+
+interface CreateSmartAccountModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}

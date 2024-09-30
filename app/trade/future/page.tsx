@@ -39,8 +39,8 @@ export default function Page() {
     indexPrice: "58,289.70",
     markPrice: "58,289.70",
     highLow: "58364/58093",
-    netRatePositive: "+0.0005%",
-    netRateNegative: "-0.0004%",
+    netRatePositive: "+0.05%",
+    netRateNegative: "-0.04%",
     openInterestPositive: "$668.4k",
     openInterestNegative: "$805.5k",
     volume: "58,289.70",
@@ -78,7 +78,7 @@ export default function Page() {
           </div>
         </div>
 
-        <div className="grid grid-cols-3 xs:grid-cols-4 xl:grid-cols-6 justify-between gap-5 text-sm p-5 border border-neutral-300 rounded-xl font-semibold mb-2">
+        <div className="flex flex-wrap sm:flex-nowrap justify-between gap-5 items-center text-sm p-5 border border-neutral-300 rounded-xl font-semibold mb-2">
           <div>
             <p className="text-neutral-500 text-xs">Index Price</p>
             <p className="text-sm">{cryptoData.indexPrice}</p>
@@ -94,23 +94,23 @@ export default function Page() {
           <div className="col-span-2 sm:col-auto">
             <p className="text-neutral-500 text-xs">Net Rate/1Hr</p>
             <div className="flex items-center space-x-1">
-              <span className="text-green-500 text-sm">
+              <p className="text-green-500 text-sm">
                 {cryptoData.netRatePositive}
-              </span>
-              <span className="text-red-500 text-sm">
+              </p>
+              <p className="text-red-500 text-sm">
                 {cryptoData.netRateNegative}
-              </span>
+              </p>
             </div>
           </div>
           <div className="col-span-2 sm:col-auto">
             <p className="text-neutral-500 text-xs">Open Interest (45%/55%)</p>
             <div className="flex items-center space-x-1">
-              <span className="text-green-500 text-sm">
+              <p className="text-green-500 text-sm">
                 {cryptoData.openInterestPositive}
-              </span>
-              <span className="text-red-500 text-sm">
+              </p>
+              <p className="text-red-500 text-sm">
                 {cryptoData.openInterestNegative}
-              </span>
+              </p>
             </div>
           </div>
           <div>
