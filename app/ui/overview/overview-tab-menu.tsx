@@ -1,33 +1,77 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import clsx from "clsx";
 import LenderDashboard from "./lender-dashboard";
 import BorrowerDashboard from "./borrower-dashboard";
 import Image from "next/image";
 
-const TotalHoldings: React.FC = () => (
-  <div className="bg-white rounded-3xl border border-purpleBG-lighter p-4 lg:p-6 mb-7">
-    <div className="flex justify-between items-start mb-10">
-      <div>
-        <h2 className="text-base font-medium text-neutral-500">
-          Total Holdings
-        </h2>
-        <p className="text-3xl font-semibold text-baseBlack mb-2">$1000.00</p>
+const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
+  const [totalHoldings, setTotalHolding] = useState();
+  const [totalReturnsAmount, setTotalReturnsAmount] = useState();
+  const [totalReturnsPercentage, setTotalReturnsPercentage] = useState();
+  const [healthFactor, setHealthFactor] = useState();
+
+  // TODO: delete below useEffect
+  useEffect(() => {
+    setTotalHolding(undefined);
+    setTotalReturnsAmount(undefined);
+    setTotalReturnsPercentage(undefined);
+    setHealthFactor(undefined);
+  }, []);
+
+  return (
+    <div className="bg-white rounded-3xl border border-purpleBG-lighter p-4 lg:p-7 mb-7">
+      <div className="flex justify-between items-start mb-10">
+        <div>
+          <h2 className="text-base font-medium text-neutral-500">
+            Total Holdings
+          </h2>
+          <p className="text-3xl font-semibold text-baseBlack mb-2">
+            {totalHoldings ? totalHoldings : "-"}
+          </p>
+        </div>
+        <Image
+          src="/vanna-black-logo-text.svg"
+          width="92"
+          height="28"
+          alt="Vanna"
+        />
       </div>
-      <Image
-        src="/vanna-black-logo-text.svg"
-        width="92"
-        height="28"
-        alt="Vanna"
-      />
+      <div
+        className={clsx(
+          "flex items-start",
+          activeTab === "Borrower" ? "justify-between" : "justify-start"
+        )}
+      >
+        <div>
+          <p
+            className={clsx(
+              "text-3xl font-semibold",
+              totalReturnsAmount ? "text-baseSuccess-300" : "text-baseBlack"
+            )}
+          >
+            {totalReturnsAmount ? totalReturnsAmount : "-"}
+            {totalReturnsPercentage && (
+              <span className="text-sm font-medium">
+                ({totalReturnsPercentage})
+              </span>
+            )}
+          </p>
+          <p className="text-sm text-gray-500">Total Returns</p>
+        </div>
+        {activeTab === "Borrower" && (
+          <div>
+            <p className="text-2xl font-semibold text-baseBlack">
+              {healthFactor ? healthFactor : "-"}
+            </p>
+            <p className="text-sm text-gray-500">Health Factor</p>
+          </div>
+        )}
+      </div>
     </div>
-    <p className="text-3xl font-semibold text-baseSuccess-300">
-      +16,590 <span className="text-sm font-medium">(+12.05%)</span>
-    </p>
-    <p className="text-sm text-gray-500">Total Returns</p>
-  </div>
-);
+  );
+};
 
 const Rewards: React.FC = () => (
   <div className="bg-white rounded-3xl border border-purpleBG-lighter p-4 xl:p-10 mt-4">
@@ -94,7 +138,7 @@ const OverviewTabMenu = () => {
       <div className="container mx-auto pt-2">
         <div className="flex flex-col lg:flex-row">
           <div className="w-full lg:w-1/2 xl:w-1/3 pr-0 lg:pr-4 mb-4 lg:mb-0">
-            <TotalHoldings />
+            <TotalHoldings activeTab={activeTab} />
             <Rewards />
           </div>
           <div className="w-full lg:w-1/2 xl:w-2/3">{renderTabContent()}</div>

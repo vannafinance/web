@@ -4,10 +4,12 @@ import Image from "next/image";
 import Tooltip from "../components/tooltip";
 import { Info } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
+import { getShortenedAddress } from "@/app/lib/web3-constants";
 
 const AccountOverview: React.FC<AccountOverviewProps> = ({
   creditToken,
   leverage,
+  activeAccount,
 }) => {
   const [collateral, setCollateral] = useState("-");
   const [accountValue, setAccountValue] = useState("-");
@@ -38,7 +40,9 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({
         <div className="flex flex-col">
           <span className="text-2xl font-semibold">Margin Account</span>
           <span className="text-base font-medium gradient-text">
-            Create your smart account
+            {activeAccount
+              ? getShortenedAddress(activeAccount)
+              : "Create your smart account"}
           </span>
         </div>
       </div>

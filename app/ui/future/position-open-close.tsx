@@ -143,6 +143,8 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
         } catch (e) {
           console.error(e);
         }
+      } else {
+        setActiveAccount(undefined);
       }
     }
   };

@@ -51,7 +51,7 @@ const LevrageWithdraw = () => {
   // const [borrowBalance, setBorrowBalance] = useState<string | undefined>("-");
   const [debt, setDebt] = useState(0);
   const [healthFactor, setHealthFactor] = useState("-");
-  const [activeAccount, setActiveAccount] = useState();
+  const [activeAccount, setActiveAccount] = useState<string | undefined>();
 
   const [depositToken, setDepositToken] = useState<PoolTable>();
   const [borrowToken, setBorrowToken] = useState<PoolTable>();
@@ -118,7 +118,7 @@ const LevrageWithdraw = () => {
       );
       setDisableBtn(false);
     }
-  }, [depositAmount, depositBalance]);
+  }, [depositAmount, depositBalance, isLeverage, borrowAmount, depositToken]);
 
   const accountCheck = async () => {
     if (localStorage?.getItem("isWalletConnected") === "true") {
@@ -144,6 +144,8 @@ const LevrageWithdraw = () => {
         } catch (e) {
           console.error(e);
         }
+      } else {
+        setActiveAccount(undefined);
       }
     }
     setLoading(false);
@@ -493,15 +495,15 @@ const LevrageWithdraw = () => {
                   Leverage Value: {leverageAmount ? leverageAmount : "-"}
                 </div>
                 <div className="flex">
-                <div className="text-xs text-neutral-500 mr-2">
-                  Debt: {debt}
-                </div>
-                <button
-                  className="py-0.5 px-1 bg-gradient-to-r from-gradient-1 to-gradient-2 text-xs rounded-md text-baseWhite"
-                  onClick={handleMaxClick}
-                >
-                  Max
-                </button>
+                  <div className="text-xs text-neutral-500 mr-2">
+                    Debt: {debt}
+                  </div>
+                  <button
+                    className="py-0.5 px-1 bg-gradient-to-r from-gradient-1 to-gradient-2 text-xs rounded-md text-baseWhite"
+                    onClick={handleMaxClick}
+                  >
+                    Max
+                  </button>
                 </div>
               </div>
             </div>
@@ -570,7 +572,11 @@ const LevrageWithdraw = () => {
         </div>
       </div>
       <div className="flex-none w-full lg:w-2/5 xl:w-1/3 space-y-6 text-baseBlack font-medium">
-        <AccountOverview creditToken={borrowToken} leverage={leverageValue} />
+        <AccountOverview
+          creditToken={borrowToken}
+          leverage={leverageValue}
+          activeAccount={activeAccount}
+        />
       </div>
 
       <CreateSmartAccountModal

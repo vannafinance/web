@@ -2,8 +2,26 @@
 
 import { ArrowCircleUpRight } from "@phosphor-icons/react";
 import TradingInfoPanel from "./trading-info-panel";
+import { useEffect, useState } from "react";
 
 const BorrowerDashboard = () => {
+  const [totalHolding, setTotalHolding] = useState();
+  const [repayableAmount, setRepayableAmount] = useState();
+  const [repayablePercentage, setRepayablePercentage] = useState();
+  const [borrowedAmount, setBorrowedAmount] = useState();
+  const [borrowedLeverage, setBorrowedLeverage] = useState();
+  const [withdrawableAmount, setWithdrawableAmount] = useState();
+
+  // TODO: delete below useEffect
+  useEffect(() => {
+    setTotalHolding(undefined);
+    setRepayableAmount(undefined);
+    setRepayablePercentage(undefined);
+    setBorrowedAmount(undefined);
+    setBorrowedLeverage(undefined);
+    setWithdrawableAmount(undefined);
+  }, []);
+
   return (
     <div>
       <div className="grid grid-cols-2 gap-x-4 my-3 lg:my-0">
@@ -14,7 +32,9 @@ const BorrowerDashboard = () => {
             </h2>
             <ArrowCircleUpRight size={24} fill="#7a45da" />
           </div>
-          <p className="text-2xl lg:text-3xl font-semibold text-baseBlack mb-2">$1000.00</p>
+          <p className="text-2xl lg:text-3xl font-semibold text-baseBlack mb-2">
+            {totalHolding ? totalHolding : "-"}
+          </p>
         </div>
 
         <div className="bg-white rounded-3xl border border-purpleBG-lighter p-3 lg:p-6 mb-5 lg:mb-7">
@@ -25,10 +45,12 @@ const BorrowerDashboard = () => {
             <ArrowCircleUpRight size={24} fill="#7a45da" />
           </div>
           <p className="text-2xl lg:text-3xl font-semibold text-baseBlack mb-2">
-            $4080.00{" "}
-            <span className="text-baseSuccess-300 text-base font-medium">
-              +$80(2.00%)
-            </span>
+            {repayableAmount ? repayableAmount : "-"}{" "}
+            {repayablePercentage && (
+              <span className="text-baseSuccess-300 text-base font-medium">
+                {repayablePercentage}
+              </span>
+            )}
           </p>
         </div>
 
@@ -40,10 +62,12 @@ const BorrowerDashboard = () => {
             <ArrowCircleUpRight size={24} fill="#7a45da" />
           </div>
           <p className="text-2xl lg:text-3xl font-semibold text-baseBlack mb-2">
-            $5000.00{" "}
-            <span className="px-2 inline-flex text-xs leading-4 font-medium rounded-md bg-purpleBG-lighter text-purple">
-              5x Leverage
-            </span>
+            {borrowedAmount ? borrowedAmount : "-"}{" "}
+            {borrowedLeverage && (
+              <span className="px-2 inline-flex text-xs leading-4 font-medium rounded-md bg-purpleBG-lighter text-purple">
+                {borrowedLeverage}x Leverage
+              </span>
+            )}
           </p>
         </div>
 
@@ -54,7 +78,9 @@ const BorrowerDashboard = () => {
             </h2>
             <ArrowCircleUpRight size={24} fill="#7a45da" />
           </div>
-          <p className="text-2xl lg:text-3xl font-semibold text-baseBlack mb-2">$1500.00</p>
+          <p className="text-2xl lg:text-3xl font-semibold text-baseBlack mb-2">
+            {withdrawableAmount ? withdrawableAmount : "-"}
+          </p>
         </div>
       </div>
 

@@ -21,21 +21,32 @@ import AccountManager from "../../abi/vanna/v1/out/AccountManager.sol/AccountMan
 import ERC20 from "../../abi/vanna/v1/out/ERC20.sol/ERC20.json";
 import ISwapRouterV3 from "../../abi/vanna/v1/out/ISwapRouterV3.sol/ISwapRouterV3.json";
 import Registry from "../../abi/vanna/v1/out/Registry.sol/Registry.json";
+import Loader from "@/app/ui/components/loader";
 
 export default function Page() {
   const { account, library } = useWeb3React();
   const [activeAccount, setActiveAccount] = useState();
   // const { currentNetwork } = useNetwork();
-  const [payInput, setPayInput] = useState("");
-  const [receiveInput, setReceiveInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [disableBtn, setDisableBtn] = useState(true);
+  const [btnValue, setBtnValue] = useState("Enter an amount");
+
+  const [payInput, setPayInput] = useState<number | undefined>();
+  const [receiveInput, setReceiveInput] = useState<number | undefined>();
   const [isOpen, setIsOpen] = useState(false);
   const [payCoin, setPayCoin] = useState("WETH");
   const [receiveCoin, setReceiveCoin] = useState("USDC");
-  // const [balList, setBalList] = useState<{ [key: string]: string } | undefined>(
-  //   undefined
-  // );
-  // const [payBalance, setPayBalance] = useState();
-  // const [receiveBalance, setReceiveBalance] = useState();
+  const [balList, setBalList] = useState<{ [key: string]: string } | undefined>(
+    undefined
+  );
+  const [payBalance, setPayBalance] = useState<number | undefined>();
+  // const [receiveBalance, setReceiveBalance] = useState<number | undefined>();
+  const [payAmountInDollar, setPayAmountInDollar] = useState<
+    number | undefined
+  >();
+  const [receiveAmountInDollar, setReceiveAmountInDollar] = useState<
+    number | undefined
+  >();
 
   const toggleOpen = () => setIsOpen(!isOpen);
 
@@ -46,9 +57,10 @@ export default function Page() {
   const handleToSelect = (token: PoolTable) => {
     // TODO: handle logic here
   };
+
   const accountCheck = async () => {
     if (localStorage?.getItem("isWalletConnected") === "true") {
-      if (account && !activeAccount) {
+      if (account) {
         try {
           const signer = await library?.getSigner();
 
@@ -70,6 +82,8 @@ export default function Page() {
         } catch (e) {
           console.error(e);
         }
+      } else {
+        setActiveAccount(undefined);
       }
     }
   };
@@ -128,17 +142,43 @@ export default function Page() {
     balanceFetch();
   }, [activeAccount]);
 
+  useEffect(() => {
+    // update setToCoin, setPayInDollarAmount, setRecieveInDollarAmount
+  }, [payInput]);
+
+  useEffect(() => {
+    if (balList !== undefined) {
+      const bal = Number(balList[payCoin]);
+      setPayBalance(bal);
+    }
+  }, [payCoin, balList]);
+
+  useEffect(() => {
+    const tokenName = payCoin ? payCoin : "";
+    if (payInput === undefined || payInput <= 0) {
+      setBtnValue("Enter an amount");
+      setDisableBtn(true);
+    } else if (payBalance && payInput && payBalance * 1.0 < payInput * 1.0) {
+      setBtnValue("Insufficient " + tokenName + " balance");
+      setDisableBtn(true);
+    } else {
+      setBtnValue(tokenName === "WETH" ? "Swap" : "Approve - Swap");
+      setDisableBtn(false);
+    }
+  }, [payInput, payBalance, payCoin]);
+
   const spot = async () => {
     try {
+      if (!payInput) {
+        return;
+      }
+
       const signer = await library?.getSigner();
       // struct Data
       const tokenIn = arbTokensAddress[payCoin];
       const tokenOut = arbTokensAddress[receiveCoin];
       const fee = 3000;
-      const amountIn = formatStringToUnits(
-        payCoin,
-        Number(payInput.toString())
-      );
+      const amountIn = formatStringToUnits(payCoin, payInput);
       const amountOut = 0;
       const sqrtPriceLimitX96 = 0;
 
@@ -276,8 +316,8 @@ export default function Page() {
 
       await sleep(3000);
       await balanceFetch();
-      setPayInput("");
-      setReceiveInput("");
+      setPayInput(undefined);
+      setReceiveInput(undefined);
       // setPayBalance(ceilWithPrecision(balList[payCoin], 6));
       // setReceiveBalance(ceilWithPrecision(balList[receiveCoin], 6);
     } catch (e) {
@@ -297,7 +337,7 @@ export default function Page() {
               <input
                 type="number"
                 value={payInput}
-                onChange={(e) => setPayInput(e.target.value)}
+                onChange={(e) => setPayInput(Number(e.target.value))}
                 className="w-full text-baseBlack text-[2.5rem] font-medium outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 placeholder="0"
               />
@@ -307,7 +347,9 @@ export default function Page() {
             </div>
           </div>
           <div className="mt-2">
-            <div className="text-2xl font-medium">$30.12</div>
+            <div className="text-2xl font-medium">
+              {payAmountInDollar ? payAmountInDollar : "-"}
+            </div>
           </div>
         </div>
 
@@ -336,17 +378,44 @@ export default function Page() {
             </div>
           </div>
           <div className="mt-2">
-            <div className="text-2xl font-medium">$30.12</div>
+            <div className="text-2xl font-medium">
+              {receiveAmountInDollar ? receiveAmountInDollar : "-"}
+            </div>
           </div>
         </div>
       </div>
 
-      <button
-        className="w-full bg-purple text-white py-3 rounded-2xl font-semibold text-xl mb-2 "
-        onClick={spot}
-      >
-        Swap
-      </button>
+      {!account && (
+        <button className="w-full bg-neutral-500 text-white py-3 rounded-2xl font-semibold text-xl mb-6">
+          Connect Wallet
+        </button>
+      )}
+      {account && loading && (
+        <button className="w-full bg-purple py-3 rounded-2xl font-semibold text-xl mb-6 flex justify-center">
+          <Loader />
+        </button>
+      )}
+      {account && activeAccount === undefined && !loading && (
+        <button
+          className="w-full bg-purple text-white py-3 rounded-2xl font-semibold text-xl mb-6"
+          // onClick={() => setIsModalOpen(true)}
+        >
+          Create your Smart Account
+        </button>
+      )}
+      {account && activeAccount !== undefined && !loading && disableBtn && (
+        <button className="w-full bg-neutral-500 text-white py-3 rounded-2xl font-semibold text-xl mb-6">
+          {btnValue}
+        </button>
+      )}
+      {account && activeAccount !== undefined && !loading && !disableBtn && (
+        <button
+          className="w-full bg-purple text-white py-3 rounded-2xl font-semibold text-xl mb-6"
+          onClick={spot}
+        >
+          {btnValue}
+        </button>
+      )}
 
       <div className="w-full lg:max-w-md mx-auto bg-white rounded-lg p-6">
         <div

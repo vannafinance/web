@@ -1,7 +1,7 @@
 "use client";
 
 import { Info } from "@phosphor-icons/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 type TabType = "Perps" | "Options" | "Spot";
 
@@ -18,7 +18,7 @@ const InfoRow: React.FC<InfoRowProps> = ({ label, value, subValue }) => (
       <Info size={16} />
     </div>
     <div className="font-semibold text-2xl">
-      {value}{" "}
+      {value ? value : "-"}{" "}
       {subValue && (
         <span className="text-baseSuccess-300 text-base font-medium ml-1">
           ({subValue})
@@ -29,9 +29,27 @@ const InfoRow: React.FC<InfoRowProps> = ({ label, value, subValue }) => (
 );
 
 const TradingInfoPanel: React.FC = () => {
+  const tabs: TabType[] = ["Perps", "Options", "Spot"];
   const [activeTab, setActiveTab] = useState<TabType>("Perps");
 
-  const tabs: TabType[] = ["Perps", "Options", "Spot"];
+  const [initialMargin, setInitialMargin] = useState("");
+  const [avgLeverage, setAvgLeverage] = useState("");
+  const [borrowAPY, setBorrowAPY] = useState("");
+  const [repayAmount, setRepayAmount] = useState("");
+  const [liquidationPrice, setLiquidationPrice] = useState("");
+  const [profitLoss, setProfitLoss] = useState("");
+  const [profitLossPercentage, setProfitLossPercentage] = useState("");
+
+  // TODO: delete below useEffect
+  useEffect(() => {
+    setInitialMargin("");
+    setAvgLeverage("");
+    setBorrowAPY("");
+    setRepayAmount("");
+    setLiquidationPrice("");
+    setProfitLoss("");
+    setProfitLossPercentage("");
+  }, []);
 
   return (
     <div className="bg-white rounded-lg">
@@ -53,13 +71,17 @@ const TradingInfoPanel: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-2 xl:grid-cols-3 gap-2 sm:gap-5">
-        <InfoRow label="Initial Margin" value="$300.00" />
-        <InfoRow label="Avg Leverage" value="10x" />
-        <InfoRow label="Borrow APY" value="05.50%" />
+        <InfoRow label="Initial Margin" value={initialMargin} />
+        <InfoRow label="Avg Leverage" value={avgLeverage} />
+        <InfoRow label="Borrow APY" value={borrowAPY} />
 
-        <InfoRow label="Repay Amount" value="$10250.00" />
-        <InfoRow label="Liquidation Price" value="$10,309.00" />
-        <InfoRow label="Profit/Loss" value="200.50" subValue="+120.05" />
+        <InfoRow label="Repay Amount" value={repayAmount} />
+        <InfoRow label="Liquidation Price" value={liquidationPrice} />
+        <InfoRow
+          label="Profit/Loss"
+          value={profitLoss}
+          subValue={profitLossPercentage}
+        />
       </div>
     </div>
   );
