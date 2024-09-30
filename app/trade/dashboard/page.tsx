@@ -245,13 +245,17 @@ export default function Page() {
               onChange={setSelectedPair}
             />
             <span className="text-green-500 font-normal ml-2">58250.3</span>
-            <span className="text-xs xl:text-sm text-green-500 ml-1">+1.09%</span>
+            <span className="text-xs xl:text-sm text-green-500 ml-1">
+              +1.09%
+            </span>
           </div>
         </div>
 
         <div className="w-full h-[4.5rem] flex flex-row justify-between px-2.5 xl:px-6 py-4 border border-neutral-100 rounded-xl font-semibold">
           <div>
-            <p className="text-neutral-500 font-normal text-xs">Available Balance</p>
+            <p className="text-neutral-500 font-normal text-xs">
+              Available Balance
+            </p>
             <p className="text-xs xl:text-sm">{userData.availableBalance}</p>
           </div>
           <div>
@@ -263,7 +267,9 @@ export default function Page() {
             <p className="text-xs xl:text-sm">{userData.totalPnl}</p>
           </div>
           <div>
-            <p className="text-neutral-500 font-normal text-xs">Health Factor</p>
+            <p className="text-neutral-500 font-normal text-xs">
+              Health Factor
+            </p>
             <p className="text-xs xl:text-sm">{userData.healthFactor}</p>
           </div>
           <div>
@@ -274,7 +280,7 @@ export default function Page() {
       </div>
 
       <div className="flex flex-col-reverse xl:flex-row gap-5 text-base pt-2.5 lg:pt-1">
-        <div className="flex-none xl:w-2/5">
+        <div className="flex-none xl:w-[50%]">
           <div className="mb-5 w-full">
             <OptionPayoffChart />
           </div>
@@ -295,9 +301,9 @@ export default function Page() {
 
         <div className="w-full">
           <div className="flex flex-col sm:flex-row gap-2.5 xl:gap-4">
-            <div className="flex flex-col w-fit sm:w-full h-[4.5rem] border border-neutral-100 rounded-xl px-2 pt-2 font-semibold text-base xl:text-xl">
+            <div className="flex flex-col w-fit sm:w-full h-[4.5rem] border border-neutral-100 rounded-xl px-2 pt-2 font-semibold text-base xl:text-lg">
               <div className="text-neutral-500 text-xs font-medium mb-1">
-                Select Pair
+                Select Expiry
               </div>
               <div className="flex flex-row items-center">
                 <FutureDropdown
@@ -308,9 +314,11 @@ export default function Page() {
               </div>
             </div>
 
-            <div className="flex-none w-full sm:w-2/3 lg:w-3/4 xl:w-2/3 h-[4.5rem] flex flex-row justify-between px-2.5 xl:px-6 py-4 border border-neutral-100 rounded-xl font-semibold mb-2.5">
+            <div className="flex-none w-full sm:w-2/3 lg:w-3/4 xl:w-[60%] 2xl:w-2/3 h-[4.5rem] flex flex-row justify-between px-2.5 xl:px-4 py-4 border border-neutral-100 rounded-xl font-semibold mb-2.5">
               <div>
-                <p className="text-neutral-500 font-normal text-xs">Today&apos;s Date</p>
+                <p className="text-neutral-500 font-normal text-xs">
+                  Today&apos;s Date
+                </p>
                 <p className="text-xs xl:text-sm">{today}</p>
               </div>
               <div>

@@ -24,7 +24,7 @@ const UtilizationChart = ({ pool }: { pool: PoolTable }) => {
   useEffect(() => {
     if (pool) {}
     // fetch data here
-  }, []);
+  }, [pool]);
 
   return (
     <div className="bg-baseComplementary py-6 px-4 sm:px-10 rounded-2xl text-baseBlack font-bold">

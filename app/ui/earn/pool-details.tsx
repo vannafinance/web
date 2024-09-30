@@ -2334,7 +2334,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //     console.error(error);
     //   }
     // }
-  }, [account]);
+  }, [account, pool]);
 
   const handleCopyAddress = (address: string) => {
     navigator.clipboard.writeText(address);

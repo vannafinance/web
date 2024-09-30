@@ -6,7 +6,7 @@ import {
   oneMonthTimestampInterval,
   referralCode,
 } from "@/app/lib/constants";
-import { Calculator } from "@phosphor-icons/react";
+// import { Calculator } from "@phosphor-icons/react";
 import { useWeb3React } from "@web3-react/core";
 import clsx from "clsx";
 import React, { useEffect, useState } from "react";
@@ -542,12 +542,12 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
         </div>
       </div>
 
-      <div className="flex justify-between mb-2">
-        <div className="rounded-xl flex flex-col gap-2.5">
+      <div className="flex justify-end mb-2">
+        {/* <div className="rounded-xl flex flex-col gap-2.5">
           <Calculator size={20} color="#7B44E1" />
           <span className="text-xs text-baseBlack">Avail: 0.00 USD</span>
-        </div>
-        <div className="flex items-center text-base bg-white px-2 rounded-xl">
+        </div> */}
+        <div className="flex items-center text-base bg-white px-2 py-2.5 rounded-xl">
           <FutureDropdown
             options={optionType}
             defaultValue={selectedOptionType}
@@ -555,6 +555,27 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
           />
         </div>
       </div>
+
+      {!isOpen && (
+        <div className="flex flex-row justify-between mb-2 rounded-xl bg-white py-2">
+          <div className="flex self-stretch pl-2">
+            <input
+              type="number"
+              value={stopUsdcValue}
+              onChange={(e) => setStopUsdcValue(e.target.value)}
+              className="w-full text-baseBlack text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              placeholder="Stop (USDC)"
+            />
+          </div>
+          <div className="flex items-center text-base px-2 rounded-xl">
+            <FutureDropdown
+              options={markOption}
+              defaultValue={selectedMarkOption}
+              onChange={setSelectedMarkOption}
+            />
+          </div>
+        </div>
+      )}
 
       <div className="flex flex-col mb-2 rounded-xl bg-white py-2">
         <div className="mb-3 flex flex-row justify-between px-2 text-xs text-neutral-500">
@@ -581,33 +602,35 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
         </div>
       </div>
 
-      <div className="flex flex-col mb-2 rounded-xl bg-white py-2">
-        <div className="mb-3 flex flex-row justify-between px-2">
-          <div className="text-xs text-neutral-500">
-            Long {longValue ? " : " + longValue : ""}
+      {isOpen && (
+        <div className="flex flex-col mb-2 rounded-xl bg-white py-2">
+          <div className="mb-3 flex flex-row justify-between px-2">
+            <div className="text-xs text-neutral-500">
+              Long {longValue ? " : " + longValue : ""}
+            </div>
+          </div>
+          <div className="flex flex-row justify-between">
+            <div className="flex self-stretch pl-2">
+              <input
+                type="number"
+                value={assetAmount}
+                onChange={(e) => setAssetAmount(e.target.value)}
+                className="w-full text-baseBlack text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                placeholder="Enter Amount"
+              />
+            </div>
+            <div className="flex items-center text-base px-2 rounded-xl">
+              <FutureDropdown
+                options={tokenOptions}
+                defaultValue={selectedToken}
+                onChange={setSelectedToken}
+              />
+            </div>
           </div>
         </div>
-        <div className="flex flex-row justify-between">
-          <div className="flex self-stretch pl-2">
-            <input
-              type="number"
-              value={assetAmount}
-              onChange={(e) => setAssetAmount(e.target.value)}
-              className="w-full text-baseBlack text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              placeholder="Enter Amount"
-            />
-          </div>
-          <div className="flex items-center text-base px-2 rounded-xl">
-            <FutureDropdown
-              options={tokenOptions}
-              defaultValue={selectedToken}
-              onChange={setSelectedToken}
-            />
-          </div>
-        </div>
-      </div>
+      )}
 
-      {selectedOptionType.value === "Limit" && (
+      {selectedOptionType.value === "Limit" && isOpen && (
         <div className="flex flex-row justify-between mb-5 rounded-xl bg-white py-2">
           <div className="flex self-stretch pl-2">
             <input
@@ -628,91 +651,97 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
         </div>
       )}
 
-      <div className="flex justify-between items-center mb-5">
-        <FutureSlider value={leverageValue} onChange={setLeverageValue} />
-      </div>
+      {isOpen && (
+        <>
+          <div className="flex justify-between items-center mb-5">
+            <FutureSlider value={leverageValue} onChange={setLeverageValue} />
+          </div>
 
-      <div className="mb-5">
-        <div
-          className="flex items-center justify-between mb-1 cursor-pointer"
-          onClick={toggleOptions}
-        >
-          <div className="flex flex-row items-center">
+          <div>
             <div
-              className={`w-5 h-5 rounded mr-2 flex items-center justify-center ${
-                isEnabled ? "bg-purple" : "bg-neutral-500"
-              }`}
+              className="flex items-center justify-between mb-1 cursor-pointer"
+              onClick={toggleOptions}
             >
-              <svg
-                className="w-4 h-4 text-white"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path d="M5 13l4 4L19 7"></path>
-              </svg>
+              <div className="flex flex-row items-center">
+                <div
+                  className={`w-5 h-5 rounded mr-2 flex items-center justify-center ${
+                    isEnabled ? "bg-purple" : "bg-neutral-500"
+                  }`}
+                >
+                  <svg
+                    className="w-4 h-4 text-white"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path d="M5 13l4 4L19 7"></path>
+                  </svg>
+                </div>
+                <span
+                  className={clsx(
+                    "font-normal text-xs",
+                    isEnabled ? "text-purple" : "text-baseBlack"
+                  )}
+                >
+                  TP/SL
+                </span>
+              </div>
+              <div>
+                <span className="font-normal text-xs text-purple">
+                  Advanced
+                </span>
+              </div>
             </div>
-            <span
-              className={clsx(
-                "font-normal text-xs",
-                isEnabled ? "text-purple" : "text-baseBlack"
-              )}
-            >
-              TP/SL
-            </span>
-          </div>
-          <div>
-            <span className="font-normal text-xs text-purple">Advanced</span>
-          </div>
-        </div>
 
-        {isEnabled && (
-          <div>
-            <div className="flex flex-row justify-between mb-1 rounded-xl bg-white py-2">
-              <div className="flex self-stretch pl-2">
-                <input
-                  type="number"
-                  value={takeProfit}
-                  onChange={(e) => setTakeProfit(e.target.value)}
-                  className="w-full text-baseBlack text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                  placeholder="Take Profit"
-                />
+            {isEnabled && (
+              <div>
+                <div className="flex flex-row justify-between mb-1 rounded-xl bg-white py-2">
+                  <div className="flex self-stretch pl-2">
+                    <input
+                      type="number"
+                      value={takeProfit}
+                      onChange={(e) => setTakeProfit(e.target.value)}
+                      className="w-full text-baseBlack text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      placeholder="Take Profit"
+                    />
+                  </div>
+                  <div className="flex items-center text-base px-2 rounded-xl">
+                    <FutureDropdown
+                      options={markOption}
+                      defaultValue={selectedMarkOption}
+                      onChange={setSelectedMarkOption}
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-row justify-between rounded-xl bg-white py-2">
+                  <div className="flex self-stretch pl-2">
+                    <input
+                      type="number"
+                      value={stopLoss}
+                      onChange={(e) => setStopLoss(e.target.value)}
+                      className="w-full text-baseBlack text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      placeholder="Stop Loss"
+                    />
+                  </div>
+                  <div className="flex items-center text-base px-2 rounded-xl">
+                    <FutureDropdown
+                      options={markOption}
+                      defaultValue={selectedMarkOption}
+                      onChange={setSelectedMarkOption}
+                    />
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center text-base px-2 rounded-xl">
-                <FutureDropdown
-                  options={markOption}
-                  defaultValue={selectedMarkOption}
-                  onChange={setSelectedMarkOption}
-                />
-              </div>
-            </div>
-            <div className="flex flex-row justify-between rounded-xl bg-white py-2">
-              <div className="flex self-stretch pl-2">
-                <input
-                  type="number"
-                  value={stopLoss}
-                  onChange={(e) => setStopLoss(e.target.value)}
-                  className="w-full text-baseBlack text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                  placeholder="Stop Loss"
-                />
-              </div>
-              <div className="flex items-center text-base px-2 rounded-xl">
-                <FutureDropdown
-                  options={markOption}
-                  defaultValue={selectedMarkOption}
-                  onChange={setSelectedMarkOption}
-                />
-              </div>
-            </div>
+            )}
           </div>
-        )}
-      </div>
+        </>
+      )}
 
       <div>
-        <div className="grid grid-cols-2 gap-x-3 gap-y-1 mb-4 font-normal text-xs text-baseBlack">
+        <div className="grid grid-cols-2 gap-x-3 gap-y-1 mt-5 mb-4 font-normal text-xs text-baseBlack">
           <div className="flex flex-row justify-between items-center">
             <p className="text-neutral-500">Max Open</p>
             <p className="">0.00 USDT</p>

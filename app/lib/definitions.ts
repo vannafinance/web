@@ -75,6 +75,7 @@ interface NotificationProps {
 
 interface TokenDropdownProps {
   onSelect: (token: PoolTable) => void;
+  defaultValue?: PoolTable;
 }
 
 interface AccountOverviewProps {
@@ -180,5 +181,10 @@ interface OptionData {
 }
 
 interface BurgerMenuProps {
+  onClose: () => void;
+}
+
+interface CreateSmartAccountModalProps {
+  isOpen: boolean;
   onClose: () => void;
 }
