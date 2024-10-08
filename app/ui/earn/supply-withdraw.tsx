@@ -93,8 +93,8 @@ const SupplyWithdraw = ({
       setDisableBtn(true);
     } else {
       setBtnValue(
-        isSupply ?
-          tokenName === "WETH"
+        isSupply
+          ? tokenName === "WETH"
             ? "Deposit"
             : "Approve - Deposit"
           : tokenName === "WETH"
@@ -105,31 +105,6 @@ const SupplyWithdraw = ({
     }
   }, [amount, coinBalance, isSupply, selectedToken]);
 
-  const vEtherContract = new Contract(
-    arbAddressList.vEtherContractAddress,
-    VEther.abi,
-    library
-  );
-  const vDaiContract = new Contract(
-    arbAddressList.vDaiContractAddress,
-    VToken.abi,
-    library
-  );
-  const vUsdcContract = new Contract(
-    arbAddressList.vUSDCContractAddress,
-    VToken.abi,
-    library
-  );
-  const vUsdtContract = new Contract(
-    arbAddressList.vUSDTContractAddress,
-    VToken.abi,
-    library
-  );
-  const vWbtcContract = new Contract(
-    arbAddressList.vWBTCContractAddress,
-    VToken.abi,
-    library
-  );
   // const rateModelContract = new Contract(
   //   arbAddressList.rateModelContractAddress,
   //   DefaultRateModel.abi,
@@ -139,42 +114,72 @@ const SupplyWithdraw = ({
   const fetchParams = () => {
     try {
       const processParams = async () => {
-        if (selectedToken.name == "WETH") {
-          const ethPerVeth = formatBignumberToUnits(
-            selectedToken.name,
-            await vEtherContract.convertToShares(parseUnits("1", 18))
+        if (library && library?.getSigner()) {
+          const signer = await library?.getSigner();
+
+          const vEtherContract = new Contract(
+            arbAddressList.vEtherContractAddress,
+            VEther.abi,
+            signer
           );
-          setEthPerVeth(ceilWithPrecision(ethPerVeth));
-        } else if (selectedToken.name === "WBTC") {
-          const btcPerVbtc = formatBignumberToUnits(
-            selectedToken.name,
-            await vWbtcContract.convertToShares(parseUnits("1", 18))
+          const vDaiContract = new Contract(
+            arbAddressList.vDaiContractAddress,
+            VToken.abi,
+            signer
+          );
+          const vUsdcContract = new Contract(
+            arbAddressList.vUSDCContractAddress,
+            VToken.abi,
+            signer
+          );
+          const vUsdtContract = new Contract(
+            arbAddressList.vUSDTContractAddress,
+            VToken.abi,
+            signer
+          );
+          const vWbtcContract = new Contract(
+            arbAddressList.vWBTCContractAddress,
+            VToken.abi,
+            signer
           );
 
-          setEthPerVeth(ceilWithPrecision(btcPerVbtc, 6));
-        } else if (selectedToken.name === "USDC") {
-          const usdcPerVusdc = formatBignumberToUnits(
-            selectedToken.name,
-            await vUsdcContract.convertToShares(parseUnits("1", 6))
-          );
+          if (selectedToken.name == "WETH") {
+            const ethPerVeth = formatBignumberToUnits(
+              selectedToken.name,
+              await vEtherContract.convertToShares(parseUnits("1", 18))
+            );
+            setEthPerVeth(ceilWithPrecision(ethPerVeth));
+          } else if (selectedToken.name === "WBTC") {
+            const btcPerVbtc = formatBignumberToUnits(
+              selectedToken.name,
+              await vWbtcContract.convertToShares(parseUnits("1", 18))
+            );
 
-          setEthPerVeth(ceilWithPrecision(usdcPerVusdc, 6));
-        } else if (selectedToken.name === "USDT") {
-          const usdtPerVusdt = formatBignumberToUnits(
-            selectedToken.name,
-            await vUsdtContract.convertToShares(parseUnits("1", 6))
-          );
+            setEthPerVeth(ceilWithPrecision(btcPerVbtc, 6));
+          } else if (selectedToken.name === "USDC") {
+            const usdcPerVusdc = formatBignumberToUnits(
+              selectedToken.name,
+              await vUsdcContract.convertToShares(parseUnits("1", 6))
+            );
 
-          setEthPerVeth(ceilWithPrecision(usdtPerVusdt, 6));
-        } else if (selectedToken.name === "DAI") {
-          const daiPerVdai = formatBignumberToUnits(
-            selectedToken.name,
-            await vDaiContract.convertToShares(parseUnits("1", 18))
-          );
+            setEthPerVeth(ceilWithPrecision(usdcPerVusdc, 6));
+          } else if (selectedToken.name === "USDT") {
+            const usdtPerVusdt = formatBignumberToUnits(
+              selectedToken.name,
+              await vUsdtContract.convertToShares(parseUnits("1", 6))
+            );
 
-          setEthPerVeth(ceilWithPrecision(daiPerVdai, 6));
-        } else {
-          console.error("Something went wrong, token = ", selectedToken.name);
+            setEthPerVeth(ceilWithPrecision(usdtPerVusdt, 6));
+          } else if (selectedToken.name === "DAI") {
+            const daiPerVdai = formatBignumberToUnits(
+              selectedToken.name,
+              await vDaiContract.convertToShares(parseUnits("1", 18))
+            );
+
+            setEthPerVeth(ceilWithPrecision(daiPerVdai, 6));
+          } else {
+            console.error("Something went wrong, token = ", selectedToken.name);
+          }
         }
       };
 
@@ -217,6 +222,34 @@ const SupplyWithdraw = ({
   }, [account]);
 
   const deposit = async () => {
+    const signer = await library?.getSigner();
+
+    const vEtherContract = new Contract(
+      arbAddressList.vEtherContractAddress,
+      VEther.abi,
+      signer
+    );
+    const vDaiContract = new Contract(
+      arbAddressList.vDaiContractAddress,
+      VToken.abi,
+      signer
+    );
+    const vUsdcContract = new Contract(
+      arbAddressList.vUSDCContractAddress,
+      VToken.abi,
+      signer
+    );
+    const vUsdtContract = new Contract(
+      arbAddressList.vUSDTContractAddress,
+      VToken.abi,
+      signer
+    );
+    const vWbtcContract = new Contract(
+      arbAddressList.vWBTCContractAddress,
+      VToken.abi,
+      signer
+    );
+
     if (currentNetwork.id === BASE_NETWORK) {
       // value assigne is pending
       try {
@@ -704,32 +737,32 @@ const SupplyWithdraw = ({
         const vEtherContract = new Contract(
           baseAddressList.vEtherContractAddress,
           VEther.abi,
-          library
+          signer
         );
         const vDaiContract = new Contract(
           baseAddressList.vDaiContractAddress,
           VToken.abi,
-          library
+          signer
         );
         const vUsdcContract = new Contract(
           baseAddressList.vUSDCContractAddress,
           VToken.abi,
-          library
+          signer
         );
         const vUsdtContract = new Contract(
           baseAddressList.vUSDTContractAddress,
           VToken.abi,
-          library
+          signer
         );
         const vWbtcContract = new Contract(
           baseAddressList.vWBTCContractAddress,
           VToken.abi,
-          library
+          signer
         );
         const rateModelContract = new Contract(
           baseAddressList.rateModelContractAddress,
           DefaultRateModel.abi,
-          library
+          signer
         );
 
         // ERC20 contract
@@ -975,17 +1008,15 @@ const SupplyWithdraw = ({
     }
   };
 
-  // const withdraw = async () => {
-  //   // TODO: add code here
-  // }
+  // const withdraw = async () => {}
 
-  const process = async () => {
-    if (isSupply) {
-      await deposit();
-    } else {
-      // await withdraw();
-    }
-  };
+  // const process = async () => {
+  //   if (isSupply) {
+  //     await deposit();
+  //   } else {
+  //     // await withdraw();
+  //   }
+  // };
 
   return (
     <div className="bg-baseComplementary p-4 rounded-3xl w-full text-baseBlack">
@@ -1135,7 +1166,7 @@ const SupplyWithdraw = ({
       {account && !loading && !disableBtn && (
         <button
           className="w-full bg-purple text-white py-3 rounded-2xl font-semibold text-xl mb-6"
-          onClick={process}
+          onClick={deposit}
         >
           {btnValue}
         </button>

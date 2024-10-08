@@ -10,6 +10,8 @@ import {
 } from "@/app/lib/helper";
 import { arbAddressList, arbTokensAddress } from "@/app/lib/web3-constants";
 import TokenDropdown from "@/app/ui/components/token-dropdown";
+import Loader from "@/app/ui/components/loader";
+import { poolsPlaceholder } from "@/app/lib/static-values";
 import { CaretDown, CaretUp, Lightning } from "@phosphor-icons/react";
 import { useWeb3React } from "@web3-react/core";
 import { Contract } from "ethers";
@@ -21,7 +23,6 @@ import AccountManager from "../../abi/vanna/v1/out/AccountManager.sol/AccountMan
 import ERC20 from "../../abi/vanna/v1/out/ERC20.sol/ERC20.json";
 import ISwapRouterV3 from "../../abi/vanna/v1/out/ISwapRouterV3.sol/ISwapRouterV3.json";
 import Registry from "../../abi/vanna/v1/out/Registry.sol/Registry.json";
-import Loader from "@/app/ui/components/loader";
 
 export default function Page() {
   const { account, library } = useWeb3React();
@@ -34,8 +35,8 @@ export default function Page() {
   const [payInput, setPayInput] = useState<number | undefined>();
   const [receiveInput, setReceiveInput] = useState<number | undefined>();
   const [isOpen, setIsOpen] = useState(false);
-  const [payCoin, setPayCoin] = useState("WETH");
-  const [receiveCoin, setReceiveCoin] = useState("USDC");
+  const [payCoin, setPayCoin] = useState(poolsPlaceholder[0]);
+  const [receiveCoin, setReceiveCoin] = useState(poolsPlaceholder[2]);
   const [balList, setBalList] = useState<{ [key: string]: string } | undefined>(
     undefined
   );
@@ -47,15 +48,20 @@ export default function Page() {
   const [receiveAmountInDollar, setReceiveAmountInDollar] = useState<
     number | undefined
   >();
+  const [maxSlippage, setMaxSlippage] = useState<string | undefined>();
+  const [receiveAtLeast, setReceiveAtLeast] = useState<string | undefined>();
+  const [fee, setFee] = useState<string | undefined>();
+  const [networkCost, setNetworkCost] = useState<string | undefined>();
+  const [orderRouting, setOrderRouting] = useState<string | undefined>();
 
   const toggleOpen = () => setIsOpen(!isOpen);
 
   const handleFromSelect = (token: PoolTable) => {
-    setPayCoin(token.name);
+    setPayCoin(token);
   };
 
   const handleToSelect = (token: PoolTable) => {
-    // TODO: handle logic here
+    setReceiveCoin(token);
   };
 
   const accountCheck = async () => {
@@ -148,13 +154,13 @@ export default function Page() {
 
   useEffect(() => {
     if (balList !== undefined) {
-      const bal = Number(balList[payCoin]);
+      const bal = Number(balList[payCoin.name]);
       setPayBalance(bal);
     }
   }, [payCoin, balList]);
 
   useEffect(() => {
-    const tokenName = payCoin ? payCoin : "";
+    const tokenName = payCoin.name ? payCoin.name : "";
     if (payInput === undefined || payInput <= 0) {
       setBtnValue("Enter an amount");
       setDisableBtn(true);
@@ -175,10 +181,10 @@ export default function Page() {
 
       const signer = await library?.getSigner();
       // struct Data
-      const tokenIn = arbTokensAddress[payCoin];
-      const tokenOut = arbTokensAddress[receiveCoin];
+      const tokenIn = arbTokensAddress[payCoin.name];
+      const tokenOut = arbTokensAddress[receiveCoin.name];
       const fee = 3000;
-      const amountIn = formatStringToUnits(payCoin, payInput);
+      const amountIn = formatStringToUnits(payCoin.name, payInput);
       const amountOut = 0;
       const sqrtPriceLimitX96 = 0;
 
@@ -196,10 +202,10 @@ export default function Page() {
 
       if (
         //AnyToken <=> WETH
-        (payCoin === "WBTC" ||
-          payCoin === "DAI" ||
-          payCoin === "USDT" ||
-          payCoin === "USDC") &&
+        (payCoin.name === "WBTC" ||
+          payCoin.name === "DAI" ||
+          payCoin.name === "USDT" ||
+          payCoin.name === "USDC") &&
         tokenOut === arbAddressList.wethTokenAddress
       ) {
         //struct
@@ -250,7 +256,7 @@ export default function Page() {
           data,
           { gasLimit: 2300000 }
         );
-      } else if (payCoin === "WETH") {
+      } else if (payCoin.name === "WETH") {
         // WETH <=> AnyToken native ETH
         // struct
         const ExactInputSingleParams = {
@@ -335,15 +341,24 @@ export default function Page() {
           <div className="flex justify-between mb-2">
             <div className="flex flex-col">
               <input
-                type="number"
                 value={payInput}
                 onChange={(e) => setPayInput(Number(e.target.value))}
                 className="w-full text-baseBlack text-[2.5rem] font-medium outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 placeholder="0"
+                inputMode="decimal"
+                autoComplete="off"
+                autoCorrect="off"
+                type="text"
+                pattern="^[0-9]*[.,]?[0-9]*$"
+                minLength={1}
+                maxLength={79}
               />
             </div>
             <div className="flex">
-              <TokenDropdown onSelect={handleFromSelect} />
+              <TokenDropdown
+                onSelect={handleFromSelect}
+                defaultValue={payCoin}
+              />
             </div>
           </div>
           <div className="mt-2">
@@ -366,15 +381,24 @@ export default function Page() {
           <div className="flex justify-between mb-2">
             <div className="flex flex-col">
               <input
-                type="number"
                 value={receiveInput}
                 // onChange={(e) => setReceiveInput(e.target.value)}
                 className="w-full text-baseBlack text-[2.5rem] font-medium outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 placeholder="0"
+                inputMode="decimal"
+                autoComplete="off"
+                autoCorrect="off"
+                type="text"
+                pattern="^[0-9]*[.,]?[0-9]*$"
+                minLength={1}
+                maxLength={79}
               />
             </div>
             <div className="flex">
-              <TokenDropdown onSelect={handleToSelect} />
+              <TokenDropdown
+                onSelect={handleToSelect}
+                defaultValue={receiveCoin}
+              />
             </div>
           </div>
           <div className="mt-2">
@@ -417,45 +441,48 @@ export default function Page() {
         </button>
       )}
 
-      <div className="w-full lg:max-w-md mx-auto bg-white rounded-lg p-6">
-        <div
-          className="flex justify-between items-center cursor-pointer"
-          onClick={toggleOpen}
-        >
-          <span className="text-base font-medium">
-            1 USDC ≈ 0.00042 WETH ($1.00)
-          </span>
-          {isOpen ? <CaretUp size={20} /> : <CaretDown size={20} />}
-        </div>
-
-        {isOpen && (
-          <div className="mt-4 space-y-2 text-sm text-neutral-500">
-            <div className="flex justify-between">
-              <span>Max Slippage</span>
-              <span>0.5%</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Receive at least</span>
-              <span>1150 USDC</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Fee</span>
-              <span>$2.300</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Network cost</span>
-              <span className="flex items-center">
-                <Lightning size={16} className="text-purple-500 mr-1" />
-                $0.10
-              </span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span>Order routing</span>
-              <span>5x</span>
-            </div>
+      {payInput !== undefined && payInput > 0 && (
+        <div className="w-full lg:max-w-md mx-auto bg-white rounded-lg p-6">
+          <div
+            className="flex justify-between items-center cursor-pointer"
+            onClick={toggleOpen}
+          >
+            <span className="text-base font-medium">
+              {payInput} {payCoin.name} ≈ {receiveInput} {receiveCoin.name}
+              {/* ({ TODO: ask what to add here }) */}
+            </span>
+            {isOpen ? <CaretUp size={20} /> : <CaretDown size={20} />}
           </div>
-        )}
-      </div>
+
+          {isOpen && (
+            <div className="mt-4 space-y-2 text-sm text-neutral-500">
+              <div className="flex justify-between">
+                <span>Max Slippage</span>
+                <span>{maxSlippage ? maxSlippage : "-"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Receive at least</span>
+                <span>{receiveAtLeast ? receiveAtLeast : "-"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Fee</span>
+                <span>{fee ? fee : "-"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Network cost</span>
+                <span className="flex items-center">
+                  <Lightning size={16} className="text-purple-500 mr-1" />
+                  {networkCost ? networkCost : "-"}
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span>Order routing</span>
+                <span>{orderRouting ? orderRouting : "-"}</span>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
