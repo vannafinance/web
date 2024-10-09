@@ -29,11 +29,7 @@ export default function Page() {
     protocolOptions[0]
   );
 
-  useEffect(() => {
-    setSelectedProtocol(protocolOptions[0]);
-  }, [currentNetwork]);
-
-  const cryptoData: CryptoData = {
+  const [cryptoData, setCryptoData] = useState({
     price: "58250.3",
     change: "+1.09%",
     indexPrice: "58,289.70",
@@ -44,7 +40,11 @@ export default function Page() {
     openInterestPositive: "$668.4k",
     openInterestNegative: "$805.5k",
     volume: "58,289.70",
-  };
+  });
+
+  useEffect(() => {
+    setSelectedProtocol(protocolOptions[0]);
+  }, [currentNetwork]);
 
   return (
     <div className="flex flex-col lg:flex-row space-x-0 lg:space-x-5 text-base pt-4 px-2.5 md:px-5 lg:px-7 xl:px-10">

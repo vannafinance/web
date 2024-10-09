@@ -63,7 +63,7 @@ export default function NavbarButtons() {
                   decimals: 18,
                 },
                 rpcUrls: [
-                  "https://rpc.tenderly.co/fork/fcf40d1e-6cbe-4607-8bf2-103e4b8dd83d",
+                  "https://rpc.tenderly.co/fork/0704542b-0f01-4366-8058-b0b2e80d4b24",
                 ],
                 blockExplorerUrls: ["https://goreli.etherscan.io"],
               },

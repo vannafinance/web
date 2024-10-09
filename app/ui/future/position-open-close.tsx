@@ -87,6 +87,11 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
   const [longValue, setLongValue] = useState("");
   const [coinBalance, setCoinBalance] = useState("");
 
+  const [maxOpen, setMaxOpen] = useState<string | undefined>();
+  const [cost, setCost] = useState<string | undefined>();
+  const [margin, setMargin] = useState<string | undefined>();
+  const [estLiqPrice, setEstLiqPrice] = useState<string | undefined>();
+
   // TODO: delete below useEffect
   useEffect(() => {
     setUseValue("");
@@ -746,35 +751,35 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
         <div className="grid grid-cols-2 gap-x-3 gap-y-1 mt-5 mb-4 font-normal text-xs text-baseBlack">
           <div className="flex flex-row justify-between items-center">
             <p className="text-neutral-500">Max Open</p>
-            <p className="">0.00 USDT</p>
+            <p className="">{maxOpen != undefined ? maxOpen : "-"}</p>
           </div>
           <div className="flex flex-row justify-between items-center">
             <p className="text-neutral-500">Max Open</p>
-            <p className="">0.00 USDT</p>
+            <p className="">{maxOpen != undefined ? maxOpen : "-"}</p>
           </div>
           <div className="flex flex-row justify-between items-center">
             <p className="text-neutral-500">Cost</p>
-            <p className="">0.00 USDT</p>
+            <p className="">{cost != undefined ? cost : "-"}</p>
           </div>
           <div className="flex flex-row justify-between items-center">
             <p className="text-neutral-500">Cost</p>
-            <p className="">0.00 USDT</p>
+            <p className="">{cost != undefined ? cost : "-"}</p>
           </div>
           <div className="flex flex-row justify-between items-center">
             <p className="text-neutral-500">Margin</p>
-            <p className="">0.00 USDT</p>
+            <p className="">{margin != undefined ? margin : "-"}</p>
           </div>
           <div className="flex flex-row justify-between items-center">
             <p className="text-neutral-500">Margin</p>
-            <p className="">0.00 USDT</p>
+            <p className="">{margin != undefined ? margin : "-"}</p>
           </div>
           <div className="flex flex-row justify-between items-center">
             <p className="text-neutral-500">Est.Liq.Price</p>
-            <p className="">0.00 USDT</p>
+            <p className="">{estLiqPrice != undefined ? estLiqPrice : "-"}</p>
           </div>
           <div className="flex flex-row justify-between items-center">
             <p className="text-neutral-500">Est.Liq.Price</p>
-            <p className="">0.00 USDT</p>
+            <p className="">{estLiqPrice != undefined ? estLiqPrice : "-"}</p>
           </div>
         </div>
       </div>
