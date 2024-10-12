@@ -63,7 +63,7 @@ export default function NavbarButtons() {
                   decimals: 18,
                 },
                 rpcUrls: [
-                  "https://rpc.tenderly.co/fork/fcf40d1e-6cbe-4607-8bf2-103e4b8dd83d",
+                  "https://rpc.tenderly.co/fork/0704542b-0f01-4366-8058-b0b2e80d4b24",
                 ],
                 blockExplorerUrls: ["https://goreli.etherscan.io"],
               },
@@ -151,14 +151,9 @@ export default function NavbarButtons() {
   };
 
   return (
-    <div className="flex flex-row gap-2 items-center justify-center my-auto">
-      <div className="p-2 border border-neutral-100 rounded-lg cursor-pointer text-purple">
-        <SunDim
-          size={24}
-          // color={isDarkMode ? "white" : "black"}
-          weight="fill"
-          onClick={toggleDarkMode}
-        />
+    <div className="flex flex-row gap-2 items-center justify-center my-auto dark:bg-baseDark">
+      <div className="p-2 border border-neutral-100 dark:border-neutral-700 rounded-lg cursor-pointer dark:text-purple text-baseBlack">
+        <SunDim size={24} weight="fill" onClick={toggleDarkMode} />
       </div>
       <div>
         <NetworkDropdown options={networks} onSelect={setCurrentNetwork} />

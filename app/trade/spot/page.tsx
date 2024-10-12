@@ -10,6 +10,8 @@ import {
 } from "@/app/lib/helper";
 import { arbAddressList, arbTokensAddress } from "@/app/lib/web3-constants";
 import TokenDropdown from "@/app/ui/components/token-dropdown";
+import Loader from "@/app/ui/components/loader";
+import { poolsPlaceholder } from "@/app/lib/static-values";
 import { CaretDown, CaretUp, Lightning } from "@phosphor-icons/react";
 import { useWeb3React } from "@web3-react/core";
 import { Contract } from "ethers";
@@ -26,29 +28,45 @@ export default function Page() {
   const { account, library } = useWeb3React();
   const [activeAccount, setActiveAccount] = useState();
   // const { currentNetwork } = useNetwork();
-  const [payInput, setPayInput] = useState("");
-  const [receiveInput, setReceiveInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [disableBtn, setDisableBtn] = useState(true);
+  const [btnValue, setBtnValue] = useState("Enter an amount");
+
+  const [payInput, setPayInput] = useState<number | undefined>();
+  const [receiveInput, setReceiveInput] = useState<number | undefined>();
   const [isOpen, setIsOpen] = useState(false);
-  const [payCoin, setPayCoin] = useState("WETH");
-  const [receiveCoin, setReceiveCoin] = useState("USDC");
-  // const [balList, setBalList] = useState<{ [key: string]: string } | undefined>(
-  //   undefined
-  // );
-  // const [payBalance, setPayBalance] = useState();
-  // const [receiveBalance, setReceiveBalance] = useState();
+  const [payCoin, setPayCoin] = useState(poolsPlaceholder[0]);
+  const [receiveCoin, setReceiveCoin] = useState(poolsPlaceholder[2]);
+  const [balList, setBalList] = useState<{ [key: string]: string } | undefined>(
+    undefined
+  );
+  const [payBalance, setPayBalance] = useState<number | undefined>();
+  // const [receiveBalance, setReceiveBalance] = useState<number | undefined>();
+  const [payAmountInDollar, setPayAmountInDollar] = useState<
+    number | undefined
+  >();
+  const [receiveAmountInDollar, setReceiveAmountInDollar] = useState<
+    number | undefined
+  >();
+  const [maxSlippage, setMaxSlippage] = useState<string | undefined>();
+  const [receiveAtLeast, setReceiveAtLeast] = useState<string | undefined>();
+  const [fee, setFee] = useState<string | undefined>();
+  const [networkCost, setNetworkCost] = useState<string | undefined>();
+  const [orderRouting, setOrderRouting] = useState<string | undefined>();
 
   const toggleOpen = () => setIsOpen(!isOpen);
 
   const handleFromSelect = (token: PoolTable) => {
-    setPayCoin(token.name);
+    setPayCoin(token);
   };
 
   const handleToSelect = (token: PoolTable) => {
-    // TODO: handle logic here
+    setReceiveCoin(token);
   };
+
   const accountCheck = async () => {
     if (localStorage?.getItem("isWalletConnected") === "true") {
-      if (account && !activeAccount) {
+      if (account) {
         try {
           const signer = await library?.getSigner();
 
@@ -70,6 +88,8 @@ export default function Page() {
         } catch (e) {
           console.error(e);
         }
+      } else {
+        setActiveAccount(undefined);
       }
     }
   };
@@ -128,17 +148,43 @@ export default function Page() {
     balanceFetch();
   }, [activeAccount]);
 
+  useEffect(() => {
+    // update setToCoin, setPayInDollarAmount, setRecieveInDollarAmount
+  }, [payInput]);
+
+  useEffect(() => {
+    if (balList !== undefined) {
+      const bal = Number(balList[payCoin.name]);
+      setPayBalance(bal);
+    }
+  }, [payCoin, balList]);
+
+  useEffect(() => {
+    const tokenName = payCoin.name ? payCoin.name : "";
+    if (payInput === undefined || payInput <= 0) {
+      setBtnValue("Enter an amount");
+      setDisableBtn(true);
+    } else if (payBalance && payInput && payBalance * 1.0 < payInput * 1.0) {
+      setBtnValue("Insufficient " + tokenName + " balance");
+      setDisableBtn(true);
+    } else {
+      setBtnValue(tokenName === "WETH" ? "Swap" : "Approve - Swap");
+      setDisableBtn(false);
+    }
+  }, [payInput, payBalance, payCoin]);
+
   const spot = async () => {
     try {
+      if (!payInput) {
+        return;
+      }
+
       const signer = await library?.getSigner();
       // struct Data
-      const tokenIn = arbTokensAddress[payCoin];
-      const tokenOut = arbTokensAddress[receiveCoin];
+      const tokenIn = arbTokensAddress[payCoin.name];
+      const tokenOut = arbTokensAddress[receiveCoin.name];
       const fee = 3000;
-      const amountIn = formatStringToUnits(
-        payCoin,
-        Number(payInput.toString())
-      );
+      const amountIn = formatStringToUnits(payCoin.name, payInput);
       const amountOut = 0;
       const sqrtPriceLimitX96 = 0;
 
@@ -156,10 +202,10 @@ export default function Page() {
 
       if (
         //AnyToken <=> WETH
-        (payCoin === "WBTC" ||
-          payCoin === "DAI" ||
-          payCoin === "USDT" ||
-          payCoin === "USDC") &&
+        (payCoin.name === "WBTC" ||
+          payCoin.name === "DAI" ||
+          payCoin.name === "USDT" ||
+          payCoin.name === "USDC") &&
         tokenOut === arbAddressList.wethTokenAddress
       ) {
         //struct
@@ -210,7 +256,7 @@ export default function Page() {
           data,
           { gasLimit: 2300000 }
         );
-      } else if (payCoin === "WETH") {
+      } else if (payCoin.name === "WETH") {
         // WETH <=> AnyToken native ETH
         // struct
         const ExactInputSingleParams = {
@@ -276,8 +322,8 @@ export default function Page() {
 
       await sleep(3000);
       await balanceFetch();
-      setPayInput("");
-      setReceiveInput("");
+      setPayInput(undefined);
+      setReceiveInput(undefined);
       // setPayBalance(ceilWithPrecision(balList[payCoin], 6));
       // setReceiveBalance(ceilWithPrecision(balList[receiveCoin], 6);
     } catch (e) {
@@ -286,107 +332,157 @@ export default function Page() {
   };
 
   return (
-    <div className="w-full lg:w-[35rem] xl:w-[40rem] mx-auto">
+    <div className="w-full lg:w-[35rem] xl:w-[40rem] mx-auto text-baseBlack dark:text-baseWhite">
       <p className="text-4xl font-bold mb-6">Spot</p>
 
-      <div className="bg-baseComplementary rounded-3xl p-4 relative mb-4">
-        <div className="bg-white rounded-2xl p-4 mb-1">
-          <div className="text-baseBlack text-lg">From</div>
+      <div className="bg-baseComplementary dark:bg-baseDarkComplementary rounded-3xl p-4 relative mb-4">
+        <div className="bg-white dark:bg-baseDark rounded-2xl p-4 mb-1">
+          <div className="text-lg">From</div>
           <div className="flex justify-between mb-2">
             <div className="flex flex-col">
               <input
-                type="number"
                 value={payInput}
-                onChange={(e) => setPayInput(e.target.value)}
-                className="w-full text-baseBlack text-[2.5rem] font-medium outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                onChange={(e) => setPayInput(Number(e.target.value))}
+                className="w-full text-[2.5rem] font-medium outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none dark:bg-baseDark"
                 placeholder="0"
+                inputMode="decimal"
+                autoComplete="off"
+                autoCorrect="off"
+                type="text"
+                pattern="^[0-9]*[.,]?[0-9]*$"
+                minLength={1}
+                maxLength={79}
               />
             </div>
             <div className="flex">
-              <TokenDropdown onSelect={handleFromSelect} />
+              <TokenDropdown
+                onSelect={handleFromSelect}
+                defaultValue={payCoin}
+              />
             </div>
           </div>
           <div className="mt-2">
-            <div className="text-2xl font-medium">$30.12</div>
+            <div className="text-2xl font-medium">
+              {payAmountInDollar ? payAmountInDollar : "-"}
+            </div>
           </div>
         </div>
 
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-          <div className="w-16 h-16 bg-baseComplementary rounded-full flex items-center justify-center p-1">
-            <div className="w-full h-full bg-white rounded-full flex items-center justify-center">
+          <div className="w-16 h-16 bg-baseComplementary dark:bg-baseDarkComplementary rounded-full flex items-center justify-center p-1">
+            <div className="w-full h-full bg-white dark:bg-baseDark rounded-full flex items-center justify-center">
               <Image src="/vanna-logo.svg" width={26} height={24} alt="Vanna" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-4">
-          <div className="text-baseBlack text-lg">To</div>
+        <div className="bg-white dark:bg-baseDark rounded-2xl p-4">
+          <div className="text-lg">To</div>
           <div className="flex justify-between mb-2">
             <div className="flex flex-col">
               <input
-                type="number"
                 value={receiveInput}
                 // onChange={(e) => setReceiveInput(e.target.value)}
-                className="w-full text-baseBlack text-[2.5rem] font-medium outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-full text-[2.5rem] font-medium outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none dark:bg-baseDark"
                 placeholder="0"
+                inputMode="decimal"
+                autoComplete="off"
+                autoCorrect="off"
+                type="text"
+                pattern="^[0-9]*[.,]?[0-9]*$"
+                minLength={1}
+                maxLength={79}
               />
             </div>
             <div className="flex">
-              <TokenDropdown onSelect={handleToSelect} />
+              <TokenDropdown
+                onSelect={handleToSelect}
+                defaultValue={receiveCoin}
+              />
             </div>
           </div>
           <div className="mt-2">
-            <div className="text-2xl font-medium">$30.12</div>
+            <div className="text-2xl font-medium">
+              {receiveAmountInDollar ? receiveAmountInDollar : "-"}
+            </div>
           </div>
         </div>
       </div>
 
-      <button
-        className="w-full bg-purple text-white py-3 rounded-2xl font-semibold text-xl mb-2 "
-        onClick={spot}
-      >
-        Swap
-      </button>
-
-      <div className="w-full lg:max-w-md mx-auto bg-white rounded-lg p-6">
-        <div
-          className="flex justify-between items-center cursor-pointer"
-          onClick={toggleOpen}
+      {!account && (
+        <button className="w-full bg-neutral-500 text-white py-3 rounded-2xl font-semibold text-xl mb-6">
+          Connect Wallet
+        </button>
+      )}
+      {account && loading && (
+        <button className="w-full bg-purple py-3 rounded-2xl font-semibold text-xl mb-6 flex justify-center">
+          <Loader />
+        </button>
+      )}
+      {account && activeAccount === undefined && !loading && (
+        <button
+          className="w-full bg-purple text-white py-3 rounded-2xl font-semibold text-xl mb-6"
+          // onClick={() => setIsModalOpen(true)}
         >
-          <span className="text-base font-medium">
-            1 USDC ≈ 0.00042 WETH ($1.00)
-          </span>
-          {isOpen ? <CaretUp size={20} /> : <CaretDown size={20} />}
-        </div>
+          Create your Smart Account
+        </button>
+      )}
+      {account && activeAccount !== undefined && !loading && disableBtn && (
+        <button className="w-full bg-neutral-500 text-white py-3 rounded-2xl font-semibold text-xl mb-6">
+          {btnValue}
+        </button>
+      )}
+      {account && activeAccount !== undefined && !loading && !disableBtn && (
+        <button
+          className="w-full bg-purple text-white py-3 rounded-2xl font-semibold text-xl mb-6"
+          onClick={spot}
+        >
+          {btnValue}
+        </button>
+      )}
 
-        {isOpen && (
-          <div className="mt-4 space-y-2 text-sm text-neutral-500">
-            <div className="flex justify-between">
-              <span>Max Slippage</span>
-              <span>0.5%</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Receive at least</span>
-              <span>1150 USDC</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Fee</span>
-              <span>$2.300</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Network cost</span>
-              <span className="flex items-center">
-                <Lightning size={16} className="text-purple-500 mr-1" />
-                $0.10
-              </span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span>Order routing</span>
-              <span>5x</span>
-            </div>
+      {payInput !== undefined && payInput > 0 && (
+        <div className="w-full lg:max-w-md mx-auto bg-white dark:bg-baseDark rounded-lg p-6">
+          <div
+            className="flex justify-between items-center cursor-pointer"
+            onClick={toggleOpen}
+          >
+            <span className="text-base font-medium">
+              {payInput} {payCoin.name} ≈ {receiveInput} {receiveCoin.name}
+              {/* ({ TODO: ask what to add here }) */}
+            </span>
+            {isOpen ? <CaretUp size={20} /> : <CaretDown size={20} />}
           </div>
-        )}
-      </div>
+
+          {isOpen && (
+            <div className="mt-4 space-y-2 text-sm text-neutral-500">
+              <div className="flex justify-between">
+                <span>Max Slippage</span>
+                <span>{maxSlippage ? maxSlippage : "-"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Receive at least</span>
+                <span>{receiveAtLeast ? receiveAtLeast : "-"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Fee</span>
+                <span>{fee ? fee : "-"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Network cost</span>
+                <span className="flex items-center">
+                  <Lightning size={16} className="text-purple-500 mr-1" />
+                  {networkCost ? networkCost : "-"}
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span>Order routing</span>
+                <span>{orderRouting ? orderRouting : "-"}</span>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

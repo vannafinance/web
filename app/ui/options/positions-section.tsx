@@ -35,8 +35,8 @@ const PositionsSection = () => {
   //   navItems.find((item) => item.name === activeTab)?.component || (() => null);
 
   return (
-    <div className="border border-neutral-100 rounded-xl p-1">
-      <nav className="border-b border-neutral-100">
+    <div className="border border-neutral-100 dark:border-neutral-700 rounded-xl p-1">
+      <nav className="border-b border-neutral-100 dark:border-neutral-700">
         <ul className="flex overflow-x-auto">
           {navItems.map((item) => (
             <li key={item.name} className="flex-shrink-0">

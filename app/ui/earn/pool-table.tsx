@@ -1032,9 +1032,9 @@ const PoolsTable = () => {
 
   return (
     <div className="mt-4 overflow-x-auto">
-      <div className="hidden sm:block min-w-full text-base font-medium text-baseBlack text-center">
+      <div className="hidden sm:block min-w-full text-base font-medium text-baseBlack dark:text-baseWhite text-center">
         {/* Header */}
-        <div className="bg-baseComplementary grid grid-cols-6 rounded-xl px-3 py-1.5 md:px-6 md:py-4 font-semibold">
+        <div className="bg-baseComplementary dark:bg-baseDarkComplementary grid grid-cols-6 rounded-xl px-3 py-1.5 md:px-6 md:py-4 font-semibold">
           <div className="text-center">#</div>
           <div className=" text-left">Pool</div>
           <div>Supply</div>
@@ -1044,7 +1044,7 @@ const PoolsTable = () => {
         </div>
 
         {/* Body */}
-        <div className="bg-white text-center pt-6 text-base font-medium">
+        <div className="bg-white dark:bg-baseDark text-center pt-6 text-base font-medium">
           {pools.map((pool: PoolTable) => (
             <Link
               href={`/earn/${pool.id}/pool`}
@@ -1056,14 +1056,13 @@ const PoolsTable = () => {
                 <div className="z-10 ">
                   <div className="flex items-center">
                     <Image
-                      className=""
                       src={pool.icon}
                       alt=""
                       width="24"
                       height="24"
                     />
                     <div className="ml-4 flex items-center space-x-2">
-                      <div className="font-medium text-gray-900">
+                      <div className="font-medium">
                         {pool.name}
                       </div>
                       {pool.version != undefined && pool.version > 0 && (
@@ -1085,7 +1084,7 @@ const PoolsTable = () => {
                 <div className="z-10">{pool.yourBalance}</div>
                 <div className="absolute inset-0 rounded-xl bg-transparent z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-out pointer-events-none">
                   <div className="absolute inset-0 bg-gradient-to-r from-gradient-1 to-gradient-2 rounded-xl"></div>
-                  <div className="absolute inset-[1px] bg-white rounded-xl"></div>
+                  <div className="absolute inset-[1px] bg-white dark:bg-baseDark rounded-xl"></div>
                 </div>
               </div>
             </Link>
@@ -1100,7 +1099,7 @@ const PoolsTable = () => {
             key={pool.id}
             className="block group"
           >
-            <div className="relative bg-white rounded-3xl border border-purpleBG-lighter text-baseBlack p-4 mb-2">
+            <div className="relative bg-white dark:bg-baseDark rounded-3xl border border-purpleBG-lighter text-baseBlack dark:text-baseWhite p-4 mb-2">
               <div className="flex items-center mb-4 text-base font-medium">
                 <span className="mr-2 text-neutral-500 px-4">{pool.id}</span>
                 <div className="relative w-6 h-6 mr-2">
@@ -1143,11 +1142,6 @@ const PoolsTable = () => {
                   <p className="text-sm text-gray-500 mb-1">In Pool</p>
                   <p>{pool.yourBalance}</p>
                 </div>
-              </div>
-
-              <div className="absolute inset-0 rounded-xl bg-transparent z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-out pointer-events-none">
-                <div className="absolute inset-0 bg-gradient-to-r from-gradient-1 to-gradient-2 rounded-xl"></div>
-                <div className="absolute inset-[1px] bg-white rounded-xl"></div>
               </div>
             </div>
           </Link>

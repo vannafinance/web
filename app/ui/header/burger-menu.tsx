@@ -8,7 +8,7 @@ export default function BurgerMenu({ onClose }: BurgerMenuProps) {
   const [isTradeExpanded, setIsTradeExpanded] = useState(false);
 
   return (
-    <div className="fixed inset-0 z-40 bg-white">
+    <div className="fixed inset-0 z-40 bg-white dark:bg-baseDark text-baseBlack dark:text-baseWhite">
       <div className="flex flex-col h-full">
         <div className="flex-1 overflow-y-auto p-4 pt-2">
           {menuLinks.map((link) => (
@@ -17,7 +17,7 @@ export default function BurgerMenu({ onClose }: BurgerMenuProps) {
                 <div>
                   <button
                     onClick={() => setIsTradeExpanded(!isTradeExpanded)}
-                    className="flex items-center justify-between w-full py-3 px-4 text-left text-lg font-medium text-baseBlack"
+                    className="flex items-center justify-between w-full py-3 px-4 text-left text-lg font-medium"
                   >
                     {link.title}
                     {isTradeExpanded ? <CaretUp /> : <CaretDown />}

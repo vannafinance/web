@@ -20,7 +20,7 @@ export default function Page() {
               onChange={() => setIsActivePoolsOnly(!isActivePoolsOnly)}
             />
             <div className="absolute -inset-0.5 bg-gradient-to-r from-gradient-1 to-gradient-2 rounded-full"></div>
-            <div className="relative block bg-white w-11 h-5 rounded-full"></div>
+            <div className="relative block bg-white dark:bg-baseDark w-11 h-5 rounded-full"></div>
             <div
               className={`dot absolute left-1 top-1 bg-gradient-to-r from-gradient-1 to-gradient-2 w-3 h-3 rounded-full transition ${
                 isActivePoolsOnly ? "transform translate-x-6" : ""

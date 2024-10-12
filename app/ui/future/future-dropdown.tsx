@@ -7,6 +7,7 @@ const FutureDropdown: React.FC<FutureDropdownProps> = ({
   options,
   defaultValue,
   onChange,
+  iconFill = false,
 }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selectedOption, setSelectedOption] = useState<Option>(defaultValue);
@@ -24,7 +25,10 @@ const FutureDropdown: React.FC<FutureDropdownProps> = ({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
@@ -38,7 +42,7 @@ const FutureDropdown: React.FC<FutureDropdownProps> = ({
   return (
     <div className="relative" ref={dropdownRef}>
       <button
-        className="flex items-center space-x-2 bg-white rounded"
+        className="flex items-center space-x-2 bg-white dark:bg-baseDark rounded"
         onClick={() => setIsOpen(!isOpen)}
       >
         {selectedOption.icon && (
@@ -49,14 +53,18 @@ const FutureDropdown: React.FC<FutureDropdownProps> = ({
           />
         )}
         <span>{selectedOption.label}</span>
-        <CaretDown size={16} />
+        {iconFill ? (
+          <CaretDown size={16} weight="fill" />
+        ) : (
+          <CaretDown size={16} />
+        )}
       </button>
       {isOpen && (
-        <ul className="absolute z-10 w-full bg-white border border-gray-300 mt-1 rounded shadow-lg font-normal text-sm">
+        <ul className="absolute z-10 w-full bg-white dark:bg-baseDark border border-gray-300 dark:border-neutral-800 mt-1 rounded shadow-lg font-normal text-sm">
           {options.map((option) => (
             <li
               key={option.value}
-              className="px-3 py-2 hover:bg-gray-100 cursor-pointer flex items-center"
+              className="px-3 py-2 hover:bg-gray-100 dark:hover:bg-baseDarkComplementary cursor-pointer flex items-center"
               onClick={() => handleSelect(option)}
             >
               {option.icon && (

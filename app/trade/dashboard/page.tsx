@@ -232,9 +232,9 @@ export default function Page() {
   });
 
   return (
-    <div className="pt-5 sm:pt-7 lg:pt-10 pb-5 px-2.5 md:px-5 lg:px-7 xl:px-10">
+    <div className="pt-5 sm:pt-7 lg:pt-10 pb-5 px-2.5 md:px-5 lg:px-7 xl:px-10 text-baseBlack dark:text-baseWhite">
       <div className="flex flex-col lg:flex-row space-y-2.5 mb-0 lg:mb-1.5 lg:space-y-0 lg:space-x-2.5 xl:space-x-5 text-base">
-        <div className="flex flex-col w-fit lg:w-5/12 xl:w-4/12 h-[4.5rem] border border-neutral-100 rounded-xl px-2 pt-2 font-semibold text-base xl:text-xl">
+        <div className="flex flex-col w-fit lg:w-5/12 xl:w-4/12 h-[4.5rem] border border-neutral-100 dark:border-neutral-700 rounded-xl px-2 pt-2 font-semibold text-base xl:text-xl">
           <div className="text-neutral-500 text-xs font-medium mb-1">
             Select Pair
           </div>
@@ -251,7 +251,7 @@ export default function Page() {
           </div>
         </div>
 
-        <div className="w-full h-[4.5rem] flex flex-row justify-between px-2.5 xl:px-6 py-4 border border-neutral-100 rounded-xl font-semibold">
+        <div className="w-full h-[4.5rem] flex flex-row justify-between px-2.5 xl:px-6 py-4 border border-neutral-100 dark:border-neutral-700 rounded-xl font-semibold">
           <div>
             <p className="text-neutral-500 font-normal text-xs">
               Available Balance
@@ -301,7 +301,7 @@ export default function Page() {
 
         <div className="w-full">
           <div className="flex flex-col sm:flex-row gap-2.5 xl:gap-4">
-            <div className="flex flex-col w-fit sm:w-full h-[4.5rem] border border-neutral-100 rounded-xl px-2 pt-2 font-semibold text-base xl:text-lg">
+            <div className="flex flex-col w-fit sm:w-full h-[4.5rem] border border-neutral-100 dark:border-neutral-700 rounded-xl px-2 pt-2 font-semibold text-base xl:text-lg">
               <div className="text-neutral-500 text-xs font-medium mb-1">
                 Select Expiry
               </div>
@@ -314,7 +314,7 @@ export default function Page() {
               </div>
             </div>
 
-            <div className="flex-none w-full sm:w-2/3 lg:w-3/4 xl:w-[60%] 2xl:w-2/3 h-[4.5rem] flex flex-row justify-between px-2.5 xl:px-4 py-4 border border-neutral-100 rounded-xl font-semibold mb-2.5">
+            <div className="flex-none w-full sm:w-2/3 lg:w-3/4 xl:w-[60%] 2xl:w-2/3 h-[4.5rem] flex flex-row justify-between px-2.5 xl:px-4 py-4 border border-neutral-100 dark:border-neutral-700 rounded-xl font-semibold mb-2.5">
               <div>
                 <p className="text-neutral-500 font-normal text-xs">
                   Today&apos;s Date
@@ -338,12 +338,12 @@ export default function Page() {
             </div>
           </div>
 
-          <div className="overflow-x-auto bg-white border border-neutral-100 rounded-xl mb-5">
-            <table className="min-w-full">
-              <thead className="">
-                <tr className="border-b border-neutral-100">
+          <div className="overflow-x-auto border border-neutral-100 dark:border-neutral-700 rounded-xl mb-5">
+            <table className="min-w-full mb-2">
+              <thead>
+                <tr className="border-b border-neutral-100 dark:border-neutral-700">
                   <th
-                    className="py-2 px-3 text-left text-sm font-medium text-baseBlack tracking-wider"
+                    className="py-2 px-3 text-left text-sm font-medium tracking-wider"
                     colSpan={8}
                   >
                     Options-Positions
@@ -376,11 +376,11 @@ export default function Page() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white">
+              <tbody>
                 {optionPositions.map((position) => (
                   <tr
                     key={position.id}
-                    className="hover:bg-gray-50 text-sm font-normal text-baseBlack"
+                    className="hover:bg-baseComplementary dark:hover:bg-baseDarkComplementary text-sm font-normal"
                   >
                     <td className="pt-1 px-3 whitespace-nowrap">
                       <button
@@ -388,7 +388,7 @@ export default function Page() {
                         className="text-purple hover:text-purpleBG"
                       >
                         {position.selected ? (
-                          <CheckSquare size={16} />
+                          <CheckSquare size={16} weight="fill" />
                         ) : (
                           <Square size={16} />
                         )}
@@ -421,12 +421,12 @@ export default function Page() {
             </table>
           </div>
 
-          <div className="overflow-x-auto bg-white border border-neutral-100 rounded-xl mb-5">
-            <table className="min-w-full">
+          <div className="overflow-x-auto border border-neutral-100 dark:border-neutral-700 rounded-xl mb-5">
+            <table className="min-w-full mb-2">
               <thead>
-                <tr className="border-b border-neutral-100">
+                <tr className="border-b border-neutral-100 dark:border-neutral-700">
                   <th
-                    className="py-2 px-3 text-left text-sm font-medium text-baseBlack tracking-wider"
+                    className="py-2 px-3 text-left text-sm font-medium tracking-wider"
                     colSpan={8}
                   >
                     Futures-Positions
@@ -459,11 +459,11 @@ export default function Page() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white">
+              <tbody>
                 {futuresPositions.map((position) => (
                   <tr
                     key={position.id}
-                    className="hover:bg-gray-50 text-sm font-normal text-baseBlack"
+                    className="hover:bg-baseComplementary dark:hover:bg-baseDarkComplementary text-sm font-normal"
                   >
                     <td className="pt-1 px-3 whitespace-nowrap">
                       <button
@@ -471,7 +471,7 @@ export default function Page() {
                         className="text-purple hover:text-purpleBG"
                       >
                         {position.selected ? (
-                          <CheckSquare size={16} />
+                          <CheckSquare size={16} weight="fill" />
                         ) : (
                           <Square size={16} />
                         )}
@@ -506,38 +506,38 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="w-full grid grid-cols-4 sm:grid-cols-8 gap-2.5 lg:gap-5 justify-between px-2.5 lg:px-5 py-5 border border-neutral-100 rounded-xl font-semibold mb-2.5 bg-white text-xs">
+      <div className="w-full grid grid-cols-4 sm:grid-cols-8 gap-2.5 lg:gap-5 justify-between px-2.5 lg:px-5 py-5 border border-neutral-100 dark:border-neutral-700 rounded-xl font-semibold mb-2.5 text-xs">
         <div>
           <p className="text-neutral-500 font-normal">FUTURE</p>
-          <p className="">${portfolioSummary.future.toFixed(2)}</p>
+          <p>${portfolioSummary.future.toFixed(2)}</p>
         </div>
         <div>
           <p className="text-neutral-500 font-normal">PREMIUM</p>
-          <p className="">${portfolioSummary.premium.toFixed(2)}</p>
+          <p>${portfolioSummary.premium.toFixed(2)}</p>
         </div>
         <div>
           <p className="text-neutral-500 font-normal">OPTION</p>
-          <p className="">${portfolioSummary.option.toFixed(2)}</p>
+          <p>${portfolioSummary.option.toFixed(2)}</p>
         </div>
         <div>
           <p className="text-neutral-500 font-normal">GROSS PNL</p>
-          <p className="">${portfolioSummary.grossPnl.toFixed(2)}</p>
+          <p>${portfolioSummary.grossPnl.toFixed(2)}</p>
         </div>
         <div>
           <p className="text-neutral-500 font-normal">NET BAL</p>
-          <p className="">${portfolioSummary.netBal.toFixed(2)}</p>
+          <p>${portfolioSummary.netBal.toFixed(2)}</p>
         </div>
         <div>
           <p className="text-neutral-500 font-normal">THETA</p>
-          <p className="">${portfolioSummary.theta.toFixed(2)}</p>
+          <p>${portfolioSummary.theta.toFixed(2)}</p>
         </div>
         <div>
           <p className="text-neutral-500 font-normal">VEGA</p>
-          <p className="">${portfolioSummary.vega.toFixed(2)}</p>
+          <p>${portfolioSummary.vega.toFixed(2)}</p>
         </div>
         <div>
           <p className="text-neutral-500 font-normal">GAMMA</p>
-          <p className="">${portfolioSummary.gamma.toFixed(2)}</p>
+          <p>${portfolioSummary.gamma.toFixed(2)}</p>
         </div>
       </div>
     </div>

@@ -363,13 +363,13 @@ export default function Page({ params }: { params: { id: string } }) {
 
         <div className="flex items-center mb-5 space-x-2">
           <Image
-            className="rounded-full shadow-md ring-1 ring-black ring-opacity-20"
+            className="rounded-full shadow-md ring-1 ring-black dark:ring-neutral-800 ring-opacity-20"
             src={pool.icon}
             alt=""
             width="40"
             height="40"
           />
-          <span className="text-2xl font-bold text-baseBlack">{pool.name}</span>
+          <span className="text-2xl font-bold text-baseBlack dark:text-baseWhite">{pool.name}</span>
           {pool.version != undefined && pool.version > 0 && (
             <span className="px-2 py-0.5 inline-flex text-xs leading-4 font-medium rounded-md bg-purpleBG-lighter text-purple">
               v{pool.version}
@@ -383,13 +383,13 @@ export default function Page({ params }: { params: { id: string } }) {
         </div>
 
         <div className="flex flex-col-reverse lg:flex-row lg:gap-5 xl:gap-10 text-base">
-          <div className="bg-white pt-4 w-full lg:w-1/2 xl:w-full mx-auto mb-6">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-2 mb-10">
+          <div className="bg-white dark:bg-baseDark pt-4 w-full lg:w-1/2 xl:w-full mx-auto mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-2 mb-10 text-2xl font-bold text-baseBlack dark:text-baseWhite">
               <div className="py-5 px-4 pr-0">
                 <div className="text-sm font-semibold text-neutral-500">
                   Supply
                 </div>
-                <div className="pt-2 text-2xl font-bold text-baseBlack">
+                <div className="pt-2">
                   {pool.supply + " "}
                   {pool.supply !== "-" && pool.name}
                 </div>
@@ -398,7 +398,7 @@ export default function Page({ params }: { params: { id: string } }) {
                 <div className="text-sm font-semibold text-neutral-500">
                   Supply APY
                 </div>
-                <div className="pt-2 text-2xl font-bold text-baseBlack">
+                <div className="pt-2">
                   {pool.supplyAPY}
                 </div>
               </div>
@@ -406,7 +406,7 @@ export default function Page({ params }: { params: { id: string } }) {
                 <div className="text-sm font-semibold text-neutral-500">
                   Unique LP
                 </div>
-                <div className="pt-2 text-2xl font-bold text-baseBlack">
+                <div className="pt-2">
                   {uniqueLP}
                 </div>
               </div>
@@ -414,7 +414,7 @@ export default function Page({ params }: { params: { id: string } }) {
                 <div className="text-sm font-semibold text-neutral-500">
                   Utilization rate
                 </div>
-                <div className="pt-2 text-2xl font-bold text-baseBlack">
+                <div className="pt-2">
                   {utilizationRate}
                 </div>
               </div>
@@ -422,7 +422,7 @@ export default function Page({ params }: { params: { id: string } }) {
                 <div className="text-sm font-semibold text-neutral-500">
                   Your LP Balance
                 </div>
-                <div className="pt-2 text-2xl font-bold text-baseBlack">
+                <div className="pt-2">
                   {pool.yourBalance}
                 </div>
               </div>

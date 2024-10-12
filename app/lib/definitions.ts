@@ -81,6 +81,7 @@ interface TokenDropdownProps {
 interface AccountOverviewProps {
   creditToken: PoolTable | undefined;
   leverage: number;
+  activeAccount: string | undefined;
 }
 
 interface Option {
@@ -93,6 +94,7 @@ interface FutureDropdownProps {
   options: Option[];
   defaultValue: Option;
   onChange: (option: Option) => void;
+  iconFill?: boolean
 }
 
 interface CryptoData {

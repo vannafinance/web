@@ -33,18 +33,29 @@ import {
 } from "@/app/lib/helper";
 import { useNetwork } from "@/app/context/network-context";
 import { useWeb3React } from "@web3-react/core";
+import Loader from "../components/loader";
 
-const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdate: (token: PoolTable) => void }) => {
+const SupplyWithdraw = ({
+  pool,
+  onTokenUpdate,
+}: {
+  pool: PoolTable;
+  onTokenUpdate: (token: PoolTable) => void;
+}) => {
   const { account, library } = useWeb3React();
   const { currentNetwork } = useNetwork();
   const [isSupply, setIsSupply] = useState(true);
-  const [amount, setAmount] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [disableBtn, setDisableBtn] = useState(true);
+  const [btnValue, setBtnValue] = useState("Enter an amount");
+
+  const [amount, setAmount] = useState<number | undefined>();
   // const [selectedPercentage, setSelectedPercentage] = useState<number | null>(
   //   null
   // );
   const [selectedToken, setSelectedToken] = useState(pool);
   const [expected, setExpected] = useState(0);
-  const [coinBalance, setCoinBalance] = useState("-");
+  const [coinBalance, setCoinBalance] = useState<number | undefined>();
   const [youGet, setYouGet] = useState(0);
   const [ethPerVeth, setEthPerVeth] = useState("-");
   const [currentApy, setCurrentApy] = useState(pool.supplyAPY);
@@ -62,9 +73,9 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
 
   const handlePercentageClick = (percentage: number) => {
     // setSelectedPercentage(percentage);
-    setAmount(
-      (parseFloat(String(coinBalance)) * (percentage / 100)).toFixed(3)
-    );
+    // setAmount(
+    //   (parseFloat(String(coinBalance)) * (percentage / 100)).toFixed(3)
+    // );
   };
 
   const handleTokenSelect = (token: PoolTable) => {
@@ -72,31 +83,28 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
     onTokenUpdate(token);
   };
 
-  const vEtherContract = new Contract(
-    arbAddressList.vEtherContractAddress,
-    VEther.abi,
-    library
-  );
-  const vDaiContract = new Contract(
-    arbAddressList.vDaiContractAddress,
-    VToken.abi,
-    library
-  );
-  const vUsdcContract = new Contract(
-    arbAddressList.vUSDCContractAddress,
-    VToken.abi,
-    library
-  );
-  const vUsdtContract = new Contract(
-    arbAddressList.vUSDTContractAddress,
-    VToken.abi,
-    library
-  );
-  const vWbtcContract = new Contract(
-    arbAddressList.vWBTCContractAddress,
-    VToken.abi,
-    library
-  );
+  useEffect(() => {
+    const tokenName = selectedToken ? selectedToken.name : "";
+    if (amount === undefined || amount <= 0) {
+      setBtnValue("Enter an amount");
+      setDisableBtn(true);
+    } else if (coinBalance && amount && coinBalance * 1.0 < amount * 1.0) {
+      setBtnValue("Insufficient " + tokenName + " balance");
+      setDisableBtn(true);
+    } else {
+      setBtnValue(
+        isSupply
+          ? tokenName === "WETH"
+            ? "Deposit"
+            : "Approve - Deposit"
+          : tokenName === "WETH"
+          ? "Withdraw"
+          : "Approve - Withdraw"
+      );
+      setDisableBtn(false);
+    }
+  }, [amount, coinBalance, isSupply, selectedToken]);
+
   // const rateModelContract = new Contract(
   //   arbAddressList.rateModelContractAddress,
   //   DefaultRateModel.abi,
@@ -106,42 +114,72 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
   const fetchParams = () => {
     try {
       const processParams = async () => {
-        if (selectedToken.name == "WETH") {
-          const ethPerVeth = formatBignumberToUnits(
-            selectedToken.name,
-            await vEtherContract.convertToShares(parseUnits("1", 18))
+        if (library && library?.getSigner()) {
+          const signer = await library?.getSigner();
+
+          const vEtherContract = new Contract(
+            arbAddressList.vEtherContractAddress,
+            VEther.abi,
+            signer
           );
-          setEthPerVeth(ceilWithPrecision(ethPerVeth));
-        } else if (selectedToken.name === "WBTC") {
-          const btcPerVbtc = formatBignumberToUnits(
-            selectedToken.name,
-            await vWbtcContract.convertToShares(parseUnits("1", 18))
+          const vDaiContract = new Contract(
+            arbAddressList.vDaiContractAddress,
+            VToken.abi,
+            signer
+          );
+          const vUsdcContract = new Contract(
+            arbAddressList.vUSDCContractAddress,
+            VToken.abi,
+            signer
+          );
+          const vUsdtContract = new Contract(
+            arbAddressList.vUSDTContractAddress,
+            VToken.abi,
+            signer
+          );
+          const vWbtcContract = new Contract(
+            arbAddressList.vWBTCContractAddress,
+            VToken.abi,
+            signer
           );
 
-          setEthPerVeth(ceilWithPrecision(btcPerVbtc, 6));
-        } else if (selectedToken.name === "USDC") {
-          const usdcPerVusdc = formatBignumberToUnits(
-            selectedToken.name,
-            await vUsdcContract.convertToShares(parseUnits("1", 6))
-          );
+          if (selectedToken.name == "WETH") {
+            const ethPerVeth = formatBignumberToUnits(
+              selectedToken.name,
+              await vEtherContract.convertToShares(parseUnits("1", 18))
+            );
+            setEthPerVeth(ceilWithPrecision(ethPerVeth));
+          } else if (selectedToken.name === "WBTC") {
+            const btcPerVbtc = formatBignumberToUnits(
+              selectedToken.name,
+              await vWbtcContract.convertToShares(parseUnits("1", 18))
+            );
 
-          setEthPerVeth(ceilWithPrecision(usdcPerVusdc, 6));
-        } else if (selectedToken.name === "USDT") {
-          const usdtPerVusdt = formatBignumberToUnits(
-            selectedToken.name,
-            await vUsdtContract.convertToShares(parseUnits("1", 6))
-          );
+            setEthPerVeth(ceilWithPrecision(btcPerVbtc, 6));
+          } else if (selectedToken.name === "USDC") {
+            const usdcPerVusdc = formatBignumberToUnits(
+              selectedToken.name,
+              await vUsdcContract.convertToShares(parseUnits("1", 6))
+            );
 
-          setEthPerVeth(ceilWithPrecision(usdtPerVusdt, 6));
-        } else if (selectedToken.name === "DAI") {
-          const daiPerVdai = formatBignumberToUnits(
-            selectedToken.name,
-            await vDaiContract.convertToShares(parseUnits("1", 18))
-          );
+            setEthPerVeth(ceilWithPrecision(usdcPerVusdc, 6));
+          } else if (selectedToken.name === "USDT") {
+            const usdtPerVusdt = formatBignumberToUnits(
+              selectedToken.name,
+              await vUsdtContract.convertToShares(parseUnits("1", 6))
+            );
 
-          setEthPerVeth(ceilWithPrecision(daiPerVdai, 6));
-        } else {
-          console.error("Something went wrong, token = ", selectedToken.name);
+            setEthPerVeth(ceilWithPrecision(usdtPerVusdt, 6));
+          } else if (selectedToken.name === "DAI") {
+            const daiPerVdai = formatBignumberToUnits(
+              selectedToken.name,
+              await vDaiContract.convertToShares(parseUnits("1", 18))
+            );
+
+            setEthPerVeth(ceilWithPrecision(daiPerVdai, 6));
+          } else {
+            console.error("Something went wrong, token = ", selectedToken.name);
+          }
         }
       };
 
@@ -173,7 +211,7 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
         const balInNumber = ceilWithPrecision(
           formatBignumberToUnits(tokenName, bal)
         );
-        setCoinBalance(balInNumber);
+        setCoinBalance(Number(balInNumber));
       }
     } catch (e) {
       console.error(e);
@@ -184,6 +222,34 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
   }, [account]);
 
   const deposit = async () => {
+    const signer = await library?.getSigner();
+
+    const vEtherContract = new Contract(
+      arbAddressList.vEtherContractAddress,
+      VEther.abi,
+      signer
+    );
+    const vDaiContract = new Contract(
+      arbAddressList.vDaiContractAddress,
+      VToken.abi,
+      signer
+    );
+    const vUsdcContract = new Contract(
+      arbAddressList.vUSDCContractAddress,
+      VToken.abi,
+      signer
+    );
+    const vUsdtContract = new Contract(
+      arbAddressList.vUSDTContractAddress,
+      VToken.abi,
+      signer
+    );
+    const vWbtcContract = new Contract(
+      arbAddressList.vWBTCContractAddress,
+      VToken.abi,
+      signer
+    );
+
     if (currentNetwork.id === BASE_NETWORK) {
       // value assigne is pending
       try {
@@ -215,7 +281,7 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
         if (isSupply) {
           if (selectedToken.name === "WETH") {
             await vEtherContract.depositEth({
-              value: parseEther(amount),
+              value: parseEther(String(amount)),
               gasLimit: 2300000,
             });
           } else if (selectedToken.name === "WBTC") {
@@ -226,15 +292,15 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
               arbAddressList.vWBTCContractAddress
             );
 
-            if (allowance < amount) {
+            if (amount && allowance < amount) {
               await WBTCContract.approve(
                 arbAddressList.vWBTCContractAddress,
-                parseEther(amount)
+                parseEther(String(amount))
               );
               await sleep(3000);
             }
 
-            await vWbtcContract.deposit(parseEther(amount), account, {
+            await vWbtcContract.deposit(parseEther(String(amount)), account, {
               gasLimit: 2300000,
             });
           } else if (selectedToken.name === "USDC") {
@@ -245,17 +311,21 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
               arbAddressList.vUSDCContractAddress
             );
 
-            if (allowance < amount) {
+            if (amount && allowance < amount) {
               await USDCContract.approve(
                 arbAddressList.vUSDCContractAddress,
-                parseUnits(amount, 6)
+                parseUnits(String(amount), 6)
               );
               await sleep(3000);
             }
 
-            await vUsdcContract.deposit(parseUnits(amount, 6), account, {
-              gasLimit: 23000000,
-            });
+            await vUsdcContract.deposit(
+              parseUnits(String(amount), 6),
+              account,
+              {
+                gasLimit: 23000000,
+              }
+            );
           } else if (selectedToken.name === "USDT") {
             // to confirm this abi, address & function
 
@@ -264,32 +334,36 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
               arbAddressList.vUSDTContractAddress
             );
 
-            if (allowance < amount) {
+            if (amount && allowance < amount) {
               await USDTContract.approve(
                 arbAddressList.vUSDTContractAddress,
-                parseUnits(amount, 6)
+                parseUnits(String(amount), 6)
               );
               await sleep(3000);
             }
 
-            await vUsdtContract.deposit(parseUnits(amount, 6), account, {
-              gasLimit: 23000000,
-            });
+            await vUsdtContract.deposit(
+              parseUnits(String(amount), 6),
+              account,
+              {
+                gasLimit: 23000000,
+              }
+            );
           } else {
             const allowance = await DAIContract.allowance(
               account,
               arbAddressList.vDaiContractAddress
             );
 
-            if (allowance < amount) {
+            if (amount && allowance < amount) {
               await DAIContract.approve(
                 arbAddressList.vDaiContractAddress,
-                parseEther(amount)
+                parseEther(String(amount))
               );
               await sleep(3000);
             }
 
-            await vDaiContract.deposit(parseEther(amount), account);
+            await vDaiContract.deposit(parseEther(String(amount)), account);
           }
         } else {
           if (selectedToken.name === "WETH") {
@@ -298,8 +372,8 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
               VEther.abi,
               signer
             );
-            if (amount <= (await vEthcontract.balanceOf(account))) {
-              await vEthcontract.redeemEth(parseEther(amount), {
+            if (amount && amount <= (await vEthcontract.balanceOf(account))) {
+              await vEthcontract.redeemEth(parseEther(String(amount)), {
                 gasLimit: 2300000,
               });
             }
@@ -309,10 +383,15 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
               VToken.abi,
               signer
             );
-            if (amount <= (await vBTCcontract.balanceOf(account))) {
-              await vBTCcontract.redeem(parseEther(amount), account, account, {
-                gasLimit: 2300000,
-              });
+            if (amount && amount <= (await vBTCcontract.balanceOf(account))) {
+              await vBTCcontract.redeem(
+                parseEther(String(amount)),
+                account,
+                account,
+                {
+                  gasLimit: 2300000,
+                }
+              );
             }
           } else if (selectedToken.name === "USDC") {
             const vUSDCcontract = new Contract(
@@ -320,9 +399,9 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
               VToken.abi,
               signer
             );
-            if (amount <= (await vUSDCcontract.balanceOf(account))) {
+            if (amount && amount <= (await vUSDCcontract.balanceOf(account))) {
               await vUSDCcontract.redeem(
-                parseUnits(amount, 6),
+                parseUnits(String(amount), 6),
                 account,
                 account,
                 {
@@ -336,9 +415,9 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
               VToken.abi,
               signer
             );
-            if (amount <= (await vUSDTcontract.balanceOf(account))) {
+            if (amount && amount <= (await vUSDTcontract.balanceOf(account))) {
               await vUSDTcontract.redeem(
-                parseUnits(amount, 6),
+                parseUnits(String(amount), 6),
                 account,
                 account,
                 {
@@ -352,10 +431,15 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
               VToken.abi,
               signer
             );
-            if (amount <= (await vDaicontract.balanceOf(account))) {
-              await vDaicontract.redeem(parseEther(amount), account, account, {
-                gasLimit: 2300000,
-              });
+            if (amount && amount <= (await vDaicontract.balanceOf(account))) {
+              await vDaicontract.redeem(
+                parseEther(String(amount)),
+                account,
+                account,
+                {
+                  gasLimit: 2300000,
+                }
+              );
             }
           } else {
             console.error("something went wrong, Please try again.");
@@ -461,7 +545,10 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
 
                 setEthPerVeth(ceilWithPrecision(daiPerVdai, 6));
               } else {
-                console.error("Something went wrong, token = ", selectedToken.name);
+                console.error(
+                  "Something went wrong, token = ",
+                  selectedToken.name
+                );
               }
             };
 
@@ -474,7 +561,7 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
         if (isSupply) {
           if (selectedToken.name === "WETH") {
             await vEtherContract.depositEth({
-              value: parseEther(amount),
+              value: parseEther(String(amount)),
               gasLimit: 2300000,
             });
           } else if (selectedToken.name === "WBTC") {
@@ -485,15 +572,15 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
               opAddressList.vWBTCContractAddress
             );
 
-            if (allowance < amount) {
+            if (amount && allowance < amount) {
               await WBTCContract.approve(
                 opAddressList.vWBTCContractAddress,
-                parseEther(amount)
+                parseEther(String(amount))
               );
               await sleep(3000);
             }
 
-            await vWbtcContract.deposit(parseEther(amount), account, {
+            await vWbtcContract.deposit(parseEther(String(amount)), account, {
               gasLimit: 2300000,
             });
           } else if (selectedToken.name === "USDC") {
@@ -504,17 +591,21 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
               opAddressList.vUSDCContractAddress
             );
 
-            if (allowance < amount) {
+            if (amount && allowance < amount) {
               await USDCContract.approve(
                 opAddressList.vUSDCContractAddress,
-                parseUnits(amount, 6)
+                parseUnits(String(amount), 6)
               );
               await sleep(3000);
             }
 
-            await vUsdcContract.deposit(parseUnits(amount, 6), account, {
-              gasLimit: 23000000,
-            });
+            await vUsdcContract.deposit(
+              parseUnits(String(amount), 6),
+              account,
+              {
+                gasLimit: 23000000,
+              }
+            );
           } else if (selectedToken.name === "USDT") {
             // to confirm this abi, address & function
 
@@ -523,32 +614,36 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
               opAddressList.vUSDTContractAddress
             );
 
-            if (allowance < amount) {
+            if (amount && allowance < amount) {
               await USDTContract.approve(
                 opAddressList.vUSDTContractAddress,
-                parseUnits(amount, 6)
+                parseUnits(String(amount), 6)
               );
               await sleep(3000);
             }
 
-            await vUsdtContract.deposit(parseUnits(amount, 6), account, {
-              gasLimit: 23000000,
-            });
+            await vUsdtContract.deposit(
+              parseUnits(String(amount), 6),
+              account,
+              {
+                gasLimit: 23000000,
+              }
+            );
           } else {
             const allowance = await DAIContract.allowance(
               account,
               opAddressList.vDaiContractAddress
             );
 
-            if (allowance < amount) {
+            if (amount && allowance < amount) {
               await DAIContract.approve(
                 opAddressList.vDaiContractAddress,
-                parseEther(amount)
+                parseEther(String(amount))
               );
               await sleep(3000);
             }
 
-            await vDaiContract.deposit(parseEther(amount), account);
+            await vDaiContract.deposit(parseEther(String(amount)), account);
           }
         } else {
           if (selectedToken.name === "WETH") {
@@ -557,8 +652,8 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
               VEther.abi,
               signer
             );
-            if (amount <= (await vEthcontract.balanceOf(account))) {
-              await vEthcontract.redeemEth(parseEther(amount), {
+            if (amount && amount <= (await vEthcontract.balanceOf(account))) {
+              await vEthcontract.redeemEth(parseEther(String(amount)), {
                 gasLimit: 2300000,
               });
             }
@@ -568,10 +663,15 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
               VToken.abi,
               signer
             );
-            if (amount <= (await vBTCcontract.balanceOf(account))) {
-              await vBTCcontract.redeem(parseEther(amount), account, account, {
-                gasLimit: 2300000,
-              });
+            if (amount && amount <= (await vBTCcontract.balanceOf(account))) {
+              await vBTCcontract.redeem(
+                parseEther(String(amount)),
+                account,
+                account,
+                {
+                  gasLimit: 2300000,
+                }
+              );
             }
           } else if (selectedToken.name === "USDC") {
             const vUSDCcontract = new Contract(
@@ -579,9 +679,9 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
               VToken.abi,
               signer
             );
-            if (amount <= (await vUSDCcontract.balanceOf(account))) {
+            if (amount && amount <= (await vUSDCcontract.balanceOf(account))) {
               await vUSDCcontract.redeem(
-                parseUnits(amount, 6),
+                parseUnits(String(amount), 6),
                 account,
                 account,
                 {
@@ -595,9 +695,9 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
               VToken.abi,
               signer
             );
-            if (amount <= (await vUSDTcontract.balanceOf(account))) {
+            if (amount && amount <= (await vUSDTcontract.balanceOf(account))) {
               await vUSDTcontract.redeem(
-                parseUnits(amount, 6),
+                parseUnits(String(amount), 6),
                 account,
                 account,
                 {
@@ -611,10 +711,15 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
               VToken.abi,
               signer
             );
-            if (amount <= (await vDaicontract.balanceOf(account))) {
-              await vDaicontract.redeem(parseEther(amount), account, account, {
-                gasLimit: 2300000,
-              });
+            if (amount && amount <= (await vDaicontract.balanceOf(account))) {
+              await vDaicontract.redeem(
+                parseEther(String(amount)),
+                account,
+                account,
+                {
+                  gasLimit: 2300000,
+                }
+              );
             }
           } else {
             console.error("something went wrong, Please try again.");
@@ -632,32 +737,32 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
         const vEtherContract = new Contract(
           baseAddressList.vEtherContractAddress,
           VEther.abi,
-          library
+          signer
         );
         const vDaiContract = new Contract(
           baseAddressList.vDaiContractAddress,
           VToken.abi,
-          library
+          signer
         );
         const vUsdcContract = new Contract(
           baseAddressList.vUSDCContractAddress,
           VToken.abi,
-          library
+          signer
         );
         const vUsdtContract = new Contract(
           baseAddressList.vUSDTContractAddress,
           VToken.abi,
-          library
+          signer
         );
         const vWbtcContract = new Contract(
           baseAddressList.vWBTCContractAddress,
           VToken.abi,
-          library
+          signer
         );
         const rateModelContract = new Contract(
           baseAddressList.rateModelContractAddress,
           DefaultRateModel.abi,
-          library
+          signer
         );
 
         // ERC20 contract
@@ -733,7 +838,7 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
         if (isSupply) {
           if (selectedToken.name === "WETH") {
             await vEtherContract.depositEth({
-              value: parseEther(amount),
+              value: parseEther(String(amount)),
               gasLimit: 2300000,
             });
           } else if (selectedToken.name === "WBTC") {
@@ -744,15 +849,15 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
               baseAddressList.vWBTCContractAddress
             );
 
-            if (allowance < amount) {
+            if (amount && allowance < amount) {
               await WBTCContract.approve(
                 baseAddressList.vWBTCContractAddress,
-                parseEther(amount)
+                parseEther(String(amount))
               );
               await sleep(3000);
             }
 
-            await vWbtcContract.deposit(parseEther(amount), account, {
+            await vWbtcContract.deposit(parseEther(String(amount)), account, {
               gasLimit: 2300000,
             });
           } else if (selectedToken.name === "USDC") {
@@ -763,17 +868,21 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
               baseAddressList.vUSDCContractAddress
             );
 
-            if (allowance < amount) {
+            if (amount && allowance < amount) {
               await USDCContract.approve(
                 baseAddressList.vUSDCContractAddress,
-                parseUnits(amount, 6)
+                parseUnits(String(amount), 6)
               );
               await sleep(3000);
             }
 
-            await vUsdcContract.deposit(parseUnits(amount, 6), account, {
-              gasLimit: 23000000,
-            });
+            await vUsdcContract.deposit(
+              parseUnits(String(amount), 6),
+              account,
+              {
+                gasLimit: 23000000,
+              }
+            );
           } else if (selectedToken.name === "USDT") {
             // to confirm this abi, address & function
 
@@ -782,32 +891,36 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
               baseAddressList.vUSDTContractAddress
             );
 
-            if (allowance < amount) {
+            if (amount && allowance < amount) {
               await USDTContract.approve(
                 baseAddressList.vUSDTContractAddress,
-                parseUnits(amount, 6)
+                parseUnits(String(amount), 6)
               );
               await sleep(3000);
             }
 
-            await vUsdtContract.deposit(parseUnits(amount, 6), account, {
-              gasLimit: 23000000,
-            });
+            await vUsdtContract.deposit(
+              parseUnits(String(amount), 6),
+              account,
+              {
+                gasLimit: 23000000,
+              }
+            );
           } else {
             const allowance = await DAIContract.allowance(
               account,
               baseAddressList.vDaiContractAddress
             );
 
-            if (allowance < amount) {
+            if (amount && allowance < amount) {
               await DAIContract.approve(
                 baseAddressList.vDaiContractAddress,
-                parseEther(amount)
+                parseEther(String(amount))
               );
               await sleep(3000);
             }
 
-            await vDaiContract.deposit(parseEther(amount), account);
+            await vDaiContract.deposit(parseEther(String(amount)), account);
           }
         } else {
           if (selectedToken.name === "WETH") {
@@ -816,8 +929,8 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
               VEther.abi,
               signer
             );
-            if (amount <= (await vEthcontract.balanceOf(account))) {
-              await vEthcontract.redeemEth(parseEther(amount), {
+            if (amount && amount <= (await vEthcontract.balanceOf(account))) {
+              await vEthcontract.redeemEth(parseEther(String(amount)), {
                 gasLimit: 2300000,
               });
             }
@@ -827,10 +940,15 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
               VToken.abi,
               signer
             );
-            if (amount <= (await vBTCcontract.balanceOf(account))) {
-              await vBTCcontract.redeem(parseEther(amount), account, account, {
-                gasLimit: 2300000,
-              });
+            if (amount && amount <= (await vBTCcontract.balanceOf(account))) {
+              await vBTCcontract.redeem(
+                parseEther(String(amount)),
+                account,
+                account,
+                {
+                  gasLimit: 2300000,
+                }
+              );
             }
           } else if (selectedToken.name === "USDC") {
             const vUSDCcontract = new Contract(
@@ -838,9 +956,9 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
               VToken.abi,
               signer
             );
-            if (amount <= (await vUSDCcontract.balanceOf(account))) {
+            if (amount && amount <= (await vUSDCcontract.balanceOf(account))) {
               await vUSDCcontract.redeem(
-                parseUnits(amount, 6),
+                parseUnits(String(amount), 6),
                 account,
                 account,
                 {
@@ -854,9 +972,9 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
               VToken.abi,
               signer
             );
-            if (amount <= (await vUSDTcontract.balanceOf(account))) {
+            if (amount && amount <= (await vUSDTcontract.balanceOf(account))) {
               await vUSDTcontract.redeem(
-                parseUnits(amount, 6),
+                parseUnits(String(amount), 6),
                 account,
                 account,
                 {
@@ -870,10 +988,15 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
               VToken.abi,
               signer
             );
-            if (amount <= (await vDaicontract.balanceOf(account))) {
-              await vDaicontract.redeem(parseEther(amount), account, account, {
-                gasLimit: 2300000,
-              });
+            if (amount && amount <= (await vDaicontract.balanceOf(account))) {
+              await vDaicontract.redeem(
+                parseEther(String(amount)),
+                account,
+                account,
+                {
+                  gasLimit: 2300000,
+                }
+              );
             }
           } else {
             console.error("something went wrong, Please try again.");
@@ -885,8 +1008,18 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
     }
   };
 
+  // const withdraw = async () => {}
+
+  // const process = async () => {
+  //   if (isSupply) {
+  //     await deposit();
+  //   } else {
+  //     // await withdraw();
+  //   }
+  // };
+
   return (
-    <div className="bg-baseComplementary p-4 rounded-3xl w-full text-baseBlack">
+    <div className="bg-baseComplementary dark:bg-baseDarkComplementary p-4 rounded-3xl w-full text-baseBlack dark:text-baseWhite">
       <div className="flex mb-4 p-1 text-lg">
         <div
           className={clsx(
@@ -897,7 +1030,7 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
           <button
             className={clsx(
               "w-full py-3 px-2 rounded-2xl",
-              isSupply ? "bg-white" : "bg-transparent"
+              isSupply ? "bg-white dark:bg-baseDark" : "bg-transparent"
             )}
             onClick={() => handleToggle("supply")}
           >
@@ -913,7 +1046,7 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
           <button
             className={clsx(
               "w-full py-3 px-2 rounded-2xl",
-              !isSupply ? "bg-white" : "bg-transparent"
+              !isSupply ? "bg-white dark:bg-baseDark" : "bg-transparent"
             )}
             onClick={() => handleToggle("withdraw")}
           >
@@ -922,20 +1055,23 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
         </div>
       </div>
 
-      <div className="bg-white rounded-lg p-4 mb-4">
+      <div className="bg-white dark:bg-baseDark rounded-lg p-4 mb-4">
         <div className="flex justify-between mb-2">
           <div className="flex flex-col">
             <span className="font-medium text-sm mb-2">Deposit</span>
             <input
               type="number"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="w-full text-baseBlack text-2xl font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              onChange={(e) => setAmount(Number(e.target.value))}
+              className="w-full dark:bg-baseDark text-2xl font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               placeholder="0"
             />
           </div>
           <div className="flex">
-            <TokenDropdown onSelect={handleTokenSelect} defaultValue={selectedToken} />
+            <TokenDropdown
+              onSelect={handleTokenSelect}
+              defaultValue={selectedToken}
+            />
           </div>
         </div>
         <div className="flex justify-between mt-2">
@@ -943,7 +1079,8 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
             Expected {expected} USD
           </div>
           <div className="text-xs text-neutral-500">
-            Balance: {coinBalance} {coinBalance !== "-" ? selectedToken.name : ""}
+            Balance: {coinBalance}{" "}
+            {coinBalance !== undefined ? selectedToken.name : "-"}
           </div>
         </div>
       </div>
@@ -954,7 +1091,7 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
             key={percent}
             onClick={() => handlePercentageClick(percent)}
             className={clsx(
-              "w-1/5 h-12 bg-purpleBG-lighter font-semibold text-base rounded-lg"
+              "w-1/5 h-12 bg-purpleBG-lighter dark:bg-darkPurpleBG-lighter font-semibold text-base rounded-lg"
             )}
           >
             {percent}%
@@ -967,7 +1104,7 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
           <div className="flex items-center">
             <span className="mr-1">Target token</span>
             <Tooltip content={"Target token"}>
-              <Info size={14} color="black" />
+              <Info size={14} />
             </Tooltip>
           </div>
           <div className="flex items-center">
@@ -1011,12 +1148,29 @@ const SupplyWithdraw = ({ pool, onTokenUpdate }: { pool: PoolTable, onTokenUpdat
         )}
       </div>
 
-      <button
-        className="w-full bg-purple text-white py-3 rounded-2xl font-semibold text-xl"
-        onClick={deposit}
-      >
-        Deposit
-      </button>
+      {!account && (
+        <button className="w-full bg-neutral-500 text-white py-3 rounded-2xl font-semibold text-xl mb-6">
+          Connect Wallet
+        </button>
+      )}
+      {account && loading && (
+        <button className="w-full bg-purple py-3 rounded-2xl font-semibold text-xl mb-6 flex justify-center">
+          <Loader />
+        </button>
+      )}
+      {account && !loading && disableBtn && (
+        <button className="w-full bg-neutral-500 text-white py-3 rounded-2xl font-semibold text-xl mb-6">
+          {btnValue}
+        </button>
+      )}
+      {account && !loading && !disableBtn && (
+        <button
+          className="w-full bg-purple text-white py-3 rounded-2xl font-semibold text-xl mb-6"
+          onClick={deposit}
+        >
+          {btnValue}
+        </button>
+      )}
     </div>
   );
 };

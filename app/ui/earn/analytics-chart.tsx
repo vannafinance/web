@@ -55,7 +55,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center text-xl font-bold text-baseBlack"
+        className="flex items-center text-xl font-bold text-baseBlack dark:text-baseWhite"
       >
         {selected}
         <svg
@@ -74,7 +74,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
         </svg>
       </button>
       {isOpen && (
-        <div className="bg-white origin-top-right absolute left-0 mt-2 w-40 rounded-md shadow-xl z-10">
+        <div className="bg-white dark:bg-baseDark origin-top-right absolute left-0 mt-2 w-40 rounded-md shadow-xl z-10">
           <div
             className="p-1"
             role="menu"
@@ -84,7 +84,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
             {options.map((option) => (
               <button
                 key={option}
-                className="flex items-center p-3 text-sm text-baseBlack w-full rounded-lg hover:bg-neutral-100"
+                className="flex items-center p-3 text-sm text-baseBlack dark:text-baseWhite w-full rounded-lg hover:bg-neutral-100 dark:hover:bg-baseDarkComplementary"
                 role="menuitem"
                 onClick={() => {
                   onSelect(option);
@@ -112,7 +112,7 @@ const AnalyticsChart = ({ pool }: { pool: PoolTable }) => {
   }, [pool]);
 
   return (
-    <div className="bg-baseComplementary py-6 px-4 sm:px-10 rounded-2xl text-baseBlack font-bold">
+    <div className="bg-baseComplementary dark:bg-baseDarkComplementary py-6 px-4 sm:px-10 rounded-2xl text-baseBlack dark:text-baseWhite font-bold">
       <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-4">
         <CustomDropdown
           options={options}
@@ -125,15 +125,15 @@ const AnalyticsChart = ({ pool }: { pool: PoolTable }) => {
               key={frame}
               onClick={() => setTimeFrame(frame)}
               className={clsx(
-                "px-[1px] py-[1px] text-xs rounded-md bg-purpleBG-lighter relative z-10",
+                "px-[1px] py-[1px] text-xs rounded-md bg-purpleBG-lighter dark:bg-darkPurpleBG-lighter relative",
                 timeFrame === frame &&
                   "bg-gradient-to-r from-gradient-1 to-gradient-2 p-[1px]"
               )}
             >
               <span
                 className={clsx(
-                  "relative z-10 flex items-center justify-center w-11 h-6",
-                  timeFrame === frame && "bg-purpleBG-lighter rounded-md"
+                  "relative flex items-center justify-center w-11 h-6",
+                  timeFrame === frame && "bg-purpleBG-lighter dark:bg-darkPurpleBG-lighter rounded-md"
                 )}
               >
                 {frame}
