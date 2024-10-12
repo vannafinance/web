@@ -97,6 +97,10 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
     setUseValue("");
     setLongValue("");
     setCoinBalance("");
+    setMaxOpen("");
+    setCost("");
+    setMargin("");
+    setEstLiqPrice("");
   }, []);
 
   const handleToggle = (value: string) => {
@@ -690,7 +694,9 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
                 <span
                   className={clsx(
                     "font-normal text-xs",
-                    isEnabled ? "text-purple" : "text-baseBlack dark:text-baseWhite"
+                    isEnabled
+                      ? "text-purple"
+                      : "text-baseBlack dark:text-baseWhite"
                   )}
                 >
                   TP/SL
