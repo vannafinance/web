@@ -55,7 +55,7 @@ const CreateSmartAccountModal: React.FC<CreateSmartAccountModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="bg-white p-5 rounded-2xl shadow-xl max-w-[90%] xs:max-w-sm w-full text-baseBlack text-base font-semibold"
+        className="bg-white dark:bg-baseDark p-5 rounded-2xl shadow-xl max-w-[90%] xs:max-w-sm w-full text-baseBlack dark:text-baseWhite text-base font-semibold"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center pb-2.5 mb-5 border-b border-b-neutral-500">

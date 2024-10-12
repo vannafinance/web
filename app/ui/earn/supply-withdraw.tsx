@@ -1019,7 +1019,7 @@ const SupplyWithdraw = ({
   // };
 
   return (
-    <div className="bg-baseComplementary p-4 rounded-3xl w-full text-baseBlack">
+    <div className="bg-baseComplementary dark:bg-baseDarkComplementary p-4 rounded-3xl w-full text-baseBlack dark:text-baseWhite">
       <div className="flex mb-4 p-1 text-lg">
         <div
           className={clsx(
@@ -1030,7 +1030,7 @@ const SupplyWithdraw = ({
           <button
             className={clsx(
               "w-full py-3 px-2 rounded-2xl",
-              isSupply ? "bg-white" : "bg-transparent"
+              isSupply ? "bg-white dark:bg-baseDark" : "bg-transparent"
             )}
             onClick={() => handleToggle("supply")}
           >
@@ -1046,7 +1046,7 @@ const SupplyWithdraw = ({
           <button
             className={clsx(
               "w-full py-3 px-2 rounded-2xl",
-              !isSupply ? "bg-white" : "bg-transparent"
+              !isSupply ? "bg-white dark:bg-baseDark" : "bg-transparent"
             )}
             onClick={() => handleToggle("withdraw")}
           >
@@ -1055,7 +1055,7 @@ const SupplyWithdraw = ({
         </div>
       </div>
 
-      <div className="bg-white rounded-lg p-4 mb-4">
+      <div className="bg-white dark:bg-baseDark rounded-lg p-4 mb-4">
         <div className="flex justify-between mb-2">
           <div className="flex flex-col">
             <span className="font-medium text-sm mb-2">Deposit</span>
@@ -1063,7 +1063,7 @@ const SupplyWithdraw = ({
               type="number"
               value={amount}
               onChange={(e) => setAmount(Number(e.target.value))}
-              className="w-full text-baseBlack text-2xl font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="w-full dark:bg-baseDark text-2xl font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               placeholder="0"
             />
           </div>
@@ -1091,7 +1091,7 @@ const SupplyWithdraw = ({
             key={percent}
             onClick={() => handlePercentageClick(percent)}
             className={clsx(
-              "w-1/5 h-12 bg-purpleBG-lighter font-semibold text-base rounded-lg"
+              "w-1/5 h-12 bg-purpleBG-lighter dark:bg-darkPurpleBG-lighter font-semibold text-base rounded-lg"
             )}
           >
             {percent}%
@@ -1104,7 +1104,7 @@ const SupplyWithdraw = ({
           <div className="flex items-center">
             <span className="mr-1">Target token</span>
             <Tooltip content={"Target token"}>
-              <Info size={14} color="black" />
+              <Info size={14} />
             </Tooltip>
           </div>
           <div className="flex items-center">

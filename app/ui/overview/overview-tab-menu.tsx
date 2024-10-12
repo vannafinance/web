@@ -21,18 +21,18 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
   }, []);
 
   return (
-    <div className="bg-white rounded-3xl border border-purpleBG-lighter p-4 lg:p-7 mb-7">
+    <div className="bg-white dark:bg-baseDark rounded-3xl border border-purpleBG-lighter dark:border-neutral-700 p-4 lg:p-7 mb-7">
       <div className="flex justify-between items-start mb-10">
         <div>
           <h2 className="text-base font-medium text-neutral-500">
             Total Holdings
           </h2>
-          <p className="text-3xl font-semibold text-baseBlack mb-2">
+          <p className="text-3xl font-semibold mb-2">
             {totalHoldings ? totalHoldings : "-"}
           </p>
         </div>
         <Image
-          src="/vanna-black-logo-text.svg"
+          src="/vanna-black-logo-text.svg" // "/vanna-white-logo-text.svg"
           width="92"
           height="28"
           alt="Vanna"
@@ -48,7 +48,9 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
           <p
             className={clsx(
               "text-3xl font-semibold",
-              totalReturnsAmount ? "text-baseSuccess-300" : "text-baseBlack"
+              totalReturnsAmount
+                ? "text-baseSuccess-300"
+                : "text-baseBlack dark:text-baseWhite"
             )}
           >
             {totalReturnsAmount ? totalReturnsAmount : "-"}
@@ -62,7 +64,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
         </div>
         {activeTab === "Borrower" && (
           <div>
-            <p className="text-2xl font-semibold text-baseBlack">
+            <p className="text-2xl font-semibold">
               {healthFactor ? healthFactor : "-"}
             </p>
             <p className="text-sm text-gray-500">Health Factor</p>
@@ -74,16 +76,16 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
 };
 
 const Rewards: React.FC = () => (
-  <div className="bg-white rounded-3xl border border-purpleBG-lighter p-4 xl:p-10 mt-4">
+  <div className="bg-white dark:bg-baseDark rounded-3xl border border-purpleBG-lighter dark:border-neutral-700 p-4 xl:p-10 mt-4">
     <h2 className="text-xl font-semibold mb-9">Rewards</h2>
-    <div className="bg-gray-100 rounded-lg p-2 mb-4">
-      <div className="flex justify-between bg-baseComplementary text-base font-medium mb-2">
+    <div className="bg-baseComplementary dark:bg-baseDarkComplementary rounded-lg p-2 mb-4">
+      <div className="flex justify-between text-base font-medium mb-2">
         <span>Activity</span>
         <span>Your Allocation</span>
         <span>Claim</span>
       </div>
     </div>
-    <div className="px-2 lg:px-4 text-baseBlack">
+    <div className="px-2 lg:px-4">
       {["WETH", "USDC", "WBTC"].map((pool, index) => (
         <div
           key={index}
@@ -91,8 +93,8 @@ const Rewards: React.FC = () => (
         >
           <span>{pool}</span>
           <span>{(index + 1) * 10} points</span>
-          <button className="relative inline-flex items-center justify-center p-0.5 overflow-hidden text-sm font-semibold text-baseBlack rounded-md group bg-gradient-to-br from-gradient-1 to-gradient-2 group-hover:from-gradient-1 group-hover:to-gradient-2 hover:text-white dark:text-white focus:ring-4 focus:outline-none">
-            <span className="relative px-2 py-1.5 transition-all ease-in duration-75 bg-white dark:bg-white rounded-md group-hover:bg-opacity-0">
+          <button className="relative inline-flex items-center justify-center p-0.5 overflow-hidden text-sm font-semibold rounded-md group bg-gradient-to-br from-gradient-1 to-gradient-2 group-hover:from-gradient-1 group-hover:to-gradient-2 hover:text-white focus:ring-4 focus:outline-none">
+            <span className="relative px-2 py-1.5 transition-all ease-in duration-75 bg-white dark:bg-baseDark rounded-md group-hover:bg-opacity-0">
               Claim
             </span>
           </button>
@@ -117,16 +119,15 @@ const OverviewTabMenu = () => {
   };
 
   return (
-    <div className="bg-white mt-6 rounded-lg">
-      <div className="flex space-x-6 mb-6 border-b border-neutral-100 pb-2 text-xl">
+    <div className="bg-white dark:bg-baseDark mt-6 rounded-lg text-baseBlack dark:text-baseWhite">
+      <div className="flex space-x-6 mb-6 border-b border-neutral-100 dark:border-neutral-700 pb-2 text-xl">
         {["Lender", "Borrower"].map((tab) => (
           <div
             key={tab}
             className={clsx(
-              "pb-2 relative font-semibold cursor-pointer flex flex-row",
-              activeTab === tab
-                ? "text-baseBlack after:content-[''] after:absolute after:-bottom-1/3 after:left-0 after:w-full after:h-[3px] after:bg-gradient-to-r after:from-gradient-1 after:to-gradient-2"
-                : "text-neutral-500"
+              "pb-2 relative font-semibold cursor-pointer flex flex-row text-neutral-500",
+              activeTab === tab &&
+                "after:content-[''] after:absolute after:-bottom-1/3 after:left-0 after:w-full after:h-[3px] after:bg-gradient-to-r after:from-gradient-1 after:to-gradient-2"
             )}
             onClick={() => setActiveTab(tab)}
           >

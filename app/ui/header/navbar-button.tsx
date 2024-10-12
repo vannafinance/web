@@ -151,14 +151,9 @@ export default function NavbarButtons() {
   };
 
   return (
-    <div className="flex flex-row gap-2 items-center justify-center my-auto">
-      <div className="p-2 border border-neutral-100 rounded-lg cursor-pointer text-purple">
-        <SunDim
-          size={24}
-          // color={isDarkMode ? "white" : "black"}
-          weight="fill"
-          onClick={toggleDarkMode}
-        />
+    <div className="flex flex-row gap-2 items-center justify-center my-auto dark:bg-baseDark">
+      <div className="p-2 border border-neutral-100 dark:border-neutral-700 rounded-lg cursor-pointer dark:text-purple text-baseBlack">
+        <SunDim size={24} weight="fill" onClick={toggleDarkMode} />
       </div>
       <div>
         <NetworkDropdown options={networks} onSelect={setCurrentNetwork} />

@@ -14,7 +14,7 @@ const TabMenu = () => {
 
   return (
     <div className="w-full">
-      <div className="border-b border-neutral-100">
+      <div className="border-b border-neutral-100 dark:border-neutral-700">
         <nav className="-mb-px flex space-x-4" aria-label="Tabs">
           {tabs.map((tab) => (
             <Link
@@ -24,8 +24,8 @@ const TabMenu = () => {
                 whitespace-nowrap py-1.5 border-b-2 font-medium text-2xl
                 ${
                   pathname === tab.href
-                    ? "border-baseBlack text-baseBlack"
-                    : "border-transparent text-neutral-500 hover:text-gray-700 hover:border-gray-300"
+                    ? "border-baseBlack dark:border-baseWhite text-baseBlack dark:text-baseWhite"
+                    : "border-transparent text-neutral-500 hover:text-gray-700 dark:hover:text-neutral-300 hover:border-gray-300 dark:hover:border-gray-500"
                 }
               `}
             >

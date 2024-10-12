@@ -27,13 +27,13 @@ const Pool: React.FC<PoolProps> = ({
   icon,
   isLoss,
 }) => (
-  <div className="flex items-center justify-between bg-white rounded-lg p-3 mb-2">
-    <span className="">{number}</span>
+  <div className="flex items-center justify-between bg-white dark:bg-baseDark rounded-lg p-3 mb-2">
+    <span>{number}</span>
     <div className="flex flex-row justify-between w-20">
       <Image src={icon} alt={name} width={24} height={24} /> {name}
     </div>
-    <span className="">{amount}</span>
-    <span className="">
+    <span>{amount}</span>
+    <span>
       {profit}{" "}
       {isLoss ? (
         <span className="text-baseSecondary-500">{percentage}</span>
@@ -41,7 +41,7 @@ const Pool: React.FC<PoolProps> = ({
         <span className="text-baseSuccess-300">{percentage}</span>
       )}
     </span>
-    <span className="">{apy}</span>
+    <span>{apy}</span>
   </div>
 );
 
@@ -51,8 +51,8 @@ const LenderDashboard: React.FC = () => {
   // );
 
   return (
-    <div>
-      <div className="hidden xl:block bg-white rounded-3xl border border-purpleBG-lighter px-5 py-10">
+    <div className="text-baseBlack dark:text-baseWhite">
+      <div className="hidden xl:block bg-white dark:bg-baseDark rounded-3xl border border-purpleBG-lighter dark:border-neutral-700 px-5 py-10">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold">Positions In Pools</h2>
           <Link
@@ -62,13 +62,13 @@ const LenderDashboard: React.FC = () => {
             Go to Earn
           </Link>
         </div>
-        <div className="bg-gray-100 rounded-lg p-2 mb-2">
+        <div className="bg-baseComplementary dark:bg-baseDarkComplementary rounded-lg p-2 mb-2">
           <div className="flex text-sm font-medium justify-between">
-            <span className="">#</span>
-            <span className="">Pool</span>
-            <span className="">In pool</span>
-            <span className="">Profit & Loss</span>
-            <span className="">Expected APY</span>
+            <span>#</span>
+            <span>Pool</span>
+            <span>In pool</span>
+            <span>Profit & Loss</span>
+            <span>Expected APY</span>
           </div>
         </div>
         <Pool
@@ -115,7 +115,7 @@ const LenderDashboard: React.FC = () => {
           <h2 className="text-lg font-semibold pl-2">Positions In Pools</h2>
         </div>
 
-        <div className="bg-white rounded-3xl border border-purpleBG-lighter text-baseBlack p-4 mb-3">
+        <div className="bg-white dark:bg-baseDark rounded-3xl border border-purpleBG-lighter dark:border-neutral-700 p-4 mb-3">
           <div className="flex items-center mb-8 text-base font-medium">
             <span className="mr-4 text-neutral-500">1</span>
             <div className="relative w-6 h-6 mr-2">
@@ -132,11 +132,11 @@ const LenderDashboard: React.FC = () => {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-4 text-base">
             <div>
               <p className="text-sm text-gray-500 mb-1">In Pool</p>
-              <p className="">$200.00</p>
+              <p>$200.00</p>
             </div>
             <div>
               <p className="text-sm text-gray-500 mb-1">Profit & Loss</p>
-              <p className="">
+              <p>
                 +120{" "}
                 <span className="text-baseSecondary-500 text-xs">
                   {"(+0.50%)"}
@@ -145,12 +145,12 @@ const LenderDashboard: React.FC = () => {
             </div>
             <div>
               <p className="text-sm text-gray-500 mb-1">Expected APY</p>
-              <p className="">0.50%</p>
+              <p>0.50%</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-3xl border border-purpleBG-lighter text-baseBlack p-4 mb-3">
+        <div className="bg-white dark:bg-baseDark rounded-3xl border border-purpleBG-lighter dark:border-neutral-700 p-4 mb-3">
           <div className="flex items-center mb-8 text-base font-medium">
             <span className="mr-4 text-neutral-500">2</span>
             <div className="relative w-6 h-6 mr-2">
@@ -167,11 +167,11 @@ const LenderDashboard: React.FC = () => {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-4 text-base">
             <div>
               <p className="text-sm text-gray-500 mb-1">In Pool</p>
-              <p className="">$200.00</p>
+              <p>$200.00</p>
             </div>
             <div>
               <p className="text-sm text-gray-500 mb-1">Profit & Loss</p>
-              <p className="">
+              <p>
                 -100{" "}
                 <span className="text-baseSuccess-300 text-xs">
                   {"(+0.50%)"}
@@ -180,12 +180,12 @@ const LenderDashboard: React.FC = () => {
             </div>
             <div>
               <p className="text-sm text-gray-500 mb-1">Expected APY</p>
-              <p className="">8.60%</p>
+              <p>8.60%</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-3xl border border-purpleBG-lighter text-baseBlack p-4 mb-3">
+        <div className="bg-white dark:bg-baseDark rounded-3xl border border-purpleBG-lighter dark:border-neutral-700 p-4 mb-3">
           <div className="flex items-center mb-8 text-base font-medium">
             <span className="mr-4 text-neutral-500">3</span>
             <div className="relative w-6 h-6 mr-2">
@@ -202,11 +202,11 @@ const LenderDashboard: React.FC = () => {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-4 text-base">
             <div>
               <p className="text-sm text-gray-500 mb-1">In Pool</p>
-              <p className="">$200.00</p>
+              <p>$200.00</p>
             </div>
             <div>
               <p className="text-sm text-gray-500 mb-1">Profit & Loss</p>
-              <p className="">
+              <p>
                 +120{" "}
                 <span className="text-baseSuccess-300 text-xs">
                   {"(+12.50%)"}
@@ -215,12 +215,12 @@ const LenderDashboard: React.FC = () => {
             </div>
             <div>
               <p className="text-sm text-gray-500 mb-1">Expected APY</p>
-              <p className="">9.50%</p>
+              <p>9.50%</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-3xl border border-purpleBG-lighter text-baseBlack p-4 mb-3">
+        <div className="bg-white dark:bg-baseDark rounded-3xl border border-purpleBG-lighter dark:border-neutral-700 p-4 mb-3">
           <div className="flex items-center mb-8 text-base font-medium">
             <span className="mr-4 text-neutral-500">4</span>
             <div className="relative w-6 h-6 mr-2">
@@ -237,11 +237,11 @@ const LenderDashboard: React.FC = () => {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-4 text-base">
             <div>
               <p className="text-sm text-gray-500 mb-1">In Pool</p>
-              <p className="">$200.00</p>
+              <p>$200.00</p>
             </div>
             <div>
               <p className="text-sm text-gray-500 mb-1">Profit & Loss</p>
-              <p className="">
+              <p>
                 +120{" "}
                 <span className="text-baseSuccess-300 text-xs">
                   {"(+16.97%)"}
@@ -250,7 +250,7 @@ const LenderDashboard: React.FC = () => {
             </div>
             <div>
               <p className="text-sm text-gray-500 mb-1">Expected APY</p>
-              <p className="">7.66%</p>
+              <p>7.66%</p>
             </div>
           </div>
         </div>

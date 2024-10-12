@@ -507,7 +507,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
   // }, []);
 
   return (
-    <div className="bg-baseComplementary p-2 pb-6 rounded-3xl w-full text-baseBlack">
+    <div className="bg-baseComplementary dark:bg-baseDarkComplementary p-2 pb-6 rounded-3xl w-full text-baseBlack dark:text-baseWhite">
       <div className="flex mb-5 p-1 text-lg">
         <div
           className={clsx(
@@ -518,7 +518,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
           <button
             className={clsx(
               "w-full py-3 px-2 rounded-2xl",
-              isOpen ? "bg-white" : "bg-transparent"
+              isOpen ? "bg-white dark:bg-baseDark" : "bg-transparent"
             )}
             onClick={() => handleToggle("open")}
           >
@@ -534,7 +534,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
           <button
             className={clsx(
               "w-full py-3 px-2 rounded-2xl",
-              !isOpen ? "bg-white" : "bg-transparent"
+              !isOpen ? "bg-white dark:bg-baseDark" : "bg-transparent"
             )}
             onClick={() => handleToggle("close")}
           >
@@ -544,7 +544,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
       </div>
 
       <div className="flex mb-5">
-        <div className="w-full text-center p-2.5 bg-white rounded-xl">
+        <div className="w-full text-center p-2.5 bg-white dark:bg-baseDark rounded-xl">
           ISOLATED
         </div>
       </div>
@@ -554,7 +554,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
           <Calculator size={20} color="#7B44E1" />
           <span className="text-xs text-baseBlack">Avail: 0.00 USD</span>
         </div> */}
-        <div className="flex items-center text-base bg-white px-2 py-2.5 rounded-xl">
+        <div className="flex items-center text-base bg-white dark:bg-baseDark px-2 py-2.5 rounded-xl">
           <FutureDropdown
             options={optionType}
             defaultValue={selectedOptionType}
@@ -564,13 +564,13 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
       </div>
 
       {!isOpen && (
-        <div className="flex flex-row justify-between mb-2 rounded-xl bg-white py-2">
+        <div className="flex flex-row justify-between mb-2 rounded-xl bg-white dark:bg-baseDark py-2">
           <div className="flex self-stretch pl-2">
             <input
               type="number"
               value={stopUsdcValue}
               onChange={(e) => setStopUsdcValue(e.target.value)}
-              className="w-full text-baseBlack text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="w-full dark:bg-baseDark text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               placeholder="Stop (USDC)"
             />
           </div>
@@ -584,7 +584,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
         </div>
       )}
 
-      <div className="flex flex-col mb-2 rounded-xl bg-white py-2">
+      <div className="flex flex-col mb-2 rounded-xl bg-white dark:bg-baseDark py-2">
         <div className="mb-3 flex flex-row justify-between px-2 text-xs text-neutral-500">
           <div>Use {useValue ? " : $" + useValue : ""}</div>
           <div>Balance {coinBalance ? " : " + coinBalance : ""}</div>
@@ -595,7 +595,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
               type="number"
               value={collateralAmount}
               onChange={(e) => setCollateralAmount(e.target.value)}
-              className="w-full text-baseBlack text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="w-full dark:bg-baseDark text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               placeholder="Enter Amount"
             />
           </div>
@@ -610,7 +610,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
       </div>
 
       {isOpen && (
-        <div className="flex flex-col mb-2 rounded-xl bg-white py-2">
+        <div className="flex flex-col mb-2 rounded-xl bg-white dark:bg-baseDark py-2">
           <div className="mb-3 flex flex-row justify-between px-2">
             <div className="text-xs text-neutral-500">
               Long {longValue ? " : " + longValue : ""}
@@ -622,7 +622,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
                 type="number"
                 value={assetAmount}
                 onChange={(e) => setAssetAmount(e.target.value)}
-                className="w-full text-baseBlack text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-full dark:bg-baseDark text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 placeholder="Enter Amount"
               />
             </div>
@@ -638,13 +638,13 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
       )}
 
       {selectedOptionType.value === "Limit" && isOpen && (
-        <div className="flex flex-row justify-between mb-5 rounded-xl bg-white py-2">
+        <div className="flex flex-row justify-between mb-5 rounded-xl bg-white dark:bg-baseDark py-2">
           <div className="flex self-stretch pl-2">
             <input
               type="number"
               value={stopUsdcValue}
               onChange={(e) => setStopUsdcValue(e.target.value)}
-              className="w-full text-baseBlack text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="w-full dark:bg-baseDark text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               placeholder="Stop (USDC)"
             />
           </div>
@@ -690,7 +690,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
                 <span
                   className={clsx(
                     "font-normal text-xs",
-                    isEnabled ? "text-purple" : "text-baseBlack"
+                    isEnabled ? "text-purple" : "text-baseBlack dark:text-baseWhite"
                   )}
                 >
                   TP/SL
@@ -705,13 +705,13 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
 
             {isEnabled && (
               <div>
-                <div className="flex flex-row justify-between mb-1 rounded-xl bg-white py-2">
+                <div className="flex flex-row justify-between mb-1 rounded-xl bg-white dark:bg-baseDark py-2">
                   <div className="flex self-stretch pl-2">
                     <input
                       type="number"
                       value={takeProfit}
                       onChange={(e) => setTakeProfit(e.target.value)}
-                      className="w-full text-baseBlack text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      className="w-full dark:bg-baseDark text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       placeholder="Take Profit"
                     />
                   </div>
@@ -723,13 +723,13 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
                     />
                   </div>
                 </div>
-                <div className="flex flex-row justify-between rounded-xl bg-white py-2">
+                <div className="flex flex-row justify-between rounded-xl bg-white dark:bg-baseDark py-2">
                   <div className="flex self-stretch pl-2">
                     <input
                       type="number"
                       value={stopLoss}
                       onChange={(e) => setStopLoss(e.target.value)}
-                      className="w-full text-baseBlack text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      className="w-full dark:bg-baseDark text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       placeholder="Stop Loss"
                     />
                   </div>
@@ -748,38 +748,38 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
       )}
 
       <div>
-        <div className="grid grid-cols-2 gap-x-3 gap-y-1 mt-5 mb-4 font-normal text-xs text-baseBlack">
+        <div className="grid grid-cols-2 gap-x-3 gap-y-1 mt-5 mb-4 font-normal text-xs">
           <div className="flex flex-row justify-between items-center">
             <p className="text-neutral-500">Max Open</p>
-            <p className="">{maxOpen != undefined ? maxOpen : "-"}</p>
+            <p>{maxOpen != undefined ? maxOpen : "-"}</p>
           </div>
           <div className="flex flex-row justify-between items-center">
             <p className="text-neutral-500">Max Open</p>
-            <p className="">{maxOpen != undefined ? maxOpen : "-"}</p>
+            <p>{maxOpen != undefined ? maxOpen : "-"}</p>
           </div>
           <div className="flex flex-row justify-between items-center">
             <p className="text-neutral-500">Cost</p>
-            <p className="">{cost != undefined ? cost : "-"}</p>
+            <p>{cost != undefined ? cost : "-"}</p>
           </div>
           <div className="flex flex-row justify-between items-center">
             <p className="text-neutral-500">Cost</p>
-            <p className="">{cost != undefined ? cost : "-"}</p>
+            <p>{cost != undefined ? cost : "-"}</p>
           </div>
           <div className="flex flex-row justify-between items-center">
             <p className="text-neutral-500">Margin</p>
-            <p className="">{margin != undefined ? margin : "-"}</p>
+            <p>{margin != undefined ? margin : "-"}</p>
           </div>
           <div className="flex flex-row justify-between items-center">
             <p className="text-neutral-500">Margin</p>
-            <p className="">{margin != undefined ? margin : "-"}</p>
+            <p>{margin != undefined ? margin : "-"}</p>
           </div>
           <div className="flex flex-row justify-between items-center">
             <p className="text-neutral-500">Est.Liq.Price</p>
-            <p className="">{estLiqPrice != undefined ? estLiqPrice : "-"}</p>
+            <p>{estLiqPrice != undefined ? estLiqPrice : "-"}</p>
           </div>
           <div className="flex flex-row justify-between items-center">
             <p className="text-neutral-500">Est.Liq.Price</p>
-            <p className="">{estLiqPrice != undefined ? estLiqPrice : "-"}</p>
+            <p>{estLiqPrice != undefined ? estLiqPrice : "-"}</p>
           </div>
         </div>
       </div>

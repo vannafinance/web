@@ -332,18 +332,18 @@ export default function Page() {
   };
 
   return (
-    <div className="w-full lg:w-[35rem] xl:w-[40rem] mx-auto">
+    <div className="w-full lg:w-[35rem] xl:w-[40rem] mx-auto text-baseBlack dark:text-baseWhite">
       <p className="text-4xl font-bold mb-6">Spot</p>
 
-      <div className="bg-baseComplementary rounded-3xl p-4 relative mb-4">
-        <div className="bg-white rounded-2xl p-4 mb-1">
-          <div className="text-baseBlack text-lg">From</div>
+      <div className="bg-baseComplementary dark:bg-baseDarkComplementary rounded-3xl p-4 relative mb-4">
+        <div className="bg-white dark:bg-baseDark rounded-2xl p-4 mb-1">
+          <div className="text-lg">From</div>
           <div className="flex justify-between mb-2">
             <div className="flex flex-col">
               <input
                 value={payInput}
                 onChange={(e) => setPayInput(Number(e.target.value))}
-                className="w-full text-baseBlack text-[2.5rem] font-medium outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-full text-[2.5rem] font-medium outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none dark:bg-baseDark"
                 placeholder="0"
                 inputMode="decimal"
                 autoComplete="off"
@@ -369,21 +369,21 @@ export default function Page() {
         </div>
 
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-          <div className="w-16 h-16 bg-baseComplementary rounded-full flex items-center justify-center p-1">
-            <div className="w-full h-full bg-white rounded-full flex items-center justify-center">
+          <div className="w-16 h-16 bg-baseComplementary dark:bg-baseDarkComplementary rounded-full flex items-center justify-center p-1">
+            <div className="w-full h-full bg-white dark:bg-baseDark rounded-full flex items-center justify-center">
               <Image src="/vanna-logo.svg" width={26} height={24} alt="Vanna" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-4">
-          <div className="text-baseBlack text-lg">To</div>
+        <div className="bg-white dark:bg-baseDark rounded-2xl p-4">
+          <div className="text-lg">To</div>
           <div className="flex justify-between mb-2">
             <div className="flex flex-col">
               <input
                 value={receiveInput}
                 // onChange={(e) => setReceiveInput(e.target.value)}
-                className="w-full text-baseBlack text-[2.5rem] font-medium outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-full text-[2.5rem] font-medium outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none dark:bg-baseDark"
                 placeholder="0"
                 inputMode="decimal"
                 autoComplete="off"
@@ -442,7 +442,7 @@ export default function Page() {
       )}
 
       {payInput !== undefined && payInput > 0 && (
-        <div className="w-full lg:max-w-md mx-auto bg-white rounded-lg p-6">
+        <div className="w-full lg:max-w-md mx-auto bg-white dark:bg-baseDark rounded-lg p-6">
           <div
             className="flex justify-between items-center cursor-pointer"
             onClick={toggleOpen}

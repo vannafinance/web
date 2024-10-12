@@ -389,9 +389,9 @@ const LevrageWithdraw = () => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-10 text-base">
-      <div className="bg-white w-full mx-auto mb-6">
-        <div className="bg-baseComplementary p-2 rounded-3xl w-full text-baseBlack">
+    <div className="flex flex-col lg:flex-row gap-10 text-base text-baseBlack dark:text-baseWhite">
+      <div className="w-full mx-auto mb-6">
+        <div className="bg-baseComplementary dark:bg-baseDarkComplementary p-2 rounded-3xl w-full">
           <div className="flex mb-8 text-lg">
             <div
               className={clsx(
@@ -404,7 +404,7 @@ const LevrageWithdraw = () => {
               <button
                 className={clsx(
                   "w-full py-3 px-2 rounded-2xl",
-                  isLeverage ? "bg-white" : "bg-transparent"
+                  isLeverage ? "bg-white dark:bg-baseDark" : "bg-transparent"
                 )}
                 onClick={() => handleToggle("leverage")}
               >
@@ -422,7 +422,7 @@ const LevrageWithdraw = () => {
               <button
                 className={clsx(
                   "w-full py-3 px-2 rounded-2xl",
-                  !isLeverage ? "bg-white" : "bg-transparent"
+                  !isLeverage ? "bg-white dark:bg-baseDark" : "bg-transparent"
                 )}
                 onClick={() => handleToggle("withdraw")}
               >
@@ -432,7 +432,7 @@ const LevrageWithdraw = () => {
           </div>
 
           <div className="px-4">
-            <div className="bg-white rounded-2xl p-4 mb-3">
+            <div className="bg-white dark:bg-baseDark rounded-2xl p-4 mb-3">
               <div className="flex justify-between mb-2">
                 <div className="flex flex-col">
                   <span className="font-medium text-sm mb-2">
@@ -442,7 +442,7 @@ const LevrageWithdraw = () => {
                     type="number"
                     value={depositAmount}
                     onChange={(e) => setDepositAmount(Number(e.target.value))}
-                    className="w-full text-baseBlack text-2xl font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-full dark:bg-baseDark text-2xl font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     placeholder="0"
                   />
                 </div>
@@ -464,7 +464,7 @@ const LevrageWithdraw = () => {
                   key={percent}
                   onClick={() => handlePercentageClick(percent)}
                   className={clsx(
-                    "w-1/5 h-12 bg-lightBlueBG font-semibold text-base rounded-lg"
+                    "w-1/5 h-12 bg-purpleBG-lighter dark:bg-darkPurpleBG-lighter font-semibold text-base rounded-lg"
                   )}
                 >
                   {percent}%
@@ -472,7 +472,7 @@ const LevrageWithdraw = () => {
               ))}
             </div>
 
-            <div className="bg-white rounded-2xl p-4 mb-10">
+            <div className="bg-white dark:bg-baseDark rounded-2xl p-4 mb-10">
               <div className="flex justify-between mb-2">
                 <div className="flex flex-col">
                   <span className="font-medium text-sm mb-2">
@@ -482,7 +482,7 @@ const LevrageWithdraw = () => {
                     type="number"
                     value={borrowAmount}
                     onChange={(e) => setBorrowAmount(Number(e.target.value))}
-                    className="w-full text-baseBlack text-2xl font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-full dark:bg-baseDark text-2xl font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     placeholder="0"
                   />
                 </div>
@@ -508,9 +508,9 @@ const LevrageWithdraw = () => {
               </div>
             </div>
 
-            <div className="flex justify-between items-center mb-14">
+            {isLeverage && (<div className="flex justify-between items-center mb-14">
               <Slider value={leverageValue} onChange={setLeverageValue} />
-            </div>
+            </div>)}
 
             <div className="flex flex-col sm:flex-row justify-between sm:items-center text-xl mb-8 gap-2 sm:gap-0">
               <div className="flex items-center">
@@ -519,7 +519,7 @@ const LevrageWithdraw = () => {
                   &nbsp;<u>{healthFactor !== "-" ? healthFactor : ""}</u>&nbsp;
                 </span>
                 <Tooltip content={"Target token"}>
-                  <Question size={24} color="#2ea88e" />
+                  <Question size={24} color="#2ea88e" weight="fill" />
                 </Tooltip>
               </div>
               <div className="flex items-center">
@@ -571,7 +571,7 @@ const LevrageWithdraw = () => {
           </div>
         </div>
       </div>
-      <div className="flex-none w-full lg:w-2/5 xl:w-1/3 space-y-6 text-baseBlack font-medium">
+      <div className="flex-none w-full lg:w-2/5 xl:w-1/3 space-y-6 font-medium">
         <AccountOverview
           creditToken={borrowToken}
           leverage={leverageValue}

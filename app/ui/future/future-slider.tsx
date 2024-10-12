@@ -54,7 +54,7 @@ const FutureSlider: React.FC<SliderProps> = ({ value, onChange }) => {
             value={inputValue}
             onChange={handleInputChange}
             onBlur={handleInputBlur}
-            className="w-12 p-1.5 text-center border border-purple rounded-md text-lg font-medium  [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            className="w-12 p-1.5 dark:bg-baseDark text-center border border-purple rounded-md text-lg font-medium  [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           />
         </div>
 

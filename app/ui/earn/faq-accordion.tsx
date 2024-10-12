@@ -43,7 +43,7 @@ const FAQAccordion = () => {
     <div className="mx-auto py-16">
       <div className="flex flex-col sm:flex-row gap-10 text-base">
         <div className="sm:flex-none w-full sm:w-4/12">
-          <h2 className="text-5xl font-bold mb-4">FAQs</h2>
+          <h2 className="text-5xl font-bold mb-4 dark:text-baseWhite">FAQs</h2>
           <p className="text-neutral-500 mb-6">
             Some basic questions related to Vanna
           </p>
@@ -58,10 +58,10 @@ const FAQAccordion = () => {
           {faqs.map((faq, index) => (
             <div key={index}>
               <button
-                className="w-full text-left py-4 flex justify-between items-center border-b border-neutral-300 focus:outline-none"
+                className="w-full text-left py-4 flex justify-between items-center border-b border-neutral-300 focus:outline-none dark:text-baseWhite"
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
               >
-                <span className="">{faq.question}</span>
+                <span>{faq.question}</span>
                 <CaretDown
                   className={`w-5 h-5 transition-transform ${
                     openIndex === index ? "transform rotate-180" : ""

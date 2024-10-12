@@ -11,7 +11,7 @@ export default function NavLinks() {
   const pathname = usePathname();
 
   return (
-    <div className="flex flex-row gap-2 items-center justify-center text-sm text-neutral-500">
+    <div className="flex flex-row gap-2 items-center justify-center text-sm">
       {menuLinks.map((link) => {
         const isActive =
           pathname === link.href ||
@@ -29,16 +29,16 @@ export default function NavLinks() {
                 key={link.title + "1"}
                 href={link.href}
                 className={clsx(
-                  "py-1 px-4 inline-flex items-center whitespace-nowrap",
+                  "py-1 px-4 inline-flex items-center whitespace-nowrap dark:bg-baseDark text-neutral-500",
                   isActive && sublink != ""
-                    ? "text-baseBlack font-medium after:content-[''] after:absolute after:left-0 after:w-full after:h-[3px] after:bg-gradient-to-r after:from-gradient-1 after:to-gradient-2 after:-bottom-1/4"
+                    ? "font-medium after:content-[''] after:absolute after:left-0 after:w-full after:h-[3px] after:bg-gradient-to-r after:from-gradient-1 after:to-gradient-2 after:-bottom-1/4 text-baseBlack dark:text-baseWhite"
                     : "after:-bottom-2/3"
                 )}
               >
                 <span>{link.title}</span>
                 &nbsp;&nbsp;
                 {isActive && sublink != "" ? (
-                  <div className="flex flex-row items-center p-2 bg-baseComplementary rounded-full">
+                  <div className="flex flex-row items-center p-2 bg-baseComplementary dark:bg-baseDarkComplementary rounded-full">
                     <span>{sublink}&nbsp;</span>
                     <CaretDown />
                   </div>
@@ -48,7 +48,7 @@ export default function NavLinks() {
               </Link>
               <div
                 key={link.title + "2"}
-                className="absolute left-2 top-10 z-50 mt-2 rounded-md shadow-xl bg-white ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300"
+                className="absolute left-2 top-10 z-50 mt-2 rounded-md shadow-xl bg-white dark:bg-baseDark ring-1 ring-black dark:ring-neutral-800 ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300"
               >
                 {tradeMenuSubLinks.map((subItem, index) => (
                   <Link
@@ -75,9 +75,9 @@ export default function NavLinks() {
               key={link.title}
               href={link.href}
               className={clsx(
-                "flex py-1 px-4 whitespace-nowrap relative",
+                "flex py-1 px-4 whitespace-nowrap relative text-neutral-500 dark:bg-baseDark",
                 isActive &&
-                  "text-baseBlack font-medium after:content-[''] after:absolute after:-bottom-2/3 after:left-0 after:w-full after:h-[3px] after:bg-gradient-to-r after:from-gradient-1 after:to-gradient-2"
+                  "text-baseBlack dark:text-baseWhite font-medium after:content-[''] after:absolute after:-bottom-2/3 after:left-0 after:w-full after:h-[3px] after:bg-gradient-to-r after:from-gradient-1 after:to-gradient-2"
               )}
             >
               {link.title}

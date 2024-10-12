@@ -12,7 +12,7 @@ interface InfoRowProps {
 }
 
 const InfoRow: React.FC<InfoRowProps> = ({ label, value, subValue }) => (
-  <div className="flex flex-col px-2 sm:px-5 py-7 text-baseBlack">
+  <div className="flex flex-col px-2 sm:px-5 py-7 text-baseBlack dark:text-baseWhite">
     <div className="flex justify-between items-center mb-4 sm:mb-1">
       <span className="text-base font-medium">{label}</span>
       <Info size={16} />
@@ -52,13 +52,15 @@ const TradingInfoPanel: React.FC = () => {
   }, []);
 
   return (
-    <div className="bg-white rounded-lg">
-      <div className="flex mb-9 border-b">
+    <div className="bg-white dark:bg-baseDark rounded-lg">
+      <div className="flex mb-9  border-b-neutral-100 dark:border-b-neutral-700">
         {tabs.map((tab) => (
           <button
             key={tab}
             className={`pb-2 px-4 font-medium relative ${
-              activeTab === tab ? "text-baseBlack" : "text-neutral-500"
+              activeTab === tab
+                ? "text-baseBlack dark:text-baseWhite"
+                : "text-neutral-500"
             }`}
             onClick={() => setActiveTab(tab)}
           >

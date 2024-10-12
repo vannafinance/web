@@ -133,10 +133,10 @@ export default function Page() {
   // }, [currentPrice]);
 
   return (
-    <div className="flex flex-col lg:flex-row space-x-0 lg:space-x-5 text-base pt-8 px-3 xs:px-5 lg:px-6 custom-scrollbar">
+    <div className="flex flex-col lg:flex-row space-x-0 lg:space-x-5 text-base pt-8 px-3 xs:px-5 lg:px-6 custom-scrollbar text-baseBlack dark:text-baseWhite">
       <div className="w-full lg:w-[70%] mx-auto mb-6">
         <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-2 gap-4">
-          <div className="flex flex-col h-[4.5rem] border border-neutral-100 rounded-xl px-2 py-2 font-semibold text-xl">
+          <div className="flex flex-col h-[4.5rem] border border-neutral-100 dark:border-neutral-700 rounded-xl px-2 py-2 font-semibold text-xl">
             <div className="text-neutral-500 text-xs font-medium mb-1">
               Select Pair
             </div>
@@ -151,7 +151,7 @@ export default function Page() {
             </div>
           </div>
 
-          <div className="w-full xs:h-[4.5rem] flex flex-row flex-wrap xs:flex-nowrap justify-between px-6 py-2 xs:py-4 border border-neutral-100 rounded-xl font-semibold text-baseBlack">
+          <div className="w-full xs:h-[4.5rem] flex flex-row flex-wrap xs:flex-nowrap justify-between px-6 py-2 xs:py-4 border border-neutral-100 dark:border-neutral-700 rounded-xl font-semibold">
             <div className="my-1.5 xs:my-0">
               <p className="text-neutral-500 text-xs">24H Volume</p>
               <p className="text-sm">$2.11m</p>
@@ -183,7 +183,7 @@ export default function Page() {
                   onClick={() => handleOptionChange(option)}
                   className={`px-4 py-2 rounded-md ${
                     selectedOption === option
-                      ? "bg-purpleBG-lighter border border-purple"
+                      ? "bg-purpleBG-lighter dark:bg-baseDarkComplementary border border-purple"
                       : ""
                   }`}
                 >
@@ -205,7 +205,7 @@ export default function Page() {
                     className={`w-5 h-5 rounded mr-2 flex items-center justify-center ${
                       selectedGreeks.includes(greek)
                         ? "bg-purple"
-                        : "bg-white border border-baseBlack"
+                        : "bg-white border border-baseBlack dark:border-baseWhite"
                     }`}
                   >
                     {selectedGreeks.includes(greek) && (
@@ -235,14 +235,14 @@ export default function Page() {
                 onClick={() => handleDateChange(date)}
                 className={`px-2.5 xl:px-5 ml-2.5 sm:ml-0 mt-2.5 sm:mt-0 py-2.5 rounded-md ${
                   selectedDate === date
-                    ? "bg-purpleBG-lighter border border-purple"
-                    : "border border-neutral-300"
+                    ? "bg-purpleBG-lighter dark:bg-baseDarkComplementary border border-purple"
+                    : "border border-neutral-300 dark:border-neutral-700"
                 }`}
               >
                 {date}
               </button>
             ))}
-            <button className="px-2.5 py-2 ml-2.5 sm:ml-0 mt-2.5 sm:mt-0 rounded-lg text-xs font-semibold border border-neutral-300 flex items-center">
+            <button className="px-2.5 py-2 ml-2.5 sm:ml-0 mt-2.5 sm:mt-0 rounded-lg text-xs font-semibold border border-neutral-300 dark:border-neutral-700 flex items-center">
               Next month <CaretDown size={16} className="ml-2" />
             </button>
           </div>
@@ -250,9 +250,9 @@ export default function Page() {
 
         <div className="relative mb-2.5 w-full h-96">
           <div className="overflow-auto max-w-full 2xl:w-full max-h-full">
-            <table className="bg-white">
+            <table className="bg-white dark:bg-baseDark">
               <thead>
-                <tr className="text-base text-baseBlack font-medium border border-neutral-100">
+                <tr className="text-base font-medium border border-neutral-100 dark:border-neutral-700">
                   <th className="py-3 px-6 text-center" colSpan={7}>
                     Calls
                   </th>
@@ -264,111 +264,111 @@ export default function Page() {
                   </th>
                 </tr>
                 <tr className="text-neutral-500 text-xs text-nowrap">
-                  <th className="py-3 px-2 text-left border-b border-neutral-100">
+                  <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
                     Delta
                   </th>
-                  <th className="py-3 px-2 text-left border-b border-neutral-100">
+                  <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
                     IV
                   </th>
-                  <th className="py-3 px-2 text-left border-b border-neutral-100">
+                  <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
                     Volume
                   </th>
-                  <th className="py-3 px-2 text-left border-b border-neutral-100">
+                  <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
                     Bid Size
                   </th>
-                  <th className="py-3 px-2 text-left border-b border-neutral-100">
+                  <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
                     Bid Price
                   </th>
-                  <th className="py-3 px-2 text-left border-b border-neutral-100">
+                  <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
                     Ask Price
                   </th>
-                  <th className="py-3 px-2 text-left border-b border-neutral-100">
+                  <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
                     Ask Size
                   </th>
-                  <th className="py-3 px-5 text-center border-x border-neutral-100 w-24">
+                  <th className="py-3 px-5 text-center border-x border-neutral-100 dark:border-neutral-700 w-24">
                     Strike
                   </th>
-                  <th className="py-3 px-2 text-left border-b border-neutral-100">
+                  <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
                     Bid Size
                   </th>
-                  <th className="py-3 px-2 text-left border-b border-neutral-100">
+                  <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
                     Bid Price
                   </th>
-                  <th className="py-3 px-2 text-left border-b border-neutral-100">
+                  <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
                     Ask Price
                   </th>
-                  <th className="py-3 px-2 text-left border-b border-neutral-100">
+                  <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
                     Ask Size
                   </th>
-                  <th className="py-3 px-2 text-left border-b border-neutral-100">
+                  <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
                     Volume
                   </th>
-                  <th className="py-3 px-2 text-left border-b border-neutral-100">
+                  <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
                     IV
                   </th>
-                  <th className="py-3 px-2 text-left border-b border-neutral-100">
+                  <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
                     Delta
                   </th>
                 </tr>
               </thead>
-              <tbody className="text-xs text-baseBlack font-normal">
+              <tbody className="text-xs font-normal">
                 {dummyData.map((option, index) => (
-                  <tr key={index} className="">
-                    <td className="py-3 px-2 text-left border-b border-neutral-100">
+                  <tr key={index}>
+                    <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
                       {option.delta.toFixed(5)}
                     </td>
-                    <td className="py-3 px-2 text-left border-b border-neutral-100">
+                    <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
                       {option.iv.toFixed(2)}
                     </td>
-                    <td className="py-3 px-2 text-left border-b border-neutral-100">
+                    <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
                       {option.volume.toFixed(0)}
                     </td>
-                    <td className="py-3 px-2 text-left border-b border-neutral-100">
+                    <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
                       {option.bidSize.toFixed(2)}
                     </td>
-                    <td className="py-3 px-2 text-left border-b border-neutral-100 text-baseSuccess-300 hover:bg-baseSuccess-100">
+                    <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSuccess-300 hover:bg-baseSuccess-100">
                       <div className=" flex flex-row justify-between">
                         {option.bidPrice.toFixed(1)}
                         <PlusSquare size={16} />
                       </div>
                     </td>
-                    <td className="py-3 px-2 text-left border-b border-neutral-100 text-baseSecondary-500 hover:bg-baseSecondary-300">
+                    <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSecondary-500 hover:bg-baseSecondary-300">
                       <div className=" flex flex-row justify-between">
                         {option.askPrice.toFixed(1)}
                         <PlusSquare size={16} />
                       </div>
                     </td>
-                    <td className="py-3 px-2 text-left border-b border-neutral-100">
+                    <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
                       {option.askSize.toFixed(2)}
                     </td>
-                    <td className="py-3 px-2 text-center border-x border-neutral-100 font-medium w-24">
+                    <td className="py-3 px-2 text-center border-x border-neutral-100 dark:border-neutral-700 font-medium w-24">
                       {option.strike}
                     </td>
-                    <td className="py-3 px-2 text-left border-b border-neutral-100">
+                    <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
                       {option.bidSize.toFixed(2)}
                     </td>
-                    <td className="py-3 px-2 text-left border-b border-neutral-100 text-baseSuccess-300 hover:bg-baseSuccess-100">
+                    <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSuccess-300 hover:bg-baseSuccess-100">
                       <div className=" flex flex-row justify-between">
                         {option.bidPrice.toFixed(1)}
                         <PlusSquare size={16} />
                       </div>
                     </td>
-                    <td className="py-3 px-2 text-left border-b border-neutral-100 text-baseSecondary-500 hover:bg-baseSecondary-300">
+                    <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSecondary-500 hover:bg-baseSecondary-300">
                       <div className=" flex flex-row justify-between">
                         {option.askPrice.toFixed(1)}
                         <PlusSquare size={16} />
                       </div>
                     </td>
-                    <td className="py-3 px-2 text-left border-b border-neutral-100">
+                    <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
                       {option.askSize.toFixed(2)}
                     </td>
-                    <td className="py-3 px-2 text-left border-b border-neutral-100">
+                    <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
                       {option.volume.toFixed(0)}
                     </td>
-                    <td className="py-3 px-2 text-left border-b border-neutral-100">
+                    <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
                       {option.iv.toFixed(2)}
                     </td>
-                    <td className="py-3 px-2 text-left border-b border-neutral-100">
+                    <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
                       {option.delta.toFixed(5)}
                     </td>
                   </tr>
@@ -392,11 +392,11 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="flex-none w-full lg:w-[30%]">
-        <div className="bg-baseComplementary p-2 px-3 pb-6 rounded-3xl w-full text-baseBlack">
+      <div className="flex-none w-full lg:w-[30%] pb-9">
+        <div className="bg-baseComplementary dark:bg-baseDarkComplementary p-2 px-3 pb-6 rounded-3xl w-full">
           <div className="ml-auto flex items-center justify-between py-2 mb-5">
             <div className="text-2xl font-normal">Long Call</div>
-            <div className="flex flex-row items-center font-medium text-base p-2 bg-white rounded-md">
+            <div className="flex flex-row items-center font-medium text-base p-2 bg-white dark:bg-baseDark rounded-md">
               <FutureDropdown
                 options={orderTypeOptions}
                 defaultValue={selectedOrderType}
@@ -405,7 +405,7 @@ export default function Page() {
             </div>
           </div>
 
-          <div className="bg-purple-100 text-baseBlack rounded py-1 text-base font-semibold inline-block mb-4">
+          <div className="bg-purple-100 rounded py-1 text-base font-semibold inline-block mb-4">
             Multiple Calls
             {/* <span className="px-2 inline-flex text-xs leading-4 font-medium rounded-md bg-purpleBG-lighter text-purple">
                 Long
@@ -422,7 +422,7 @@ export default function Page() {
                 className="ml-2"
               />
               <div className="flex flex-col ml-2">
-                <span className="text-xs font-semibold text-baseBlack">
+                <span className="text-xs font-semibold">
                   BTC $53000 Call
                 </span>
                 <span className="text-xs font-normal text-neutral-500">
@@ -431,7 +431,7 @@ export default function Page() {
               </div>
             </div>
             <div className="flex flex-row mr-1">
-              <span className="text-xs font-semibold text-baseBlack mr-2">
+              <span className="text-xs font-semibold mr-2">
                 $4990.00
               </span>
               <X size={14} />
@@ -439,7 +439,7 @@ export default function Page() {
           </div>
 
           <div className="mb-5">
-            <button className="flex items-center bg-white mb-4 px-2 py-1 text-purple">
+            <button className="flex items-center bg-white dark:bg-baseDark mb-4 px-2 py-1 text-purple">
               <Plus size={20} />
               <span className="ml-1 text-xs font-semibold">Add Option</span>
             </button>
@@ -448,26 +448,26 @@ export default function Page() {
           <div className="flex justify-between my-5">
             <div className="text-xs">
               <span className="text-neutral-500">Avail: </span>
-              <span className="text-baseBlack">0.00 USDT</span>
+              <span>0.00 USDT</span>
             </div>
           </div>
 
-          <div className="flex w-full rounded-xl bg-white py-2 pl-2 mb-5">
+          <div className="flex w-full rounded-xl bg-white dark:bg-baseDark py-2 pl-2 mb-5">
             <input
               type="number"
               value={size}
               onChange={(e) => setSize(e.target.value)}
-              className="w-full text-baseBlack text-sm font-normal outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="w-full text-baseBlack dark:text-baseWhite dark:bg-baseDark text-sm font-normal outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               placeholder="Size"
             />
           </div>
 
-          <div className="flex w-full rounded-xl bg-white py-2 pl-2 mb-5">
+          <div className="flex w-full rounded-xl bg-white dark:bg-baseDark py-2 pl-2 mb-5">
             <input
               type="number"
               value={limitPrice}
               onChange={(e) => setLimitPrice(e.target.value)}
-              className="w-full text-baseBlack text-sm font-normal outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="w-full text-baseBlack dark:text-baseWhite dark:bg-baseDark text-sm font-normal outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               placeholder="Limit Price"
             />
           </div>
@@ -483,7 +483,7 @@ export default function Page() {
             <OptionSlider value={leverageValue} onChange={setLeverageValue} />
           </div>
 
-          <div className="space-y-2 text-xs font-normal py-5 px-4 mb-5 border-y border-purpleBG-lighter">
+          <div className="space-y-2 text-xs font-normal py-5 px-4 mb-5 border-y border-purpleBG-lighter dark:border-neutral-700">
             <div className="flex justify-between">
               <span>Min Received</span>
               <span>$215.70</span>

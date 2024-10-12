@@ -2344,13 +2344,13 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
   };
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-4 p-5 sm:p-7 xl:py-12 xl:px-4 border border-neutral-300 rounded-2xl">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-4 p-5 sm:p-7 xl:py-12 xl:px-4 border border-neutral-300 dark:border-neutral-700 rounded-2xl text-baseBlack dark:text-baseWhite">
       {details.map((item, index) => (
         <div key={index} className="flex flex-col">
           <div className="flex items-center">
-            <span className="text-sm text-baseBlack mr-1">{item.label}</span>
+            <span className="text-sm mr-1">{item.label}</span>
             <Tooltip content={item.tooltip}>
-              <Info size={16} color="black" />
+              <Info size={16} />
             </Tooltip>
           </div>
           <div className="font-semibold text-lg mt-1.5">{item.value}</div>
@@ -2358,10 +2358,9 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
       ))}
       <div className="flex flex-col">
         <div className="flex items-center cursor-pointer">
-          <span className="text-sm text-baseBlack mr-1">ADDRESS</span>
+          <span className="text-sm mr-1">ADDRESS</span>
           <Copy
             size={16}
-            color="black"
             onClick={() => handleCopyAddress(poolAddress ? poolAddress : "")}
           />
         </div>

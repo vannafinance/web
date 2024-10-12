@@ -24,16 +24,15 @@ const PoolDetailTabMenu = ({ pool }: { pool: PoolTable }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg">
-      <div className="flex space-x-4 mb-6 border-b border-neutral-100 pb-2 text-xs sm:text-base">
+    <div className="bg-white dark:bg-baseDark rounded-lg">
+      <div className="flex space-x-4 mb-6 border-b border-neutral-100 dark:border-neutral-800 pb-2 text-xs sm:text-base">
         {["Details", "Utilization rate", "Analytics"].map((tab) => (
           <div
             key={tab}
             className={clsx(
-              "pb-2 relative font-medium cursor-pointer flex flex-row",
-              activeTab === tab
-                ? "text-baseBlack after:content-[''] after:absolute after:-bottom-1/3 after:left-0 after:w-full after:h-[3px] after:bg-gradient-to-r after:from-gradient-1 after:to-gradient-2"
-                : "text-neutral-500"
+              "pb-2 relative font-medium cursor-pointer flex flex-row text-neutral-500",
+              activeTab === tab &&
+                "text-baseBlack dark:text-baseWhite after:content-[''] after:absolute after:-bottom-1/3 after:left-0 after:w-full after:h-[3px] after:bg-gradient-to-r after:from-gradient-1 after:to-gradient-2"
             )}
             onClick={() => setActiveTab(tab)}
           >

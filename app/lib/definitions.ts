@@ -94,6 +94,7 @@ interface FutureDropdownProps {
   options: Option[];
   defaultValue: Option;
   onChange: (option: Option) => void;
+  iconFill?: boolean
 }
 
 interface CryptoData {

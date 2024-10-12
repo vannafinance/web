@@ -26,7 +26,7 @@ function TradingViewChart() {
       theme: isDarkMode ? "dark" : "light",
       style: "1",
       locale: "en",
-      backgroundColor: isDarkMode ? "#0a0a0b" : "#fafafa",
+      backgroundColor: isDarkMode ? "#312F35" : "#fafafa",
       allow_symbol_change: true,
       save_image: false,
       calendar: false,

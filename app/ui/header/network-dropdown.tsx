@@ -18,11 +18,11 @@ export const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
   };
 
   return (
-    <div className="relative inline-block text-left">
+    <div className="relative inline-block text-left text-baseBlack dark:text-baseWhite">
       <div>
         <button
           type="button"
-          className="inline-flex items-center justify-center w-full border border-neutral-100 rounded-lg py-2 px-3"
+          className="inline-flex items-center justify-center w-full border border-neutral-100 dark:border-neutral-700 rounded-lg py-2 px-3"
           onClick={() => setIsOpen(!isOpen)}
         >
           <Image
@@ -32,12 +32,12 @@ export const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
             alt={selectedNetwork.name}
           />
           &nbsp;&nbsp;
-          <CaretDown color="baseBlack" weight="bold" />
+          <CaretDown weight="bold" />
         </button>
       </div>
 
       {isOpen && (
-        <div className="bg-white origin-top-right absolute left-0 mt-2 w-40 rounded-md shadow-xl ring-1 ring-black ring-opacity-5">
+        <div className="bg-white dark:bg-baseDark origin-top-right absolute left-0 mt-2 w-40 rounded-md shadow-xl ring-1 ring-black dark:ring-neutral-800 ring-opacity-5">
           <div
             className="p-1"
             role="menu"
@@ -47,7 +47,7 @@ export const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
             {options.map((option) => (
               <button
                 key={option.id}
-                className="flex items-center p-3 text-sm text-baseBlack w-full rounded-lg hover:bg-neutral-100"
+                className="flex items-center p-3 text-sm w-full rounded-lg hover:bg-neutral-100 dark:hover:bg-baseDarkComplementary dark:bg-baseDark"
                 role="menuitem"
                 onClick={() => handleSelect(option)}
               >

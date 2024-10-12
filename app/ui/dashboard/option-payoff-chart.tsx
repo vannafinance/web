@@ -75,17 +75,17 @@ const OptionPayoffChart = () => {
 
   return (
     <div>
-      <div className="flex items-center justify-center space-x-4 px-4 py-2 mb-5 bg-baseComplementary text-sm text-baseBlack font-normal rounded-lg">
-        <span className="">OI data at strike</span>
-        <div className="font-semibold border border-neutral-300 rounded-md p-1">
+      <div className="flex items-center space-x-4 px-4 py-2 mb-5 bg-baseComplementary dark:bg-baseDarkComplementary text-sm font-normal rounded-lg">
+        <span>OI data at strike</span>
+        <div className="font-semibold border border-neutral-300 dark:border-neutral-700 rounded-md p-1">
           {strike}
         </div>
         <div className="flex items-center space-x-2">
-          <span className="w-3 h-3 bg-red-100 inline-block"></span>
+          <span className="w-3 h-3 bg-red-300 rounded-sm inline-block"></span>
           <span>Call OI {callOI}L</span>
         </div>
         <div className="flex items-center space-x-2">
-          <span className="w-3 h-3 bg-green-100 inline-block"></span>
+          <span className="w-3 h-3 bg-green-300 rounded-sm inline-block"></span>
           <span>Put OI {putOI}L</span>
         </div>
       </div>

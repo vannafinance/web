@@ -14,6 +14,8 @@ const config: Config = {
         foreground: "var(--foreground)",
         baseWhite: "#fafafa",
         baseBlack: "#0a0a0b",
+        baseDark: "#181822",
+        baseDarkComplementary: "#312F35",
         purple: "#7a45da",
         secondary: "#f5aba1",
         success: "#60d4bb",
@@ -28,8 +30,10 @@ const config: Config = {
           light: "#bda2ed",
           DEFAULT: "#9064e0",
         },
+        darkPurpleBG: {
+          lighter: "#4B4B56",
+        },
         baseComplementary: "#f4f4ff",
-        lightBlueBG: "#d2d2f7",
         baseSuccess: {
           100: "#caf1e8",
           300: "#2ea88e",
