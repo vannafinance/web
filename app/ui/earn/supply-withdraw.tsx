@@ -8,7 +8,7 @@ import TokenDropdown from "../components/token-dropdown";
 import Tooltip from "../components/tooltip";
 import Image from "next/image";
 
-import { BASE_NETWORK, OPTIMISM_NETWORK } from "@/app/lib/constants";
+import { ARBITRUM_NETWORK, BASE_NETWORK, OPTIMISM_NETWORK } from "@/app/lib/constants";
 import { ethers, utils, Contract } from "ethers";
 import { formatUnits, parseEther, parseUnits } from "ethers/lib/utils";
 
@@ -250,7 +250,7 @@ const SupplyWithdraw = ({
       signer
     );
 
-    if (currentNetwork.id === BASE_NETWORK) {
+    if (currentNetwork.id === ARBITRUM_NETWORK) {
       // value assigne is pending
       try {
         const signer = await library?.getSigner();
@@ -457,32 +457,32 @@ const SupplyWithdraw = ({
         const vEtherContract = new Contract(
           opAddressList.vEtherContractAddress,
           VEther.abi,
-          library
+          signer
         );
         const vDaiContract = new Contract(
           opAddressList.vDaiContractAddress,
           VToken.abi,
-          library
+          signer
         );
         const vUsdcContract = new Contract(
           opAddressList.vUSDCContractAddress,
           VToken.abi,
-          library
+          signer
         );
         const vUsdtContract = new Contract(
           opAddressList.vUSDTContractAddress,
           VToken.abi,
-          library
+          signer
         );
         const vWbtcContract = new Contract(
           opAddressList.vWBTCContractAddress,
           VToken.abi,
-          library
+          signer
         );
         const rateModelContract = new Contract(
           opAddressList.rateModelContractAddress,
           DefaultRateModel.abi,
-          library
+          signer
         );
 
         // ERC20 contract

@@ -7,14 +7,25 @@ import AccountManager from "../../abi/vanna/v1/out/AccountManager.sol/AccountMan
 import Registry from "../../abi/vanna/v1/out/Registry.sol/Registry.json";
 import { useWeb3React } from "@web3-react/core";
 import { sleep } from "@/app/lib/helper";
-import { arbAddressList } from "@/app/lib/web3-constants";
+import {
+  arbAddressList,
+  baseAddressList,
+  opAddressList,
+} from "@/app/lib/web3-constants";
 import Loader from "../components/loader";
+import {
+  ARBITRUM_NETWORK,
+  BASE_NETWORK,
+  OPTIMISM_NETWORK,
+} from "@/app/lib/constants";
+import { useNetwork } from "@/app/context/network-context";
 
 const CreateSmartAccountModal: React.FC<CreateSmartAccountModalProps> = ({
   isOpen,
   onClose,
 }) => {
   const { account, library } = useWeb3React();
+  const { currentNetwork } = useNetwork();
   const [loading, setLoading] = useState(false);
 
   if (!isOpen) return null;
@@ -24,23 +35,51 @@ const CreateSmartAccountModal: React.FC<CreateSmartAccountModalProps> = ({
     try {
       const signer = await library?.getSigner();
 
-      const accountManagerContract = new Contract(
-        arbAddressList.accountManagerContractAddress,
-        AccountManager.abi,
-        signer
-      );
-      const regitstryContract = new Contract(
-        arbAddressList.registryContractAddress,
-        Registry.abi,
-        signer
-      );
-
-      const accountsArray = await regitstryContract.accountsOwnedBy(account);
-      if (accountsArray.length === 0) {
-        await accountManagerContract.openAccount(account, {
-          gasLimit: 2300000,
-        });
-        await sleep(7000);
+      let accountManagerContract;
+ 
+      let regitstryContract;
+      if (currentNetwork.id === ARBITRUM_NETWORK) {
+        regitstryContract = new Contract(
+          arbAddressList.registryContractAddress,
+          Registry.abi,
+          signer
+        );
+        accountManagerContract = new Contract(
+          arbAddressList.accountManagerContractAddress,
+          AccountManager.abi,
+          signer
+        );
+      } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+        regitstryContract = new Contract(
+          opAddressList.registryContractAddress,
+          Registry.abi,
+          signer
+        );
+        accountManagerContract = new Contract(
+          opAddressList.accountManagerContractAddress,
+          AccountManager.abi,
+          signer
+        );
+      } else if (currentNetwork.id === BASE_NETWORK) {
+        regitstryContract = new Contract(
+          baseAddressList.registryContractAddress,
+          Registry.abi,
+          signer
+        );
+        accountManagerContract = new Contract(
+          baseAddressList.accountManagerContractAddress,
+          AccountManager.abi,
+          signer
+        );
+      }
+      if (regitstryContract && accountManagerContract) {
+        const accountsArray = await regitstryContract.accountsOwnedBy(account);
+        if (accountsArray.length === 0) {
+          await accountManagerContract.openAccount(account, {
+            gasLimit: 2300000,
+          });
+          await sleep(7000);
+        }
       }
     } catch (e) {
       console.error(e);
