@@ -10,6 +10,9 @@ interface NetworkOption {
   id: string;
   name: string;
   icon: string;
+  chainId: string;
+  rpcUrl: string;
+  blockExplorerUrl: string;
 }
 
 interface NetworkDropdownProps {

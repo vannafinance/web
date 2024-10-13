@@ -11,6 +11,7 @@ export const injected = new InjectedConnector({
     42161, // arbitrum mainnet
     901, // lyraTestNet
     10, // optimism
+    8453, // base
   ],
 });
 

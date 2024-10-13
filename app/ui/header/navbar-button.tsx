@@ -13,7 +13,7 @@ import Notification from "../components/notification";
 
 export default function NavbarButtons() {
   const { toggleDarkMode } = useDarkMode();
-  const { setCurrentNetwork, networks } = useNetwork();
+  const { currentNetwork, setCurrentNetwork, networks } = useNetwork();
 
   const [buttonText, setButtonText] = useState("");
   const { account, activate, deactivate, chainId, library } = useWeb3React();
@@ -30,9 +30,9 @@ export default function NavbarButtons() {
   }, [activate]);
 
   const checkNetwork = async () => {
-    if (chainId !== 42161) {
-      // Check if not on Lyra Tested (chainId 901) | 42161 arbitrum mainnet
-      setButtonText("Switch Network");
+    if (chainId !== 8453) {
+      switchNetwork();
+      // setButtonText("Switch Network");
     } else {
       if (account) {
         setButtonText(getShortenedAddress(account));
@@ -44,7 +44,7 @@ export default function NavbarButtons() {
     try {
       await library?.provider.request({
         method: "wallet_switchEthereumChain",
-        params: [{ chainId: "0xa4b1" }],
+        params: [{ chainId: currentNetwork.chainId }],
       });
       await sleep(3000);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -55,22 +55,20 @@ export default function NavbarButtons() {
             method: "wallet_addEthereumChain",
             params: [
               {
-                chainId: "0xa4b1",
-                chainName: "mux<>vanna (Arbitrum One)",
+                chainId: currentNetwork.chainId,
+                chainName: "vanna (" + currentNetwork.name + ")",
                 nativeCurrency: {
                   name: "Ether",
                   symbol: "ETH",
                   decimals: 18,
                 },
-                rpcUrls: [
-                  "https://rpc.tenderly.co/fork/0704542b-0f01-4366-8058-b0b2e80d4b24",
-                ],
-                blockExplorerUrls: ["https://goreli.etherscan.io"],
+                rpcUrls: [currentNetwork.rpcUrl],
+                blockExplorerUrls: [currentNetwork.blockExplorerUrl],
               },
             ],
           });
-        } catch (addError) {
-          console.error("Error adding arb Test Network:", addError);
+        } catch (err) {
+          console.error("Error adding arb Test Network:", err);
         }
       } else {
         console.error("Error switching networks:", switchError);

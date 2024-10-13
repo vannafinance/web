@@ -1,6 +1,8 @@
 "use client";
 
+import { sleep } from "@/app/lib/helper";
 import { CaretDown } from "@phosphor-icons/react";
+import { useWeb3React } from "@web3-react/core";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -10,30 +12,92 @@ export const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedNetwork, setSelectedNetwork] = useState(options[0]);
+  const { library, account } = useWeb3React();
 
-  const handleSelect = (network: NetworkOption) => {
+  const switchNetwork = async (network: NetworkOption) => {
+    try {
+      await library?.provider.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: network.chainId }],
+      });
+      await sleep(3000);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (networkSwitchError: any) {
+      if (networkSwitchError.code === 4902) {
+        try {
+          await library?.provider.request({
+            method: "wallet_addEthereumChain",
+            params: [
+              {
+                chainId: network.chainId,
+                chainName: network.name,
+                nativeCurrency: {
+                  name: "Ether",
+                  symbol: "ETH",
+                  decimals: 18,
+                },
+                rpcUrls: [network.rpcUrl],
+                blockExplorerUrls: [network.blockExplorerUrl],
+              },
+            ],
+          });
+        } catch (chainAddError) {
+          console.error("Error adding arb Test Network:", chainAddError);
+        }
+      } else {
+        console.error("Error switching networks:", networkSwitchError);
+        return;
+      }
+    }
+
     setSelectedNetwork(network);
     onSelect(network);
     setIsOpen(false);
   };
 
+  const handleSelect = (network: NetworkOption) => {
+    if (account && library) {
+      switchNetwork(network);
+    } else {
+      console.error("Please connect wallet first");
+    }
+  };
+
   return (
     <div className="relative inline-block text-left text-baseBlack dark:text-baseWhite">
       <div>
-        <button
-          type="button"
-          className="inline-flex items-center justify-center w-full border border-neutral-100 dark:border-neutral-700 rounded-lg py-2 px-3"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          <Image
-            src={selectedNetwork.icon}
-            width="20"
-            height="20"
-            alt={selectedNetwork.name}
-          />
-          &nbsp;&nbsp;
-          <CaretDown weight="bold" />
-        </button>
+        {account ? (
+          <button
+            type="button"
+            className="inline-flex items-center justify-center w-full border border-neutral-100 dark:border-neutral-700 rounded-lg py-2 px-3"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            <Image
+              src={selectedNetwork.icon}
+              width="20"
+              height="20"
+              alt={selectedNetwork.name}
+            />
+            &nbsp;&nbsp;
+            <CaretDown weight="bold" />
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="inline-flex items-center opacity-50 justify-center w-full border border-neutral-100 dark:border-neutral-700 rounded-lg py-2 px-3 cursor-not-allowed"
+            disabled
+            title="Please Connect Wallet"
+          >
+            <Image
+              src={selectedNetwork.icon}
+              width="20"
+              height="20"
+              alt={selectedNetwork.name}
+            />
+            &nbsp;&nbsp;
+            <CaretDown weight="bold" />
+          </button>
+        )}
       </div>
 
       {isOpen && (
