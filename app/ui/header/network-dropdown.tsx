@@ -4,7 +4,7 @@ import { sleep } from "@/app/lib/helper";
 import { CaretDown } from "@phosphor-icons/react";
 import { useWeb3React } from "@web3-react/core";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
   options,
@@ -12,7 +12,7 @@ export const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedNetwork, setSelectedNetwork] = useState(options[0]);
-  const { library, account } = useWeb3React();
+  const { library, account, chainId } = useWeb3React();
 
   const switchNetwork = async (network: NetworkOption) => {
     try {
@@ -52,8 +52,21 @@ export const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
 
     setSelectedNetwork(network);
     onSelect(network);
-    setIsOpen(false);
   };
+
+  useEffect(() => {
+    if (chainId === 8453) {
+      setSelectedNetwork(options[0]);
+    } else if (chainId === 42161) {
+      setSelectedNetwork(options[1]);
+    } else if (chainId === 10) {
+      setSelectedNetwork(options[2]);
+    } else {
+      switchNetwork(options[0]);
+    }
+
+    setIsOpen(false);
+  }, [account, chainId]);
 
   const handleSelect = (network: NetworkOption) => {
     if (account && library) {

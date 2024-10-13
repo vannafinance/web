@@ -31,7 +31,7 @@ export default function NavbarButtons() {
 
   const checkNetwork = async () => {
     if (chainId && !allowedChainIds.includes(chainId)) {
-      switchNetwork();
+      // switchNetwork();
       // setButtonText("Switch Network");
     } else {
       if (account) {
