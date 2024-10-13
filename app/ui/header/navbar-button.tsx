@@ -6,7 +6,7 @@ import useDarkMode from "./use-dark-mode";
 import { useNetwork } from "@/app/context/network-context";
 
 import { useWeb3React } from "@web3-react/core";
-import { injected, getShortenedAddress } from "@/app/lib/web3-constants";
+import { injected, getShortenedAddress, allowedChainIds } from "@/app/lib/web3-constants";
 import { useCallback, useEffect, useState } from "react";
 import { sleep } from "@/app/lib/helper";
 import Notification from "../components/notification";
@@ -30,7 +30,7 @@ export default function NavbarButtons() {
   }, [activate]);
 
   const checkNetwork = async () => {
-    if (chainId !== 8453) {
+    if (chainId && !allowedChainIds.includes(chainId)) {
       switchNetwork();
       // setButtonText("Switch Network");
     } else {
