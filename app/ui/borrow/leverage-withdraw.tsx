@@ -16,6 +16,7 @@ import {
   baseAddressList,
   baseTokensAddress,
   opAddressList,
+  opTokensAddress,
 } from "@/app/lib/web3-constants";
 
 import AccountManager from "../../abi/vanna/v1/out/AccountManager.sol/AccountManager.json";
@@ -30,7 +31,11 @@ import {
 import AccountOverview from "./account-overview";
 import CreateSmartAccountModal from "./create-smart-account-model";
 import Loader from "../components/loader";
-import { ARBITRUM_NETWORK, BASE_NETWORK, OPTIMISM_NETWORK } from "@/app/lib/constants";
+import {
+  ARBITRUM_NETWORK,
+  BASE_NETWORK,
+  OPTIMISM_NETWORK,
+} from "@/app/lib/constants";
 import { useNetwork } from "@/app/context/network-context";
 
 const LevrageWithdraw = () => {
@@ -46,12 +51,9 @@ const LevrageWithdraw = () => {
   const [isLeverage, setIsLeverage] = useState(true);
   const [depositAmount, setDepositAmount] = useState<number | undefined>();
   const [borrowAmount, setBorrowAmount] = useState<number | undefined>();
-  // const [selectedPercentage, setSelectedPercentage] = useState<number | null>(
-  //   null
-  // );
   const [leverageValue, setLeverageValue] = useState<number>(5);
   const [leverageAmount, setLeverageAmount] = useState<number | undefined>();
-  const [depositBalance, setDepositBalance] = useState<string | undefined>("-");
+  const [depositBalance, setDepositBalance] = useState<number | undefined>();
   // const [borrowBalance, setBorrowBalance] = useState<string | undefined>("-");
   const [debt, setDebt] = useState(0);
   const [healthFactor, setHealthFactor] = useState("-");
@@ -73,8 +75,10 @@ const LevrageWithdraw = () => {
   };
 
   const handlePercentageClick = (percentage: number) => {
-    if (depositAmount) {
-      setDepositAmount(Number(((depositAmount * percentage) / 100).toFixed(3)));
+    if (depositBalance) {
+      setDepositAmount(
+        Number(((depositBalance * percentage) / 100).toFixed(3))
+      );
     }
   };
 
@@ -185,14 +189,33 @@ const LevrageWithdraw = () => {
           }
         } else {
           if (token?.name === undefined) return;
-          const contract = new Contract(
-            baseTokensAddress[token?.name],
-            ERC20.abi,
-            signer
-          );
-          depositBalance = await contract.balanceOf(account);
-          if (activeAccount) {
-            borrowBalance = await contract.balanceOf(activeAccount);
+
+          let contract;
+          if (currentNetwork.id === ARBITRUM_NETWORK) {
+            contract = new Contract(
+              arbTokensAddress[token?.name],
+              ERC20.abi,
+              signer
+            );
+          } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+            contract = new Contract(
+              opTokensAddress[token?.name],
+              ERC20.abi,
+              signer
+            );
+          } else if (currentNetwork.id === BASE_NETWORK) {
+            contract = new Contract(
+              baseTokensAddress[token?.name],
+              ERC20.abi,
+              signer
+            );
+          }
+
+          if (contract) {
+            depositBalance = await contract.balanceOf(account);
+            if (activeAccount) {
+              borrowBalance = await contract.balanceOf(activeAccount);
+            }
           }
         }
 
@@ -204,7 +227,9 @@ const LevrageWithdraw = () => {
         //   token?.name,
         //   borrowBalance
         // );
-        setDepositBalance(ceilWithPrecision(String(depositBalanceInNumber)));
+        setDepositBalance(
+          Number(ceilWithPrecision(String(depositBalanceInNumber)))
+        );
         // setBorrowBalance(ceilWithPrecision(String(borrowBalanceInNumber)));
       }
     } catch (e) {
@@ -531,7 +556,7 @@ const LevrageWithdraw = () => {
               <div className="mt-2 flex justify-end">
                 <div className="text-xs text-neutral-500">
                   Balance: {depositBalance}{" "}
-                  {depositBalance !== "-" ? depositToken?.name : ""}
+                  {depositBalance !== undefined ? depositToken?.name : "-"}
                 </div>
               </div>
             </div>

@@ -36,7 +36,6 @@ const CreateSmartAccountModal: React.FC<CreateSmartAccountModalProps> = ({
       const signer = await library?.getSigner();
 
       let accountManagerContract;
- 
       let regitstryContract;
       if (currentNetwork.id === ARBITRUM_NETWORK) {
         regitstryContract = new Contract(

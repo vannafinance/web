@@ -13,7 +13,7 @@ import {
   opAddressList,
 } from "@/app/lib/web3-constants";
 import { useEffect, useState } from "react";
-import { BASE_NETWORK, OPTIMISM_NETWORK } from "@/app/lib/constants";
+import { ARBITRUM_NETWORK, BASE_NETWORK, OPTIMISM_NETWORK } from "@/app/lib/constants";
 import { utils, Contract } from "ethers";
 import { formatUnits, parseUnits } from "ethers/lib/utils";
 
@@ -31,7 +31,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
   const [poolAddress, setPoolAddress] = useState("-");
 
   useEffect(() => {
-    if (currentNetwork.id === BASE_NETWORK) {
+    if (currentNetwork.id === ARBITRUM_NETWORK) {
       try {
         if (account) {
           const fetchValues = async () => {

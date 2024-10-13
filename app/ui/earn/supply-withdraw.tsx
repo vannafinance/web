@@ -50,9 +50,6 @@ const SupplyWithdraw = ({
   const [btnValue, setBtnValue] = useState("Enter an amount");
 
   const [amount, setAmount] = useState<number | undefined>();
-  // const [selectedPercentage, setSelectedPercentage] = useState<number | null>(
-  //   null
-  // );
   const [selectedToken, setSelectedToken] = useState(pool);
   const [expected, setExpected] = useState(0);
   const [coinBalance, setCoinBalance] = useState<number | undefined>();
@@ -72,10 +69,9 @@ const SupplyWithdraw = ({
   };
 
   const handlePercentageClick = (percentage: number) => {
-    // setSelectedPercentage(percentage);
-    // setAmount(
-    //   (parseFloat(String(coinBalance)) * (percentage / 100)).toFixed(3)
-    // );
+    if (coinBalance) {
+      setAmount(Number((coinBalance * (percentage / 100)).toFixed(3)));
+    }
   };
 
   const handleTokenSelect = (token: PoolTable) => {
@@ -200,12 +196,31 @@ const SupplyWithdraw = ({
         if (tokenName == "WETH") {
           bal = await library?.getBalance(account);
         } else {
-          const contract = new Contract(
-            arbTokensAddress[tokenName],
-            ERC20.abi,
-            signer
-          );
-          bal = await contract.balanceOf(account);
+          let contract;
+
+          if (currentNetwork.id === ARBITRUM_NETWORK) {
+            contract = new Contract(
+              arbTokensAddress[tokenName],
+              ERC20.abi,
+              signer
+            );
+          } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+            contract = new Contract(
+              opTokensAddress[tokenName],
+              ERC20.abi,
+              signer
+            );
+          } else if (currentNetwork.id === BASE_NETWORK) {
+            contract = new Contract(
+              baseTokensAddress[tokenName],
+              ERC20.abi,
+              signer
+            );
+          }
+
+          if (contract) {
+            bal = await contract.balanceOf(account);
+          }
         }
 
         const balInNumber = ceilWithPrecision(

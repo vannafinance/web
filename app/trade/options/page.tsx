@@ -250,7 +250,7 @@ export default function Page() {
 
         <div className="relative mb-2.5 w-full h-96">
           <div className="overflow-auto max-w-full 2xl:w-full max-h-full">
-            <table className="bg-white dark:bg-baseDark">
+            <table className="bg-white dark:bg-baseDark w-full">
               <thead>
                 <tr className="text-base font-medium border border-neutral-100 dark:border-neutral-700">
                   <th className="py-3 px-6 text-center" colSpan={7}>

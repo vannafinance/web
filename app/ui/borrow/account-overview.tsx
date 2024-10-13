@@ -41,7 +41,7 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({
           <span className="text-2xl font-semibold">Margin Account</span>
           <span className="text-base font-medium gradient-text">
             {activeAccount
-              ? getShortenedAddress(activeAccount)
+              ? getShortenedAddress(activeAccount, 8, 6)
               : "Create your smart account"}
           </span>
         </div>

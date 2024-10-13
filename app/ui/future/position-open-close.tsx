@@ -241,13 +241,31 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
   //       if (tokenName == "WETH") {
   //         bal = await library?.getBalance(activeAccount);
   //       } else {
-  //         const contract = new Contract(
-  //           arbTokensAddress[tokenName],
-  //           ERC20.abi,
-  //           signer
-  //         );
-  //         bal = await contract.balanceOf(activeAccount);
-  //       }
+  // let contract;
+
+  // if (currentNetwork.id === ARBITRUM_NETWORK) {
+  //   contract = new Contract(
+  //     arbTokensAddress[tokenName],
+  //     ERC20.abi,
+  //     signer
+  //   );
+  // } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+  //   contract = new Contract(
+  //     opTokensAddress[tokenName],
+  //     ERC20.abi,
+  //     signer
+  //   );
+  // } else if (currentNetwork.id === BASE_NETWORK) {
+  //   contract = new Contract(
+  //     baseTokensAddress[tokenName],
+  //     ERC20.abi,
+  //     signer
+  //   );
+  // }
+
+  // if (contract) {
+  //   bal = await contract.balanceOf(account);
+  // }
 
   //       // setCoinBalance(
   //       //   ceilWithPrecision6(formatBignumberToUnits(tokenName, bal))
@@ -486,7 +504,9 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
         const OppositeAmountBoundBN = BigNumber.from(
           formatStringToUnits("WETH", OppositeAmountBound)
         );
-        const amount = BigNumber.from(formatStringToUnits("WETH", (Number(collateralAmount) * leverageValue)));
+        const amount = BigNumber.from(
+          formatStringToUnits("WETH", Number(collateralAmount) * leverageValue)
+        );
         console.log("leverageValue", leverageValue);
         console.log("assetsPrice", amount);
         console.log("collateralAmount", OppositeAmountBoundBN);
