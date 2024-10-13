@@ -1,13 +1,11 @@
 "use client";
 
 import React, { useEffect, useRef, memo } from "react";
-import useDarkMode from "../header/use-dark-mode";
+import { useDarkMode } from "../header/use-dark-mode";
 
 function TradingViewChart() {
   const container = useRef<HTMLDivElement>(null);
   const { isDarkMode } = useDarkMode();
-
-  // Note: dark mode variables added but need to change things
 
   useEffect(() => {
     if (!container.current) return;
@@ -26,7 +24,7 @@ function TradingViewChart() {
       theme: isDarkMode ? "dark" : "light",
       style: "1",
       locale: "en",
-      backgroundColor: isDarkMode ? "#312F35" : "#fafafa",
+      backgroundColor: isDarkMode ? "#181822" : "#fafafa",
       allow_symbol_change: true,
       save_image: false,
       calendar: false,

@@ -5,12 +5,15 @@ import clsx from "clsx";
 import LenderDashboard from "./lender-dashboard";
 import BorrowerDashboard from "./borrower-dashboard";
 import Image from "next/image";
+import { useDarkMode } from "../header/use-dark-mode";
 
 const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
+  const { isDarkMode } = useDarkMode();
   const [totalHoldings, setTotalHolding] = useState();
   const [totalReturnsAmount, setTotalReturnsAmount] = useState();
   const [totalReturnsPercentage, setTotalReturnsPercentage] = useState();
   const [healthFactor, setHealthFactor] = useState();
+  const [vannaLogoWithTextSrc, setVannaLogoWithTextSrc] = useState("");
 
   // TODO: delete below useEffect
   useEffect(() => {
@@ -19,6 +22,14 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
     setTotalReturnsPercentage(undefined);
     setHealthFactor(undefined);
   }, []);
+
+  useEffect(() => {
+    if (isDarkMode) {
+      setVannaLogoWithTextSrc("/vanna-white-logo-text.svg");
+    } else {
+      setVannaLogoWithTextSrc("/vanna-black-logo-text.svg");
+    }
+  }, [isDarkMode]);
 
   return (
     <div className="bg-white dark:bg-baseDark rounded-3xl border border-purpleBG-lighter dark:border-neutral-700 p-4 lg:p-7 mb-7">
@@ -31,12 +42,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
             {totalHoldings ? totalHoldings : "-"}
           </p>
         </div>
-        <Image
-          src="/vanna-black-logo-text.svg" // "/vanna-white-logo-text.svg"
-          width="92"
-          height="28"
-          alt="Vanna"
-        />
+        <Image src={vannaLogoWithTextSrc} width="92" height="28" alt="Vanna" />
       </div>
       <div
         className={clsx(

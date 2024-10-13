@@ -7,7 +7,7 @@ import NavLinks from "./nav-links";
 import NavbarButtons from "./navbar-button";
 import { List, SunDim, X } from "@phosphor-icons/react";
 import BurgerMenu from "./burger-menu";
-import useDarkMode from "./use-dark-mode";
+import { useDarkMode } from "./use-dark-mode";
 
 export default function Navbar() {
   const [isBurgerMenuOpen, setIsBurgerMenuOpen] = useState(false);

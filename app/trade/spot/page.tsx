@@ -73,7 +73,7 @@ export default function Page() {
   };
 
   const accountCheck = async () => {
-    if (localStorage?.getItem("isWalletConnected") === "true") {
+    if (localStorage.getItem("isWalletConnected") === "true") {
 
       if (account) {
         console.log("accoutn", account)

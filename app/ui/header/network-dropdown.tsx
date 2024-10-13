@@ -55,14 +55,16 @@ export const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
   };
 
   useEffect(() => {
-    if (chainId === 8453) {
-      setSelectedNetwork(options[0]);
-    } else if (chainId === 42161) {
-      setSelectedNetwork(options[1]);
-    } else if (chainId === 10) {
-      setSelectedNetwork(options[2]);
-    } else {
-      switchNetwork(options[0]);
+    if (account) {
+      if (chainId === 8453) {
+        setSelectedNetwork(options[0]);
+      } else if (chainId === 42161) {
+        setSelectedNetwork(options[1]);
+      } else if (chainId === 10) {
+        setSelectedNetwork(options[2]);
+      } else {
+        switchNetwork(options[0]);
+      }
     }
 
     setIsOpen(false);

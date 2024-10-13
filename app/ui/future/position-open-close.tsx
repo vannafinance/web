@@ -138,7 +138,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
   }, [market]);
 
   const accountCheck = async () => {
-    if (localStorage?.getItem("isWalletConnected") === "true") {
+    if (localStorage.getItem("isWalletConnected") === "true") {
       if (account && !activeAccount) {
         try {
           const signer = await library?.getSigner();
