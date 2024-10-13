@@ -126,35 +126,31 @@ const LevrageWithdraw = () => {
 
   const accountCheck = async () => {
     if (localStorage.getItem("isWalletConnected") === "true") {
-
       if (account) {
-        console.log("accoutn", account)
         try {
           const signer = await library?.getSigner();
 
-          let regitstryContract 
+          let regitstryContract;
           if (currentNetwork.id === ARBITRUM_NETWORK) {
-            regitstryContract= new Contract(
+            regitstryContract = new Contract(
               arbAddressList.registryContractAddress,
               Registry.abi,
               signer
             );
-          }
-          else if (currentNetwork.id === OPTIMISM_NETWORK) {
-            regitstryContract= new Contract(
+          } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+            regitstryContract = new Contract(
               opAddressList.registryContractAddress,
               Registry.abi,
               signer
             );
-          }
-          else if (currentNetwork.id === BASE_NETWORK) {
-            regitstryContract= new Contract(
+          } else if (currentNetwork.id === BASE_NETWORK) {
+            regitstryContract = new Contract(
               baseAddressList.registryContractAddress,
               Registry.abi,
               signer
             );
           }
-          if(regitstryContract){
+          if (regitstryContract) {
             const accountsArray = await regitstryContract.accountsOwnedBy(
               account
             );
@@ -253,21 +249,18 @@ const LevrageWithdraw = () => {
     const signer = await library?.getSigner();
     let accountManagerContract;
     if (currentNetwork.id === ARBITRUM_NETWORK) {
-      
       accountManagerContract = new Contract(
         arbAddressList.accountManagerContractAddress,
         AccountManager.abi,
         signer
       );
     } else if (currentNetwork.id === OPTIMISM_NETWORK) {
-      
       accountManagerContract = new Contract(
         opAddressList.accountManagerContractAddress,
         AccountManager.abi,
         signer
       );
     } else if (currentNetwork.id === BASE_NETWORK) {
-      
       accountManagerContract = new Contract(
         baseAddressList.accountManagerContractAddress,
         AccountManager.abi,
@@ -278,18 +271,16 @@ const LevrageWithdraw = () => {
     if (
       depositToken === undefined ||
       depositAmount === undefined ||
-      !activeAccount || !accountManagerContract
+      !activeAccount ||
+      !accountManagerContract
     )
       return;
     else if (depositToken?.name === "WETH") {
       // await accountManagerContract.depositEth({ value: parseEther(depositAmount) });
-      await accountManagerContract.depositEth(
-        activeAccount,
-        {
-          value: parseEther(String(depositAmount)),
-          gasLimit: 2300000,
-        }
-      );
+      await accountManagerContract.depositEth(activeAccount, {
+        value: parseEther(String(depositAmount)),
+        gasLimit: 2300000,
+      });
     } else if (depositToken?.name === "USDC" || depositToken?.name === "USDT") {
       const erc20Contract = new Contract(
         arbTokensAddress[depositToken?.name],
@@ -349,21 +340,18 @@ const LevrageWithdraw = () => {
     const signer = await library?.getSigner();
     let accountManagerContract;
     if (currentNetwork.id === ARBITRUM_NETWORK) {
-      
       accountManagerContract = new Contract(
         arbAddressList.accountManagerContractAddress,
         AccountManager.abi,
         signer
       );
     } else if (currentNetwork.id === OPTIMISM_NETWORK) {
-      
       accountManagerContract = new Contract(
         opAddressList.accountManagerContractAddress,
         AccountManager.abi,
         signer
       );
     } else if (currentNetwork.id === BASE_NETWORK) {
-      
       accountManagerContract = new Contract(
         baseAddressList.accountManagerContractAddress,
         AccountManager.abi,
@@ -401,28 +389,25 @@ const LevrageWithdraw = () => {
     const signer = await library?.getSigner();
     let accountManagerContract;
     if (currentNetwork.id === ARBITRUM_NETWORK) {
-      
       accountManagerContract = new Contract(
         arbAddressList.accountManagerContractAddress,
         AccountManager.abi,
         signer
       );
     } else if (currentNetwork.id === OPTIMISM_NETWORK) {
-      
       accountManagerContract = new Contract(
         opAddressList.accountManagerContractAddress,
         AccountManager.abi,
         signer
       );
     } else if (currentNetwork.id === BASE_NETWORK) {
-      
       accountManagerContract = new Contract(
         baseAddressList.accountManagerContractAddress,
         AccountManager.abi,
         signer
       );
     }
-    if (borrowToken === undefined || ! accountManagerContract) return;
+    if (borrowToken === undefined || !accountManagerContract) return;
     else if (borrowToken?.name === "USDC" || borrowToken?.name === "USDT") {
       await accountManagerContract.borrow(
         activeAccount,
@@ -444,21 +429,18 @@ const LevrageWithdraw = () => {
     const signer = await library?.getSigner();
     let accountManagerContract;
     if (currentNetwork.id === ARBITRUM_NETWORK) {
-      
       accountManagerContract = new Contract(
         arbAddressList.accountManagerContractAddress,
         AccountManager.abi,
         signer
       );
     } else if (currentNetwork.id === OPTIMISM_NETWORK) {
-      
       accountManagerContract = new Contract(
         opAddressList.accountManagerContractAddress,
         AccountManager.abi,
         signer
       );
     } else if (currentNetwork.id === BASE_NETWORK) {
-      
       accountManagerContract = new Contract(
         baseAddressList.accountManagerContractAddress,
         AccountManager.abi,
@@ -604,9 +586,11 @@ const LevrageWithdraw = () => {
               </div>
             </div>
 
-            {isLeverage && (<div className="flex justify-between items-center mb-14">
-              <Slider value={leverageValue} onChange={setLeverageValue} />
-            </div>)}
+            {isLeverage && (
+              <div className="flex justify-between items-center mb-14">
+                <Slider value={leverageValue} onChange={setLeverageValue} />
+              </div>
+            )}
 
             <div className="flex flex-col sm:flex-row justify-between sm:items-center text-xl mb-8 gap-2 sm:gap-0">
               <div className="flex items-center">

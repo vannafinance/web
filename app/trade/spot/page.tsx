@@ -74,35 +74,31 @@ export default function Page() {
 
   const accountCheck = async () => {
     if (localStorage.getItem("isWalletConnected") === "true") {
-
       if (account) {
-        console.log("accoutn", account)
         try {
           const signer = await library?.getSigner();
 
-          let regitstryContract 
+          let regitstryContract;
           if (currentNetwork.id === ARBITRUM_NETWORK) {
-            regitstryContract= new Contract(
+            regitstryContract = new Contract(
               arbAddressList.registryContractAddress,
               Registry.abi,
               signer
             );
-          }
-          else if (currentNetwork.id === OPTIMISM_NETWORK) {
-            regitstryContract= new Contract(
+          } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+            regitstryContract = new Contract(
               opAddressList.registryContractAddress,
               Registry.abi,
               signer
             );
-          }
-          else if (currentNetwork.id === BASE_NETWORK) {
-            regitstryContract= new Contract(
+          } else if (currentNetwork.id === BASE_NETWORK) {
+            regitstryContract = new Contract(
               baseAddressList.registryContractAddress,
               Registry.abi,
               signer
             );
           }
-          if(regitstryContract){
+          if (regitstryContract) {
             const accountsArray = await regitstryContract.accountsOwnedBy(
               account
             );
@@ -391,7 +387,6 @@ export default function Page() {
             payCoin.name === "USDC") &&
           tokenOut === opAddressList.wethTokenAddress
         ) {
-          console.log("works");
           //struct
           const ExactInputSingleParams = {
             tokenIn: tokenIn,
