@@ -13,7 +13,9 @@ import { useWeb3React } from "@web3-react/core";
 import {
   arbAddressList,
   arbTokensAddress,
+  baseAddressList,
   baseTokensAddress,
+  opAddressList,
 } from "@/app/lib/web3-constants";
 
 import AccountManager from "../../abi/vanna/v1/out/AccountManager.sol/AccountManager.json";
@@ -28,10 +30,12 @@ import {
 import AccountOverview from "./account-overview";
 import CreateSmartAccountModal from "./create-smart-account-model";
 import Loader from "../components/loader";
+import { ARBITRUM_NETWORK, BASE_NETWORK, OPTIMISM_NETWORK } from "@/app/lib/constants";
+import { useNetwork } from "@/app/context/network-context";
 
 const LevrageWithdraw = () => {
   const { account, library } = useWeb3React();
-  // const { currentNetwork } = useNetwork();
+  const { currentNetwork } = useNetwork();
 
   const [loading, setLoading] = useState(false);
   const [disableBtn, setDisableBtn] = useState(true);
@@ -122,24 +126,44 @@ const LevrageWithdraw = () => {
 
   const accountCheck = async () => {
     if (localStorage?.getItem("isWalletConnected") === "true") {
+
       if (account) {
+        console.log("accoutn", account)
         try {
           const signer = await library?.getSigner();
 
-          const regitstryContract = new Contract(
-            arbAddressList.registryContractAddress,
-            Registry.abi,
-            signer
-          );
+          let regitstryContract 
+          if (currentNetwork.id === ARBITRUM_NETWORK) {
+            regitstryContract= new Contract(
+              arbAddressList.registryContractAddress,
+              Registry.abi,
+              signer
+            );
+          }
+          else if (currentNetwork.id === OPTIMISM_NETWORK) {
+            regitstryContract= new Contract(
+              opAddressList.registryContractAddress,
+              Registry.abi,
+              signer
+            );
+          }
+          else if (currentNetwork.id === BASE_NETWORK) {
+            regitstryContract= new Contract(
+              baseAddressList.registryContractAddress,
+              Registry.abi,
+              signer
+            );
+          }
+          if(regitstryContract){
+            const accountsArray = await regitstryContract.accountsOwnedBy(
+              account
+            );
+            let tempAccount;
 
-          const accountsArray = await regitstryContract.accountsOwnedBy(
-            account
-          );
-          let tempAccount;
-
-          if (accountsArray.length > 0) {
-            tempAccount = accountsArray[0];
-            setActiveAccount(tempAccount);
+            if (accountsArray.length > 0) {
+              tempAccount = accountsArray[0];
+              setActiveAccount(tempAccount);
+            }
           }
         } catch (e) {
           console.error(e);
@@ -227,22 +251,40 @@ const LevrageWithdraw = () => {
 
   const deposit = async () => {
     const signer = await library?.getSigner();
-    const accountManagerContract = new Contract(
-      arbAddressList.accountManagerContractAddress,
-      AccountManager.abi,
-      signer
-    );
+    let accountManagerContract;
+    if (currentNetwork.id === ARBITRUM_NETWORK) {
+      
+      accountManagerContract = new Contract(
+        arbAddressList.accountManagerContractAddress,
+        AccountManager.abi,
+        signer
+      );
+    } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+      
+      accountManagerContract = new Contract(
+        opAddressList.accountManagerContractAddress,
+        AccountManager.abi,
+        signer
+      );
+    } else if (currentNetwork.id === BASE_NETWORK) {
+      
+      accountManagerContract = new Contract(
+        baseAddressList.accountManagerContractAddress,
+        AccountManager.abi,
+        signer
+      );
+    }
 
     if (
       depositToken === undefined ||
       depositAmount === undefined ||
-      !activeAccount
+      !activeAccount || !accountManagerContract
     )
       return;
     else if (depositToken?.name === "WETH") {
       // await accountManagerContract.depositEth({ value: parseEther(depositAmount) });
       await accountManagerContract.depositEth(
-        "0xe93dDe42d9A17636B62b894B9911baa1Bdb1fD2e",
+        activeAccount,
         {
           value: parseEther(String(depositAmount)),
           gasLimit: 2300000,
@@ -305,16 +347,34 @@ const LevrageWithdraw = () => {
 
   const withdraw = async () => {
     const signer = await library?.getSigner();
-    const accountManagerContract = new Contract(
-      arbAddressList.accountManagerContractAddress,
-      AccountManager.abi,
-      signer
-    );
+    let accountManagerContract;
+    if (currentNetwork.id === ARBITRUM_NETWORK) {
+      
+      accountManagerContract = new Contract(
+        arbAddressList.accountManagerContractAddress,
+        AccountManager.abi,
+        signer
+      );
+    } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+      
+      accountManagerContract = new Contract(
+        opAddressList.accountManagerContractAddress,
+        AccountManager.abi,
+        signer
+      );
+    } else if (currentNetwork.id === BASE_NETWORK) {
+      
+      accountManagerContract = new Contract(
+        baseAddressList.accountManagerContractAddress,
+        AccountManager.abi,
+        signer
+      );
+    }
 
-    if (depositToken?.name === undefined) return;
+    if (depositToken?.name === undefined || !accountManagerContract) return;
     else if (depositToken?.name === "WETH") {
       await accountManagerContract.withdrawEth(
-        "0xe93dDe42d9A17636B62b894B9911baa1Bdb1fD2e",
+        activeAccount,
         parseEther(String(depositAmount)),
         {
           gasLimit: 2300000,
@@ -322,14 +382,14 @@ const LevrageWithdraw = () => {
       );
     } else if (depositToken?.name === "USDC" || depositToken?.name === "USDT") {
       await accountManagerContract.withdraw(
-        "0xe93dDe42d9A17636B62b894B9911baa1Bdb1fD2e",
+        activeAccount,
         arbTokensAddress[depositToken?.name],
         parseUnits(String(depositAmount), 6),
         { gasLimit: 2300000 }
       );
     } else {
       await accountManagerContract.withdraw(
-        "0xe93dDe42d9A17636B62b894B9911baa1Bdb1fD2e",
+        activeAccount,
         arbTokensAddress[depositToken?.name],
         parseEther(String(depositAmount)),
         { gasLimit: 2300000 }
@@ -339,22 +399,40 @@ const LevrageWithdraw = () => {
 
   const borrow = async () => {
     const signer = await library?.getSigner();
-    const accountManagerContract = new Contract(
-      arbAddressList.accountManagerContractAddress,
-      AccountManager.abi,
-      signer
-    );
-    if (borrowToken === undefined) return;
+    let accountManagerContract;
+    if (currentNetwork.id === ARBITRUM_NETWORK) {
+      
+      accountManagerContract = new Contract(
+        arbAddressList.accountManagerContractAddress,
+        AccountManager.abi,
+        signer
+      );
+    } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+      
+      accountManagerContract = new Contract(
+        opAddressList.accountManagerContractAddress,
+        AccountManager.abi,
+        signer
+      );
+    } else if (currentNetwork.id === BASE_NETWORK) {
+      
+      accountManagerContract = new Contract(
+        baseAddressList.accountManagerContractAddress,
+        AccountManager.abi,
+        signer
+      );
+    }
+    if (borrowToken === undefined || ! accountManagerContract) return;
     else if (borrowToken?.name === "USDC" || borrowToken?.name === "USDT") {
       await accountManagerContract.borrow(
-        "0xe93dDe42d9A17636B62b894B9911baa1Bdb1fD2e",
+        activeAccount,
         arbTokensAddress[borrowToken?.name],
         parseUnits(String(borrowAmount), 6),
         { gasLimit: 2300000 }
       );
     } else {
       await accountManagerContract.borrow(
-        "0xe93dDe42d9A17636B62b894B9911baa1Bdb1fD2e",
+        activeAccount,
         arbTokensAddress[borrowToken?.name],
         parseEther(String(borrowAmount)),
         { gasLimit: 2300000 }
@@ -364,23 +442,41 @@ const LevrageWithdraw = () => {
 
   const repay = async () => {
     const signer = await library?.getSigner();
-    const accountManagerContract = new Contract(
-      arbAddressList.accountManagerContractAddress,
-      AccountManager.abi,
-      signer
-    );
+    let accountManagerContract;
+    if (currentNetwork.id === ARBITRUM_NETWORK) {
+      
+      accountManagerContract = new Contract(
+        arbAddressList.accountManagerContractAddress,
+        AccountManager.abi,
+        signer
+      );
+    } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+      
+      accountManagerContract = new Contract(
+        opAddressList.accountManagerContractAddress,
+        AccountManager.abi,
+        signer
+      );
+    } else if (currentNetwork.id === BASE_NETWORK) {
+      
+      accountManagerContract = new Contract(
+        baseAddressList.accountManagerContractAddress,
+        AccountManager.abi,
+        signer
+      );
+    }
 
-    if (borrowToken === undefined) return;
+    if (borrowToken === undefined || !accountManagerContract) return;
     else if (borrowToken?.name === "USDC" || borrowToken?.name === "USDT") {
       await accountManagerContract.repay(
-        "0xe93dDe42d9A17636B62b894B9911baa1Bdb1fD2e",
+        activeAccount,
         arbTokensAddress[borrowToken?.name],
         parseUnits(String(borrowAmount), 6),
         { gasLimit: 2300000 }
       );
     } else {
       await accountManagerContract.repay(
-        "0xe93dDe42d9A17636B62b894B9911baa1Bdb1fD2e",
+        activeAccount,
         arbTokensAddress[borrowToken?.name],
         parseEther(String(borrowAmount)),
         { gasLimit: 2300000 }

@@ -2,8 +2,11 @@
 
 // import { useNetwork } from "@/app/context/network-context";
 import {
+  ARBITRUM_NETWORK,
+  BASE_NETWORK,
   // ARBITRUM_NETWORK,
   oneMonthTimestampInterval,
+  OPTIMISM_NETWORK,
   referralCode,
 } from "@/app/lib/constants";
 // import { Calculator } from "@phosphor-icons/react";
@@ -20,17 +23,23 @@ import {
   // arbTokensAddress,
   // codeToAsset,
   CollateralAssetCode,
+  opAddressList,
 } from "@/app/lib/web3-constants";
 import AccountManager from "../../abi/vanna/v1/out/AccountManager.sol/AccountManager.json";
 import MUX from "../../abi/vanna/v1/out/MUX.sol/MUX.json";
+import PerpVault from "../../abi/vanna/v1/out/PerpVault.sol/PerpVault.json";
+import ClearingHouse from "../../abi/vanna/v1/out/ClearingHouse.sol/ClearingHouse.json";
+// import OptimismFetchPosition from "../../abi/vanna/v1/out/OptimismFetchPosition.sol/OptimismFetchPosition.json";
 // import ERC20 from "../../abi/vanna/v1/out/ERC20.sol/ERC20.json";
 import Registry from "../../abi/vanna/v1/out/Registry.sol/Registry.json";
 // import LiquidityPool from "../../abi/vanna/v1/out/LiquidityPool.sol/LiquidityPool.json";
-import { Interface } from "ethers/lib/utils";
+import { Interface, parseEther } from "ethers/lib/utils";
+import { useNetwork } from "@/app/context/network-context";
+
 
 const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
   const { account, library } = useWeb3React();
-  // const { currentNetwork } = useNetwork();
+  const { currentNetwork } = useNetwork();
 
   // const pairOptions: Option[] = [
   //   { value: "ETH/USD", label: "ETH/USD", icon: "/eth-icon.svg" },
@@ -358,71 +367,159 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
     try {
       // order type = fixed
       // check if balance have colletral
-      if (activeAccount === undefined) return;
-      const longShort = buySell === "buy" ? "01" : "00";
-      const subAccountId =
-        activeAccount +
-        CollateralAssetCode[coin] +
-        CollateralAssetCode[market] +
-        longShort +
-        "000000000000000000";
-      const collateralAmountForPosition = BigNumber.from(
-        formatStringToUnits(
-          coin,
-          collateralAmount ? Number(collateralAmount) : 0
-        )
-      );
-      // let units = 18;
-      // if (coin == "USDC" || coin == "USDT") {
-      //   units = 6;
-      // }
-      const size = BigNumber.from(
-        formatStringToUnits(
-          coin,
-          collateralAmount ? Number(collateralAmount) : 1 * leverageValue
-        )
-      );
-      // this will changes, temporary static value
-      const flags = 192;
-      const tsplDeadline =
-        Math.floor(Date.now() / 1000) + oneMonthTimestampInterval;
-      const signer = await library?.getSigner();
-      const accountManagerContract = new Contract(
-        arbAddressList.accountManagerContractAddress,
-        AccountManager.abi,
-        signer
-      );
-      // const contract = new Contract(arbTokensAddress[coin], ERC20.abi, signer);
-      // const approveMuxContract = await contract.approve(
-      //   arbAddressList .muxFutureContractAddress,
-      //   collateralAmountForPosition
-      // );
-      // await sleep(3000);
-      const positionOrderExtras = {
-        tpPrice: 0,
-        slPrice: 0,
-        tpslProfitTokenId: 0,
-        tpslDeadline: tsplDeadline,
-      };
-      const iface = new Interface(MUX.abi);
-      const encodedData = iface.encodeFunctionData("placePositionOrder3", [
-        subAccountId,
-        collateralAmountForPosition,
-        size,
-        0,
-        0,
-        flags,
-        0,
-        referralCode,
-        positionOrderExtras,
-      ]);
-      await accountManagerContract.exec(
-        activeAccount,
-        arbAddressList.muxFutureContractAddress,
-        collateralAmountForPosition,
-        encodedData,
-        { gasLimit: 2300000 }
-      );
+      if (currentNetwork.id === ARBITRUM_NETWORK) {
+        if (activeAccount === undefined) return;
+        const longShort = buySell === "buy" ? "01" : "00";
+        const subAccountId =
+          activeAccount +
+          CollateralAssetCode[coin] +
+          CollateralAssetCode[market] +
+          longShort +
+          "000000000000000000";
+        const collateralAmountForPosition = BigNumber.from(
+          formatStringToUnits(
+            coin,
+            collateralAmount ? Number(collateralAmount) : 0
+          )
+        );
+        // let units = 18;
+        // if (coin == "USDC" || coin == "USDT") {
+        //   units = 6;
+        // }
+        const size = BigNumber.from(
+          formatStringToUnits(
+            coin,
+            collateralAmount ? Number(collateralAmount) : 1 * leverageValue
+          )
+        );
+        // this will changes, temporary static value
+        const flags = 192;
+        const tsplDeadline =
+          Math.floor(Date.now() / 1000) + oneMonthTimestampInterval;
+        const signer = await library?.getSigner();
+        const accountManagerContract = new Contract(
+          arbAddressList.accountManagerContractAddress,
+          AccountManager.abi,
+          signer
+        );
+        // const contract = new Contract(arbTokensAddress[coin], ERC20.abi, signer);
+        // const approveMuxContract = await contract.approve(
+        //   arbAddressList .muxFutureContractAddress,
+        //   collateralAmountForPosition
+        // );
+        // await sleep(3000);
+        const positionOrderExtras = {
+          tpPrice: 0,
+          slPrice: 0,
+          tpslProfitTokenId: 0,
+          tpslDeadline: tsplDeadline,
+        };
+        const iface = new Interface(MUX.abi);
+        const encodedData = iface.encodeFunctionData("placePositionOrder3", [
+          subAccountId,
+          collateralAmountForPosition,
+          size,
+          0,
+          0,
+          flags,
+          0,
+          referralCode,
+          positionOrderExtras,
+        ]);
+        await accountManagerContract.exec(
+          activeAccount,
+          arbAddressList.muxFutureContractAddress,
+          collateralAmountForPosition,
+          encodedData,
+          { gasLimit: 2300000 }
+        );
+      }
+      else if(currentNetwork.id === OPTIMISM_NETWORK){
+        if(!activeAccount || !collateralAmount) return;
+          const signer = await library?.getSigner();
+    
+          const accountManagerContract = new Contract(
+            opAddressList.accountManagerContractAddress,
+            AccountManager.abi,
+            signer
+          );
+          const depositAmount = BigNumber.from(
+            formatStringToUnits("USDC", collateralAmount ? Number(collateralAmount) : 0)
+          );
+          console.log("depi",depositAmount);
+    
+          // const positionSize = BigNumber.from(
+          //   formatBignumberToUnits(coin, collateralAmount.toString())
+          // );
+          // const asset = pairIndex[market];
+          await accountManagerContract.approve(
+            activeAccount,
+            opAddressList.usdcTokenAddress,
+            opAddressList.vault,
+            parseEther("1"),
+            { gasLimit: 2300000 }
+          );
+          
+          
+         
+          
+          let Amount = (Number(collateralAmount) * leverageValue); 
+          Amount = Amount;
+          console.log("Amount",Amount);
+          const withSlipedAmount = Number(collateralAmount) - (Number(collateralAmount)*1)/100;
+          console.log("withSlipedAmount",withSlipedAmount);
+          const  OppositeAmountBound = ((withSlipedAmount * leverageValue/getPriceFromAssetsArray("WETH")));
+          const OppositeAmountBoundBN = BigNumber.from(
+            formatStringToUnits("WETH", OppositeAmountBound)
+          );
+          const AmountBN = BigNumber.from(
+            formatStringToUnits("WETH", Amount)
+          );
+          console.log("leverageValue",leverageValue);
+          console.log("assetsPrice",AmountBN);
+          console.log("collateralAmount",OppositeAmountBoundBN);
+          
+          const openPositionParams ={
+            baseToken :  opAddressList.vETH, // vETH of perp 
+            isBaseToQuote : false, //(base: USDC and Quote: ETH)
+            isExactInput : true,
+            amount : AmountBN,
+            oppositeAmountBound : OppositeAmountBoundBN,
+            deadline : "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+            sqrtPriceLimitX96 : 0,
+            referralCode : "0x0000000000000000000000000000000000000000000000000000000000000000",
+          }
+          console.log("openPositionParams",openPositionParams);
+          const data = [];
+          const target = [];
+          const iface = new Interface(PerpVault.abi);
+          data.push(iface.encodeFunctionData("deposit", [
+            opAddressList.usdcTokenAddress,
+            depositAmount
+          ]));
+    
+          const iface1 = new Interface(ClearingHouse.abi);
+          data.push(iface1.encodeFunctionData("openPosition", [
+            openPositionParams
+          ]));
+          target.push(opAddressList.vault);
+          target.push(opAddressList.ClearingHouse);
+          await accountManagerContract.exec(
+            activeAccount,
+            target,
+            0,
+            data,
+            { gasLimit: 2300000 }
+          );
+    
+          await sleep(3000);
+          // fetchPositions(activeAccount);
+          
+        }
+      
+      else if(currentNetwork.id === BASE_NETWORK){
+
+      }
       await sleep(3000);
       // getTokenBalance();
     } catch (e) {

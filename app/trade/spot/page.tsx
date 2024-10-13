@@ -8,7 +8,13 @@ import {
   formatStringToUnits,
   sleep,
 } from "@/app/lib/helper";
-import { arbAddressList, arbTokensAddress } from "@/app/lib/web3-constants";
+import {
+  arbAddressList,
+  arbTokensAddress,
+  baseAddressList,
+  opAddressList,
+  opTokensAddress,
+} from "@/app/lib/web3-constants";
 import TokenDropdown from "@/app/ui/components/token-dropdown";
 import Loader from "@/app/ui/components/loader";
 import { poolsPlaceholder } from "@/app/lib/static-values";
@@ -23,11 +29,13 @@ import AccountManager from "../../abi/vanna/v1/out/AccountManager.sol/AccountMan
 import ERC20 from "../../abi/vanna/v1/out/ERC20.sol/ERC20.json";
 import ISwapRouterV3 from "../../abi/vanna/v1/out/ISwapRouterV3.sol/ISwapRouterV3.json";
 import Registry from "../../abi/vanna/v1/out/Registry.sol/Registry.json";
+import { ARBITRUM_NETWORK, BASE_NETWORK, OPTIMISM_NETWORK } from "@/app/lib/constants";
+import { useNetwork } from "@/app/context/network-context";
 
 export default function Page() {
   const { account, library } = useWeb3React();
   const [activeAccount, setActiveAccount] = useState();
-  // const { currentNetwork } = useNetwork();
+  const { currentNetwork } = useNetwork();
   const [loading, setLoading] = useState(false);
   const [disableBtn, setDisableBtn] = useState(true);
   const [btnValue, setBtnValue] = useState("Enter an amount");
@@ -66,24 +74,44 @@ export default function Page() {
 
   const accountCheck = async () => {
     if (localStorage?.getItem("isWalletConnected") === "true") {
+
       if (account) {
+        console.log("accoutn", account)
         try {
           const signer = await library?.getSigner();
 
-          const regitstryContract = new Contract(
-            arbAddressList.registryContractAddress,
-            Registry.abi,
-            signer
-          );
+          let regitstryContract 
+          if (currentNetwork.id === ARBITRUM_NETWORK) {
+            regitstryContract= new Contract(
+              arbAddressList.registryContractAddress,
+              Registry.abi,
+              signer
+            );
+          }
+          else if (currentNetwork.id === OPTIMISM_NETWORK) {
+            regitstryContract= new Contract(
+              opAddressList.registryContractAddress,
+              Registry.abi,
+              signer
+            );
+          }
+          else if (currentNetwork.id === BASE_NETWORK) {
+            regitstryContract= new Contract(
+              baseAddressList.registryContractAddress,
+              Registry.abi,
+              signer
+            );
+          }
+          if(regitstryContract){
+            const accountsArray = await regitstryContract.accountsOwnedBy(
+              account
+            );
+            let tempAccount;
 
-          const accountsArray = await regitstryContract.accountsOwnedBy(
-            account
-          );
-          let tempAccount;
-
-          if (accountsArray.length > 0) {
-            tempAccount = accountsArray[0];
-            setActiveAccount(tempAccount);
+            if (accountsArray.length > 0) {
+              tempAccount = accountsArray[0];
+              setActiveAccount(tempAccount);
+            }
           }
         } catch (e) {
           console.error(e);
@@ -92,6 +120,7 @@ export default function Page() {
         setActiveAccount(undefined);
       }
     }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -178,152 +207,319 @@ export default function Page() {
       if (!payInput) {
         return;
       }
+      if (currentNetwork.id === ARBITRUM_NETWORK) {
+        const signer = await library?.getSigner();
+        // struct Data
+        const tokenIn = arbTokensAddress[payCoin.name];
+        const tokenOut = arbTokensAddress[receiveCoin.name];
+        const fee = 3000;
+        const amountIn = formatStringToUnits(payCoin.name, payInput);
+        const amountOut = 0;
+        const sqrtPriceLimitX96 = 0;
 
-      const signer = await library?.getSigner();
-      // struct Data
-      const tokenIn = arbTokensAddress[payCoin.name];
-      const tokenOut = arbTokensAddress[receiveCoin.name];
-      const fee = 3000;
-      const amountIn = formatStringToUnits(payCoin.name, payInput);
-      const amountOut = 0;
-      const sqrtPriceLimitX96 = 0;
-
-      // Instance
-      const accountManagerContract = new Contract(
-        arbAddressList.accountManagerContractAddress,
-        AccountManager.abi,
-        signer
-      );
-      // const SwapRouterContract = new Contract(
-      //   arbAddressList.uniswapRouterAddress,
-      //   ISwapRouterV3.abi,
-      //   signer
-      // )
-
-      if (
-        //AnyToken <=> WETH
-        (payCoin.name === "WBTC" ||
-          payCoin.name === "DAI" ||
-          payCoin.name === "USDT" ||
-          payCoin.name === "USDC") &&
-        tokenOut === arbAddressList.wethTokenAddress
-      ) {
-        //struct
-        const ExactInputSingleParams = {
-          tokenIn: tokenIn,
-          tokenOut: tokenOut,
-          fee: fee,
-          recipient: arbAddressList.uniswapRouterAddress, // here 1st reciver is router and then unwrap happen
-          amountIn: amountIn,
-          amountOutMinimum: amountOut,
-          sqrtPriceLimitX96: sqrtPriceLimitX96,
-        };
-        // @TODO: check allowance
-        // Approve
-        await accountManagerContract.approve(
-          activeAccount,
-          tokenIn,
-          arbAddressList.uniswapRouterAddress,
-          amountIn
+        // Instance
+        const accountManagerContract = new Contract(
+          arbAddressList.accountManagerContractAddress,
+          AccountManager.abi,
+          signer
         );
-        await sleep(3000);
-        // swapping from anycoin to WETH and WETH to ETH
-        const data = [];
-        let target = [];
-        let multiData = [];
+        // const SwapRouterContract = new Contract(
+        //   arbAddressList.uniswapRouterAddress,
+        //   ISwapRouterV3.abi,
+        //   signer
+        // )
 
-        // combine two transaction exactInputSingle and unwrapWETH9
-        const iface = new Interface(ISwapRouterV3.abi);
-        multiData.push(
-          iface.encodeFunctionData("exactInputSingle", [ExactInputSingleParams])
-        );
-        multiData.push(
-          iface.encodeFunctionData("unwrapWETH9(uint256,address)", [
-            0,
+        if (
+          //AnyToken <=> WETH
+          (payCoin.name === "WBTC" ||
+            payCoin.name === "DAI" ||
+            payCoin.name === "USDT" ||
+            payCoin.name === "USDC") &&
+          tokenOut === arbAddressList.wethTokenAddress
+        ) {
+          //struct
+          const ExactInputSingleParams = {
+            tokenIn: tokenIn,
+            tokenOut: tokenOut,
+            fee: fee,
+            recipient: arbAddressList.uniswapRouterAddress, // here 1st reciver is router and then unwrap happen
+            amountIn: amountIn,
+            amountOutMinimum: amountOut,
+            sqrtPriceLimitX96: sqrtPriceLimitX96,
+          };
+          // @TODO: check allowance
+          // Approve
+          await accountManagerContract.approve(
             activeAccount,
-          ])
-        );
+            tokenIn,
+            arbAddressList.uniswapRouterAddress,
+            amountIn
+          );
+          await sleep(3000);
+          // swapping from anycoin to WETH and WETH to ETH
+          const data = [];
+          let target = [];
+          let multiData = [];
 
-        // adding that combine transaction
-        data.push(iface.encodeFunctionData("multicall(bytes[])", [multiData]));
-        target.push(arbAddressList.uniswapRouterAddress);
+          // combine two transaction exactInputSingle and unwrapWETH9
+          const iface = new Interface(ISwapRouterV3.abi);
+          multiData.push(
+            iface.encodeFunctionData("exactInputSingle", [
+              ExactInputSingleParams,
+            ])
+          );
+          multiData.push(
+            iface.encodeFunctionData("unwrapWETH9(uint256,address)", [
+              0,
+              activeAccount,
+            ])
+          );
 
-        // execute
-        await accountManagerContract.exec(
-          activeAccount,
-          target,
-          0, // amount in is anytoken
-          data,
-          { gasLimit: 2300000 }
-        );
-      } else if (payCoin.name === "WETH") {
-        // WETH <=> AnyToken native ETH
-        // struct
-        const ExactInputSingleParams = {
-          tokenIn: tokenIn,
-          tokenOut: tokenOut,
-          fee: fee,
-          recipient: activeAccount,
-          amountIn: amountIn,
-          amountOutMinimum: amountOut,
-          sqrtPriceLimitX96: sqrtPriceLimitX96,
-        };
-        //encoding
-        let data = [];
-        let target = [];
-        const iface = new Interface(ISwapRouterV3.abi);
-        data.push(
-          iface.encodeFunctionData("exactInputSingle", [ExactInputSingleParams])
-        );
-        target.push(arbAddressList.uniswapRouterAddress);
-        // execute
-        await accountManagerContract.exec(
-          activeAccount,
-          target,
-          amountIn, // change to ZERO if the paycoin is WETH (here it's payable because swaping from native ETH )
-          data,
-          { gasLimit: 2300000 }
-        );
-      } else {
-        // ANYTOKEN <=> ANYTOKEN
-        //struct
-        const ExactInputSingleParams = {
-          tokenIn: tokenIn,
-          tokenOut: tokenOut,
-          fee: fee,
-          recipient: arbAddressList.uniswapRouterAddress,
-          amountIn: amountIn,
-          amountOutMinimum: amountOut,
-          sqrtPriceLimitX96: sqrtPriceLimitX96,
-        };
+          // adding that combine transaction
+          data.push(
+            iface.encodeFunctionData("multicall(bytes[])", [multiData])
+          );
+          target.push(arbAddressList.uniswapRouterAddress);
 
-        // Approve
-        await accountManagerContract.approve(
-          activeAccount,
-          tokenIn,
-          arbAddressList.uniswapRouterAddress,
-          amountIn
-        );
+          // execute
+          await accountManagerContract.exec(
+            activeAccount,
+            target,
+            0, // amount in is anytoken
+            data,
+            { gasLimit: 2300000 }
+          );
+        } else if (payCoin.name === "WETH") {
+          // WETH <=> AnyToken native ETH
+          // struct
+          const ExactInputSingleParams = {
+            tokenIn: tokenIn,
+            tokenOut: tokenOut,
+            fee: fee,
+            recipient: activeAccount,
+            amountIn: amountIn,
+            amountOutMinimum: amountOut,
+            sqrtPriceLimitX96: sqrtPriceLimitX96,
+          };
+          //encoding
+          let data = [];
+          let target = [];
+          const iface = new Interface(ISwapRouterV3.abi);
+          data.push(
+            iface.encodeFunctionData("exactInputSingle", [
+              ExactInputSingleParams,
+            ])
+          );
+          target.push(arbAddressList.uniswapRouterAddress);
+          // execute
+          await accountManagerContract.exec(
+            activeAccount,
+            target,
+            amountIn, // change to ZERO if the paycoin is WETH (here it's payable because swaping from native ETH )
+            data,
+            { gasLimit: 2300000 }
+          );
+        } else {
+          // ANYTOKEN <=> ANYTOKEN
+          //struct
+          const ExactInputSingleParams = {
+            tokenIn: tokenIn,
+            tokenOut: tokenOut,
+            fee: fee,
+            recipient: arbAddressList.uniswapRouterAddress,
+            amountIn: amountIn,
+            amountOutMinimum: amountOut,
+            sqrtPriceLimitX96: sqrtPriceLimitX96,
+          };
+
+          // Approve
+          await accountManagerContract.approve(
+            activeAccount,
+            tokenIn,
+            arbAddressList.uniswapRouterAddress,
+            amountIn
+          );
+
+          await sleep(3000);
+          let data = [];
+          let target = [];
+
+          const iface = new Interface(ISwapRouterV3.abi);
+          data.push(
+            iface.encodeFunctionData("exactInputSingle", [
+              ExactInputSingleParams,
+            ])
+          );
+          target.push(arbAddressList.uniswapRouterAddress);
+          // execute
+          await accountManagerContract.exec(activeAccount, target, 0, data, {
+            gasLimit: 2300000,
+          });
+        }
 
         await sleep(3000);
-        let data = [];
-        let target = [];
+        await balanceFetch();
+        setPayInput(undefined);
+        setReceiveInput(undefined);
+      } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+        const signer = await library?.getSigner();
+        // struct Data
+        const tokenIn = opTokensAddress[payCoin.name];
+        const tokenOut = opTokensAddress[receiveCoin.name];
+        const fee = 3000;
+        const amountIn = formatStringToUnits(payCoin.name, payInput);
+        const amountOut = 0;
+        const sqrtPriceLimitX96 = 0;
 
-        const iface = new Interface(ISwapRouterV3.abi);
-        data.push(
-          iface.encodeFunctionData("exactInputSingle", [ExactInputSingleParams])
+        // Instance
+        const accountManagerContract = new Contract(
+          opAddressList.accountManagerContractAddress,
+          AccountManager.abi,
+          signer
         );
-        target.push(arbAddressList.uniswapRouterAddress);
-        // execute
-        await accountManagerContract.exec(activeAccount, target, 0, data, {
-          gasLimit: 2300000,
-        });
+        const SwapRouterContract = new Contract(
+          opAddressList.uniswapRouterAddress,
+          ISwapRouterV3.abi,
+          signer
+        );
+
+        if (
+          //AnyToken <=> WETH
+          (payCoin.name === "WBTC" ||
+            payCoin.name === "DAI" ||
+            payCoin.name === "USDT" ||
+            payCoin.name === "USDC") &&
+          tokenOut === opAddressList.wethTokenAddress
+        ) {
+          console.log("works");
+          //struct
+          const ExactInputSingleParams = {
+            tokenIn: tokenIn,
+            tokenOut: tokenOut,
+            fee: fee,
+            recipient: opAddressList.uniswapRouterAddress, // here 1st reciver is router and then unwrap happen
+            amountIn: amountIn,
+            amountOutMinimum: amountOut,
+            sqrtPriceLimitX96: sqrtPriceLimitX96,
+          };
+          // @TODO: check allowance
+          // Approve
+          await accountManagerContract.approve(
+            activeAccount,
+            tokenIn,
+            opAddressList.uniswapRouterAddress,
+            amountIn
+          );
+
+          await sleep(3000);
+          // swapping from anycoin to WETH and WETH to ETH
+          let data = [];
+          let target = [];
+          let multiData = [];
+
+          // combine two transaction exactInputSingle and unwrapWETH9
+          const iface = new Interface(ISwapRouterV3.abi);
+          multiData.push(
+            iface.encodeFunctionData("exactInputSingle", [
+              ExactInputSingleParams,
+            ])
+          );
+          multiData.push(
+            iface.encodeFunctionData("unwrapWETH9(uint256,address)", [
+              0,
+              activeAccount,
+            ])
+          );
+
+          // adding that combine transaction
+          data.push(
+            iface.encodeFunctionData("multicall(bytes[])", [multiData])
+          );
+          target.push(opAddressList.uniswapRouterAddress);
+
+          // execute
+          await accountManagerContract.exec(
+            activeAccount,
+            target,
+            0, // amount in is anytoken
+            data,
+            { gasLimit: 2300000 }
+          );
+        } else if (payCoin.name === "WETH") {
+          // WETH <=> AnyToken native ETH
+          // struct
+          const ExactInputSingleParams = {
+            tokenIn: tokenIn,
+            tokenOut: tokenOut,
+            fee: fee,
+            recipient: activeAccount,
+            amountIn: amountIn,
+            amountOutMinimum: amountOut,
+            sqrtPriceLimitX96: sqrtPriceLimitX96,
+          };
+          //encoding
+          let data = [];
+          let target = [];
+          const iface = new Interface(ISwapRouterV3.abi);
+          data.push(
+            iface.encodeFunctionData("exactInputSingle", [
+              ExactInputSingleParams,
+            ])
+          );
+          target.push(opAddressList.uniswapRouterAddress);
+          // execute
+          await accountManagerContract.exec(
+            activeAccount,
+            target,
+            amountIn, // change to ZERO if the paycoin is WETH (here it's payable because swaping from native ETH )
+            data,
+            { gasLimit: 2300000 }
+          );
+        } else {
+          // ANYTOKEN <=> ANYTOKEN
+          //struct
+          const ExactInputSingleParams = {
+            tokenIn: tokenIn,
+            tokenOut: tokenOut,
+            fee: fee,
+            recipient: opAddressList.uniswapRouterAddress,
+            amountIn: amountIn,
+            amountOutMinimum: amountOut,
+            sqrtPriceLimitX96: sqrtPriceLimitX96,
+          };
+
+          // Approve
+          await accountManagerContract.approve(
+            activeAccount,
+            tokenIn,
+            opAddressList.uniswapRouterAddress,
+            amountIn
+          );
+          await sleep(3000);
+          let data = [];
+          let target = [];
+
+          const iface = new Interface(ISwapRouterV3.abi);
+          data.push(
+            iface.encodeFunctionData("exactInputSingle", [
+              ExactInputSingleParams,
+            ])
+          );
+          target.push(opAddressList.uniswapRouterAddress);
+          // execute
+          await accountManagerContract.exec(activeAccount, target, 0, data, {
+            gasLimit: 2300000,
+          });
+        }
+
+        await sleep(3000);
+        await balanceFetch();
+        setPayInput(undefined);
+        setReceiveInput(undefined);
+        // setPayBalance(ceilWithPrecision(balList[payCoin], 6));
+        // setReceiveBalance(ceilWithPrecision(balList[receiveCoin], 6));
       }
 
-      await sleep(3000);
-      await balanceFetch();
-      setPayInput(undefined);
-      setReceiveInput(undefined);
       // setPayBalance(ceilWithPrecision(balList[payCoin], 6));
       // setReceiveBalance(ceilWithPrecision(balList[receiveCoin], 6);
     } catch (e) {
