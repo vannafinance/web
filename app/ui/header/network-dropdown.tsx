@@ -20,7 +20,7 @@ export const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
         method: "wallet_switchEthereumChain",
         params: [{ chainId: network.chainId }],
       });
-      await sleep(3000);
+      await sleep(1500);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (networkSwitchError: any) {
       if (networkSwitchError.code === 4902) {

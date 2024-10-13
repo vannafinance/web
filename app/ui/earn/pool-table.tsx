@@ -3,6 +3,7 @@
 
 import { useNetwork } from "@/app/context/network-context";
 import {
+  ARBITRUM_NETWORK,
   BASE_NETWORK,
   // ARBITRUM_NETWORK,
   OPTIMISM_NETWORK,
@@ -43,7 +44,8 @@ const PoolsTable = () => {
   useEffect(() => {
     try {
       if (account) {
-        if (currentNetwork.id === BASE_NETWORK) {
+        console.log(currentNetwork.id);
+        if (currentNetwork.id === ARBITRUM_NETWORK) {
           const fetchValues = async () => {
             const iFaceEth = new utils.Interface(VEther.abi);
             const iFaceToken = new utils.Interface(VToken.abi);
@@ -1028,7 +1030,7 @@ const PoolsTable = () => {
     } catch (error) {
       console.error(error);
     }
-  }, [account]);
+  }, [account, currentNetwork]);
 
   return (
     <div className="mt-4 overflow-x-auto">
