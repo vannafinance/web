@@ -31,16 +31,16 @@ export default function AccessPage() {
   };
 
   return (
-    <div className="flex items-center justify-center h-[calc(100vh-64px)] bg-baseBackground">
+    <div className="flex items-center justify-center h-[calc(100vh-64px)] bg-baseBackground text-baseBlack dark:text-baseWhite">
       <div className="w-full max-w-md px-4">
-        <div className="bg-baseComplementary p-8 rounded-3xl">
+        <div className="bg-baseComplementary dark:bg-baseDarkComplementary p-8 rounded-3xl">
           <h1 className="mb-4 text-xl font-semibold text-center">Enter Access Code</h1>
           <form onSubmit={handleSubmit}>
             <input
               type="text"
               value={code}
               onChange={(e) => setCode(e.target.value)}
-              className="w-full mb-4 p-2 border text-baseBlack border-neutral-300 rounded-lg"
+              className="w-full mb-4 p-2 border border-neutral-300 dark:border-neutral-700 rounded-lg dark:bg-baseDark"
               placeholder="4886"
               required
             />
