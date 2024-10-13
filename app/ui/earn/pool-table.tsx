@@ -17,7 +17,7 @@ import Link from "next/link";
 
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { ethers, utils, Contract } from "ethers";
+import { utils, Contract } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
 
 import VEther from "@/app/abi/vanna/v1/out/VEther.sol/VEther.json";
@@ -44,7 +44,6 @@ const PoolsTable = () => {
   useEffect(() => {
     try {
       if (account) {
-        console.log(currentNetwork.id);
         if (currentNetwork.id === ARBITRUM_NETWORK) {
           const fetchValues = async () => {
             const iFaceEth = new utils.Interface(VEther.abi);
@@ -1057,16 +1056,9 @@ const PoolsTable = () => {
                 <div className="z-10">{pool.id}</div>
                 <div className="z-10 ">
                   <div className="flex items-center">
-                    <Image
-                      src={pool.icon}
-                      alt=""
-                      width="24"
-                      height="24"
-                    />
+                    <Image src={pool.icon} alt="" width="24" height="24" />
                     <div className="ml-4 flex items-center space-x-2">
-                      <div className="font-medium">
-                        {pool.name}
-                      </div>
+                      <div className="font-medium">{pool.name}</div>
                       {pool.version != undefined && pool.version > 0 && (
                         <span className="px-2 inline-flex text-xs leading-4 font-medium rounded-md bg-purpleBG-lighter text-purple">
                           v{pool.version}

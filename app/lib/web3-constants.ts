@@ -15,7 +15,7 @@ export const injected = new InjectedConnector({
   ],
 });
 
-export const allowedChainIds = [8453, 10, 42161];
+export const allowedChainIds = [8453, 42161, 10];
 
 export const getShortenedAddress = (address: string, start = 6, end = 4) => {
   if (address != "") {

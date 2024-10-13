@@ -2,7 +2,7 @@
 
 import { SunDim } from "@phosphor-icons/react";
 import NetworkDropdown from "./network-dropdown";
-import useDarkMode from "./use-dark-mode";
+import { useDarkMode } from "./use-dark-mode";
 import { useNetwork } from "@/app/context/network-context";
 
 import { useWeb3React } from "@web3-react/core";
@@ -22,7 +22,7 @@ export default function NavbarButtons() {
     try {
       await activate(injected, undefined, true);
       await checkNetwork();
-      localStorage?.setItem("isWalletConnected", "true");
+      localStorage.setItem("isWalletConnected", "true");
       addNotification("info", "Wallet connected successfully.");
     } catch (e) {
       errorHandlingForConnectWallet(e);
@@ -31,7 +31,7 @@ export default function NavbarButtons() {
 
   const checkNetwork = async () => {
     if (chainId && !allowedChainIds.includes(chainId)) {
-      switchNetwork();
+      // switchNetwork();
       // setButtonText("Switch Network");
     } else {
       if (account) {
@@ -112,12 +112,12 @@ export default function NavbarButtons() {
 
   const wallectDisconnect = useCallback(async () => {
     deactivate();
-    localStorage?.removeItem("isWalletConnected");
+    localStorage.removeItem("isWalletConnected");
   }, [deactivate]);
 
   useEffect(() => {
     const connectWalletOnPageLoad = async () => {
-      if (localStorage?.getItem("isWalletConnected") === "true") {
+      if (localStorage.getItem("isWalletConnected") === "true") {
         try {
           await activate(injected, undefined, true);
           await sleep(3000);

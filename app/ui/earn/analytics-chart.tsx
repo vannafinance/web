@@ -173,12 +173,12 @@ const AnalyticsChart = ({ pool }: { pool: PoolTable }) => {
               dataKey="date"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#0a0a0b", fontSize: 14 }}
+              tick={{ fontSize: 14 }}
             />
             <YAxis
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#0a0a0b", fontSize: 14, dx: 20 }}
+              tick={{ fontSize: 14, dx: 20 }}
               orientation="right"
               domain={["dataMin - 0.1", "dataMax + 0.1"]}
               tickFormatter={(value) => value.toFixed(2)}

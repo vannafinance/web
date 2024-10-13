@@ -49,12 +49,12 @@ const UtilizationChart = ({ pool }: { pool: PoolTable }) => {
               dataKey="name"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#0a0a0b", fontSize: 14 }}
+              tick={{ fontSize: 14 }}
             />
             <YAxis
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#0a0a0b", fontSize: 14 }}
+              tick={{ fontSize: 14 }}
               orientation="right"
               domain={[0, 80]}
               tickFormatter={(value) => value.toFixed(2)}
