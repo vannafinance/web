@@ -96,7 +96,19 @@ const LevrageWithdraw = () => {
 
   useEffect(() => {
     const tokenName = depositToken ? depositToken.name : "";
-    if (depositAmount === undefined || depositAmount <= 0) {
+    if (
+      (depositAmount === undefined && borrowAmount === undefined) ||
+      (depositAmount === undefined &&
+        borrowAmount !== undefined &&
+        borrowAmount <= 0) ||
+      (borrowAmount === undefined &&
+        depositAmount !== undefined &&
+        depositAmount <= 0) ||
+      (depositAmount !== undefined &&
+        depositAmount <= 0 &&
+        borrowAmount !== undefined &&
+        borrowAmount <= 0)
+    ) {
       setBtnValue("Enter an amount");
       setDisableBtn(true);
     } else if (
@@ -109,30 +121,35 @@ const LevrageWithdraw = () => {
     } else {
       setBtnValue(
         isLeverage
-          ? borrowAmount && borrowAmount > 0
+          ? depositAmount && borrowAmount
             ? tokenName === "WETH"
               ? "Deposit & Borrow"
               : "Approve - Deposit & Borrow"
-            : tokenName === "WETH"
-            ? "Deposit"
-            : "Approve - Deposit"
-          : borrowAmount && borrowAmount > 0
-          ? tokenName === "WETH"
-            ? "Repay & Withdraw"
-            : "Approve - Repay & Withdraw"
-          : tokenName === "WETH"
+            : !borrowAmount || borrowAmount <= 0
+            ? tokenName === "WETH"
+              ? "Deposit"
+              : "Approve - Deposit"
+            : "Borrow"
+          : depositAmount && borrowAmount
+          ? "Repay & Withdraw"
+          : !borrowAmount || borrowAmount <= 0
           ? "Repay"
-          : "Approve - Repay"
+          : "Withdraw"
       );
       setDisableBtn(false);
     }
-  }, [depositAmount, depositBalance, isLeverage, borrowAmount, depositToken]);
-  console.log(account);
-  
+  }, [
+    depositAmount,
+    depositBalance,
+    isLeverage,
+    borrowAmount,
+    depositToken,
+    borrowToken,
+  ]);
+
   const accountCheck = async () => {
-    console.log('activeaccount')
     if (localStorage.getItem("isWalletConnected") === "true") {
-      if (account) {
+      if (account && currentNetwork) {
         try {
           const signer = await library?.getSigner();
 
@@ -149,7 +166,6 @@ const LevrageWithdraw = () => {
               Registry.abi,
               signer
             );
-            console.log("op in the chat")
           } else if (currentNetwork.id === BASE_NETWORK) {
             regitstryContract = new Contract(
               baseAddressList.registryContractAddress,
@@ -162,7 +178,6 @@ const LevrageWithdraw = () => {
               account
             );
             let tempAccount;
-            console.log('accountsArray',accountsArray)
             if (accountsArray.length > 0) {
               tempAccount = accountsArray[0];
               setActiveAccount(tempAccount);
@@ -180,7 +195,7 @@ const LevrageWithdraw = () => {
 
   const getTokenBalance = async (token = depositToken) => {
     try {
-      if (account) {
+      if (account && currentNetwork) {
         const signer = await library?.getSigner();
         let depositBalance;
         let borrowBalance;
@@ -251,7 +266,7 @@ const LevrageWithdraw = () => {
   useEffect(() => {
     accountCheck();
     getTokenBalance();
-  }, [account, activeAccount]);
+  }, [account, activeAccount, currentNetwork]);
 
   useEffect(() => {
     if (borrowAmount && borrowAmount > 0) {
@@ -274,6 +289,7 @@ const LevrageWithdraw = () => {
   };
 
   const deposit = async () => {
+    if (currentNetwork) return;
     const signer = await library?.getSigner();
     let accountManagerContract;
     if (currentNetwork.id === ARBITRUM_NETWORK) {
@@ -365,6 +381,7 @@ const LevrageWithdraw = () => {
   };
 
   const withdraw = async () => {
+    if (currentNetwork) return;
     const signer = await library?.getSigner();
     let accountManagerContract;
     if (currentNetwork.id === ARBITRUM_NETWORK) {
@@ -414,6 +431,7 @@ const LevrageWithdraw = () => {
   };
 
   const borrow = async () => {
+    if (currentNetwork) return;
     const signer = await library?.getSigner();
     let accountManagerContract;
     if (currentNetwork.id === ARBITRUM_NETWORK) {
@@ -454,6 +472,7 @@ const LevrageWithdraw = () => {
   };
 
   const repay = async () => {
+    if (currentNetwork) return;
     const signer = await library?.getSigner();
     let accountManagerContract;
     if (currentNetwork.id === ARBITRUM_NETWORK) {
