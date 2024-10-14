@@ -54,7 +54,7 @@ export const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
     onSelect(network);
   };
 
-  useEffect(() => {
+  const networkCheck = () => {
     if (account) {
       if (chainId === 8453) {
         setSelectedNetwork(options[0]);
@@ -68,6 +68,14 @@ export const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
     }
 
     setIsOpen(false);
+  }
+
+  useEffect(() => {
+    networkCheck();
+  }, []);
+
+  useEffect(() => {
+    networkCheck();
   }, [account, chainId]);
 
   const handleSelect = (network: NetworkOption) => {

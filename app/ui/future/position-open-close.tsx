@@ -27,6 +27,7 @@ import {
   opAddressList,
 } from "@/app/lib/web3-constants";
 import AccountManager from "../../abi/vanna/v1/out/AccountManager.sol/AccountManager.json";
+import AccountManagerop from "../../abi/vanna/v1/out/AccountManager-op.sol/AccountManager-op.json";
 import MUX from "../../abi/vanna/v1/out/MUX.sol/MUX.json";
 import PerpVault from "../../abi/vanna/v1/out/PerpVault.sol/PerpVault.json";
 import ClearingHouse from "../../abi/vanna/v1/out/ClearingHouse.sol/ClearingHouse.json";
@@ -473,7 +474,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
 
         const accountManagerContract = new Contract(
           opAddressList.accountManagerContractAddress,
-          AccountManager.abi,
+          AccountManagerop.abi,
           signer
         );
         const depositAmount = BigNumber.from(

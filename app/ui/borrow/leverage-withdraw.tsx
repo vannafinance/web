@@ -127,8 +127,10 @@ const LevrageWithdraw = () => {
       setDisableBtn(false);
     }
   }, [depositAmount, depositBalance, isLeverage, borrowAmount, depositToken]);
-
+  console.log(account);
+  
   const accountCheck = async () => {
+    console.log('activeaccount')
     if (localStorage.getItem("isWalletConnected") === "true") {
       if (account) {
         try {
@@ -147,6 +149,7 @@ const LevrageWithdraw = () => {
               Registry.abi,
               signer
             );
+            console.log("op in the chat")
           } else if (currentNetwork.id === BASE_NETWORK) {
             regitstryContract = new Contract(
               baseAddressList.registryContractAddress,
@@ -159,7 +162,7 @@ const LevrageWithdraw = () => {
               account
             );
             let tempAccount;
-
+            console.log('accountsArray',accountsArray)
             if (accountsArray.length > 0) {
               tempAccount = accountsArray[0];
               setActiveAccount(tempAccount);

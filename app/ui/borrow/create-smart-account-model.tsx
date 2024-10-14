@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { X } from "@phosphor-icons/react";
 import { Contract } from "ethers";
 import AccountManager from "../../abi/vanna/v1/out/AccountManager.sol/AccountManager.json";
+import AccountManagerop from "../../abi/vanna/v1/out/AccountManager-op.sol/AccountManager-op.json";
 import Registry from "../../abi/vanna/v1/out/Registry.sol/Registry.json";
 import { useWeb3React } from "@web3-react/core";
 import { sleep } from "@/app/lib/helper";
@@ -31,6 +32,8 @@ const CreateSmartAccountModal: React.FC<CreateSmartAccountModalProps> = ({
   if (!isOpen) return null;
 
   const handleCreateAccount = async () => {
+    console.log("account",account);
+    
     setLoading(true);
     try {
       const signer = await library?.getSigner();
@@ -56,7 +59,7 @@ const CreateSmartAccountModal: React.FC<CreateSmartAccountModalProps> = ({
         );
         accountManagerContract = new Contract(
           opAddressList.accountManagerContractAddress,
-          AccountManager.abi,
+          AccountManagerop.abi,
           signer
         );
       } else if (currentNetwork.id === BASE_NETWORK) {
