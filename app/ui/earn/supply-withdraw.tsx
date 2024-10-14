@@ -604,6 +604,7 @@ const SupplyWithdraw = ({
         );
 
         if (isSupply) {
+          console.log("works");
           if (selectedToken.name === "WETH") {
             await vEtherContract.depositEth({
               value: parseEther(String(amount)),
@@ -691,17 +692,23 @@ const SupplyWithdraw = ({
             await vDaiContract.deposit(parseEther(String(amount)), account);
           }
         } else {
+          console.log('address',account);
           if (selectedToken.name === "WETH") {
             const vEthcontract = new Contract(
               opAddressList.vEtherContractAddress,
               VEther.abi,
               signer
             );
+            
+            
+            console.log("works",await vEthcontract.balanceOf(account));
             if (amount && amount <= (await vEthcontract.balanceOf(account))) {
+              
               await vEthcontract.redeemEth(parseEther(String(amount)), {
                 gasLimit: 2300000,
               });
             }
+        
           } else if (selectedToken.name === "WBTC") {
             const vBTCcontract = new Contract(
               opAddressList.vWBTCContractAddress,
@@ -925,6 +932,7 @@ const SupplyWithdraw = ({
               VEther.abi,
               signer
             );
+
             if (amount && amount <= (await vEthcontract.balanceOf(account))) {
               await vEthcontract.redeemEth(parseEther(String(amount)), {
                 gasLimit: 2300000,
