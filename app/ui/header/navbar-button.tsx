@@ -41,6 +41,7 @@ export default function NavbarButtons() {
   };
 
   const switchNetwork = async () => {
+    if (!currentNetwork) return;
     try {
       await library?.provider.request({
         method: "wallet_switchEthereumChain",

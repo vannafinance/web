@@ -140,7 +140,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
 
   const accountCheck = async () => {
     if (localStorage.getItem("isWalletConnected") === "true") {
-      if (account) {
+      if (account && currentNetwork) {
         try {
           const signer = await library?.getSigner();
 
@@ -400,6 +400,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
 
   const openPosition = async (buySell: string) => {
     try {
+      if (!currentNetwork) return;
       // order type = fixed
       // check if balance have colletral
       if (currentNetwork.id === ARBITRUM_NETWORK) {

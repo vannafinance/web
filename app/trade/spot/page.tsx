@@ -75,7 +75,7 @@ export default function Page() {
 
   const accountCheck = async () => {
     if (localStorage.getItem("isWalletConnected") === "true") {
-      if (account) {
+      if (account && currentNetwork) {
         try {
           const signer = await library?.getSigner();
 
@@ -201,7 +201,7 @@ export default function Page() {
 
   const spot = async () => {
     try {
-      if (!payInput) {
+      if (!payInput || !currentNetwork) {
         return;
       }
       if (currentNetwork.id === ARBITRUM_NETWORK) {
