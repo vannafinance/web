@@ -32,8 +32,7 @@ const CreateSmartAccountModal: React.FC<CreateSmartAccountModalProps> = ({
   if (!isOpen) return null;
 
   const handleCreateAccount = async () => {
-    console.log("account",account);
-    
+    if (!currentNetwork) return;
     setLoading(true);
     try {
       const signer = await library?.getSigner();

@@ -253,7 +253,7 @@ export default function Page({ params }: { params: { id: string } }) {
               if (pool?.name === "WETH") {
                 setUtilizationRate(
                   String(
-                    parseFloat(ethTotalBorrow.toString()) /
+                    parseFloat(ethTotalBorrow?.toString()) /
                       parseFloat(String(pool?.supply))
                   )
                 );
@@ -332,7 +332,7 @@ export default function Page({ params }: { params: { id: string } }) {
               if (pool?.name === "WETH") {
                 setUtilizationRate(
                   String(
-                    parseFloat(ethTotalBorrow.toString()) /
+                    parseFloat(ethTotalBorrow?.toString()) /
                       parseFloat(String(pool?.supply))
                   )
                 );

@@ -380,7 +380,6 @@ const PoolsTable = () => {
           };
           fetchValues();
         } else if (currentNetwork.id === OPTIMISM_NETWORK) {
-          console.log("works",currentNetwork.id);
           const fetchValues = async () => {
             const iFaceEth = new utils.Interface(VEther.abi);
             const iFaceToken = new utils.Interface(VToken.abi);
@@ -397,30 +396,25 @@ const PoolsTable = () => {
               iFaceEth.encodeFunctionData("totalSupply", [])
             );
             calldata.push([opAddressList.vEtherContractAddress, tempData]);
-            
 
             tempData = utils.arrayify(
-              iFaceEth.encodeFunctionData("getBalance", [
+              iFaceEth.encodeFunctionData("balanceOf", [
                 opAddressList.vEtherContractAddress,
               ])
             );
-            calldata.push([opAddressList.ethBalanceFetcher, tempData]);
-            
+            calldata.push([opAddressList.wethTokenAddress, tempData]);
 
             // WBTC
-            
-            // tempData = utils.arrayify(
-            //   iFaceToken.encodeFunctionData("totalSupply", [])
-            // );
-            
-
-            // calldata.push([opAddressList.vWBTCContractAddress, tempData]);
-            // tempData = utils.arrayify(
-            //   iFaceToken.encodeFunctionData("balanceOf", [
-            //     opAddressList.vWBTCContractAddress,
-            //   ])
-            // );
-            // calldata.push([opAddressList.wbtcTokenAddress, tempData]);
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("totalSupply", [])
+            );
+            calldata.push([opAddressList.vWBTCContractAddress, tempData]);
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("balanceOf", [
+                opAddressList.vWBTCContractAddress,
+              ])
+            );
+            calldata.push([opAddressList.wbtcTokenAddress, tempData]);
 
             // USDC
             tempData = utils.arrayify(
@@ -435,18 +429,18 @@ const PoolsTable = () => {
             );
             calldata.push([opAddressList.usdcTokenAddress, tempData]);
 
-            // // USDT
-            // tempData = utils.arrayify(
-            //   iFaceToken.encodeFunctionData("totalSupply", [])
-            // );
-            // calldata.push([opAddressList.vUSDTContractAddress, tempData]);
+            // USDT
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("totalSupply", [])
+            );
+            calldata.push([opAddressList.vUSDTContractAddress, tempData]);
 
-            // tempData = utils.arrayify(
-            //   iFaceToken.encodeFunctionData("balanceOf", [
-            //     opAddressList.vUSDTContractAddress,
-            //   ])
-            // );
-            // calldata.push([opAddressList.usdtTokenAddress, tempData]);
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("balanceOf", [
+                opAddressList.vUSDTContractAddress,
+              ])
+            );
+            calldata.push([opAddressList.usdtTokenAddress, tempData]);
 
             // DAI
             tempData = utils.arrayify(
@@ -460,7 +454,6 @@ const PoolsTable = () => {
               ])
             );
             calldata.push([opAddressList.daiTokenAddress, tempData]);
-            
 
             // totalBorrow
             //ETH
@@ -469,11 +462,11 @@ const PoolsTable = () => {
             );
             calldata.push([opAddressList.vEtherContractAddress, tempData]);
 
-            // //WBTC
+            //WBTC
             tempData = utils.arrayify(
               iFaceToken.encodeFunctionData("getBorrows", [])
             );
-            // calldata.push([opAddressList.vWBTCContractAddress, tempData]);
+            calldata.push([opAddressList.vWBTCContractAddress, tempData]);
 
             //USDC
             tempData = utils.arrayify(
@@ -485,7 +478,7 @@ const PoolsTable = () => {
             tempData = utils.arrayify(
               iFaceToken.encodeFunctionData("getBorrows", [])
             );
-            // calldata.push([opAddressList.vUSDTContractAddress, tempData]);
+            calldata.push([opAddressList.vUSDTContractAddress, tempData]);
 
             //DAI
             tempData = utils.arrayify(
@@ -505,7 +498,7 @@ const PoolsTable = () => {
             tempData = utils.arrayify(
               iFaceToken.encodeFunctionData("balanceOf", [account])
             );
-            // calldata.push([opAddressList.vWBTCContractAddress, tempData]);
+            calldata.push([opAddressList.vWBTCContractAddress, tempData]);
 
             //USDC
             tempData = utils.arrayify(
@@ -517,18 +510,15 @@ const PoolsTable = () => {
             tempData = utils.arrayify(
               iFaceToken.encodeFunctionData("balanceOf", [account])
             );
-            // calldata.push([opAddressList.vUSDTContractAddress, tempData]);
+            calldata.push([opAddressList.vUSDTContractAddress, tempData]);
 
             //DAI
             tempData = utils.arrayify(
               iFaceToken.encodeFunctionData("balanceOf", [account])
             );
             calldata.push([opAddressList.vDaiContractAddress, tempData]);
-            
 
             const res = await MCcontract.callStatic.aggregate(calldata);
-            console.log('workssssss',res.returnData[0])
-            
 
             // assigne value
             //supply
@@ -623,10 +613,10 @@ const PoolsTable = () => {
             const ethSupplyApy = ethBorrowApy - ethBorrowApy * FEES;
 
             const btcBorrowAPY = String(0);
-            const wbtcBorrowApy = String(0)
-              // wbtcTotalBorrow != 0
-              //   ? parseFloat(formatUnits(btcBorrowAPY)) * SECS_PER_YEAR * 1e3
-              //   : 0;
+            const wbtcBorrowApy = String(0);
+            // wbtcTotalBorrow != 0
+            //   ? parseFloat(formatUnits(btcBorrowAPY)) * SECS_PER_YEAR * 1e3
+            //   : 0;
             const wbtcSupplyApy = String(0);
 
             const usdcBorrowAPY = res1.returnData[1];
@@ -637,10 +627,10 @@ const PoolsTable = () => {
             const usdcSupplyApy = usdcBorrowApy - usdcBorrowApy * FEES;
 
             const usdtBorrowAPY = String(0);
-            const usdtBorrowApy = String(0)
-              // usdtTotalBorrow != 0
-              //   ? parseFloat(formatUnits(usdtBorrowAPY)) * SECS_PER_YEAR * 1e3
-              //   : 0;
+            const usdtBorrowApy = String(0);
+            // usdtTotalBorrow != 0
+            //   ? parseFloat(formatUnits(usdtBorrowAPY)) * SECS_PER_YEAR * 1e3
+            //   : 0;
             const usdtSupplyApy = String(0);
 
             const daiBorrowAPY = res1.returnData[2];

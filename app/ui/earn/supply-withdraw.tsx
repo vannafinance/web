@@ -212,14 +212,10 @@ const SupplyWithdraw = ({
           )
             return;
 
-          const temp = 1;
-          console.log(temp, typeof temp);
-
           if (selectedToken.name == "WETH") {
-            const ethPerVeth = formatBignumberToUnits(
-              selectedToken.name,
-              await vEtherContract.convertToShares(parseUnits("1", 18))
-            );
+            const val = await vEtherContract.convertToShares(BigNumber.from("1000000000000000000"));
+            const ethPerVeth = formatBignumberToUnits(selectedToken.name, val);
+
             setEthPerVeth(ceilWithPrecision(ethPerVeth));
           } else if (selectedToken.name === "WBTC") {
             const btcPerVbtc = formatBignumberToUnits(
@@ -252,12 +248,15 @@ const SupplyWithdraw = ({
           } else {
             console.error("Something went wrong, token = ", selectedToken.name);
           }
+        } else {
+          setEthPerVeth("-");
         }
       };
 
       processParams();
     } catch (e) {
       console.error(e);
+      setEthPerVeth("-");
     }
   };
 
@@ -604,7 +603,6 @@ const SupplyWithdraw = ({
         );
 
         if (isSupply) {
-          console.log("works");
           if (selectedToken.name === "WETH") {
             await vEtherContract.depositEth({
               value: parseEther(String(amount)),
@@ -692,23 +690,18 @@ const SupplyWithdraw = ({
             await vDaiContract.deposit(parseEther(String(amount)), account);
           }
         } else {
-          console.log('address',account);
           if (selectedToken.name === "WETH") {
             const vEthcontract = new Contract(
               opAddressList.vEtherContractAddress,
               VEther.abi,
               signer
             );
-            
-            
-            console.log("works",await vEthcontract.balanceOf(account));
+
             if (amount && amount <= (await vEthcontract.balanceOf(account))) {
-              
               await vEthcontract.redeemEth(parseEther(String(amount)), {
                 gasLimit: 2300000,
               });
             }
-        
           } else if (selectedToken.name === "WBTC") {
             const vBTCcontract = new Contract(
               opAddressList.vWBTCContractAddress,
