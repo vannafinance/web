@@ -15,11 +15,6 @@ interface NetworkOption {
   blockExplorerUrl: string;
 }
 
-interface NetworkDropdownProps {
-  options: NetworkOption[];
-  onSelect: (network: NetworkOption) => void;
-}
-
 interface TabProps {
   tabs: {
     name: string;

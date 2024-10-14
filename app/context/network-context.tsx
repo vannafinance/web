@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, ReactNode } from "react";
 import { networkOptions } from "@/app/lib/constants";
 
 interface NetworkContextType {
-  currentNetwork: NetworkOption;
+  currentNetwork: NetworkOption | undefined;
   setCurrentNetwork: (network: NetworkOption) => void;
   networks: NetworkOption[];
 }
@@ -14,9 +14,7 @@ const NetworkContext = createContext<NetworkContextType | undefined>(undefined);
 export const NetworkProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [currentNetwork, setCurrentNetwork] = useState<NetworkOption>(
-    networkOptions[0]
-  );
+  const [currentNetwork, setCurrentNetwork] = useState<NetworkOption>();
 
   return (
     <NetworkContext.Provider

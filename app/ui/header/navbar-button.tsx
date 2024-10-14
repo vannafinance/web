@@ -13,7 +13,7 @@ import Notification from "../components/notification";
 
 export default function NavbarButtons() {
   const { toggleDarkMode } = useDarkMode();
-  const { currentNetwork, setCurrentNetwork, networks } = useNetwork();
+  const { currentNetwork } = useNetwork();
 
   const [buttonText, setButtonText] = useState("");
   const { account, activate, deactivate, chainId, library } = useWeb3React();
@@ -154,7 +154,7 @@ export default function NavbarButtons() {
         <SunDim size={24} weight="fill" onClick={toggleDarkMode} />
       </div>
       <div>
-        <NetworkDropdown options={networks} onSelect={setCurrentNetwork} />
+        <NetworkDropdown />
       </div>
       {!account && (
         <button

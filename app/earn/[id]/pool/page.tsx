@@ -14,7 +14,11 @@ import { notFound } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
-import { BASE_NETWORK, OPTIMISM_NETWORK } from "@/app/lib/constants";
+import {
+  ARBITRUM_NETWORK,
+  BASE_NETWORK,
+  OPTIMISM_NETWORK,
+} from "@/app/lib/constants";
 import { Contract, utils } from "ethers";
 
 import VEther from "../../../abi/vanna/v1/out/VEther.sol/VEther.json";
@@ -27,7 +31,7 @@ import {
   opAddressList,
 } from "@/app/lib/web3-constants";
 import { formatUnits } from "ethers/lib/utils";
-import { ceilWithPrecision } from "@/app/lib/helper";
+import { ceilWithPrecision, check0xHex } from "@/app/lib/helper";
 export default function Page({ params }: { params: { id: string } }) {
   try {
     const id = params.id;
@@ -44,8 +48,8 @@ export default function Page({ params }: { params: { id: string } }) {
 
     useEffect(() => {
       try {
-        if (account) {
-          if (currentNetwork.id === BASE_NETWORK) {
+        if (account && currentNetwork) {
+          if (currentNetwork.id === ARBITRUM_NETWORK) {
             const fetchValues = async () => {
               const iFaceEth = new utils.Interface(VEther.abi);
               const iFaceToken = new utils.Interface(VToken.abi);
@@ -119,17 +123,17 @@ export default function Page({ params }: { params: { id: string } }) {
 
               // totalBorrow
 
-              const ethTotalBorrow = res.returnData[0];
-              const wbtcTotalBorrow = res.returnData[1];
-              const usdcTotalBorrow = res.returnData[2];
-              const usdtTotalBorrow = res.returnData[3];
-              const daiTotalBorrow = res.returnData[4];
+              const ethTotalBorrow = check0xHex(res.returnData[0]);
+              const wbtcTotalBorrow = check0xHex(res.returnData[1]);
+              const usdcTotalBorrow = check0xHex(res.returnData[2]);
+              const usdtTotalBorrow = check0xHex(res.returnData[3]);
+              const daiTotalBorrow = check0xHex(res.returnData[4]);
               // total supply
-              const ethSupply = formatUnits(res.returnData[5]);
-              const wbtcSupply = formatUnits(res.returnData[6]);
-              const usdcSupply = formatUnits(res.returnData[7]);
-              const usdtSupply = formatUnits(res.returnData[8]);
-              const daiSupply = formatUnits(res.returnData[9]);
+              const ethSupply = formatUnits(check0xHex(res.returnData[5]));
+              const wbtcSupply = formatUnits(check0xHex(res.returnData[6]));
+              const usdcSupply = formatUnits(check0xHex(res.returnData[7]));
+              const usdtSupply = formatUnits(check0xHex(res.returnData[8]));
+              const daiSupply = formatUnits(check0xHex(res.returnData[9]));
 
               let utilizationRate;
 
@@ -139,7 +143,10 @@ export default function Page({ params }: { params: { id: string } }) {
                   (Number(formatUnits(ethTotalBorrow)) / Number(ethSupply)) *
                     100
                 );
-                setUtilizationRate(ceilWithPrecision(utilizationRate) + "%");
+                const rate = ceilWithPrecision(utilizationRate);
+                setUtilizationRate(
+                  rate + rate === "NaN" ? "" : rate === "" ? "-" : "%"
+                );
                 setUniqueLP("5");
               }
               if (pool?.name === "WBTC") {
@@ -148,7 +155,10 @@ export default function Page({ params }: { params: { id: string } }) {
                   (Number(formatUnits(wbtcTotalBorrow)) / Number(wbtcSupply)) *
                     100
                 );
-                setUtilizationRate(ceilWithPrecision(utilizationRate) + "%");
+                const rate = ceilWithPrecision(utilizationRate);
+                setUtilizationRate(
+                  rate + rate === "NaN" ? "" : rate === "" ? "-" : "%"
+                );
                 setUniqueLP("0");
               }
               if (pool?.name === "USDC") {
@@ -156,7 +166,10 @@ export default function Page({ params }: { params: { id: string } }) {
                   (Number(formatUnits(usdcTotalBorrow)) / Number(usdcSupply)) *
                     100
                 );
-                setUtilizationRate(ceilWithPrecision(utilizationRate) + "%");
+                const rate = ceilWithPrecision(utilizationRate);
+                setUtilizationRate(
+                  rate + rate === "NaN" ? "" : rate === "" ? "-" : "%"
+                );
                 setUniqueLP("3");
               }
               if (pool?.name === "USDT") {
@@ -164,7 +177,10 @@ export default function Page({ params }: { params: { id: string } }) {
                   (Number(formatUnits(usdtTotalBorrow)) / Number(usdtSupply)) *
                     100
                 );
-                setUtilizationRate(ceilWithPrecision(utilizationRate) + "%");
+                const rate = ceilWithPrecision(utilizationRate);
+                setUtilizationRate(
+                  rate + rate === "NaN" ? "" : rate === "" ? "-" : "%"
+                );
                 setUniqueLP("0");
               }
               if (pool?.name === "DAI") {
@@ -172,13 +188,15 @@ export default function Page({ params }: { params: { id: string } }) {
                   (Number(formatUnits(daiTotalBorrow)) / Number(daiSupply)) *
                     100
                 );
-                setUtilizationRate(ceilWithPrecision(utilizationRate) + "%");
+                const rate = ceilWithPrecision(utilizationRate);
+                setUtilizationRate(
+                  rate + rate === "NaN" ? "" : rate === "" ? "-" : "%"
+                );
                 setUniqueLP("");
               }
             };
             fetchValues();
-          }
-          if (currentNetwork.id === OPTIMISM_NETWORK) {
+          } else if (currentNetwork.id === OPTIMISM_NETWORK) {
             const fetchValues = async () => {
               const iFaceEth = new utils.Interface(VEther.abi);
               const iFaceToken = new utils.Interface(VToken.abi);
@@ -225,17 +243,17 @@ export default function Page({ params }: { params: { id: string } }) {
 
               // totalBorrow
 
-              const ethTotalBorrow = res.returnData[10];
-              const wbtcTotalBorrow = res.returnData[11];
-              const usdcTotalBorrow = res.returnData[12];
-              const usdtTotalBorrow = res.returnData[13];
-              const daiTotalBorrow = res.returnData[14];
+              const ethTotalBorrow = check0xHex(res.returnData[10]);
+              const wbtcTotalBorrow = check0xHex(res.returnData[11]);
+              const usdcTotalBorrow = check0xHex(res.returnData[12]);
+              const usdtTotalBorrow = check0xHex(res.returnData[13]);
+              const daiTotalBorrow = check0xHex(res.returnData[14]);
 
               //  Utilization Rate
               if (pool?.name === "WETH") {
                 setUtilizationRate(
                   String(
-                    parseFloat(ethTotalBorrow) /
+                    parseFloat(ethTotalBorrow.toString()) /
                       parseFloat(String(pool?.supply))
                   )
                 );
@@ -257,8 +275,7 @@ export default function Page({ params }: { params: { id: string } }) {
               }
             };
             fetchValues();
-          }
-          if (currentNetwork.id === BASE_NETWORK) {
+          } else if (currentNetwork.id === BASE_NETWORK) {
             const fetchValues = async () => {
               const iFaceEth = new utils.Interface(VEther.abi);
               const iFaceToken = new utils.Interface(VToken.abi);
@@ -305,17 +322,17 @@ export default function Page({ params }: { params: { id: string } }) {
 
               // totalBorrow
 
-              const ethTotalBorrow = res.returnData[10];
-              const wbtcTotalBorrow = res.returnData[11];
-              const usdcTotalBorrow = res.returnData[12];
-              const usdtTotalBorrow = res.returnData[13];
-              const daiTotalBorrow = res.returnData[14];
+              const ethTotalBorrow = check0xHex(res.returnData[10]);
+              const wbtcTotalBorrow = check0xHex(res.returnData[11]);
+              const usdcTotalBorrow = check0xHex(res.returnData[12]);
+              const usdtTotalBorrow = check0xHex(res.returnData[13]);
+              const daiTotalBorrow = check0xHex(res.returnData[14]);
 
               //  Utilization Rate
               if (pool?.name === "WETH") {
                 setUtilizationRate(
                   String(
-                    parseFloat(ethTotalBorrow) /
+                    parseFloat(ethTotalBorrow.toString()) /
                       parseFloat(String(pool?.supply))
                   )
                 );
@@ -369,7 +386,9 @@ export default function Page({ params }: { params: { id: string } }) {
             width="40"
             height="40"
           />
-          <span className="text-2xl font-bold text-baseBlack dark:text-baseWhite">{pool.name}</span>
+          <span className="text-2xl font-bold text-baseBlack dark:text-baseWhite">
+            {pool.name}
+          </span>
           {pool.version != undefined && pool.version > 0 && (
             <span className="px-2 py-0.5 inline-flex text-xs leading-4 font-medium rounded-md bg-purpleBG-lighter text-purple">
               v{pool.version}
@@ -398,33 +417,25 @@ export default function Page({ params }: { params: { id: string } }) {
                 <div className="text-sm font-semibold text-neutral-500">
                   Supply APY
                 </div>
-                <div className="pt-2">
-                  {pool.supplyAPY}
-                </div>
+                <div className="pt-2">{pool.supplyAPY}</div>
               </div>
               <div className="py-5 px-4 pr-0">
                 <div className="text-sm font-semibold text-neutral-500">
                   Unique LP
                 </div>
-                <div className="pt-2">
-                  {uniqueLP}
-                </div>
+                <div className="pt-2">{uniqueLP}</div>
               </div>
               <div className="py-5 px-4 pr-0">
                 <div className="text-sm font-semibold text-neutral-500">
                   Utilization rate
                 </div>
-                <div className="pt-2">
-                  {utilizationRate}
-                </div>
+                <div className="pt-2">{utilizationRate}</div>
               </div>
               <div className="py-5 px-4 pr-0">
                 <div className="text-sm font-semibold text-neutral-500">
                   Your LP Balance
                 </div>
-                <div className="pt-2">
-                  {pool.yourBalance}
-                </div>
+                <div className="pt-2">{pool.yourBalance}</div>
               </div>
             </div>
             <PoolDetailTabMenu pool={pool} />

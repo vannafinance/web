@@ -13,7 +13,11 @@ import {
   opAddressList,
 } from "@/app/lib/web3-constants";
 import { useEffect, useState } from "react";
-import { ARBITRUM_NETWORK, BASE_NETWORK, OPTIMISM_NETWORK } from "@/app/lib/constants";
+import {
+  ARBITRUM_NETWORK,
+  BASE_NETWORK,
+  OPTIMISM_NETWORK,
+} from "@/app/lib/constants";
 import { utils, Contract } from "ethers";
 import { formatUnits, parseUnits } from "ethers/lib/utils";
 
@@ -22,7 +26,11 @@ import VToken from "@/app/abi/vanna/v1/out/VToken.sol/VToken.json";
 import { arbAddressList } from "@/app/lib/web3-constants";
 
 import Multicall from "@/app/abi/vanna/v1/out/Multicall.sol/Multicall.json";
-import { ceilWithPrecision6, ceilWithPrecision } from "@/app/lib/helper";
+import {
+  ceilWithPrecision6,
+  ceilWithPrecision,
+  check0xHex,
+} from "@/app/lib/helper";
 
 const PoolDetails = ({ pool }: { pool: PoolTable }) => {
   const { account, library } = useWeb3React();
@@ -31,6 +39,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
   const [poolAddress, setPoolAddress] = useState("-");
 
   useEffect(() => {
+    if (!currentNetwork) return;
     if (currentNetwork.id === ARBITRUM_NETWORK) {
       try {
         if (account) {
@@ -152,26 +161,26 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
 
             //avaibaleAssetsInContract
 
-            const avaibaleETH = res.returnData[0];
-            const avaibaleBTC = res.returnData[1];
-            const avaibaleUSDC = res.returnData[2];
-            const avaibaleUSDT = res.returnData[3];
-            const avaibaleDai = res.returnData[4];
+            const avaibaleETH = check0xHex(res.returnData[0]);
+            const avaibaleBTC = check0xHex(res.returnData[1]);
+            const avaibaleUSDC = check0xHex(res.returnData[2]);
+            const avaibaleUSDT = check0xHex(res.returnData[3]);
+            const avaibaleDai = check0xHex(res.returnData[4]);
 
             // totalBorrow
 
-            const ethTotalBorrow = res.returnData[5];
-            const wbtcTotalBorrow = res.returnData[6];
-            const usdcTotalBorrow = res.returnData[7];
-            const usdtTotalBorrow = res.returnData[8];
-            const daiTotalBorrow = res.returnData[9];
+            const ethTotalBorrow = check0xHex(res.returnData[5]);
+            const wbtcTotalBorrow = check0xHex(res.returnData[6]);
+            const usdcTotalBorrow = check0xHex(res.returnData[7]);
+            const usdtTotalBorrow = check0xHex(res.returnData[8]);
+            const daiTotalBorrow = check0xHex(res.returnData[9]);
 
             // Token to vTOken
-            const ethToVeth = res.returnData[10];
-            const btcToVbtc = res.returnData[11];
-            const usdcToVusdc = res.returnData[12];
-            const usdtToVusdt = res.returnData[13];
-            const daiToVdai = res.returnData[14];
+            const ethToVeth = check0xHex(res.returnData[10]);
+            const btcToVbtc = check0xHex(res.returnData[11]);
+            const usdcToVusdc = check0xHex(res.returnData[12]);
+            const usdtToVusdt = check0xHex(res.returnData[13]);
+            const daiToVdai = check0xHex(res.returnData[14]);
 
             // utilazation rate
             // let ethUtilization = ethTotalBorrow/parseFloat(formatUnits(pool.supply));
@@ -801,8 +810,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
       } catch (error) {
         console.error(error);
       }
-    }
-    if (currentNetwork.id === OPTIMISM_NETWORK) {
+    } else if (currentNetwork.id === OPTIMISM_NETWORK) {
       try {
         if (account) {
           const fetchValues = async () => {
@@ -923,26 +931,26 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
 
             //avaibaleAssetsInContract
 
-            const avaibaleETH = res.returnData[0];
-            const avaibaleBTC = res.returnData[1];
-            const avaibaleUSDC = res.returnData[2];
-            const avaibaleUSDT = res.returnData[3];
-            const avaibaleDai = res.returnData[4];
+            const avaibaleETH = check0xHex(res.returnData[0]);
+            const avaibaleBTC = check0xHex(res.returnData[1]);
+            const avaibaleUSDC = check0xHex(res.returnData[2]);
+            const avaibaleUSDT = check0xHex(res.returnData[3]);
+            const avaibaleDai = check0xHex(res.returnData[4]);
 
             // totalBorrow
 
-            const ethTotalBorrow = res.returnData[5];
-            const wbtcTotalBorrow = res.returnData[6];
-            const usdcTotalBorrow = res.returnData[7];
-            const usdtTotalBorrow = res.returnData[8];
-            const daiTotalBorrow = res.returnData[9];
+            const ethTotalBorrow = check0xHex(res.returnData[5]);
+            const wbtcTotalBorrow = check0xHex(res.returnData[6]);
+            const usdcTotalBorrow = check0xHex(res.returnData[7]);
+            const usdtTotalBorrow = check0xHex(res.returnData[8]);
+            const daiTotalBorrow = check0xHex(res.returnData[9]);
 
             // Token to vTOken
-            const ethToVeth = res.returnData[10];
-            const btcToVbtc = res.returnData[11];
-            const usdcToVusdc = res.returnData[12];
-            const usdtToVusdt = res.returnData[13];
-            const daiToVdai = res.returnData[14];
+            const ethToVeth = check0xHex(res.returnData[10]);
+            const btcToVbtc = check0xHex(res.returnData[11]);
+            const usdcToVusdc = check0xHex(res.returnData[12]);
+            const usdtToVusdt = check0xHex(res.returnData[13]);
+            const daiToVdai = check0xHex(res.returnData[14]);
 
             // utilazation rate
             // let ethUtilization = ethTotalBorrow/parseFloat(formatUnits(pool.supply));
@@ -1568,7 +1576,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
         console.error(error);
       }
     }
-    // if (currentNetwork.id === BASE_NETWORK) {
+    // else if (currentNetwork.id === BASE_NETWORK) {
     //   try {
     //     if (account) {
     //       const fetchValues = async () => {
@@ -1689,26 +1697,26 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
 
     //         //avaibaleAssetsInContract
 
-    //         const avaibaleETH = res.returnData[0];
-    //         const avaibaleBTC = res.returnData[1];
-    //         const avaibaleUSDC = res.returnData[2];
-    //         const avaibaleUSDT = res.returnData[3];
-    //         const avaibaleDai = res.returnData[4];
+    //         const avaibaleETH = check0xHex(res.returnData[0]);
+    //         const avaibaleBTC = check0xHex(res.returnData[1]);
+    //         const avaibaleUSDC = check0xHex(res.returnData[2]);
+    //         const avaibaleUSDT = check0xHex(res.returnData[3]);
+    //         const avaibaleDai = check0xHex(res.returnData[4]);
 
     //         // totalBorrow
 
-    //         const ethTotalBorrow = res.returnData[5];
-    //         const wbtcTotalBorrow = res.returnData[6];
-    //         const usdcTotalBorrow = res.returnData[7];
-    //         const usdtTotalBorrow = res.returnData[8];
-    //         const daiTotalBorrow = res.returnData[9];
+    //         const ethTotalBorrow = check0xHex(res.returnData[5]);
+    //         const wbtcTotalBorrow = check0xHex(res.returnData[6]);
+    //         const usdcTotalBorrow = check0xHex(res.returnData[7]);
+    //         const usdtTotalBorrow = check0xHex(res.returnData[8]);
+    //         const daiTotalBorrow = check0xHex(res.returnData[9]);
 
     //         // Token to vTOken
-    //         const ethToVeth = res.returnData[10];
-    //         const btcToVbtc = res.returnData[11];
-    //         const usdcToVusdc = res.returnData[12];
-    //         const usdtToVusdt = res.returnData[13];
-    //         const daiToVdai = res.returnData[14];
+    //         const ethToVeth = check0xHex(res.returnData[10]);
+    //         const btcToVbtc = check0xHex(res.returnData[11]);
+    //         const usdcToVusdc = check0xHex(res.returnData[12]);
+    //         const usdtToVusdt = check0xHex(res.returnData[13]);
+    //         const daiToVdai = check0xHex(res.returnData[14]);
 
     //         // utilazation rate
     //         // let ethUtilization = ethTotalBorrow/parseFloat(formatUnits(pool.supply));
@@ -2334,7 +2342,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //     console.error(error);
     //   }
     // }
-  }, [account, pool]);
+  }, [account, pool, currentNetwork]);
 
   const handleCopyAddress = (address: string) => {
     navigator.clipboard.writeText(address);

@@ -1,18 +1,21 @@
 "use client";
 
+import { useNetwork } from "@/app/context/network-context";
 import { sleep } from "@/app/lib/helper";
+import { poolsPlaceholder } from "@/app/lib/static-values";
+import { setPoolsData } from "@/app/store/pools-slice";
 import { CaretDown } from "@phosphor-icons/react";
 import { useWeb3React } from "@web3-react/core";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 
-export const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
-  options,
-  onSelect,
-}) => {
+export const NetworkDropdown = () => {
+  const { currentNetwork, setCurrentNetwork, networks } = useNetwork();
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedNetwork, setSelectedNetwork] = useState(options[0]);
+  const [selectedNetwork, setSelectedNetwork] = useState(currentNetwork);
   const { library, account, chainId } = useWeb3React();
+  const dispatch = useDispatch();
 
   const switchNetwork = async (network: NetworkOption) => {
     try {
@@ -21,6 +24,7 @@ export const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
         params: [{ chainId: network.chainId }],
       });
       await sleep(1500);
+      dispatch(setPoolsData(poolsPlaceholder));
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (networkSwitchError: any) {
       if (networkSwitchError.code === 4902) {
@@ -51,31 +55,45 @@ export const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
     }
 
     setSelectedNetwork(network);
-    onSelect(network);
+    setCurrentNetwork(network);
   };
 
-  useEffect(() => {
+  const networkCheck = () => {
     if (account) {
       if (chainId === 8453) {
-        setSelectedNetwork(options[0]);
+        setSelectedNetwork(networks[0]);
+        setCurrentNetwork(networks[0]);
       } else if (chainId === 42161) {
-        setSelectedNetwork(options[1]);
+        setSelectedNetwork(networks[1]);
+        setCurrentNetwork(networks[1]);
       } else if (chainId === 10) {
-        setSelectedNetwork(options[2]);
+        setSelectedNetwork(networks[2]);
+        setCurrentNetwork(networks[2]);
       } else {
-        switchNetwork(options[0]);
+        switchNetwork(networks[0]);
       }
     }
 
     setIsOpen(false);
+  };
+
+  useEffect(() => {
+    networkCheck();
+  }, []);
+
+  useEffect(() => {
+    networkCheck();
   }, [account, chainId]);
 
   const handleSelect = (network: NetworkOption) => {
-    if (account && library) {
-      switchNetwork(network);
-    } else {
-      console.error("Please connect wallet first");
+    if (network !== selectedNetwork) {
+      if (account && library) {
+        switchNetwork(network);
+      } else {
+        console.error("Please connect wallet first");
+      }
     }
+    setIsOpen(false);
   };
 
   return (
@@ -88,10 +106,10 @@ export const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
             onClick={() => setIsOpen(!isOpen)}
           >
             <Image
-              src={selectedNetwork.icon}
+              src={selectedNetwork ? selectedNetwork.icon : networks[0].icon}
               width="20"
               height="20"
-              alt={selectedNetwork.name}
+              alt={selectedNetwork ? selectedNetwork.name : networks[0].name}
             />
             &nbsp;&nbsp;
             <CaretDown weight="bold" />
@@ -104,10 +122,10 @@ export const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
             title="Please Connect Wallet"
           >
             <Image
-              src={selectedNetwork.icon}
+              src={selectedNetwork ? selectedNetwork.icon : networks[0].icon}
               width="20"
               height="20"
-              alt={selectedNetwork.name}
+              alt={selectedNetwork ? selectedNetwork.name : networks[0].name}
             />
             &nbsp;&nbsp;
             <CaretDown weight="bold" />
@@ -123,7 +141,7 @@ export const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
             aria-orientation="vertical"
             aria-labelledby="options-menu"
           >
-            {options.map((option) => (
+            {networks.map((option) => (
               <button
                 key={option.id}
                 className="flex items-center p-3 text-sm w-full rounded-lg hover:bg-neutral-100 dark:hover:bg-baseDarkComplementary dark:bg-baseDark"

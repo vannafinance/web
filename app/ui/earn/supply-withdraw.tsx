@@ -8,8 +8,12 @@ import TokenDropdown from "../components/token-dropdown";
 import Tooltip from "../components/tooltip";
 import Image from "next/image";
 
-import { ARBITRUM_NETWORK, BASE_NETWORK, OPTIMISM_NETWORK } from "@/app/lib/constants";
-import { ethers, utils, Contract } from "ethers";
+import {
+  ARBITRUM_NETWORK,
+  BASE_NETWORK,
+  OPTIMISM_NETWORK,
+} from "@/app/lib/constants";
+import { ethers, utils, Contract, BigNumber } from "ethers";
 import { formatUnits, parseEther, parseUnits } from "ethers/lib/utils";
 
 import VEther from "@/app/abi/vanna/v1/out/VEther.sol/VEther.json";
@@ -110,34 +114,106 @@ const SupplyWithdraw = ({
   const fetchParams = () => {
     try {
       const processParams = async () => {
-        if (library && library?.getSigner()) {
+        if (library && library?.getSigner() && currentNetwork) {
           const signer = await library?.getSigner();
 
-          const vEtherContract = new Contract(
-            arbAddressList.vEtherContractAddress,
-            VEther.abi,
-            signer
-          );
-          const vDaiContract = new Contract(
-            arbAddressList.vDaiContractAddress,
-            VToken.abi,
-            signer
-          );
-          const vUsdcContract = new Contract(
-            arbAddressList.vUSDCContractAddress,
-            VToken.abi,
-            signer
-          );
-          const vUsdtContract = new Contract(
-            arbAddressList.vUSDTContractAddress,
-            VToken.abi,
-            signer
-          );
-          const vWbtcContract = new Contract(
-            arbAddressList.vWBTCContractAddress,
-            VToken.abi,
-            signer
-          );
+          let vEtherContract;
+          let vDaiContract;
+          let vUsdcContract;
+          let vUsdtContract;
+          let vWbtcContract;
+
+          if (currentNetwork.id === ARBITRUM_NETWORK) {
+            vEtherContract = new Contract(
+              arbAddressList.vEtherContractAddress,
+              VEther.abi,
+              signer
+            );
+            vDaiContract = new Contract(
+              arbAddressList.vDaiContractAddress,
+              VToken.abi,
+              signer
+            );
+            vUsdcContract = new Contract(
+              arbAddressList.vUSDCContractAddress,
+              VToken.abi,
+              signer
+            );
+            vUsdtContract = new Contract(
+              arbAddressList.vUSDTContractAddress,
+              VToken.abi,
+              signer
+            );
+            vWbtcContract = new Contract(
+              arbAddressList.vWBTCContractAddress,
+              VToken.abi,
+              signer
+            );
+          } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+            vEtherContract = new Contract(
+              opAddressList.vEtherContractAddress,
+              VEther.abi,
+              signer
+            );
+            vDaiContract = new Contract(
+              opAddressList.vDaiContractAddress,
+              VToken.abi,
+              signer
+            );
+            vUsdcContract = new Contract(
+              opAddressList.vUSDCContractAddress,
+              VToken.abi,
+              signer
+            );
+            vUsdtContract = new Contract(
+              opAddressList.vUSDTContractAddress,
+              VToken.abi,
+              signer
+            );
+            vWbtcContract = new Contract(
+              opAddressList.vWBTCContractAddress,
+              VToken.abi,
+              signer
+            );
+          } else if (currentNetwork.id === BASE_NETWORK) {
+            vEtherContract = new Contract(
+              baseAddressList.vEtherContractAddress,
+              VEther.abi,
+              signer
+            );
+            vDaiContract = new Contract(
+              baseAddressList.vDaiContractAddress,
+              VToken.abi,
+              signer
+            );
+            vUsdcContract = new Contract(
+              baseAddressList.vUSDCContractAddress,
+              VToken.abi,
+              signer
+            );
+            vUsdtContract = new Contract(
+              baseAddressList.vUSDTContractAddress,
+              VToken.abi,
+              signer
+            );
+            vWbtcContract = new Contract(
+              baseAddressList.vWBTCContractAddress,
+              VToken.abi,
+              signer
+            );
+          }
+
+          if (
+            !vEtherContract ||
+            !vDaiContract ||
+            !vUsdcContract ||
+            !vUsdtContract ||
+            !vWbtcContract
+          )
+            return;
+
+          const temp = 1;
+          console.log(temp, typeof temp);
 
           if (selectedToken.name == "WETH") {
             const ethPerVeth = formatBignumberToUnits(
@@ -184,11 +260,10 @@ const SupplyWithdraw = ({
       console.error(e);
     }
   };
-  fetchParams();
 
   const getTokenBalance = async (tokenName = selectedToken.name) => {
     try {
-      if (account) {
+      if (account && currentNetwork) {
         const signer = await library?.getSigner();
 
         let bal;
@@ -232,41 +307,48 @@ const SupplyWithdraw = ({
       console.error(e);
     }
   };
+
   useEffect(() => {
     getTokenBalance();
   }, [account]);
 
+  useEffect(() => {
+    getTokenBalance();
+    fetchParams();
+  }, [account, selectedToken, currentNetwork]);
+
   const deposit = async () => {
+    if (!currentNetwork) return;
+
     const signer = await library?.getSigner();
 
-    const vEtherContract = new Contract(
-      arbAddressList.vEtherContractAddress,
-      VEther.abi,
-      signer
-    );
-    const vDaiContract = new Contract(
-      arbAddressList.vDaiContractAddress,
-      VToken.abi,
-      signer
-    );
-    const vUsdcContract = new Contract(
-      arbAddressList.vUSDCContractAddress,
-      VToken.abi,
-      signer
-    );
-    const vUsdtContract = new Contract(
-      arbAddressList.vUSDTContractAddress,
-      VToken.abi,
-      signer
-    );
-    const vWbtcContract = new Contract(
-      arbAddressList.vWBTCContractAddress,
-      VToken.abi,
-      signer
-    );
-
     if (currentNetwork.id === ARBITRUM_NETWORK) {
-      // value assigne is pending
+      const vEtherContract = new Contract(
+        arbAddressList.vEtherContractAddress,
+        VEther.abi,
+        signer
+      );
+      const vDaiContract = new Contract(
+        arbAddressList.vDaiContractAddress,
+        VToken.abi,
+        signer
+      );
+      const vUsdcContract = new Contract(
+        arbAddressList.vUSDCContractAddress,
+        VToken.abi,
+        signer
+      );
+      const vUsdtContract = new Contract(
+        arbAddressList.vUSDTContractAddress,
+        VToken.abi,
+        signer
+      );
+      const vWbtcContract = new Contract(
+        arbAddressList.vWBTCContractAddress,
+        VToken.abi,
+        signer
+      );
+
       try {
         const signer = await library?.getSigner();
         // ERC20 contract
@@ -463,8 +545,7 @@ const SupplyWithdraw = ({
       } catch (error) {
         console.error(error);
       }
-    }
-    if (currentNetwork.id === OPTIMISM_NETWORK) {
+    } else if (currentNetwork.id === OPTIMISM_NETWORK) {
       // value assigne is pending
       try {
         const signer = await library?.getSigner();
@@ -521,57 +602,6 @@ const SupplyWithdraw = ({
           ERC20.abi,
           signer
         );
-
-        const fetchParams = () => {
-          try {
-            const processParams = async () => {
-              if (selectedToken.name == "WETH") {
-                const ethPerVeth = formatBignumberToUnits(
-                  selectedToken.name,
-                  await vEtherContract.convertToShares(parseUnits("1", 18))
-                );
-                setEthPerVeth(ceilWithPrecision(ethPerVeth, 6));
-              } else if (selectedToken.name === "WBTC") {
-                const btcPerVbtc = formatBignumberToUnits(
-                  selectedToken.name,
-                  await vWbtcContract.convertToShares(parseUnits("1", 18))
-                );
-
-                setEthPerVeth(ceilWithPrecision(btcPerVbtc, 6));
-              } else if (selectedToken.name === "USDC") {
-                const usdcPerVusdc = formatBignumberToUnits(
-                  selectedToken.name,
-                  await vUsdcContract.convertToShares(parseUnits("1", 6))
-                );
-
-                setEthPerVeth(ceilWithPrecision(usdcPerVusdc, 6));
-              } else if (selectedToken.name === "USDT") {
-                const usdtPerVusdt = formatBignumberToUnits(
-                  selectedToken.name,
-                  await vUsdtContract.convertToShares(parseUnits("1", 6))
-                );
-
-                setEthPerVeth(ceilWithPrecision(usdtPerVusdt, 6));
-              } else if (selectedToken.name === "DAI") {
-                const daiPerVdai = formatBignumberToUnits(
-                  selectedToken.name,
-                  await vDaiContract.convertToShares(parseUnits("1", 18))
-                );
-
-                setEthPerVeth(ceilWithPrecision(daiPerVdai, 6));
-              } else {
-                console.error(
-                  "Something went wrong, token = ",
-                  selectedToken.name
-                );
-              }
-            };
-
-            processParams();
-          } catch (e) {
-            console.error(e);
-          }
-        };
 
         if (isSupply) {
           if (selectedToken.name === "WETH") {
@@ -743,8 +773,7 @@ const SupplyWithdraw = ({
       } catch (error) {
         console.error(error);
       }
-    }
-    if (currentNetwork.id === BASE_NETWORK) {
+    } else if (currentNetwork.id === BASE_NETWORK) {
       // value assigne is pending
       try {
         const signer = await library?.getSigner();
@@ -801,54 +830,6 @@ const SupplyWithdraw = ({
           ERC20.abi,
           signer
         );
-
-        // const fetchParams = () => {
-        //   try {
-        //     const processParams = async () => {
-        //       if (selectedToken.name == "WETH") {
-        //         const ethPerVeth = formatBignumberToUnits(
-        //           selectedToken.name,
-        //           await vEtherContract.convertToShares(parseUnits("1", 18))
-        //         );
-        //         setEthPerVeth(ceilWithPrecision(ethPerVeth, 6));
-        //       } else if (selectedToken.name === "WBTC") {
-        //         const btcPerVbtc = formatBignumberToUnits(
-        //           selectedToken.name,
-        //           await vWbtcContract.convertToShares(parseUnits("1", 18))
-        //         );
-
-        //         setEthPerVeth(ceilWithPrecision(btcPerVbtc, 6));
-        //       } else if (selectedToken.name === "USDC") {
-        //         const usdcPerVusdc = formatBignumberToUnits(
-        //           selectedToken.name,
-        //           await vUsdcContract.convertToShares(parseUnits("1", 6))
-        //         );
-
-        //         setEthPerVeth(ceilWithPrecision(usdcPerVusdc, 6));
-        //       } else if (selectedToken.name === "USDT") {
-        //         const usdtPerVusdt = formatBignumberToUnits(
-        //           selectedToken.name,
-        //           await vUsdtContract.convertToShares(parseUnits("1", 6))
-        //         );
-
-        //         setEthPerVeth(ceilWithPrecision(usdtPerVusdt, 6));
-        //       } else if (selectedToken.name === "DAI") {
-        //         const daiPerVdai = formatBignumberToUnits(
-        //           selectedToken.name,
-        //           await vDaiContract.convertToShares(parseUnits("1", 18))
-        //         );
-
-        //         setEthPerVeth(ceilWithPrecision(daiPerVdai, 6));
-        //       } else {
-        //         console.error("Something went wrong, token = ", selectedToken.name);
-        //       }
-        //     };
-
-        //     processParams();
-        //   } catch (e) {
-        //     console.error(e);
-        //   }
-        // };
 
         if (isSupply) {
           if (selectedToken.name === "WETH") {
@@ -1022,16 +1003,6 @@ const SupplyWithdraw = ({
       }
     }
   };
-
-  // const withdraw = async () => {}
-
-  // const process = async () => {
-  //   if (isSupply) {
-  //     await deposit();
-  //   } else {
-  //     // await withdraw();
-  //   }
-  // };
 
   return (
     <div className="bg-baseComplementary dark:bg-baseDarkComplementary p-4 rounded-3xl w-full text-baseBlack dark:text-baseWhite">

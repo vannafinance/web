@@ -1,3 +1,4 @@
+import { BigNumber, BigNumberish } from "ethers";
 import { formatUnits, parseUnits } from "ethers/lib/utils";
 
 export const sleep = (duration: number) => {
@@ -70,4 +71,8 @@ export const generateDummyData = (
     volume: Math.random() * 100,
     strike: baseStrike + i * 100,
   }));
+};
+
+export const check0xHex = (num: BigNumberish) => {
+  return num === "0x" ? BigNumber.from(0) : num;
 };
