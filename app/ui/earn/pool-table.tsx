@@ -524,33 +524,33 @@ const PoolsTable = () => {
             //supply
 
             const ethSupply = formatUnits(res.returnData[0]);
-            const wbtcSupply = String(0);
-            const usdcSupply = formatUnits(res.returnData[2], 6);
-            const usdtSupply = String(0);
-            const daiSupply = formatUnits(res.returnData[4]);
+            const wbtcSupply = formatUnits(res.returnData[2]);
+            const usdcSupply = formatUnits(res.returnData[4], 6);
+            const usdtSupply = formatUnits(res.returnData[6], 6);
+            const daiSupply = formatUnits(res.returnData[8]);
 
             //avaibaleAssetsInContract
 
             const avaibaleETH = res.returnData[1];
-            const avaibaleBTC = String(0);
-            const avaibaleUSDC = res.returnData[3];
-            const avaibaleUSDT = String(0);
-            const avaibaleDai = res.returnData[5];
+            const avaibaleBTC = res.returnData[3];
+            const avaibaleUSDC = res.returnData[5];
+            const avaibaleUSDT = res.returnData[7];
+            const avaibaleDai = res.returnData[9];
 
             // totalBorrow
 
-            const ethTotalBorrow = res.returnData[6];
-            const wbtcTotalBorrow = String(0);
-            const usdcTotalBorrow = res.returnData[7];
-            const usdtTotalBorrow = String(0);
-            const daiTotalBorrow = res.returnData[8];
+            const ethTotalBorrow = res.returnData[10];
+            const wbtcTotalBorrow = res.returnData[11];
+            const usdcTotalBorrow = res.returnData[12];
+            const usdtTotalBorrow = res.returnData[13];
+            const daiTotalBorrow = res.returnData[14];
 
             //User Asset balance
-            const ethBal = formatUnits(res.returnData[9], 18);
-            const wbtcBal = String(0);
-            const usdcBal = formatUnits(res.returnData[10], 6);
-            const usdtBal = String(0);
-            const daiBal = formatUnits(res.returnData[11], 18);
+            const ethBal = formatUnits(res.returnData[15], 18);
+            const wbtcBal = formatUnits(res.returnData[16], 18);
+            const usdcBal = formatUnits(res.returnData[17], 18);
+            const usdtBal = formatUnits(res.returnData[18], 18);
+            const daiBal = formatUnits(res.returnData[19], 18);
 
             // Dependent varibale data fetching
             const calldata1 = [];
@@ -568,13 +568,13 @@ const PoolsTable = () => {
             calldata1.push([opAddressList.rateModelContractAddress, tempData1]);
 
             //BTC
-            // tempData1 = utils.arrayify(
-            //   iFaceRateModel.encodeFunctionData("getBorrowRatePerSecond", [
-            //     avaibaleBTC,
-            //     wbtcTotalBorrow,
-            //   ])
-            // );
-            // calldata1.push([opAddressList.rateModelContractAddress, tempData1]);
+            tempData1 = utils.arrayify(
+              iFaceRateModel.encodeFunctionData("getBorrowRatePerSecond", [
+                avaibaleBTC,
+                wbtcTotalBorrow,
+              ])
+            );
+            calldata1.push([opAddressList.rateModelContractAddress, tempData1]);
 
             //USDC
             tempData1 = utils.arrayify(
@@ -586,13 +586,13 @@ const PoolsTable = () => {
             calldata1.push([opAddressList.rateModelContractAddress, tempData1]);
 
             //USDT
-            // tempData1 = utils.arrayify(
-            //   iFaceRateModel.encodeFunctionData("getBorrowRatePerSecond", [
-            //     avaibaleUSDT,
-            //     usdtTotalBorrow,
-            //   ])
-            // );
-            // calldata1.push([opAddressList.rateModelContractAddress, tempData1]);
+            tempData1 = utils.arrayify(
+              iFaceRateModel.encodeFunctionData("getBorrowRatePerSecond", [
+                avaibaleUSDT,
+                usdtTotalBorrow,
+              ])
+            );
+            calldata1.push([opAddressList.rateModelContractAddress, tempData1]);
 
             //DAI
             tempData1 = utils.arrayify(
@@ -612,28 +612,28 @@ const PoolsTable = () => {
                 : 0;
             const ethSupplyApy = ethBorrowApy - ethBorrowApy * FEES;
 
-            const btcBorrowAPY = String(0);
-            const wbtcBorrowApy = String(0);
-            // wbtcTotalBorrow != 0
-            //   ? parseFloat(formatUnits(btcBorrowAPY)) * SECS_PER_YEAR * 1e3
-            //   : 0;
-            const wbtcSupplyApy = String(0);
+            const btcBorrowAPY = res1.returnData[1];
+            const wbtcBorrowApy =
+              wbtcTotalBorrow != 0
+                ? parseFloat(formatUnits(btcBorrowAPY)) * SECS_PER_YEAR * 1e3
+                : 0;
+            const wbtcSupplyApy = wbtcBorrowApy - wbtcBorrowApy * FEES;
 
-            const usdcBorrowAPY = res1.returnData[1];
+            const usdcBorrowAPY = res1.returnData[2];
             const usdcBorrowApy =
               usdcTotalBorrow != 0
                 ? parseFloat(formatUnits(usdcBorrowAPY)) * SECS_PER_YEAR * 1e3
                 : 0;
             const usdcSupplyApy = usdcBorrowApy - usdcBorrowApy * FEES;
 
-            const usdtBorrowAPY = String(0);
-            const usdtBorrowApy = String(0);
-            // usdtTotalBorrow != 0
-            //   ? parseFloat(formatUnits(usdtBorrowAPY)) * SECS_PER_YEAR * 1e3
-            //   : 0;
-            const usdtSupplyApy = String(0);
+            const usdtBorrowAPY = res1.returnData[3];
+            const usdtBorrowApy =
+              usdtTotalBorrow != 0
+                ? parseFloat(formatUnits(usdtBorrowAPY)) * SECS_PER_YEAR * 1e3
+                : 0;
+            const usdtSupplyApy = usdtBorrowAPY - usdtBorrowAPY * FEES;
 
-            const daiBorrowAPY = res1.returnData[2];
+            const daiBorrowAPY = res1.returnData[4];
             const daiBorrowApy =
               daiTotalBorrow != 0
                 ? parseFloat(formatUnits(daiBorrowAPY)) * SECS_PER_YEAR * 1e3
