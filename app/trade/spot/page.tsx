@@ -30,7 +30,11 @@ import AccountManagerOp from "../../abi/vanna/v1/out/AccountManager-op.sol/Accou
 import ERC20 from "../../abi/vanna/v1/out/ERC20.sol/ERC20.json";
 import ISwapRouterV3 from "../../abi/vanna/v1/out/ISwapRouterV3.sol/ISwapRouterV3.json";
 import Registry from "../../abi/vanna/v1/out/Registry.sol/Registry.json";
-import { ARBITRUM_NETWORK, BASE_NETWORK, OPTIMISM_NETWORK } from "@/app/lib/constants";
+import {
+  ARBITRUM_NETWORK,
+  BASE_NETWORK,
+  OPTIMISM_NETWORK,
+} from "@/app/lib/constants";
 import { useNetwork } from "@/app/context/network-context";
 
 export default function Page() {
@@ -50,7 +54,7 @@ export default function Page() {
     undefined
   );
   const [payBalance, setPayBalance] = useState<number | undefined>();
-  // const [receiveBalance, setReceiveBalance] = useState<number | undefined>();
+  const [receiveBalance, setReceiveBalance] = useState<number | undefined>();
   const [payAmountInDollar, setPayAmountInDollar] = useState<
     number | undefined
   >();
@@ -67,10 +71,12 @@ export default function Page() {
 
   const handleFromSelect = (token: PoolTable) => {
     setPayCoin(token);
+    if (balList) setPayBalance(Number(balList[token?.name]));
   };
 
   const handleToSelect = (token: PoolTable) => {
     setReceiveCoin(token);
+    if (balList) setReceiveBalance(Number(balList[token?.name]));
   };
 
   const accountCheck = async () => {
@@ -79,28 +85,29 @@ export default function Page() {
         try {
           const signer = await library?.getSigner();
 
-          let regitstryContract;
+          let registryContract;
           if (currentNetwork.id === ARBITRUM_NETWORK) {
-            regitstryContract = new Contract(
+            registryContract = new Contract(
               arbAddressList.registryContractAddress,
               Registry.abi,
               signer
             );
           } else if (currentNetwork.id === OPTIMISM_NETWORK) {
-            regitstryContract = new Contract(
+            registryContract = new Contract(
               opAddressList.registryContractAddress,
               Registry.abi,
               signer
             );
           } else if (currentNetwork.id === BASE_NETWORK) {
-            regitstryContract = new Contract(
+            registryContract = new Contract(
               baseAddressList.registryContractAddress,
               Registry.abi,
               signer
             );
           }
-          if (regitstryContract) {
-            const accountsArray = await regitstryContract.accountsOwnedBy(
+
+          if (registryContract) {
+            const accountsArray = await registryContract.accountsOwnedBy(
               account
             );
             let tempAccount;
@@ -122,38 +129,95 @@ export default function Page() {
 
   useEffect(() => {
     accountCheck();
-  }, [account, library]);
+  }, [account, library, currentNetwork]);
 
   const balanceFetch = async () => {
     try {
-      if (activeAccount) {
+      if (activeAccount && currentNetwork) {
         const signer = await library?.getSigner();
-        const daiContract = new Contract(
-          arbAddressList.daiTokenAddress,
-          ERC20.abi,
-          signer
-        );
-        const usdcContract = new Contract(
-          arbAddressList.usdcTokenAddress,
-          ERC20.abi,
-          signer
-        );
-        const usdtContract = new Contract(
-          arbAddressList.usdtTokenAddress,
-          ERC20.abi,
-          signer
-        );
-        const wbtcContract = new Contract(
-          arbAddressList.wbtcTokenAddress,
-          ERC20.abi,
-          signer
-        );
+        let daiContract;
+        let usdcContract;
+        let usdtContract;
+        let wbtcContract;
+
+        if (currentNetwork.id === ARBITRUM_NETWORK) {
+          daiContract = new Contract(
+            arbAddressList.daiTokenAddress,
+            ERC20.abi,
+            signer
+          );
+          usdcContract = new Contract(
+            arbAddressList.usdcTokenAddress,
+            ERC20.abi,
+            signer
+          );
+          usdtContract = new Contract(
+            arbAddressList.usdtTokenAddress,
+            ERC20.abi,
+            signer
+          );
+          wbtcContract = new Contract(
+            arbAddressList.wbtcTokenAddress,
+            ERC20.abi,
+            signer
+          );
+        } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+          daiContract = new Contract(
+            opAddressList.daiTokenAddress,
+            ERC20.abi,
+            signer
+          );
+          usdcContract = new Contract(
+            opAddressList.usdcTokenAddress,
+            ERC20.abi,
+            signer
+          );
+          usdtContract = new Contract(
+            opAddressList.usdtTokenAddress,
+            ERC20.abi,
+            signer
+          );
+          wbtcContract = new Contract(
+            opAddressList.wbtcTokenAddress,
+            ERC20.abi,
+            signer
+          );
+        } else if (currentNetwork.id === BASE_NETWORK) {
+          daiContract = new Contract(
+            baseAddressList.daiTokenAddress,
+            ERC20.abi,
+            signer
+          );
+          usdcContract = new Contract(
+            baseAddressList.usdcTokenAddress,
+            ERC20.abi,
+            signer
+          );
+          usdtContract = new Contract(
+            baseAddressList.usdtTokenAddress,
+            ERC20.abi,
+            signer
+          );
+          wbtcContract = new Contract(
+            baseAddressList.wbtcTokenAddress,
+            ERC20.abi,
+            signer
+          );
+        }
 
         const ethBalOfSA = await library?.getBalance(activeAccount);
-        const daiBalOfSA = await daiContract.balanceOf(activeAccount);
-        const usdcBalOfSA = await usdcContract.balanceOf(activeAccount);
-        const usdtBalOfSA = await usdtContract.balanceOf(activeAccount);
-        const wbtcBalOfSA = await wbtcContract.balanceOf(activeAccount);
+        const daiBalOfSA = daiContract
+          ? await daiContract.balanceOf(activeAccount)
+          : 0;
+        const usdcBalOfSA = usdcContract
+          ? await usdcContract.balanceOf(activeAccount)
+          : 0;
+        const usdtBalOfSA = usdtContract
+          ? await usdtContract.balanceOf(activeAccount)
+          : 0;
+        const wbtcBalOfSA = wbtcContract
+          ? await wbtcContract.balanceOf(activeAccount)
+          : 0;
 
         const listOfBalance: { [key: string]: string } = {};
 
@@ -163,7 +227,10 @@ export default function Page() {
         listOfBalance["USDT"] = formatBignumberToUnits("USDT", usdtBalOfSA);
         listOfBalance["DAI"] = formatBignumberToUnits("DAI", wbtcBalOfSA);
 
-        // setBalList(listOfBalance);
+        setBalList(listOfBalance);
+
+        setPayBalance(Number(listOfBalance[payCoin.name]));
+        setReceiveBalance(Number(listOfBalance[receiveCoin.name]));
       }
     } catch (e) {
       console.error(e);
@@ -171,19 +238,12 @@ export default function Page() {
   };
 
   useEffect(() => {
-    balanceFetch();
-  }, [activeAccount]);
-
-  useEffect(() => {
     // update setToCoin, setPayInDollarAmount, setRecieveInDollarAmount
   }, [payInput]);
 
   useEffect(() => {
-    if (balList !== undefined) {
-      const bal = Number(balList[payCoin.name]);
-      setPayBalance(bal);
-    }
-  }, [payCoin, balList]);
+    balanceFetch();
+  }, [account, activeAccount, currentNetwork]);
 
   useEffect(() => {
     const tokenName = payCoin.name ? payCoin.name : "";
@@ -213,7 +273,7 @@ export default function Page() {
         const amountIn = formatStringToUnits(payCoin.name, payInput);
         const amountOut = 0;
         const sqrtPriceLimitX96 = 0;
-      
+
         // Instance
         const accountManagerContract = new Contract(
           arbAddressList.accountManagerContractAddress,
@@ -388,8 +448,6 @@ export default function Page() {
             payCoin.name === "USDC") &&
           tokenOut === opAddressList.wethTokenAddress
         ) {
-          
-          
           //struct
           const ExactInputSingleParams = {
             tokenIn: tokenIn,
@@ -434,7 +492,7 @@ export default function Page() {
             iface.encodeFunctionData("multicall(bytes[])", [multiData])
           );
           target.push(opAddressList.uniswapRouterAddress);
-          console.log('here', ExactInputSingleParams);
+
           // execute
           await accountManagerContract.exec(
             activeAccount,
@@ -555,9 +613,12 @@ export default function Page() {
               />
             </div>
           </div>
-          <div className="mt-2">
+          <div className="mt-2 flex justify-between">
             <div className="text-2xl font-medium">
               {payAmountInDollar ? payAmountInDollar : "-"}
+            </div>
+            <div className="text-base">
+              Balance: {payBalance !== undefined ? payBalance + " " + payCoin.name : "-"}
             </div>
           </div>
         </div>
@@ -595,9 +656,13 @@ export default function Page() {
               />
             </div>
           </div>
-          <div className="mt-2">
+          <div className="mt-2 flex justify-between">
             <div className="text-2xl font-medium">
               {receiveAmountInDollar ? receiveAmountInDollar : "-"}
+            </div>
+            <div className="text-base">
+              Balance:{" "}
+              {receiveBalance !== undefined ? receiveBalance + " " + receiveCoin.name : "-"}
             </div>
           </div>
         </div>

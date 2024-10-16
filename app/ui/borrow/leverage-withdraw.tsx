@@ -37,6 +37,7 @@ import {
   OPTIMISM_NETWORK,
 } from "@/app/lib/constants";
 import { useNetwork } from "@/app/context/network-context";
+import { poolsPlaceholder } from "@/app/lib/static-values";
 
 const LevrageWithdraw = () => {
   const { account, library } = useWeb3React();
@@ -51,7 +52,7 @@ const LevrageWithdraw = () => {
   const [isLeverage, setIsLeverage] = useState(true);
   const [depositAmount, setDepositAmount] = useState<number | undefined>();
   const [borrowAmount, setBorrowAmount] = useState<number | undefined>();
-  const [leverageValue, setLeverageValue] = useState<number>(5);
+  const [leverageValue, setLeverageValue] = useState<number>(4);
   const [leverageAmount, setLeverageAmount] = useState<number | undefined>();
   const [depositBalance, setDepositBalance] = useState<number | undefined>();
   // const [borrowBalance, setBorrowBalance] = useState<string | undefined>("-");
@@ -59,8 +60,8 @@ const LevrageWithdraw = () => {
   const [healthFactor, setHealthFactor] = useState("-");
   const [activeAccount, setActiveAccount] = useState<string | undefined>();
 
-  const [depositToken, setDepositToken] = useState<PoolTable>();
-  const [borrowToken, setBorrowToken] = useState<PoolTable>();
+  const [depositToken, setDepositToken] = useState<PoolTable>(poolsPlaceholder[0]);
+  const [borrowToken, setBorrowToken] = useState<PoolTable>(poolsPlaceholder[0]);
 
   const balance: string = "1";
   const currentAPY: string = "1";
@@ -84,6 +85,7 @@ const LevrageWithdraw = () => {
 
   const handleDepositTokenSelect = (token: PoolTable) => {
     setDepositToken(token);
+    getTokenBalance(token);
   };
 
   const handleBorrowTokenSelect = (token: PoolTable) => {
@@ -195,6 +197,8 @@ const LevrageWithdraw = () => {
 
   const getTokenBalance = async (token = depositToken) => {
     try {
+      if (token?.name === undefined) return;
+
       if (account && currentNetwork) {
         const signer = await library?.getSigner();
         let depositBalance;
@@ -206,8 +210,6 @@ const LevrageWithdraw = () => {
             borrowBalance = await library?.getBalance(activeAccount);
           }
         } else {
-          if (token?.name === undefined) return;
-
           let contract;
           if (currentNetwork.id === ARBITRUM_NETWORK) {
             contract = new Contract(
@@ -276,20 +278,28 @@ const LevrageWithdraw = () => {
 
   const process = async () => {
     if (isLeverage) {
-      deposit();
-      if (borrowAmount && borrowAmount > 0) {
+      if (btnValue === "Deposit") {
+        deposit();
+      } else if (btnValue === "Borrow") {
+        borrow();
+      } else {
+        deposit();
         borrow();
       }
     } else {
-      repay();
-      if (borrowAmount && borrowAmount > 0) {
+      if (btnValue === "Repay") {
+        repay();
+      } else if (btnValue === "Withdraw") {
+        withdraw();
+      } else {
+        repay();
         withdraw();
       }
     }
   };
 
   const deposit = async () => {
-    if (currentNetwork) return;
+    if (!currentNetwork) return;
     const signer = await library?.getSigner();
     let accountManagerContract;
     if (currentNetwork.id === ARBITRUM_NETWORK) {
@@ -381,7 +391,7 @@ const LevrageWithdraw = () => {
   };
 
   const withdraw = async () => {
-    if (currentNetwork) return;
+    if (!currentNetwork) return;
     const signer = await library?.getSigner();
     let accountManagerContract;
     if (currentNetwork.id === ARBITRUM_NETWORK) {
@@ -431,7 +441,7 @@ const LevrageWithdraw = () => {
   };
 
   const borrow = async () => {
-    if (currentNetwork) return;
+    if (!currentNetwork) return;
     const signer = await library?.getSigner();
     let accountManagerContract;
     if (currentNetwork.id === ARBITRUM_NETWORK) {
@@ -472,7 +482,7 @@ const LevrageWithdraw = () => {
   };
 
   const repay = async () => {
-    if (currentNetwork) return;
+    if (!currentNetwork) return;
     const signer = await library?.getSigner();
     let accountManagerContract;
     if (currentNetwork.id === ARBITRUM_NETWORK) {
@@ -572,7 +582,7 @@ const LevrageWithdraw = () => {
                   />
                 </div>
                 <div className="flex">
-                  <TokenDropdown onSelect={handleDepositTokenSelect} />
+                  <TokenDropdown onSelect={handleDepositTokenSelect} defaultValue={depositToken} />
                 </div>
               </div>
               <div className="mt-2 flex justify-end">
@@ -612,13 +622,13 @@ const LevrageWithdraw = () => {
                   />
                 </div>
                 <div className="flex">
-                  <TokenDropdown onSelect={handleBorrowTokenSelect} />
+                  <TokenDropdown onSelect={handleBorrowTokenSelect} defaultValue={borrowToken} />
                 </div>
               </div>
-              <div className="flex justify-between items-center mt-2">
-                <div className="text-xs text-neutral-500">
+              <div className="flex justify-end items-center mt-2">
+                {/* <div className="text-xs text-neutral-500">
                   Leverage Value: {leverageAmount ? leverageAmount : "-"}
-                </div>
+                </div> */}
                 <div className="flex">
                   <div className="text-xs text-neutral-500 mr-2">
                     Debt: {debt}

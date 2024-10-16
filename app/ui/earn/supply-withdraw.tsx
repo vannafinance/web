@@ -60,7 +60,7 @@ const SupplyWithdraw = ({
   const [youGet, setYouGet] = useState(0);
   const [ethPerVeth, setEthPerVeth] = useState("-");
   const [currentApy, setCurrentApy] = useState(pool.supplyAPY);
-  const [points, setPoints] = useState();
+  // const [points, setPoints] = useState();
   const [availableEthLiq, setAvailableEthLiq] = useState(0);
 
   const handleToggle = (value: string) => {
@@ -1119,10 +1119,10 @@ const SupplyWithdraw = ({
               <span>Current APY</span>
               <span>{currentApy}</span>
             </div>
-            <div className="flex justify-between text-sm">
+            {/* <div className="flex justify-between text-sm">
               <span>Points</span>
               <span>{points} Kpts MIle per hour</span>
-            </div>
+            </div> */}
           </>
         )}
         {!isSupply && (

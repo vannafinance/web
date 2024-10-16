@@ -484,7 +484,6 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
             collateralAmount ? Number(collateralAmount) : 0
           )
         );
-        console.log("depi", depositAmount);
 
         // const positionSize = BigNumber.from(
         //   formatBignumberToUnits(coin, collateralAmount.toString())
@@ -500,7 +499,6 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
 
         const withSlipedAmount =
           Number(collateralAmount) - (Number(collateralAmount) * 1) / 100;
-        console.log("withSlipedAmount", withSlipedAmount);
         const OppositeAmountBound =
           (withSlipedAmount * leverageValue) / getPriceFromAssetsArray("WETH");
         const OppositeAmountBoundBN = BigNumber.from(
@@ -509,9 +507,6 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
         const amount = BigNumber.from(
           formatStringToUnits("WETH", Number(collateralAmount) * leverageValue)
         );
-        console.log("leverageValue", leverageValue);
-        console.log("assetsPrice", amount);
-        console.log("collateralAmount", OppositeAmountBoundBN);
 
         const openPositionParams = {
           baseToken: opAddressList.vETH, // vETH of perp
@@ -525,7 +520,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
           referralCode:
             "0x0000000000000000000000000000000000000000000000000000000000000000",
         };
-        console.log("openPositionParams", openPositionParams);
+
         const data = [];
         const target = [];
         const iface = new Interface(PerpVault.abi);
