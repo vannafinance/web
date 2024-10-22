@@ -634,8 +634,10 @@ const SupplyWithdraw = ({
               account,
               opAddressList.vUSDCContractAddress
             );
+            console.log("allowance",allowance/1e6);
 
             if (amount && allowance < amount) {
+              
               await USDCContract.approve(
                 opAddressList.vUSDCContractAddress,
                 parseUnits(String(amount), 6)

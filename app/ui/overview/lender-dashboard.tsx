@@ -1,5 +1,7 @@
 "use client";
 
+import { BASE_NETWORK } from "@/app/lib/constants";
+import { utils } from "ethers";
 // import { RootState } from "@/app/store/store";
 import Image from "next/image";
 import Link from "next/link";
@@ -49,6 +51,74 @@ const LenderDashboard: React.FC = () => {
   // const [pools, setPools] = useState(
   //   useSelector((state: RootState) => state.pools.poolsData)
   // );
+
+  // if (account && currentNetwork) {
+  //   if (currentNetwork.id === ARBITRUM_NETWORK) {
+  //      const fetchValues = async () => {
+  //      const iFaceEth = new utils.Interface(VEther.abi);
+  //      const iFaceToken = new utils.Interface(VToken.abi);
+
+  // const MCcontract = new Contract(
+          //   arbAddressList.multicallAddress,
+          //   Multicall.abi,
+          //   library
+          // );
+          // const calldata = [];
+          // let tempData;
+          // //User assets balance
+
+          // //ETH
+          // tempData = utils.arrayify(
+          //   iFaceEth.encodeFunctionData("balanceOf", [account])
+          // );
+          // calldata.push([arbAddressList.vEtherContractAddress, tempData]);
+
+          // //WBTC
+          // tempData = utils.arrayify(
+          //   iFaceToken.encodeFunctionData("balanceOf", [account])
+          // );
+          // calldata.push([arbAddressList.vWBTCContractAddress, tempData]);
+
+          // //USDC
+          // tempData = utils.arrayify(
+          //   iFaceToken.encodeFunctionData("balanceOf", [account])
+          // );
+          // calldata.push([arbAddressList.vUSDCContractAddress, tempData]);
+
+          // //USDT
+          // tempData = utils.arrayify(
+          //   iFaceToken.encodeFunctionData("balanceOf", [account])
+          // );
+          // calldata.push([arbAddressList.vUSDTContractAddress, tempData]);
+
+          // //DAI
+          // tempData = utils.arrayify(
+          //   iFaceToken.encodeFunctionData("balanceOf", [account])
+          // );
+          // calldata.push([arbAddressList.vDaiContractAddress, tempData]);
+
+          // const res = await MCcontract.callStatic.aggregate(calldata);
+
+          //User Asset balance
+          // const ethBal = formatUnits(check0xHex(res.returnData[15]), 18);
+          // const wbtcBal = formatUnits(check0xHex(res.returnData[16]), 18);
+          // const usdcBal = formatUnits(check0xHex(res.returnData[17]), 6);
+          // const usdtBal = formatUnits(check0xHex(res.returnData[18]), 6);
+          // const daiBal = formatUnits(check0xHex(res.returnData[19]), 18);
+
+          // @Todo: 
+          // TotalHolding = ethBal * ethperveth * ethprice + 
+          // wbtcBal * btcpervbtc * wbtcBal......(for all the assets )
+
+
+
+
+
+  //   }
+  //   else if (currentNetwork.id === OPTIMISM_NETWORK) {
+  //   }
+  //   else if (currentNetwork.id === BASE_NETWORK) {
+  //   }
 
   return (
     <div className="text-baseBlack dark:text-baseWhite">
