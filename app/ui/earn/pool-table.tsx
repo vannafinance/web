@@ -219,8 +219,8 @@ const PoolsTable = () => {
             //User Asset balance
             const ethBal = formatUnits(check0xHex(res.returnData[15]), 18);
             const wbtcBal = formatUnits(check0xHex(res.returnData[16]), 18);
-            const usdcBal = formatUnits(check0xHex(res.returnData[17]), 18);
-            const usdtBal = formatUnits(check0xHex(res.returnData[18]), 18);
+            const usdcBal = formatUnits(check0xHex(res.returnData[17]), 6);
+            const usdtBal = formatUnits(check0xHex(res.returnData[18]), 6);
             const daiBal = formatUnits(check0xHex(res.returnData[19]), 18);
 
             // Dependent varibale data fetching
@@ -236,6 +236,7 @@ const PoolsTable = () => {
                 ethTotalBorrow,
               ])
             );
+            
             calldata1.push([
               arbAddressList.rateModelContractAddress,
               tempData1,
@@ -517,41 +518,43 @@ const PoolsTable = () => {
               iFaceToken.encodeFunctionData("balanceOf", [account])
             );
             calldata.push([opAddressList.vDaiContractAddress, tempData]);
+            
 
             const res = await MCcontract.callStatic.aggregate(calldata);
+            console.log("res",res);
+          
 
             // assigne value
             //supply
-
-            const ethSupply = formatUnits(res.returnData[0]);
-            const wbtcSupply = formatUnits(res.returnData[2]);
-            const usdcSupply = formatUnits(res.returnData[4], 6);
-            const usdtSupply = formatUnits(res.returnData[6], 6);
-            const daiSupply = formatUnits(res.returnData[8]);
+            
+            const ethSupply = formatUnits(check0xHex(res.returnData[0]));
+            const wbtcSupply = formatUnits(check0xHex(res.returnData[2]));
+            const usdcSupply = formatUnits(check0xHex(res.returnData[4]), 6);
+            const usdtSupply = formatUnits(check0xHex(res.returnData[6]), 6);
+            const daiSupply = formatUnits(check0xHex(res.returnData[8]));
 
             //avaibaleAssetsInContract
 
-            const avaibaleETH = res.returnData[1];
-            const avaibaleBTC = res.returnData[3];
-            const avaibaleUSDC = res.returnData[5];
-            const avaibaleUSDT = res.returnData[7];
-            const avaibaleDai = res.returnData[9];
+            const avaibaleETH = check0xHex(res.returnData[1]);
+            const avaibaleBTC = check0xHex(res.returnData[3]);
+            const avaibaleUSDC = check0xHex(res.returnData[5]);
+            const avaibaleUSDT = check0xHex(res.returnData[7]);
+            const avaibaleDai = check0xHex(res.returnData[9]);
 
             // totalBorrow
 
-            const ethTotalBorrow = res.returnData[10];
-            const wbtcTotalBorrow = res.returnData[11];
-            const usdcTotalBorrow = res.returnData[12];
-            const usdtTotalBorrow = res.returnData[13];
-            const daiTotalBorrow = res.returnData[14];
+            const ethTotalBorrow = check0xHex(res.returnData[10]);
+            const wbtcTotalBorrow = check0xHex(res.returnData[11]);
+            const usdcTotalBorrow = check0xHex(res.returnData[12]);
+            const usdtTotalBorrow = check0xHex(res.returnData[13]);
+            const daiTotalBorrow = check0xHex(res.returnData[14]);
 
             //User Asset balance
-            const ethBal = formatUnits(res.returnData[15], 18);
-            const wbtcBal = formatUnits(res.returnData[16], 18);
-            const usdcBal = formatUnits(res.returnData[17], 18);
-            const usdtBal = formatUnits(res.returnData[18], 18);
-            const daiBal = formatUnits(res.returnData[19], 18);
-
+            const ethBal = formatUnits(check0xHex(res.returnData[15]), 18);
+            const wbtcBal = formatUnits(check0xHex(res.returnData[16]), 18);
+            const usdcBal = formatUnits(check0xHex(res.returnData[17]), 6);
+            const usdtBal = formatUnits(check0xHex(res.returnData[18]), 6);
+            const daiBal = formatUnits(check0xHex(res.returnData[19]), 18);
             // Dependent varibale data fetching
             const calldata1 = [];
             let tempData1;
@@ -566,6 +569,8 @@ const PoolsTable = () => {
               ])
             );
             calldata1.push([opAddressList.rateModelContractAddress, tempData1]);
+            console.log("avaibaleETH",formatUnits(avaibaleETH));
+            console.log("ethTotalBorrow",formatUnits(ethTotalBorrow));
 
             //BTC
             tempData1 = utils.arrayify(
@@ -864,8 +869,8 @@ const PoolsTable = () => {
             //User Asset balance
             const ethBal = formatUnits(res.returnData[15], 18);
             const wbtcBal = formatUnits(res.returnData[16], 18);
-            const usdcBal = formatUnits(res.returnData[17], 18);
-            const usdtBal = formatUnits(res.returnData[18], 18);
+            const usdcBal = formatUnits(res.returnData[17], 6);
+            const usdtBal = formatUnits(res.returnData[18], 6);
             const daiBal = formatUnits(res.returnData[19], 18);
 
             // Dependent varibale data fetching
