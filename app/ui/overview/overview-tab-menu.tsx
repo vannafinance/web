@@ -17,10 +17,17 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
 
   // TODO: delete below useEffect
   useEffect(() => {
-    setTotalHolding(undefined);
-    setTotalReturnsAmount(undefined);
-    setTotalReturnsPercentage(undefined);
-    setHealthFactor(undefined);
+    if(activeTab === "Borrower")  {
+      setTotalHolding(undefined);
+      setTotalReturnsAmount(undefined);
+      setTotalReturnsPercentage(undefined);
+      setHealthFactor(undefined);
+    }
+    else {
+      setTotalHolding(undefined);
+      setTotalReturnsAmount(undefined);
+      setTotalReturnsPercentage(undefined);
+    }
   }, []);
 
   useEffect(() => {
