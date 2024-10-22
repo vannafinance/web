@@ -38,10 +38,15 @@ import {
 } from "@/app/lib/constants";
 import { useNetwork } from "@/app/context/network-context";
 import { poolsPlaceholder } from "@/app/lib/static-values";
+import axios from "axios";
 
 const LevrageWithdraw = () => {
   const { account, library } = useWeb3React();
   const { currentNetwork } = useNetwork();
+
+  const [market, setMarket] = useState("ETH");
+  const [marketPrice, setMarketPrice] = useState(0.0);
+  const [assetsPrice, setAssetsPrice] = useState([]);
 
   const [loading, setLoading] = useState(false);
   const [disableBtn, setDisableBtn] = useState(true);
@@ -53,6 +58,7 @@ const LevrageWithdraw = () => {
   const [depositAmount, setDepositAmount] = useState<number | undefined>();
   const [borrowAmount, setBorrowAmount] = useState<number | undefined>();
   const [leverageValue, setLeverageValue] = useState<number>(4);
+  const [expected, setExpected] = useState(0);
   const [leverageAmount, setLeverageAmount] = useState<number | undefined>();
   const [depositBalance, setDepositBalance] = useState<number | undefined>();
   // const [borrowBalance, setBorrowBalance] = useState<string | undefined>("-");
@@ -261,8 +267,44 @@ const LevrageWithdraw = () => {
     }
   };
 
+  const getPriceFromAssetsArray = (
+    tokenSymbol: string,
+    assets: MuxPriceFetchingResponseObject[] = assetsPrice
+  ) => {
+    tokenSymbol = tokenSymbol === "WETH" ? "ETH" : tokenSymbol;
+    for (const asset of assets) {
+      if (asset.symbol === tokenSymbol) {
+        return asset.price;
+      }
+    }
+    return null;
+  };
+
+  const getAssetPrice = async (
+    assetName = market,
+    shouldSetMarketPrice = true
+  ) => {
+    const rsp = await axios.get("https://app.mux.network/api/liquidityAsset", {
+      timeout: 10 * 1000,
+    });
+    const price = getPriceFromAssetsArray(assetName, rsp.data.assets);
+    setAssetsPrice(rsp.data.assets);
+
+    if (shouldSetMarketPrice && price) {
+      setMarketPrice(price);
+    }
+
+    return price;
+  };
+
+  useEffect(() => {
+    const intervalId = setInterval(getAssetPrice, 10000); // Calls fetchData every second
+    return () => clearInterval(intervalId); // This is the cleanup function
+  }, []);
+
   useEffect(() => {
     accountCheck();
+    getAssetPrice();
   }, []);
 
   useEffect(() => {
@@ -279,6 +321,20 @@ const LevrageWithdraw = () => {
       setLeverageAmount(borrowAmount * leverageValue);
     }
   }, [leverageValue, borrowAmount]);
+
+  useEffect(() => {
+    const calc = async () => {
+      const val = getPriceFromAssetsArray(depositToken.name);
+      if (depositAmount !== undefined && val !== null) {
+        setExpected(depositAmount * val);
+      }
+
+      // add heathfactor code here
+      // setHealthFactor();
+    };
+
+    calc();
+  }, [depositAmount, depositToken]);
 
   const process = async () => {
     if (isLeverage) {
@@ -322,7 +378,6 @@ const LevrageWithdraw = () => {
         !accountManagerContract
       )
         return;
-
       else if (depositToken?.name === "WETH") {
         await accountManagerContract.depositEth(activeAccount, {
           value: parseEther(String(depositAmount)),
@@ -398,7 +453,6 @@ const LevrageWithdraw = () => {
       )
         return;
       else if (depositToken?.name === "WETH") {
-       
         await accountManagerContract.depositEth(activeAccount, {
           value: parseEther(String(depositAmount)),
           gasLimit: 2300000,
@@ -550,7 +604,7 @@ const LevrageWithdraw = () => {
         await accountManagerContract.withdrawEth(
           activeAccount,
           parseEther(String(depositAmount)),
-          { gasLimit: 2300000, }
+          { gasLimit: 2300000 }
         );
       } else if (
         depositToken?.name === "USDC" ||
@@ -612,7 +666,7 @@ const LevrageWithdraw = () => {
         await accountManagerContract.withdrawEth(
           activeAccount,
           parseEther(String(depositAmount)),
-          { gasLimit: 2300000, }
+          { gasLimit: 2300000 }
         );
       } else if (
         depositToken?.name === "USDC" ||
@@ -633,7 +687,7 @@ const LevrageWithdraw = () => {
         );
       }
     }
-  }
+  };
 
   const borrow = async () => {
     if (!currentNetwork) return;
@@ -803,7 +857,7 @@ const LevrageWithdraw = () => {
                 )}
                 onClick={() => handleToggle("leverage")}
               >
-                Leverage your Assets
+                Leverage
               </button>
             </div>
             <div
@@ -821,7 +875,7 @@ const LevrageWithdraw = () => {
                 )}
                 onClick={() => handleToggle("withdraw")}
               >
-                Withdraw your Assets
+                Withdraw
               </button>
             </div>
           </div>
@@ -848,7 +902,10 @@ const LevrageWithdraw = () => {
                   />
                 </div>
               </div>
-              <div className="mt-2 flex justify-end">
+              <div className="mt-2 flex justify-between">
+                <div className="text-xs text-neutral-500">
+                  Expected {expected} USD
+                </div>
                 <div className="text-xs text-neutral-500">
                   Balance: {depositBalance}{" "}
                   {depositBalance !== undefined ? depositToken?.name : "-"}
@@ -989,8 +1046,5 @@ const LevrageWithdraw = () => {
     </div>
   );
 };
-
-
-
 
 export default LevrageWithdraw;
