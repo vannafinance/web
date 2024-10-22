@@ -1,41 +1,35 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 interface DarkModeContextType {
-  isDarkMode: boolean;
+  isDarkMode: boolean | undefined;
   toggleDarkMode: () => void;
 }
 
-const DarkModeContext = createContext<DarkModeContextType | undefined>(undefined);
+const DarkModeContext = createContext<DarkModeContextType | undefined>(
+  undefined
+);
 
-export const DarkModeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isDarkMode, setIsDarkMode] = useState(true);
+export const DarkModeProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const [isDarkMode, setIsDarkMode] = useState<boolean | undefined>(undefined);
 
   useEffect(() => {
-    const darkModeCheck = localStorage.getItem("isDarkMode");
+    const darkModeFromLocalStorage = localStorage.getItem("isDarkMode");
 
-    if (darkModeCheck) {
-      localStorage.setItem("isDarkMode", "true");
-      document.documentElement.classList.add("dark");
-      return;
-    }
+    const value =
+      darkModeFromLocalStorage !== null
+        ? darkModeFromLocalStorage === "true"
+        : true;
 
-    if (darkModeCheck === "true") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-
-    const darkModeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-
-    const handleChange = (e: MediaQueryListEvent) => setIsDarkMode(e.matches);
-    darkModeMediaQuery.addEventListener("change", handleChange);
-
-    return () => darkModeMediaQuery.removeEventListener("change", handleChange);
+    setIsDarkMode(value);
   }, []);
 
   useEffect(() => {
+    if (isDarkMode === undefined) return;
+
     if (isDarkMode) {
       document.documentElement.classList.add("dark");
       localStorage.setItem("isDarkMode", "true");
@@ -57,7 +51,7 @@ export const DarkModeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 export const useDarkMode = () => {
   const context = useContext(DarkModeContext);
   if (context === undefined) {
-    throw new Error('useDarkMode must be used within a DarkModeProvider');
+    throw new Error("useDarkMode must be used within a DarkModeProvider");
   }
   return context;
 };

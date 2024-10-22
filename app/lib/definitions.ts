@@ -92,7 +92,7 @@ interface FutureDropdownProps {
   options: Option[];
   defaultValue: Option;
   onChange: (option: Option) => void;
-  iconFill?: boolean
+  iconFill?: boolean;
 }
 
 interface CryptoData {
@@ -187,4 +187,21 @@ interface BurgerMenuProps {
 interface CreateSmartAccountModalProps {
   isOpen: boolean;
   onClose: () => void;
+}
+
+interface MuxPriceFetchingResponseObject {
+  symbol: string;
+  price: number;
+}
+
+interface MarketPosition {
+  market: string;
+  isLong: boolean;
+  netValue: string;
+  collateral: number;
+  entryPrice: string;
+  indexPrice: string;
+  liqPrice: string;
+  pnlAndRow: string;
+  actions: JSX.Element;
 }

@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
+import PositionFetching from "./position-fetching";
 
-const PositionsComponent = () => <div>Positions Component</div>;
 const OpenOrdersComponent = () => <div>Open Orders Component</div>;
 const OrderHistoryComponent = () => <div>Order History Component</div>;
 const TradeHistoryComponent = () => <div>Trade History Component</div>;
@@ -15,7 +15,7 @@ const PositionsSection = () => {
   const [activeTab, setActiveTab] = useState("Positions");
 
   const navItems = [
-    { name: "Positions", count: 0, component: PositionsComponent },
+    { name: "Positions", count: 0, component: PositionFetching },
     { name: "Open Orders", count: 0, component: OpenOrdersComponent },
     { name: "Order History", count: null, component: OrderHistoryComponent },
     { name: "Trade History", count: null, component: TradeHistoryComponent },
@@ -31,11 +31,11 @@ const PositionsSection = () => {
     },
   ];
 
-  // const ActiveComponent =
-  //   navItems.find((item) => item.name === activeTab)?.component || (() => null);
+  const ActiveComponent =
+    navItems.find((item) => item.name === activeTab)?.component || (() => null);
 
   return (
-    <div className="border border-neutral-100 dark:border-neutral-700 rounded-xl p-1">
+    <div className="border border-neutral-100 dark:border-neutral-700 rounded-xl p-1 text-baseBlack dark:text-baseWhite">
       <nav className="border-b border-neutral-100 dark:border-neutral-700">
         <ul className="flex overflow-x-auto">
           {navItems.map((item) => (
@@ -57,7 +57,7 @@ const PositionsSection = () => {
           ))}
         </ul>
       </nav>
-      <div className="pt-5">{/* <ActiveComponent /> */}</div>
+      <div className="pt-5"><ActiveComponent /></div>
     </div>
   );
 };

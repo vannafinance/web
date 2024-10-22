@@ -683,7 +683,7 @@ export default function Page() {
           className="w-full bg-purple text-white py-3 rounded-2xl font-semibold text-xl mb-6"
           // onClick={() => setIsModalOpen(true)}
         >
-          Create your Smart Account
+          Create your Margin Account
         </button>
       )}
       {account && activeAccount !== undefined && !loading && disableBtn && (

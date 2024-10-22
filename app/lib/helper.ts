@@ -29,6 +29,7 @@ export const ceilWithPrecision6 = (n: string, precision = 6) => {
   // Round to two decimal places
   return num.toFixed(precision);
 };
+
 export const formatBignumberToUnits = (coin: string, balance: number) => {
   let units = 18;
   if (coin == "USDC" || coin == "USDT") {

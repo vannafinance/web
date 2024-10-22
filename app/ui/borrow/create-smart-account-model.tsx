@@ -99,7 +99,7 @@ const CreateSmartAccountModal: React.FC<CreateSmartAccountModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center pb-2.5 mb-5 border-b border-b-neutral-500">
-          <h2>Create Smart Account</h2>
+          <h2>Create Margin Account</h2>
           <button
             onClick={onClose}
             className="text-neutral-500 hover:text-neutral-700"
@@ -115,7 +115,7 @@ const CreateSmartAccountModal: React.FC<CreateSmartAccountModalProps> = ({
           </li>
           <li className="mb-3">
             <span className="text-neutral-400 font-normal">
-              Confirm your Smart Account -{" "}
+              Confirm your Margin Account -{" "}
             </span>
             we&apos;ll generate a unique address for you.
           </li>
@@ -137,7 +137,7 @@ const CreateSmartAccountModal: React.FC<CreateSmartAccountModalProps> = ({
             onClick={handleCreateAccount}
             className="w-full bg-gradient-to-r from-gradient-1 to-gradient-2 text-baseWhite py-3 rounded-md text-lg"
           >
-            Create Smart Account
+            Create Margin Account
           </button>
         )}
       </div>

@@ -689,7 +689,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
         </div>
       </div>
 
-      {!isOpen && (
+      {/* {!isOpen && (
         <div className="flex flex-row justify-between mb-2 rounded-xl bg-white dark:bg-baseDark py-2">
           <div className="flex self-stretch pl-2">
             <input
@@ -708,7 +708,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
             />
           </div>
         </div>
-      )}
+      )} */}
 
       <div className="flex flex-col mb-2 rounded-xl bg-white dark:bg-baseDark py-2">
         <div className="mb-3 flex flex-row justify-between px-2 text-xs text-neutral-500">

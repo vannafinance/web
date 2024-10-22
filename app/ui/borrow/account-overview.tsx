@@ -33,7 +33,7 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({
       <div className="flex flex-row space-x-2">
         <Image
           src="/vanna-tilted-white-logo.svg"
-          alt="Smart account logo"
+          alt="Margin account logo"
           width="55"
           height="55"
         />
@@ -42,7 +42,7 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({
           <span className="text-base font-medium gradient-text">
             {activeAccount
               ? getShortenedAddress(activeAccount, 8, 6)
-              : "Create your smart account"}
+              : "Create your margin account"}
           </span>
         </div>
       </div>

@@ -20,7 +20,7 @@ export default function Page() {
   const protocolOptions: Option[] = [
     { value: "MUX", label: "MUX" },
     ...(currentNetwork?.id === ARBITRUM_NETWORK
-      ? [{ value: "dYdX", label: "dYdX" }]
+      ? [{ value: "GMX", label: "GMX" }]
       : []),
   ];
 

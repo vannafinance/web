@@ -19,7 +19,9 @@ export const allowedChainIds = [8453, 42161, 10];
 
 export const getShortenedAddress = (address: string, start = 6, end = 4) => {
   if (address != "") {
-    const shortenedAddress = `${address.slice(0, start)}...${address.slice(-1 * end)}`;
+    const shortenedAddress = `${address.slice(0, start)}...${address.slice(
+      -1 * end
+    )}`;
     return shortenedAddress;
   } else {
     return "";
@@ -27,14 +29,13 @@ export const getShortenedAddress = (address: string, start = 6, end = 4) => {
 };
 
 // =============== ARBITRUM ============================================
-export const arbTokensAddress : { [key: string]: string } = {
+export const arbTokensAddress: { [key: string]: string } = {
   USDC: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
   USDT: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
   DAI: "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
   WETH: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
   WBTC: "0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f",
 };
-
 
 export const arbAddressList = {
   daiTokenAddress: "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
@@ -58,12 +59,11 @@ export const arbAddressList = {
   riskEngineContractAddress: "0x676fbE39A5a403b85474D155567e43D9b2b85922",
   uniswapRouterAddress: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45",
   muxLiquidityPoolAddress: "0x3e0199792Ce69DC29A0a36146bFa68bd7C8D6633",
-  multicallAddress:  "0xcA11bde05977b3631167028862bE2a173976CA11",
+  multicallAddress: "0xcA11bde05977b3631167028862bE2a173976CA11",
 };
 
-
 // =============== OP ============================================
-export const opTokensAddress : { [key: string]: string } = {
+export const opTokensAddress: { [key: string]: string } = {
   USDC: "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
   USDT: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
   DAI: "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
@@ -92,7 +92,8 @@ export const opAddressList = {
   uniswapRouterAddress: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45",
   avantifiTradingAddress: "0x5FF292d70bA9cD9e7CCb313782811b3D7120535f",
   avantifiStorage: "0x8a311D7048c35985aa31C131B9A13e03a5f7422d", //for approve
-  avantifiMultiCallContractAddress: "0x118f99aBD7101b528B17AB91c7d7aeFD2Cc1E5c0",
+  avantifiMultiCallContractAddress:
+    "0x118f99aBD7101b528B17AB91c7d7aeFD2Cc1E5c0",
   muxLiquidityPoolAddress: "0x3e0199792Ce69DC29A0a36146bFa68bd7C8D6633",
   multicallAddress: "0xcA11bde05977b3631167028862bE2a173976CA11",
   ethBalanceFetcher: "0x0728024F87FAaa1b1D897cbD202De18398B33B46",
@@ -100,12 +101,12 @@ export const opAddressList = {
   ClearingHouse: "0x82ac2CE43e33683c58BE4cDc40975E73aA50f459",
   perphouse: "0x82ac2CE43e33683c58BE4cDc40975E73aA50f459",
   vETH: "0x8C835DFaA34e2AE61775e80EE29E2c724c6AE2BB",
-  optimismFetchPositionContractAddress: "0xA7f3FC32043757039d5e13d790EE43edBcBa8b7c",
+  optimismFetchPositionContractAddress:
+    "0xA7f3FC32043757039d5e13d790EE43edBcBa8b7c",
 };
 
-
 // =============== BASE ============================================
-export const baseTokensAddress : { [key: string]: string } = {
+export const baseTokensAddress: { [key: string]: string } = {
   USDC: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
   USDT: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
   DAI: "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb",
@@ -135,12 +136,12 @@ export const baseAddressList = {
   uniswapRouterAddress: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45",
   avantifiTradingAddress: "0x5FF292d70bA9cD9e7CCb313782811b3D7120535f",
   avantifiStorage: "0x8a311D7048c35985aa31C131B9A13e03a5f7422d", //for approve
-  avantifiMultiCallContractAddress: "0x118f99aBD7101b528B17AB91c7d7aeFD2Cc1E5c0",
+  avantifiMultiCallContractAddress:
+    "0x118f99aBD7101b528B17AB91c7d7aeFD2Cc1E5c0",
   muxLiquidityPoolAddress: "0x3e0199792Ce69DC29A0a36146bFa68bd7C8D6633",
   multicallAddress: "0xcA11bde05977b3631167028862bE2a173976CA11",
   ethBalanceFetcher: "0x3a0897075e1c909293458a07bfb719b5facb6b30",
 };
-
 
 export const OptionType = {
   LongCall: 0,
@@ -158,8 +159,7 @@ export const codeToAsset: { [key: string]: string } = {
   "04": "BTC",
 };
 
-
-export const CollateralAssetCode : { [key: string]: string } = {
+export const CollateralAssetCode: { [key: string]: string } = {
   USDC: "00",
   USDT: "01",
   DAI: "02",
@@ -168,5 +168,3 @@ export const CollateralAssetCode : { [key: string]: string } = {
   ETH: "03",
   BTC: "04",
 };
-
-
