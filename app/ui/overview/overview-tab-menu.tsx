@@ -112,7 +112,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
     }
     return null;
   };
-
+  
   const getAssetPrice = async (
     assetName = market
     // shouldSetMarketPrice = true
@@ -124,7 +124,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
     setAssetsPrice(rsp.data.assets);
 
     // if (shouldSetMarketPrice && price) {
-    //   setMarketPrice(price);
+      //   setMarketPrice(price);
     //   marketPrice;
     // }
 
@@ -136,7 +136,8 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
   }, [account, library]);
 
   useEffect(() => {
-    const intervalId = setInterval(getAssetPrice, 1000); // Calls fetchData every second
+    getAssetPrice();
+    const intervalId = setInterval(getAssetPrice, 100000); // Calls fetchData every second
     return () => clearInterval(intervalId); // This is the cleanup function
   }, []);
 
@@ -150,11 +151,13 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
 
   useEffect(() => {
     if (!currentNetwork) return;
+    if (assetsPrice.length === 0) return;
     if (activeTab === "Borrower") {
       const fetchValues = async () => {
         const signer = await library?.getSigner();
 
         let daiContract;
+        let wethContract;
         let usdcContract;
         let usdtContract;
         let wbtcContract;
@@ -177,6 +180,11 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
           );
           usdtContract = new Contract(
             arbAddressList.usdtTokenAddress,
+            ERC20.abi,
+            signer
+          );
+          wethContract = new Contract(
+            arbAddressList.wethTokenAddress,
             ERC20.abi,
             signer
           );
@@ -226,6 +234,11 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
             ERC20.abi,
             signer
           );
+          wethContract = new Contract(
+            opAddressList.wethTokenAddress,
+            ERC20.abi,
+            signer
+          );
           wbtcContract = new Contract(
             opAddressList.wbtcTokenAddress,
             ERC20.abi,
@@ -272,6 +285,11 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
             ERC20.abi,
             signer
           );
+          wethContract = new Contract(
+            baseAddressList.wethTokenAddress,
+            ERC20.abi,
+            signer
+          );
           wbtcContract = new Contract(
             baseAddressList.wbtcTokenAddress,
             ERC20.abi,
@@ -308,33 +326,43 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
 
         // ETH
         let accountBalance = await library?.getBalance(activeAccount);
-        accountBalance = accountBalance / 1e18;
+        let waccountBalance = await wethContract.balanceOf(activeAccount);
+
+        accountBalance = Number(accountBalance) + Number(waccountBalance);
+
         let borrowedBalance = await vEtherContract.callStatic.getBorrowBalance(
           activeAccount
         );
-        borrowedBalance = borrowedBalance / 1e18;
+        borrowedBalance = Number(borrowedBalance / 1);
 
         let val = Number(getPriceFromAssetsArray("ETH"));
-        let balance = Number(accountBalance - borrowedBalance) * val;
+
+        let balance = Number(
+          (Number(accountBalance - borrowedBalance) / 1e18) * val * 1e6
+        );
 
         // USDC
-        accountBalance = usdcContract.balanceOf(activeAccount);
+        accountBalance = await usdcContract.balanceOf(activeAccount);
+
         borrowedBalance = await vUsdcContract.callStatic.getBorrowBalance(
           activeAccount
         );
-        val = Number(getPriceFromAssetsArray("BTC"));
-        balance += (accountBalance - borrowedBalance) * val;
+
+        val = Number(getPriceFromAssetsArray("USDC"));
+        balance += Number(accountBalance - borrowedBalance) * val;
 
         // WBTC
-        accountBalance = wbtcContract.balanceOf(activeAccount);
+        accountBalance = await wbtcContract.balanceOf(activeAccount);
+
         borrowedBalance = await vWbtcContract.callStatic.getBorrowBalance(
           activeAccount
         );
-        val = Number(getPriceFromAssetsArray("USDC"));
+
+        val = Number(getPriceFromAssetsArray("BTC"));
         balance += (accountBalance - borrowedBalance) * val;
 
         //USDT
-        accountBalance = usdtContract.balanceOf(activeAccount);
+        accountBalance = await usdtContract.balanceOf(activeAccount);
         borrowedBalance = await vUsdtContract.callStatic.getBorrowBalance(
           activeAccount
         );
@@ -342,12 +370,13 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
         balance += (accountBalance - borrowedBalance) * val;
 
         // DAI
-        accountBalance = daiContract.balanceOf(activeAccount);
+        accountBalance = await daiContract.balanceOf(activeAccount);
         borrowedBalance = await vDaiContract.callStatic.getBorrowBalance(
           activeAccount
         );
         val = Number(getPriceFromAssetsArray("DAI"));
         balance += (accountBalance - borrowedBalance) * val;
+        balance = Number(balance / 1e6);
 
         // totalHoldings = balance;
 
@@ -356,21 +385,23 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
           RiskEngine.abi,
           signer
         );
+        //TODO: vatsal rework on this getBalance varibale till the assigne you have to rework for fetching the data
         const totalbalance = await riskEngineContract.callStatic.getBalance(
           activeAccount
         );
-        const totalReturnsAmount = totalbalance - balance;
+
+        const totalReturnsAmount = Number(totalbalance / 1e16) - balance;
         const totalReturnsPercentage = (totalReturnsAmount / balance) * 100;
         // add color while showing this
         const borrowBalance = await riskEngineContract.callStatic.getBorrows(
           activeAccount
         );
-        const healthFactor = balance / borrowBalance;
+        const healthFactor = balance / Number(borrowBalance / 1e15);
         // if healther < 1.5 the color red else green
 
-        setTotalHolding(totalbalance);
-        setTotalReturnsAmount(totalReturnsAmount);
-        setTotalReturnsPercentage(totalReturnsPercentage);
+        setTotalHolding(balance);
+        setTotalReturnsAmount(totalReturnsAmount / 1e1);
+        setTotalReturnsPercentage(totalReturnsPercentage / 1e1);
         setHealthFactor(healthFactor);
       };
 
@@ -379,7 +410,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
       const fetchValues = async () => {
         const iFaceEth = new utils.Interface(VEther.abi);
         const iFaceToken = new utils.Interface(VToken.abi);
-        const calldata = [];
+        let calldata = [];
         let tempData;
         //User assets balance
 
@@ -389,6 +420,8 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
             Multicall.abi,
             library
           );
+          calldata = [];
+          tempData = null;
 
           //ETH
           tempData = utils.arrayify(
@@ -432,6 +465,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
 
           // convertSharesToAssets
 
+          calldata = [];
           //ETH
           tempData = utils.arrayify(
             iFaceEth.encodeFunctionData("convertToAssets", [ethBal])
@@ -504,7 +538,8 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
             Multicall.abi,
             library
           );
-
+          calldata = [];
+          tempData = null;
           //ETH
           tempData = utils.arrayify(
             iFaceEth.encodeFunctionData("balanceOf", [account])
@@ -536,7 +571,6 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
           calldata.push([opAddressList.vDaiContractAddress, tempData]);
 
           const res = await MCcontract.callStatic.aggregate(calldata);
-          console.log("res", res);
 
           //User v token Asset balance
           const ethBal = formatUnits(check0xHex(res.returnData[0]), 18);
@@ -547,33 +581,41 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
 
           // convertSharesToAssets
 
+          calldata = [];
           //ETH
           tempData = utils.arrayify(
-            iFaceEth.encodeFunctionData("convertToAssets", [ethBal])
+            iFaceEth.encodeFunctionData("convertToAssets", [res.returnData[0]])
           );
           calldata.push([opAddressList.vEtherContractAddress, tempData]);
-
           // WBTC
           tempData = utils.arrayify(
-            iFaceToken.encodeFunctionData("convertToAssets", [wbtcBal])
+            iFaceToken.encodeFunctionData("convertToAssets", [
+              res.returnData[1],
+            ])
           );
           calldata.push([opAddressList.vWBTCContractAddress, tempData]);
 
           //USDC
           tempData = utils.arrayify(
-            iFaceToken.encodeFunctionData("convertToAssets", [usdcBal])
+            iFaceToken.encodeFunctionData("convertToAssets", [
+              res.returnData[2],
+            ])
           );
           calldata.push([opAddressList.vUSDCContractAddress, tempData]);
 
           // USDT
           tempData = utils.arrayify(
-            iFaceToken.encodeFunctionData("convertToAssets", [usdtBal])
+            iFaceToken.encodeFunctionData("convertToAssets", [
+              res.returnData[3],
+            ])
           );
           calldata.push([opAddressList.vUSDTContractAddress, tempData]);
 
           // DAI
           tempData = utils.arrayify(
-            iFaceToken.encodeFunctionData("convertToAssets", [daiBal])
+            iFaceToken.encodeFunctionData("convertToAssets", [
+              res.returnData[4],
+            ])
           );
           calldata.push([opAddressList.vDaiContractAddress, tempData]);
 
@@ -619,6 +661,8 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
             Multicall.abi,
             library
           );
+          calldata = [];
+          tempData = null;
 
           //ETH
           tempData = utils.arrayify(
@@ -651,7 +695,6 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
           calldata.push([baseAddressList.vDaiContractAddress, tempData]);
 
           const res = await MCcontract.callStatic.aggregate(calldata);
-          console.log("res", res);
 
           //User v token Asset balance
           const ethBal = formatUnits(check0xHex(res.returnData[0]), 18);
@@ -661,6 +704,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
           const daiBal = formatUnits(check0xHex(res.returnData[4]), 18);
 
           // convertSharesToAssets
+          calldata = [];
 
           //ETH
           tempData = utils.arrayify(
@@ -733,8 +777,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
 
       fetchValues();
     }
-  }, [activeTab, currentNetwork, activeAccount, account]);
-
+  }, [activeTab, currentNetwork, activeAccount, account, assetsPrice]);
   return (
     <div className="bg-white dark:bg-baseDark rounded-3xl border border-purpleBG-lighter dark:border-neutral-700 p-4 lg:p-7 mb-7">
       <div className="flex justify-between items-start mb-10">
