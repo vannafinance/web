@@ -20,6 +20,23 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({
 
   // TODO: delete below useEffect
   useEffect(() => {
+    // @TODO:meet
+    // const riskEngineContract = new Contract(
+    //   opAddressList.riskEngineContractAddress,
+    //   RiskEngine.abi,
+    //   signer
+    // );
+    // const balance = await riskEngineContract.callStatic.getBalance(activeAccount);
+    // const borrowBalance = await riskEngineContract.callStatic.getBorrows(activeAccount);
+    // let healthFactor1 = balance/borrowBalance
+    // setAccountValue(balance);
+    // setCollateral(balance - borrowBalance);
+    // setDebt(borrowBalance);
+    // // setHealthFactor(healthFactor1);
+    // let liqP = balance * 1.05 / healthFactor1
+    // setLiquidationPrice(liqp)
+
+
     setCollateral("-");
     setAccountValue("-");
     setDebt("-");

@@ -18,6 +18,112 @@ interface PoolProps {
   icon: string;
   isLoss?: boolean;
 }
+// const fetchValues = async () => {
+    //   const iFaceEth = new utils.Interface(VEther.abi);
+    //   const iFaceToken = new utils.Interface(VToken.abi);
+    //   const MCcontract = new Contract(
+    //     arbAddressList.multicallAddress,
+    //     Multicall.abi,
+    //     library
+    //   );
+    //   const calldata = [];
+    //   let tempData;
+    //   //User assets balance
+
+    //   //ETH
+    //   tempData = utils.arrayify(
+    //     iFaceEth.encodeFunctionData("balanceOf", [account])
+    //   );
+    //   calldata.push([opAddressList.vEtherContractAddress, tempData]);
+
+    //   //WBTC
+    //   tempData = utils.arrayify(
+    //     iFaceToken.encodeFunctionData("balanceOf", [account])
+    //   );
+    //   calldata.push([opAddressList.vWBTCContractAddress, tempData]);
+
+    //   //USDC
+    //   tempData = utils.arrayify(
+    //     iFaceToken.encodeFunctionData("balanceOf", [account])
+    //   );
+    //   calldata.push([opAddressList.vUSDCContractAddress, tempData]);
+
+    //   //USDT
+    //   tempData = utils.arrayify(
+    //     iFaceToken.encodeFunctionData("balanceOf", [account])
+    //   );
+    //   calldata.push([opAddressList.vUSDTContractAddress, tempData]);
+
+    //   //DAI
+    //   tempData = utils.arrayify(
+    //     iFaceToken.encodeFunctionData("balanceOf", [account])
+    //   );
+    //   calldata.push([opAddressList.vDaiContractAddress, tempData]);
+
+    
+       
+
+    //   const res = await MCcontract.callStatic.aggregate(calldata);
+    //   console.log("res",res);
+    //   //User Asset balance
+    //   const ethBal = formatUnits(check0xHex(res.returnData[0]), 18);
+    //   const wbtcBal = formatUnits(check0xHex(res.returnData[1]), 18);
+    //   const usdcBal = formatUnits(check0xHex(res.returnData[2]), 6);
+    //   const usdtBal = formatUnits(check0xHex(res.returnData[3]), 6);
+    //   const daiBal = formatUnits(check0xHex(res.returnData[4]), 18);
+
+    //     // convertSharesToAssets
+
+    //   //ETH
+    //   tempData = utils.arrayify(
+    //     iFaceEth.encodeFunctionData("convertToAssets",[ethBal]) 
+    //   );
+    //   calldata.push([opAddressList.vEtherContractAddress, tempData]);
+      
+    //   // WBTC
+    //   tempData = utils.arrayify(
+    //     iFaceToken.encodeFunctionData("convertToAssets",[wbtcBal]) 
+    //   );
+    //   calldata.push([opAddressList.vWBTCContractAddress, tempData]);
+
+    //   //USDC
+    //   tempData = utils.arrayify(
+    //     iFaceToken.encodeFunctionData("convertToAssets",[usdcBal]) 
+    //   );
+    //   calldata.push([opAddressList.vUSDCContractAddress, tempData]);
+
+    //   // USDT
+    //   tempData = utils.arrayify(
+    //     iFaceToken.encodeFunctionData("convertToAssets",[usdtBal]) 
+    //   );
+    //   calldata.push([opAddressList.vUSDTContractAddress, tempData]);
+      
+    //   // DAI
+    //   tempData = utils.arrayify(
+    //     iFaceToken.encodeFunctionData("convertToAssets",[daiBal]) 
+    //   );
+    //   calldata.push([opAddressList.vDaiContractAddress, tempData]);
+
+    //   const res1 = await MCcontract.callStatic.aggregate(calldata);
+      
+
+    //   //User Asset balance
+    //   const ethusdcBal = formatUnits(check0xHex(res1.returnData[0]), 18);
+    //   const wbtcusdcBal = formatUnits(check0xHex(res1.returnData[1]), 18);
+    //   const usdcusdcBal = formatUnits(check0xHex(res1.returnData[2]), 6);
+    //   const usdtusdcBal = formatUnits(check0xHex(res1.returnData[3]), 6);
+    //   const daiusdcBal = formatUnits(check0xHex(res1.returnData[4]), 18);
+
+    // const ethPNL = ethusdcBal - ethBal
+    // const BTCPNL = wbtcusdcBal - wbtcBal
+    // const ethPNL = usdcusdcBal - usdcBal
+    // const ethPNL = usdtusdcBal - usdtBal
+    // const ethPNL = daiusdcBal - daiBal
+
+
+
+
+
 
 const Pool: React.FC<PoolProps> = ({
   number,
