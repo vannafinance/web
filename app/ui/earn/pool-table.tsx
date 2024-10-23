@@ -1043,9 +1043,9 @@ const PoolsTable = () => {
     <div className="mt-4 overflow-x-auto">
       <div className="hidden sm:block min-w-full text-base font-medium text-baseBlack dark:text-baseWhite text-center">
         {/* Header */}
-        <div className="bg-baseComplementary dark:bg-baseDarkComplementary grid grid-cols-6 rounded-xl px-3 py-1.5 md:px-6 md:py-4 font-semibold">
+        <div className="bg-baseComplementary dark:bg-baseDarkComplementary grid grid-cols-6 rounded-xl px-3 py-1.5 md:px-6 md:py-4 font-semibold text-left">
           <div className="text-center">#</div>
-          <div className=" text-left">Pool</div>
+          <div>Pool</div>
           <div>Supply</div>
           <div>Supply APY</div>
           <div>Borrow APY</div>
@@ -1062,7 +1062,7 @@ const PoolsTable = () => {
             >
               <div className="relative grid grid-cols-6 px-3 py-1.5 md:px-6 md:py-4 whitespace-nowrap transition-all duration-200 ease-in-out rounded-xl">
                 <div className="z-10">{pool.id}</div>
-                <div className="z-10 ">
+                <div className="z-10">
                   <div className="flex items-center">
                     <Image src={pool.icon} alt="" width="24" height="24" />
                     <div className="ml-4 flex items-center space-x-2">
@@ -1080,10 +1080,10 @@ const PoolsTable = () => {
                     </div>
                   </div>
                 </div>
-                <div className="z-10">{pool.supply}</div>
-                <div className="z-10">{pool.supplyAPY}</div>
-                <div className="z-10">{pool.borrowAPY}</div>
-                <div className="z-10">{pool.yourBalance}</div>
+                <div className="z-10 text-left">{pool.supply} {pool.name}</div>
+                <div className="z-10 text-left">{pool.supplyAPY}</div>
+                <div className="z-10 text-left">{pool.borrowAPY}</div>
+                <div className="z-10 text-left">{pool.yourBalance}</div>
                 <div className="absolute inset-0 rounded-xl bg-transparent z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-out pointer-events-none">
                   <div className="absolute inset-0 bg-gradient-to-r from-gradient-1 to-gradient-2 rounded-xl"></div>
                   <div className="absolute inset-[1px] bg-white dark:bg-baseDark rounded-xl"></div>

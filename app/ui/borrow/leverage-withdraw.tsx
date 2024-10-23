@@ -35,6 +35,7 @@ import {
   ARBITRUM_NETWORK,
   BASE_NETWORK,
   OPTIMISM_NETWORK,
+  percentageClickValues,
 } from "@/app/lib/constants";
 import { useNetwork } from "@/app/context/network-context";
 import { poolsPlaceholder } from "@/app/lib/static-values";
@@ -914,7 +915,7 @@ const LevrageWithdraw = () => {
             </div>
 
             <div className="flex justify-between mb-10">
-              {[1, 10, 50, 100].map((percent) => (
+              {percentageClickValues.map((percent) => (
                 <button
                   key={percent}
                   onClick={() => handlePercentageClick(percent)}

@@ -12,6 +12,7 @@ import {
   ARBITRUM_NETWORK,
   BASE_NETWORK,
   OPTIMISM_NETWORK,
+  percentageClickValues,
 } from "@/app/lib/constants";
 import { ethers, utils, Contract, BigNumber } from "ethers";
 import { formatUnits, parseEther, parseUnits } from "ethers/lib/utils";
@@ -1075,7 +1076,7 @@ const SupplyWithdraw = ({
       </div>
 
       <div className="flex justify-between mb-4">
-        {[1, 10, 50, 100].map((percent) => (
+        {percentageClickValues.map((percent) => (
           <button
             key={percent}
             onClick={() => handlePercentageClick(percent)}

@@ -41,3 +41,4 @@ export const FEES = 0.01;
 export const oneMonthTimestampInterval = 2629743;
 export const referralCode =
   "0x0000000000000000000000000000000000000000000000000000000000000000";
+export const percentageClickValues = [10, 25, 50, 100]
