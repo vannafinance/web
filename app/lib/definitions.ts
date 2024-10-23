@@ -180,6 +180,17 @@ interface OptionData {
   strike: number;
 }
 
+interface PoolPropsLenderDashboard {
+  number?: number;
+  name: string;
+  amount: number;
+  profit: number;
+  apy: number;
+  percentage: number;
+  icon: string;
+  isLoss?: boolean;
+}
+
 interface BurgerMenuProps {
   onClose: () => void;
 }
