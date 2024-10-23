@@ -30,12 +30,12 @@ const PositionFetching = () =>
     const { account, library } = useWeb3React();
     const { currentNetwork } = useNetwork();
 
-    const [market, setMarket] = useState("ETH");
-    const [marketPrice, setMarketPrice] = useState(0.0);
+    const [market] = useState("ETH");
+    // const [marketPrice, setMarketPrice] = useState(0.0);
     const [assetsPrice, setAssetsPrice] = useState([]);
 
     const [activeAccount, setActiveAccount] = useState<string | undefined>();
-    const [loading, setLoading] = useState(false);
+    // const [loading, setLoading] = useState(false);
 
     const [rows, setRows] = useState<MarketPosition[]>([]);
 
@@ -116,8 +116,8 @@ const PositionFetching = () =>
     };
 
     const getAssetPrice = async (
-      assetName = market,
-      shouldSetMarketPrice = true
+      assetName = market
+      // shouldSetMarketPrice = true
     ) => {
       const rsp = await axios.get(
         "https://app.mux.network/api/liquidityAsset",
@@ -126,9 +126,9 @@ const PositionFetching = () =>
       const price = getPriceFromAssetsArray(assetName, rsp.data.assets);
       setAssetsPrice(rsp.data.assets);
 
-      if (shouldSetMarketPrice && price) {
-        setMarketPrice(price);
-      }
+      // if (shouldSetMarketPrice && price) {
+      //   setMarketPrice(price);
+      // }
 
       return price;
     };
@@ -186,8 +186,8 @@ const PositionFetching = () =>
 
               if (size != 0) {
                 const indexPrice = await getAssetPrice(
-                  codeToAsset["0" + j],
-                  false
+                  codeToAsset["0" + j]
+                  // false
                 );
                 if (indexPrice) {
                   const netValue = indexPrice * size;
@@ -334,9 +334,10 @@ const PositionFetching = () =>
       assetCode: string | number,
       collateralCode: string | number,
       longShort: string | number,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       size: any
     ) => {
-      setLoading(true);
+      // setLoading(true);
       try {
         if (!activeAccount) return;
 
@@ -406,11 +407,11 @@ const PositionFetching = () =>
       } catch (e) {
         console.error(e);
       }
-      setLoading(false);
+      // setLoading(false);
     };
     const closePositionOp = async () => {
       console.log("works111")
-      setLoading(true);
+      // setLoading(true);
       try {
         const signer = await library?.getSigner();
   
@@ -494,7 +495,7 @@ const PositionFetching = () =>
       } catch (e) {
         console.error(e);
       }
-      setLoading(false);
+      // setLoading(false);
     };
 
     // const rows: MarketPosition[] = [

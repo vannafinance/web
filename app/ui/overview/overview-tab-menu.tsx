@@ -12,7 +12,6 @@ import {
   baseAddressList,
   opAddressList,
 } from "@/app/lib/web3-constants";
-import DefaultRateModel from "@/app/abi/vanna/v1/out/DefaultRateModel.sol/DefaultRateModel.json";
 import ERC20 from "../../abi/vanna/v1/out/ERC20.sol/ERC20.json";
 import Multicall from "@/app/abi/vanna/v1/out/Multicall.sol/Multicall.json";
 import Registry from "../../abi/vanna/v1/out/Registry.sol/Registry.json";
@@ -21,13 +20,9 @@ import VEther from "@/app/abi/vanna/v1/out/VEther.sol/VEther.json";
 import VToken from "@/app/abi/vanna/v1/out/VToken.sol/VToken.json";
 
 import {
-  ceilWithPrecision6,
-  ceilWithPrecision,
   check0xHex,
 } from "@/app/lib/helper";
 import {
-  SECS_PER_YEAR,
-  FEES,
   ARBITRUM_NETWORK,
   OPTIMISM_NETWORK,
   BASE_NETWORK,
@@ -43,7 +38,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
   const { currentNetwork } = useNetwork();
 
   const market = "ETH";
-  const [marketPrice, setMarketPrice] = useState(0.0);
+  // const [marketPrice, setMarketPrice] = useState(0.0);
   const [assetsPrice, setAssetsPrice] = useState([]);
 
   const [activeAccount, setActiveAccount] = useState<string | undefined>();
@@ -119,8 +114,8 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
   };
 
   const getAssetPrice = async (
-    assetName = market,
-    shouldSetMarketPrice = true
+    assetName = market
+    // shouldSetMarketPrice = true
   ) => {
     const rsp = await axios.get("https://app.mux.network/api/liquidityAsset", {
       timeout: 10 * 1000,
@@ -128,9 +123,10 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
     const price = getPriceFromAssetsArray(assetName, rsp.data.assets);
     setAssetsPrice(rsp.data.assets);
 
-    if (shouldSetMarketPrice && price) {
-      setMarketPrice(price);
-    }
+    // if (shouldSetMarketPrice && price) {
+    //   setMarketPrice(price);
+    //   marketPrice;
+    // }
 
     return price;
   };

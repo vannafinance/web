@@ -19,7 +19,6 @@ import {
   ARBITRUM_NETWORK,
   OPTIMISM_NETWORK,
   BASE_NETWORK,
-  FEES,
 } from "@/app/lib/constants";
 import { useNetwork } from "@/app/context/network-context";
 import { useWeb3React } from "@web3-react/core";
@@ -59,7 +58,7 @@ const LenderDashboard: React.FC = () => {
   const { currentNetwork } = useNetwork();
 
   const market = "ETH";
-  const [marketPrice, setMarketPrice] = useState(0.0);
+  // const [marketPrice, setMarketPrice] = useState(0.0);
   const [assetsPrice, setAssetsPrice] = useState([]);
 
   const [pools, setPools] = useState([
@@ -119,8 +118,8 @@ const LenderDashboard: React.FC = () => {
   };
 
   const getAssetPrice = async (
-    assetName = market,
-    shouldSetMarketPrice = true
+    assetName = market
+    // shouldSetMarketPrice = true
   ) => {
     const rsp = await axios.get("https://app.mux.network/api/liquidityAsset", {
       timeout: 10 * 1000,
@@ -128,9 +127,9 @@ const LenderDashboard: React.FC = () => {
     const price = getPriceFromAssetsArray(assetName, rsp.data.assets);
     setAssetsPrice(rsp.data.assets);
 
-    if (shouldSetMarketPrice && price) {
-      setMarketPrice(price);
-    }
+    // if (shouldSetMarketPrice && price) {
+    //   setMarketPrice(price);
+    // }
 
     return price;
   };
@@ -1327,7 +1326,8 @@ const LenderDashboard: React.FC = () => {
           (pool, index) =>
             pool.amount > 0 && (
               <Pool
-                number={index}
+                key={index}
+                number={index + 1}
                 name={pool.name}
                 amount={pool.amount}
                 profit={pool.profit}
@@ -1348,7 +1348,7 @@ const LenderDashboard: React.FC = () => {
         {pools.map(
           (pool, index) =>
             pool.amount > 0 && (
-              <div className="bg-white dark:bg-baseDark rounded-3xl border border-purpleBG-lighter dark:border-neutral-700 p-4 mb-3">
+              <div key={index} className="bg-white dark:bg-baseDark rounded-3xl border border-purpleBG-lighter dark:border-neutral-700 p-4 mb-3">
                 <div className="flex items-center mb-8 text-base font-medium">
                   <span className="mr-4 text-neutral-500">{index + 1}</span>
                   <div className="relative w-6 h-6 mr-2">

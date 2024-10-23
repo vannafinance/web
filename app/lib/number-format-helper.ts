@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { BigNumber, BigNumberish } from "ethers";
 import { formatEther, formatUnits } from "ethers/lib/utils";
 
