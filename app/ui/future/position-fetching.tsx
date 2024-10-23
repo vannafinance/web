@@ -97,6 +97,11 @@ const PositionFetching = () =>
       fetchPositions(activeAccount);
     }, [activeAccount]);
 
+    useEffect(() => {
+      const intervalId = setInterval(getAssetPrice, 1000); // Calls fetchData every second
+      return () => clearInterval(intervalId); // This is the cleanup function
+    }, []);
+
     const getPriceFromAssetsArray = (
       tokenSymbol: string,
       assets: MuxPriceFetchingResponseObject[] = assetsPrice
