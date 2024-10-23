@@ -6,9 +6,31 @@ import LenderDashboard from "./lender-dashboard";
 import BorrowerDashboard from "./borrower-dashboard";
 import Image from "next/image";
 import { useDarkMode } from "../header/use-dark-mode";
+import { utils, Contract } from "ethers";
+import VEther from "@/app/abi/vanna/v1/out/VEther.sol/VEther.json";
+import VToken from "@/app/abi/vanna/v1/out/VToken.sol/VToken.json";
+import {
+  arbAddressList,
+  baseAddressList,
+  opAddressList,
+} from "@/app/lib/web3-constants";
+import DefaultRateModel from "@/app/abi/vanna/v1/out/DefaultRateModel.sol/DefaultRateModel.json";
+import Multicall from "@/app/abi/vanna/v1/out/Multicall.sol/Multicall.json";
+import {
+  ceilWithPrecision6,
+  ceilWithPrecision,
+  check0xHex,
+} from "@/app/lib/helper";
+import { SECS_PER_YEAR, FEES } from "@/app/lib/constants";
+import { useNetwork } from "@/app/context/network-context";
+import { useWeb3React } from "@web3-react/core";
+import { formatUnits } from "ethers/lib/utils";
+
 
 const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
   const { isDarkMode } = useDarkMode();
+  const { account, library } = useWeb3React();
+  const { currentNetwork } = useNetwork();
   const [totalHoldings, setTotalHolding] = useState();
   const [totalReturnsAmount, setTotalReturnsAmount] = useState();
   const [totalReturnsPercentage, setTotalReturnsPercentage] = useState();
@@ -17,6 +39,195 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
 
   // TODO: delete below useEffect
   useEffect(() => {
+    // const fetchValues = async () => {
+    //   const iFaceEth = new utils.Interface(VEther.abi);
+    //   const iFaceToken = new utils.Interface(VToken.abi);
+    //   const MCcontract = new Contract(
+    //     arbAddressList.multicallAddress,
+    //     Multicall.abi,
+    //     library
+    //   );
+    //   const calldata = [];
+    //   let tempData;
+    //   //User assets balance
+
+    //   //ETH
+    //   tempData = utils.arrayify(
+    //     iFaceEth.encodeFunctionData("balanceOf", [account])
+    //   );
+    //   calldata.push([opAddressList.vEtherContractAddress, tempData]);
+
+    //   //WBTC
+    //   tempData = utils.arrayify(
+    //     iFaceToken.encodeFunctionData("balanceOf", [account])
+    //   );
+    //   calldata.push([opAddressList.vWBTCContractAddress, tempData]);
+
+    //   //USDC
+    //   tempData = utils.arrayify(
+    //     iFaceToken.encodeFunctionData("balanceOf", [account])
+    //   );
+    //   calldata.push([opAddressList.vUSDCContractAddress, tempData]);
+
+    //   //USDT
+    //   tempData = utils.arrayify(
+    //     iFaceToken.encodeFunctionData("balanceOf", [account])
+    //   );
+    //   calldata.push([opAddressList.vUSDTContractAddress, tempData]);
+
+    //   //DAI
+    //   tempData = utils.arrayify(
+    //     iFaceToken.encodeFunctionData("balanceOf", [account])
+    //   );
+    //   calldata.push([opAddressList.vDaiContractAddress, tempData]);
+
+    
+       
+
+    //   const res = await MCcontract.callStatic.aggregate(calldata);
+    //   console.log("res",res);
+
+
+
+    //   //User Asset balance
+    //   const ethBal = formatUnits(check0xHex(res.returnData[0]), 18);
+    //   const wbtcBal = formatUnits(check0xHex(res.returnData[1]), 18);
+    //   const usdcBal = formatUnits(check0xHex(res.returnData[2]), 6);
+    //   const usdtBal = formatUnits(check0xHex(res.returnData[3]), 6);
+    //   const daiBal = formatUnits(check0xHex(res.returnData[4]), 18);
+
+    //     // convertSharesToAssets
+
+    //   //ETH
+    //   tempData = utils.arrayify(
+    //     iFaceEth.encodeFunctionData("convertToAssets",[ethBal]) 
+    //   );
+    //   calldata.push([opAddressList.vEtherContractAddress, tempData]);
+      
+    //   // WBTC
+    //   tempData = utils.arrayify(
+    //     iFaceToken.encodeFunctionData("convertToAssets",[wbtcBal]) 
+    //   );
+    //   calldata.push([opAddressList.vWBTCContractAddress, tempData]);
+
+    //   //USDC
+    //   tempData = utils.arrayify(
+    //     iFaceToken.encodeFunctionData("convertToAssets",[usdcBal]) 
+    //   );
+    //   calldata.push([opAddressList.vUSDCContractAddress, tempData]);
+
+    //   // USDT
+    //   tempData = utils.arrayify(
+    //     iFaceToken.encodeFunctionData("convertToAssets",[usdtBal]) 
+    //   );
+    //   calldata.push([opAddressList.vUSDTContractAddress, tempData]);
+      
+    //   // DAI
+    //   tempData = utils.arrayify(
+    //     iFaceToken.encodeFunctionData("convertToAssets",[daiBal]) 
+    //   );
+    //   calldata.push([opAddressList.vDaiContractAddress, tempData]);
+
+    //   const res1 = await MCcontract.callStatic.aggregate(calldata);
+      
+
+    //   //User Asset balance
+    //   const ethusdcBal = formatUnits(check0xHex(res1.returnData[0]), 18);
+    //   const wbtcusdcBal = formatUnits(check0xHex(res1.returnData[1]), 18);
+    //   const usdcusdcBal = formatUnits(check0xHex(res1.returnData[2]), 6);
+    //   const usdtusdcBal = formatUnits(check0xHex(res1.returnData[3]), 6);
+    //   const daiusdcBal = formatUnits(check0xHex(res1.returnData[4]), 18);
+
+
+
+
+    //   totalHoldings = ethusdcBal * etherum_price +
+    //                   wbtcusdcBal * btcprice + 
+    //                   usdcusdcBal * usdcPrice +
+    //                   usdtusdcBal * usdtPrice +
+    //                   daiusdcBal * daiPrice
+
+    // };  
+    // InitialLending = ethBal* etherum_price + 
+    //                         wbtcBal * btcprice +
+    //                         usdcBal * usdcPrice + 
+    //                         usdtBal * usdtPrice + 
+    //                         daiBal * daiPrice
+
+    // TotalReturnsAmount = totalHoldings - InitialLending;
+
+
+    // borrow DATA
+     // const getwithdrawBalance = async() => {
+  //   const signer = await library?.getSigner();
+  //   const vEtherContract = new Contract(
+  //     opAddressList.vEtherContractAddress,
+  //     VEther.abi,
+  //     signer
+  //   );
+  //   const vDaiContract = new Contract(
+  //     opAddressList.vDaiContractAddress,
+  //     VToken.abi,
+  //     signer
+  //   );
+  //   const vUsdcContract = new Contract(
+  //     opAddressList.vUSDCContractAddress,
+  //     VToken.abi,
+  //     signer
+  //   );
+  //   const vUsdtContract = new Contract(
+  //     opAddressList.vUSDTContractAddress,
+  //     VToken.abi,
+  //     signer
+  //   );
+  //   const vWbtcContract = new Contract(
+  //     opAddressList.vWBTCContractAddress,
+  //     VToken.abi,
+  //     signer
+  //   );
+  //   // @Withdraw balance 
+  //   let accountBalance = await library?.getBalance(activeAccount)
+  //   accountBalance = accountBalance/1e18;
+  //   let borrowedBalance = await vEtherContract.callStatic.getBorrowBalance(activeAccount);
+  //   borrowedBalance = borrowedBalance/1e18;
+  //   let balance =  (accountBalance - borrowedBalance) * ether price
+
+  //   // USDC 
+  //   let accountBalance = erc20conatract(USDC).balanceOf(activeAccount)
+  //   let borrowedBalance = await vUsdcContract.callStatic.getBorrowBalance(activeAccount);
+    // balance += (accountBalance-borrowedBalance)USDC price
+
+  // WBTC 
+  //  accountBalance = erc20conatract(WBTC).balanceOf(activeAccount)
+  // let borrowedBalance = await vWBTCContract.callStatic.getBorrowBalance(activeAccount);
+
+  // //USDT
+  // let accountBalance = erc20conatract(USDT).balanceOf(activeAccount)
+  // let borrowedBalance = await vUSDTcontracr.callStatic.getBorrowBalance(activeAccount);
+
+  // // DAI
+  // let accountBalance = erc20conatract(DAI).balanceOf(activeAccount)
+  // let borrowedBalance = await vDAIcontract.callStatic.getBorrowBalance(activeAccount);
+
+
+
+  // totalHoldings = balance;
+   // const riskEngineContract = new Contract(
+      //   opAddressList.riskEngineContractAddress,
+      //   RiskEngine.abi,
+      //   signer
+      // );
+      // const totalbalance = await riskEngineContract.callStatic.getBalance(activeAccount);
+      // TotalReturnsAmount = totalbalance - balance;
+      // const borrowBalance = await riskEngineContract.callStatic.getBorrows(activeAccount);
+      // let healthFactor1 = balance/borrowBalance
+      // TotalReturnsPercentage = TotalReturnsAmount / balance
+
+
+      
+
+
+    
     if(activeTab === "Borrower")  {
       setTotalHolding(undefined);
       setTotalReturnsAmount(undefined);
@@ -29,6 +240,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
       setTotalReturnsPercentage(undefined);
     }
   }, []);
+
 
   useEffect(() => {
     if (isDarkMode) {

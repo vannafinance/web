@@ -85,6 +85,7 @@ export const opAddressList = {
   vEtherContractAddress: "0xa66d23d6b0bF9283059E2a2938d67FEE9080659b",
   accountManagerContractAddress: "0x6A82847B5Dc8c3535eE370308D78D396228A0D3a",
   registryContractAddress: "0xFd4568C1d084e281BEAa0d55BB5CFc7Cd91B39a4",
+  riskEngineContractAddress: "0x6E7EA2E46e72ff84CeFfc5e11fB9c6e97B01c617",
   lyraContractAddress: "0x919E5e0C096002cb8a21397D724C4e3EbE77bC15",
   muxFutureContractAddress: "0xa19fD5aB6C8DCffa2A295F78a5Bb4aC543AAF5e3",
   broker: "0x988aA44E12c7BCE07E449A4156b4A269d6642B3A",
