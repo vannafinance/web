@@ -1047,9 +1047,9 @@ const PoolsTable = () => {
           <div className="text-center">#</div>
           <div>Pool</div>
           <div>Supply</div>
-          <div>Supply APY</div>
-          <div>Borrow APY</div>
-          <div>In Pool</div>
+          <div className="text-center">Supply APY</div>
+          <div className="text-center">Borrow APY</div>
+          <div className="text-center">In Pool</div>
         </div>
 
         {/* Body */}
@@ -1081,9 +1081,9 @@ const PoolsTable = () => {
                   </div>
                 </div>
                 <div className="z-10 text-left">{pool.supply} {pool.name}</div>
-                <div className="z-10 text-left">{pool.supplyAPY}</div>
-                <div className="z-10 text-left">{pool.borrowAPY}</div>
-                <div className="z-10 text-left">{pool.yourBalance}</div>
+                <div className="z-10 text-center">{pool.supplyAPY}</div>
+                <div className="z-10 text-center">{pool.borrowAPY}</div>
+                <div className="z-10 text-center">{pool.yourBalance} {pool.name}</div>
                 <div className="absolute inset-0 rounded-xl bg-transparent z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-out pointer-events-none">
                   <div className="absolute inset-0 bg-gradient-to-r from-gradient-1 to-gradient-2 rounded-xl"></div>
                   <div className="absolute inset-[1px] bg-white dark:bg-baseDark rounded-xl"></div>

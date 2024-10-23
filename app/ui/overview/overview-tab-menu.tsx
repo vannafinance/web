@@ -326,7 +326,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
 
         // ETH
         let accountBalance = await library?.getBalance(activeAccount);
-        let waccountBalance = await wethContract.balanceOf(activeAccount);
+        const waccountBalance = await wethContract.balanceOf(activeAccount);
 
         accountBalance = Number(accountBalance) + Number(waccountBalance);
 

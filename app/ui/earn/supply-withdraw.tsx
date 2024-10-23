@@ -16,7 +16,7 @@ import {
 } from "@/app/lib/constants";
 import { ethers, utils, Contract, BigNumber } from "ethers";
 import { formatUnits, parseEther, parseUnits } from "ethers/lib/utils";
-
+import Multicall from "@/app/abi/vanna/v1/out/Multicall.sol/Multicall.json";
 import VEther from "@/app/abi/vanna/v1/out/VEther.sol/VEther.json";
 import VToken from "@/app/abi/vanna/v1/out/VToken.sol/VToken.json";
 import {
@@ -35,6 +35,7 @@ import {
   ceilWithPrecision,
   sleep,
   formatBignumberToUnits,
+  check0xHex,
 } from "@/app/lib/helper";
 import { useNetwork } from "@/app/context/network-context";
 import { useWeb3React } from "@web3-react/core";
@@ -214,7 +215,9 @@ const SupplyWithdraw = ({
             return;
 
           if (selectedToken.name == "WETH") {
-            const val = await vEtherContract.convertToShares(BigNumber.from("1000000000000000000"));
+            const val = await vEtherContract.convertToShares(
+              BigNumber.from("1000000000000000000")
+            );
             const ethPerVeth = formatBignumberToUnits(selectedToken.name, val);
 
             setEthPerVeth(ceilWithPrecision(ethPerVeth));
@@ -266,42 +269,233 @@ const SupplyWithdraw = ({
       if (account && currentNetwork) {
         const signer = await library?.getSigner();
 
-        let bal;
+        if (isSupply) {
+          let bal;
 
-        if (tokenName == "WETH") {
-          bal = await library?.getBalance(account);
+          if (tokenName == "WETH") {
+            bal = await library?.getBalance(account);
+          } else {
+            let contract;
+
+            if (currentNetwork.id === ARBITRUM_NETWORK) {
+              contract = new Contract(
+                arbTokensAddress[tokenName],
+                ERC20.abi,
+                signer
+              );
+            } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+              contract = new Contract(
+                opTokensAddress[tokenName],
+                ERC20.abi,
+                signer
+              );
+            } else if (currentNetwork.id === BASE_NETWORK) {
+              contract = new Contract(
+                baseTokensAddress[tokenName],
+                ERC20.abi,
+                signer
+              );
+            }
+
+            if (contract) {
+              bal = await contract.balanceOf(account);
+            }
+          }
+
+          const balInNumber = ceilWithPrecision(
+            formatBignumberToUnits(tokenName, bal)
+          );
+          setCoinBalance(Number(balInNumber));
         } else {
-          let contract;
+          const fetchValues = async () => {
+            const iFaceEth = new utils.Interface(VEther.abi);
+            const iFaceToken = new utils.Interface(VToken.abi);
+            let calldata = [];
+            let tempData;
+            //User assets balance
 
-          if (currentNetwork.id === ARBITRUM_NETWORK) {
-            contract = new Contract(
-              arbTokensAddress[tokenName],
-              ERC20.abi,
-              signer
-            );
-          } else if (currentNetwork.id === OPTIMISM_NETWORK) {
-            contract = new Contract(
-              opTokensAddress[tokenName],
-              ERC20.abi,
-              signer
-            );
-          } else if (currentNetwork.id === BASE_NETWORK) {
-            contract = new Contract(
-              baseTokensAddress[tokenName],
-              ERC20.abi,
-              signer
-            );
-          }
+            if (currentNetwork.id === ARBITRUM_NETWORK) {
+              const MCcontract = new Contract(
+                arbAddressList.multicallAddress,
+                Multicall.abi,
+                library
+              );
+              calldata = [];
+              tempData = null;
 
-          if (contract) {
-            bal = await contract.balanceOf(account);
-          }
+              //ETH
+              tempData = utils.arrayify(
+                iFaceEth.encodeFunctionData("balanceOf", [account])
+              );
+              calldata.push([arbAddressList.vEtherContractAddress, tempData]);
+
+              //WBTC
+              tempData = utils.arrayify(
+                iFaceToken.encodeFunctionData("balanceOf", [account])
+              );
+              calldata.push([arbAddressList.vWBTCContractAddress, tempData]);
+
+              //USDC
+              tempData = utils.arrayify(
+                iFaceToken.encodeFunctionData("balanceOf", [account])
+              );
+              calldata.push([arbAddressList.vUSDCContractAddress, tempData]);
+
+              //USDT
+              tempData = utils.arrayify(
+                iFaceToken.encodeFunctionData("balanceOf", [account])
+              );
+              calldata.push([arbAddressList.vUSDTContractAddress, tempData]);
+
+              //DAI
+              tempData = utils.arrayify(
+                iFaceToken.encodeFunctionData("balanceOf", [account])
+              );
+              calldata.push([arbAddressList.vDaiContractAddress, tempData]);
+
+              const res = await MCcontract.callStatic.aggregate(calldata);
+              console.log("res", res);
+
+              //User v token Asset balance
+              const ethBal = formatUnits(check0xHex(res.returnData[0]), 18);
+              const wbtcBal = formatUnits(check0xHex(res.returnData[1]), 18);
+              const usdcBal = formatUnits(check0xHex(res.returnData[2]), 6);
+              const usdtBal = formatUnits(check0xHex(res.returnData[3]), 6);
+              const daiBal = formatUnits(check0xHex(res.returnData[4]), 18);
+
+              if (pool.name === "WETH") {
+                setCoinBalance(Number(ethBal));
+              } else if (pool.name === "WBTC") {
+                setCoinBalance(Number(wbtcBal));
+              } else if (pool.name === "USDC") {
+                setCoinBalance(Number(usdcBal));
+              } else if (pool.name === "USDT") {
+                setCoinBalance(Number(usdtBal));
+              } else if (pool.name === "DAI") {
+                setCoinBalance(Number(daiBal));
+              }
+            } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+              const MCcontract = new Contract(
+                opAddressList.multicallAddress,
+                Multicall.abi,
+                library
+              );
+              calldata = [];
+              tempData = null;
+              //ETH
+              tempData = utils.arrayify(
+                iFaceEth.encodeFunctionData("balanceOf", [account])
+              );
+              calldata.push([opAddressList.vEtherContractAddress, tempData]);
+
+              //WBTC
+              tempData = utils.arrayify(
+                iFaceToken.encodeFunctionData("balanceOf", [account])
+              );
+              calldata.push([opAddressList.vWBTCContractAddress, tempData]);
+
+              //USDC
+              tempData = utils.arrayify(
+                iFaceToken.encodeFunctionData("balanceOf", [account])
+              );
+              calldata.push([opAddressList.vUSDCContractAddress, tempData]);
+
+              //USDT
+              tempData = utils.arrayify(
+                iFaceToken.encodeFunctionData("balanceOf", [account])
+              );
+              calldata.push([opAddressList.vUSDTContractAddress, tempData]);
+
+              //DAI
+              tempData = utils.arrayify(
+                iFaceToken.encodeFunctionData("balanceOf", [account])
+              );
+              calldata.push([opAddressList.vDaiContractAddress, tempData]);
+
+              const res = await MCcontract.callStatic.aggregate(calldata);
+
+              //User v token Asset balance
+              const ethBal = formatUnits(check0xHex(res.returnData[0]), 18);
+              const wbtcBal = formatUnits(check0xHex(res.returnData[1]), 18);
+              const usdcBal = formatUnits(check0xHex(res.returnData[2]), 6);
+              const usdtBal = formatUnits(check0xHex(res.returnData[3]), 6);
+              const daiBal = formatUnits(check0xHex(res.returnData[4]), 18);
+
+              if (pool.name === "WETH") {
+                setCoinBalance(Number(ethBal));
+              } else if (pool.name === "WBTC") {
+                setCoinBalance(Number(wbtcBal));
+              } else if (pool.name === "USDC") {
+                setCoinBalance(Number(usdcBal));
+              } else if (pool.name === "USDT") {
+                setCoinBalance(Number(usdtBal));
+              } else if (pool.name === "DAI") {
+                setCoinBalance(Number(daiBal));
+              }
+            } else if (currentNetwork.id === BASE_NETWORK) {
+              const MCcontract = new Contract(
+                baseAddressList.multicallAddress,
+                Multicall.abi,
+                library
+              );
+              calldata = [];
+              tempData = null;
+
+              //ETH
+              tempData = utils.arrayify(
+                iFaceEth.encodeFunctionData("balanceOf", [account])
+              );
+              calldata.push([baseAddressList.vEtherContractAddress, tempData]);
+
+              //WBTC
+              tempData = utils.arrayify(
+                iFaceToken.encodeFunctionData("balanceOf", [account])
+              );
+              calldata.push([baseAddressList.vWBTCContractAddress, tempData]);
+
+              //USDC
+              tempData = utils.arrayify(
+                iFaceToken.encodeFunctionData("balanceOf", [account])
+              );
+              calldata.push([baseAddressList.vUSDCContractAddress, tempData]);
+
+              //USDT
+              tempData = utils.arrayify(
+                iFaceToken.encodeFunctionData("balanceOf", [account])
+              );
+              calldata.push([baseAddressList.vUSDTContractAddress, tempData]);
+
+              //DAI
+              tempData = utils.arrayify(
+                iFaceToken.encodeFunctionData("balanceOf", [account])
+              );
+              calldata.push([baseAddressList.vDaiContractAddress, tempData]);
+
+              const res = await MCcontract.callStatic.aggregate(calldata);
+
+              //User v token Asset balance
+              const ethBal = formatUnits(check0xHex(res.returnData[0]), 18);
+              const wbtcBal = formatUnits(check0xHex(res.returnData[1]), 18);
+              const usdcBal = formatUnits(check0xHex(res.returnData[2]), 6);
+              const usdtBal = formatUnits(check0xHex(res.returnData[3]), 6);
+              const daiBal = formatUnits(check0xHex(res.returnData[4]), 18);
+
+              if (pool.name === "WETH") {
+                setCoinBalance(Number(ethBal));
+              } else if (pool.name === "WBTC") {
+                setCoinBalance(Number(wbtcBal));
+              } else if (pool.name === "USDC") {
+                setCoinBalance(Number(usdcBal));
+              } else if (pool.name === "USDT") {
+                setCoinBalance(Number(usdtBal));
+              } else if (pool.name === "DAI") {
+                setCoinBalance(Number(daiBal));
+              }
+            }
+          };
+
+          fetchValues();
         }
-
-        const balInNumber = ceilWithPrecision(
-          formatBignumberToUnits(tokenName, bal)
-        );
-        setCoinBalance(Number(balInNumber));
       }
     } catch (e) {
       console.error(e);
@@ -315,7 +509,7 @@ const SupplyWithdraw = ({
   useEffect(() => {
     getTokenBalance();
     fetchParams();
-  }, [account, selectedToken, currentNetwork]);
+  }, [account, selectedToken, currentNetwork, isSupply]);
 
   const deposit = async () => {
     if (!currentNetwork) return;
@@ -635,10 +829,9 @@ const SupplyWithdraw = ({
               account,
               opAddressList.vUSDCContractAddress
             );
-            console.log("allowance",allowance/1e6);
+            console.log("allowance", allowance / 1e6);
 
             if (amount && allowance < amount) {
-              
               await USDCContract.approve(
                 opAddressList.vUSDCContractAddress,
                 parseUnits(String(amount), 6)
@@ -1070,7 +1263,7 @@ const SupplyWithdraw = ({
           </div>
           <div className="text-xs text-neutral-500">
             Balance: {coinBalance}{" "}
-            {coinBalance !== undefined ? selectedToken.name : "-"}
+            {coinBalance !== undefined ? isSupply ? selectedToken.name : "v" + selectedToken.name : "-"}
           </div>
         </div>
       </div>

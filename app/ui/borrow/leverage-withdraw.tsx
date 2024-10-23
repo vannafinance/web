@@ -69,7 +69,6 @@ const LevrageWithdraw = () => {
   const [debt, setDebt] = useState(0);
   const [healthFactor, setHealthFactor] = useState("-");
   const [activeAccount, setActiveAccount] = useState<string | undefined>();
-  
 
   const [depositToken, setDepositToken] = useState<PoolTable>(
     poolsPlaceholder[0]
@@ -111,7 +110,6 @@ const LevrageWithdraw = () => {
     setDepositAmount(debt);
     setDebt(5);
   };
-  
 
   useEffect(() => {
     const tokenName = depositToken ? depositToken.name : "";
@@ -221,54 +219,115 @@ const LevrageWithdraw = () => {
         let depositBalance;
         let borrowBalance;
 
-        if (token?.name == "WETH") {
-          depositBalance = await library?.getBalance(account);
-          if (activeAccount) {
-            borrowBalance = await library?.getBalance(activeAccount);
-          }
-         
-        } else {
-          let contract;
-          if (currentNetwork.id === ARBITRUM_NETWORK) {
-            contract = new Contract(
-              arbTokensAddress[token?.name],
-              ERC20.abi,
-              signer
-            );
-          } else if (currentNetwork.id === OPTIMISM_NETWORK) {
-            contract = new Contract(
-              opTokensAddress[token?.name],
-              ERC20.abi,
-              signer
-            );
-          } else if (currentNetwork.id === BASE_NETWORK) {
-            contract = new Contract(
-              baseTokensAddress[token?.name],
-              ERC20.abi,
-              signer
-            );
-          }
-
-          if (contract) {
-            depositBalance = await contract.balanceOf(account);
+        if (isLeverage) {
+          if (token?.name == "WETH") {
+            depositBalance = await library?.getBalance(account);
             if (activeAccount) {
-              borrowBalance = await contract.balanceOf(activeAccount);
+              borrowBalance = await library?.getBalance(activeAccount);
+            }
+          } else {
+            let contract;
+            if (currentNetwork.id === ARBITRUM_NETWORK) {
+              contract = new Contract(
+                arbTokensAddress[token?.name],
+                ERC20.abi,
+                signer
+              );
+            } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+              contract = new Contract(
+                opTokensAddress[token?.name],
+                ERC20.abi,
+                signer
+              );
+            } else if (currentNetwork.id === BASE_NETWORK) {
+              contract = new Contract(
+                baseTokensAddress[token?.name],
+                ERC20.abi,
+                signer
+              );
+            }
+
+            if (contract) {
+              depositBalance = await contract.balanceOf(account);
+              if (activeAccount) {
+                borrowBalance = await contract.balanceOf(activeAccount);
+              }
             }
           }
-        }
 
-        const depositBalanceInNumber = formatBignumberToUnits(
-          token?.name,
-          depositBalance
-        );
-        // const borrowBalanceInNumber = formatBignumberToUnits(
-        //   token?.name,
-        //   borrowBalance
-        // );
-        setDepositBalance(
-          Number(ceilWithPrecision(String(depositBalanceInNumber)))
-        );
-        // setBorrowBalance(ceilWithPrecision(String(borrowBalanceInNumber)));
+          const depositBalanceInNumber = formatBignumberToUnits(
+            token?.name,
+            depositBalance
+          );
+          // const borrowBalanceInNumber = formatBignumberToUnits(
+          //   token?.name,
+          //   borrowBalance
+          // );
+          setDepositBalance(
+            Number(ceilWithPrecision(String(depositBalanceInNumber)))
+          );
+          // setBorrowBalance(ceilWithPrecision(String(borrowBalanceInNumber)));
+        } else {
+          // @TODO:meet
+          // const getwithdrawBalance = async () => {
+          //   const signer = await library?.getSigner();
+          //   const vEtherContract = new Contract(
+          //     opAddressList.vEtherContractAddress,
+          //     VEther.abi,
+          //     signer
+          //   );
+          //   const vDaiContract = new Contract(
+          //     opAddressList.vDaiContractAddress,
+          //     VToken.abi,
+          //     signer
+          //   );
+          //   const vUsdcContract = new Contract(
+          //     opAddressList.vUSDCContractAddress,
+          //     VToken.abi,
+          //     signer
+          //   );
+          //   const vUsdtContract = new Contract(
+          //     opAddressList.vUSDTContractAddress,
+          //     VToken.abi,
+          //     signer
+          //   );
+          //   const vWbtcContract = new Contract(
+          //     opAddressList.vWBTCContractAddress,
+          //     VToken.abi,
+          //     signer
+          //   );
+          //   // @Withdraw balance
+          //   let accountBalance = await library?.getBalance(account);
+          //   accountBalance = accountBalance / 1e18;
+          //   let borrowedBalance =
+          //     await vEtherContract.callStatic.getBorrowBalance(activeAccount);
+          //   borrowedBalance = borrowedBalance / 1e18;
+          //   debt1 = accountBalance - borrowedBalance;
+          //   // USDC
+          //   accountBalance = erc20conatract(USDC).balanceOf(account);
+          //   borrowedBalance =
+          //     await vUsdcContract.callStatic.getBorrowBalance(activeAccount);
+          // };
+
+          // const getRepaybalance = async () => {
+          //   const signer = await library?.getSigner();
+          //   const riskEngineContract = new Contract(
+          //     opAddressList.riskEngineContractAddress,
+          //     RiskEngine.abi,
+          //     signer
+          //   );
+          //   // ETH
+          //   let borrowedBalance =
+          //     await vEtherContract.callStatic.getBorrowBalance(activeAccount);
+          //   // USDC
+          //   let borrowedBalance =
+          //     await vUsdcContract.callStatic.getBorrowBalance(activeAccount);
+          // };
+
+          // Values to be assigned in below
+          // setDepositBalance();
+          // setBorrowBalance();
+        }
       }
     } catch (e) {
       console.error(e);
@@ -351,8 +410,6 @@ const LevrageWithdraw = () => {
       // let healthFactor1 = balance/borrowBalance
       // console.log("borrowBalance",healthFactor)
 
-
-
       // setHealthFactor(String(healthFactor1));
     };
 
@@ -380,63 +437,6 @@ const LevrageWithdraw = () => {
       }
     }
   };
-  // @TODO:meet 
-  // const getwithdrawBalance = async() => {
-  //   const signer = await library?.getSigner();
-  //   const vEtherContract = new Contract(
-  //     opAddressList.vEtherContractAddress,
-  //     VEther.abi,
-  //     signer
-  //   );
-  //   const vDaiContract = new Contract(
-  //     opAddressList.vDaiContractAddress,
-  //     VToken.abi,
-  //     signer
-  //   );
-  //   const vUsdcContract = new Contract(
-  //     opAddressList.vUSDCContractAddress,
-  //     VToken.abi,
-  //     signer
-  //   );
-  //   const vUsdtContract = new Contract(
-  //     opAddressList.vUSDTContractAddress,
-  //     VToken.abi,
-  //     signer
-  //   );
-  //   const vWbtcContract = new Contract(
-  //     opAddressList.vWBTCContractAddress,
-  //     VToken.abi,
-  //     signer
-  //   );
-  //   // @Withdraw balance 
-  //   let accountBalance = await library?.getBalance(account)
-  //   accountBalance = accountBalance/1e18;
-  //   let borrowedBalance = await vEtherContract.callStatic.getBorrowBalance(activeAccount);
-  //   borrowedBalance = borrowedBalance/1e18;
-  //   debt1 =  accountBalance - borrowedBalance
-  //   // USDC 
-  //   let accountBalance = erc20conatract(USDC).balanceOf(account)
-  //   let borrowedBalance = await vUsdcContract.callStatic.getBorrowBalance(activeAccount);
-
-    
-  // }
-  // const getRepaybalance = async() => {
-  //   const signer = await library?.getSigner();
-  //   const riskEngineContract = new Contract(
-  //     opAddressList.riskEngineContractAddress,
-  //     RiskEngine.abi,
-  //     signer
-  //   );
-  //   // ETH
-  //   let borrowedBalance = await vEtherContract.callStatic.getBorrowBalance(activeAccount);
-  //   // USDC
-  //   let borrowedBalance = await vUsdcContract.callStatic.getBorrowBalance(activeAccount);
-
-
-    
-    
-  // }
-  
 
   const deposit = async () => {
     if (!currentNetwork) return;
@@ -537,7 +537,6 @@ const LevrageWithdraw = () => {
           value: parseEther(String(depositAmount)),
           gasLimit: 2300000,
         });
-        
       } else if (
         depositToken?.name === "USDC" ||
         depositToken?.name === "USDT"
@@ -547,7 +546,7 @@ const LevrageWithdraw = () => {
           ERC20.abi,
           signer
         );
-        
+
         const allowance = await erc20Contract.allowance(
           account,
           opAddressList.accountManagerContractAddress
@@ -708,7 +707,6 @@ const LevrageWithdraw = () => {
         );
       }
     } else if (currentNetwork.id === OPTIMISM_NETWORK) {
-        
       accountManagerContract = new Contract(
         opAddressList.accountManagerContractAddress,
         AccountManager.abi,
