@@ -140,7 +140,7 @@ export default function Page() {
       </div>
 
       <div className="flex-none w-full lg:w-[30%] pb-9">
-        <PositionOpenClose market={selectedPair.value} />
+        <PositionOpenClose market={selectedPair} setMarket={setSelectedPair} />
       </div>
     </div>
   );

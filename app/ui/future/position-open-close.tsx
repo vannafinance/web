@@ -1,12 +1,10 @@
 "use client";
 
-// import { useNetwork } from "@/app/context/network-context";
 import {
   ARBITRUM_NETWORK,
   BASE_NETWORK,
-  // ARBITRUM_NETWORK,
-  oneMonthTimestampInterval,
   OPTIMISM_NETWORK,
+  oneMonthTimestampInterval,
   referralCode,
 } from "@/app/lib/constants";
 // import { Calculator } from "@phosphor-icons/react";
@@ -16,36 +14,36 @@ import React, { useEffect, useState } from "react";
 import FutureDropdown from "./future-dropdown";
 import FutureSlider from "./future-slider";
 import axios from "axios";
-import { formatStringToUnits, sleep } from "@/app/lib/helper";
+import {
+  ceilWithPrecision6,
+  formatBignumberToUnits,
+  formatStringToUnits,
+  sleep,
+} from "@/app/lib/helper";
 import { BigNumber, Contract } from "ethers";
 import {
   arbAddressList,
+  arbTokensAddress,
   baseAddressList,
-  // arbTokensAddress,
-  // codeToAsset,
+  baseTokensAddress,
   CollateralAssetCode,
   opAddressList,
+  opTokensAddress,
 } from "@/app/lib/web3-constants";
 import AccountManager from "../../abi/vanna/v1/out/AccountManager.sol/AccountManager.json";
 import AccountManagerop from "../../abi/vanna/v1/out/AccountManager-op.sol/AccountManager-op.json";
 import MUX from "../../abi/vanna/v1/out/MUX.sol/MUX.json";
 import PerpVault from "../../abi/vanna/v1/out/PerpVault.sol/PerpVault.json";
 import ClearingHouse from "../../abi/vanna/v1/out/ClearingHouse.sol/ClearingHouse.json";
-// import OptimismFetchPosition from "../../abi/vanna/v1/out/OptimismFetchPosition.sol/OptimismFetchPosition.json";
-// import ERC20 from "../../abi/vanna/v1/out/ERC20.sol/ERC20.json";
+import ERC20 from "../../abi/vanna/v1/out/ERC20.sol/ERC20.json";
 import Registry from "../../abi/vanna/v1/out/Registry.sol/Registry.json";
-// import LiquidityPool from "../../abi/vanna/v1/out/LiquidityPool.sol/LiquidityPool.json";
 import { Interface, parseEther } from "ethers/lib/utils";
 import { useNetwork } from "@/app/context/network-context";
 
-const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
+const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market, setMarket }) => {
   const { account, library } = useWeb3React();
   const { currentNetwork } = useNetwork();
 
-  // const pairOptions: Option[] = [
-  //   { value: "ETH/USD", label: "ETH/USD", icon: "/eth-icon.svg" },
-  //   { value: "BTC/USD", label: "BTC/USD", icon: "/btc-icon.svg" },
-  // ];
   // const protocolOptions: Option[] = [
   //   { value: "MUX", label: "MUX" },
   //   ...(currentNetwork.id === ARBITRUM_NETWORK
@@ -64,9 +62,11 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
     { value: "USDT", label: "USDT", icon: "/usdt-icon.svg" },
     { value: "DAI", label: "DAI", icon: "/dai-icon.svg" },
   ];
+  const marketOption: Option[] = [
+    { value: "ETH", label: "ETH", icon: "/eth-icon.svg" },
+  ];
 
   const [isOpen, setIsOpen] = useState(true);
-  // const [selectedPair, setSelectedPair] = useState<Option>(pairOptions[0]);
   // const [selectedProtocol, setSelectedProtocol] = useState<Option>(
   //   protocolOptions[0]
   // );
@@ -77,25 +77,23 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
     markOption[0]
   );
   const [stopUsdcValue, setStopUsdcValue] = useState("");
-  const [selectedToken, setSelectedToken] = useState<Option>(tokenOptions[0]);
-  // const [amount, setAmount] = useState("");
+  const [coin, setCoin] = useState<Option>(tokenOptions[0]);
+  const [marketToken, setMarketToken] = useState<Option>(marketOption[0]);
   const [leverageValue, setLeverageValue] = useState<number>(1);
   const [isEnabled, setIsEnabled] = useState(false);
   const [takeProfit, setTakeProfit] = useState("");
   const [stopLoss, setStopLoss] = useState("");
-  const [collateralAmount, setCollateralAmount] = useState<string | undefined>(
+  const [collateralAmount, setCollateralAmount] = useState<number | undefined>(
     undefined
   );
-  const [assetAmount, setAssetAmount] = useState<string | undefined>(undefined);
+  const [assetAmount, setAssetAmount] = useState<number | undefined>(undefined);
 
-  // const [marketPrice, setMarketPrice] = useState(0.0);
-  const [assetsPrice, setAssetsPrice] = useState();
+  const [marketPrice, setMarketPrice] = useState(0.0);
+  const [assetsPrice, setAssetsPrice] = useState([]);
   const [activeAccount, setActiveAccount] = useState();
-  // const [coinBalance, setCoinBalance] = useState(0); // balance of selectedToken
-  const [coin, setCoin] = useState("");
-  const [useValue, setUseValue] = useState("");
-  const [longValue, setLongValue] = useState("");
-  const [coinBalance, setCoinBalance] = useState("");
+  const [coinBalance, setCoinBalance] = useState(0);
+  const [useValue, setUseValue] = useState("0");
+  const [longValue, setLongValue] = useState("0");
 
   const [maxOpen, setMaxOpen] = useState<string | undefined>();
   const [cost, setCost] = useState<string | undefined>();
@@ -103,15 +101,15 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
   const [estLiqPrice, setEstLiqPrice] = useState<string | undefined>();
 
   // TODO: delete below useEffect
-  useEffect(() => {
-    setUseValue("");
-    setLongValue("");
-    setCoinBalance("");
-    setMaxOpen("");
-    setCost("");
-    setMargin("");
-    setEstLiqPrice("");
-  }, []);
+  // useEffect(() => {
+  //   setUseValue("");
+  //   setLongValue("");
+  //   setCoinBalance(0);
+  //   setMaxOpen("");
+  //   setCost("");
+  //   setMargin("");
+  //   setEstLiqPrice("");
+  // }, []);
 
   const handleToggle = (value: string) => {
     if ((value === "close" && isOpen) || (value === "open" && !isOpen)) {
@@ -127,16 +125,21 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
   //   setSelectedProtocol(protocolOptions[0]);
   // }, [currentNetwork]);
 
-  useEffect(() => {
-    setCoin(selectedToken.value);
-  }, [selectedToken]);
+  // const getMarketTokenFromMarketOption = () => {
+
+  // }
 
   useEffect(() => {
-    const fetchPrice = async () => {
-      await getAssetPrice(market);
-    };
-    fetchPrice();
+    getAssetPrice(marketToken.value);
+    // setMarketToken();
+    // TODO: complete above getMarketTokenFromMarketOption
   }, [market]);
+  
+  useEffect(() => {
+    getAssetPrice(marketToken.value);
+    // setMarket();
+    // TODO: complete above getMarketTokenFromMarketOption
+  }, [marketToken]);
 
   const accountCheck = async () => {
     if (localStorage.getItem("isWalletConnected") === "true") {
@@ -189,7 +192,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
   }, [account, library]);
 
   const getAssetPrice = async (
-    assetName = market,
+    assetName = marketToken.value,
     shouldSetMarketPrice = true
   ) => {
     const rsp = await axios.get("https://app.mux.network/api/liquidityAsset", {
@@ -199,7 +202,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
     setAssetsPrice(rsp.data.assets);
 
     if (shouldSetMarketPrice) {
-      // setMarketPrice(price);
+      setMarketPrice(price);
     }
 
     return price;
@@ -207,20 +210,15 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
 
   const getPriceFromAssetsArray = (
     tokenSymbol: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    assets: { [key: string]: any } | undefined = assetsPrice
+    assets: MuxPriceFetchingResponseObject[] = assetsPrice
   ) => {
     tokenSymbol = tokenSymbol === "WETH" ? "ETH" : tokenSymbol;
-    if (assets) {
-      if (Array.isArray(assets)) {
-        for (const asset of assets) {
-          if (asset?.symbol === tokenSymbol) {
-            return asset.price;
-          }
-        }
+    for (const asset of assets) {
+      if (asset.symbol === tokenSymbol) {
+        return asset.price;
       }
     }
-    return null;
+    return 1;
   };
 
   useEffect(() => {
@@ -229,174 +227,89 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
 
   useEffect(() => {
     if (collateralAmount) {
-      setAssetAmount(String(Number(collateralAmount) * Number(leverageValue)));
+      updateCollateralAmount(collateralAmount);
     }
   }, [leverageValue]);
 
-  // const getTokenBalance = async (tokenName = coin) => {
-  //   try {
-  //     if (activeAccount) {
-  //       const signer = await library?.getSigner();
-  //       let bal = 0;
+  const getTokenBalance = async (tokenName = coin.value) => {
+    try {
+      if (activeAccount && currentNetwork) {
+        const signer = await library?.getSigner();
+        let bal = 0;
 
-  //       if (tokenName == "WETH") {
-  //         bal = await library?.getBalance(activeAccount);
-  //       } else {
-  // let contract;
+        if (tokenName == "WETH") {
+          bal = await library?.getBalance(activeAccount);
+        } else {
+          let contract;
 
-  // if (currentNetwork.id === ARBITRUM_NETWORK) {
-  //   contract = new Contract(
-  //     arbTokensAddress[tokenName],
-  //     ERC20.abi,
-  //     signer
-  //   );
-  // } else if (currentNetwork.id === OPTIMISM_NETWORK) {
-  //   contract = new Contract(
-  //     opTokensAddress[tokenName],
-  //     ERC20.abi,
-  //     signer
-  //   );
-  // } else if (currentNetwork.id === BASE_NETWORK) {
-  //   contract = new Contract(
-  //     baseTokensAddress[tokenName],
-  //     ERC20.abi,
-  //     signer
-  //   );
-  // }
+          if (currentNetwork.id === ARBITRUM_NETWORK) {
+            contract = new Contract(
+              arbTokensAddress[tokenName],
+              ERC20.abi,
+              signer
+            );
+          } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+            contract = new Contract(
+              opTokensAddress[tokenName],
+              ERC20.abi,
+              signer
+            );
+          } else if (currentNetwork.id === BASE_NETWORK) {
+            contract = new Contract(
+              baseTokensAddress[tokenName],
+              ERC20.abi,
+              signer
+            );
+          }
 
-  // if (contract) {
-  //   bal = await contract.balanceOf(account);
-  // }
+          if (contract) {
+            bal = await contract.balanceOf(account);
+          }
 
-  //       // setCoinBalance(
-  //       //   ceilWithPrecision6(formatBignumberToUnits(tokenName, bal))
-  //       // );
-  //     }
-  //   } catch (e) {
-  //     console.error(e);
-  //   }
-  // };
+          setCoinBalance(
+            Number(ceilWithPrecision6(formatBignumberToUnits(tokenName, bal)))
+          );
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
-  // useEffect(() => {
-  //   getTokenBalance();
-  // }, [activeAccount]);
+  useEffect(() => {
+    getTokenBalance();
+    updateCollateralAmount(collateralAmount || 0);
+  }, [activeAccount, coin]);
 
-  // const calcPnl = (
-  //   currentPrice: number,
-  //   entryPrice: number,
-  //   size: number,
-  //   IsLong: number
-  // ) => {
-  //   let PNL;
-  //   if (IsLong == 1) {
-  //     PNL = (currentPrice - entryPrice) * size;
-  //   } else {
-  //     PNL = (entryPrice - currentPrice) * size;
-  //   }
-  //   return PNL;
-  // };
+  const updateCollateralAmount = (amt: number) => {
+    if (!amt) {
+      setCollateralAmount(undefined);
+      setAssetAmount(undefined);
+    } else {
+      let price = getPriceFromAssetsArray(coin.value);
+      price = price ? price : 1;
+      setCollateralAmount(amt);
+      const val = (amt * leverageValue) / (marketPrice / price);
+      setAssetAmount(val);
+      const useVal = amt * price;
+      setUseValue(ceilWithPrecision6(String(useVal)));
+      const longVal = val * marketPrice;
+      setLongValue(ceilWithPrecision6(String(longVal)));
+    }
+  };
 
-  // const fetchPositions = async (account: string) => {
-  //   if (account) {
-  //     // let renderedRows = [];
-  //     const signer = await library?.getSigner();
-  //     const liquidityPoolContract = new Contract(
-  //       arbAddressList.muxLiquidityPoolAddress,
-  //       LiquidityPool.abi,
-  //       signer
-  //     );
-
-  //     // let price = 0;
-  //     let subAccountId;
-
-  //     // for (let i = 0; i < 5; i++) {
-  //     const i = 3;
-  //     for (let j = 3; j < 5; j++) {
-  //       for (let k = 0; k < 2; k++) {
-  //         subAccountId =
-  //           account.toString() +
-  //           "0" +
-  //           i +
-  //           "0" +
-  //           j +
-  //           "0" +
-  //           k +
-  //           "000000000000000000";
-  //         const result = await liquidityPoolContract.getSubAccount(
-  //           subAccountId
-  //         );
-  //         const size = result.size / 1e18;
-
-  //         if (size != 0) {
-  //           const indexPrice = await getAssetPrice(codeToAsset["0" + j], false);
-  //           // const netValue = indexPrice * size;
-  //           const collateralPrice = result.collateral / 1e18;
-  //           const entryPrice = result.entryPrice / 1e18;
-  //           // const liquidation =
-  //           //   entryPrice - (collateralPrice * entryPrice) / size;
-  //           // const pnl = calcPnl(indexPrice, entryPrice, size, k);
-  //           // price += pnl;
-
-  //           // let row = {};
-  //           // row["market"] = (
-  //           //   <>
-  //           //     <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>ETH/USD</p>
-  //           //     <p style={{ color: "white", fontWeight: "400", fontSize: "10px" }}>
-  //           //       {k === 1 ? "Long" : "Short"}
-  //           //     </p>
-  //           //   </>
-  //           // );
-  //           // row["netValue"] = (
-  //           //   <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>
-  //           //     {formatUSD(netValue)}
-  //           //   </p>
-  //           // );
-  //           // row["collateral"] = (
-  //           //   <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>
-  //           //     {collateralPrice}
-  //           //   </p>
-  //           // );
-  //           // row["entryPrice"] = (
-  //           //   <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>
-  //           //     {formatUSD(entryPrice)}
-  //           //   </p>
-  //           // );
-  //           // row["indexPrice"] = (
-  //           //   <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>
-  //           //     {formatUSD(indexPrice)}
-  //           //   </p>
-  //           // );
-  //           // row["liqPrice"] = (
-  //           //   <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>
-  //           //     {formatUSD(liquidation)}
-  //           //   </p>
-  //           // );
-  //           // row["pnlAndRow"] = (
-  //           //   <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>
-  //           //     {formatUSD(pnl)}
-  //           //   </p>
-  //           // );
-  //           // row["actions"] = (
-  //           //   <VuiButton
-  //           //     className={"btn-option"}
-  //           //     onClick={() => {
-  //           //       closePosition(i, j, k, result.size);
-  //           //     }}
-  //           //   >
-  //           //     Close
-  //           //   </VuiButton>
-  //           // );
-
-  //           // renderedRows.push(row);
-  //         }
-  //       }
-  //       // }
-  //     }
-
-  //     // setRows(renderedRows);
-  //     // return price;
-  //   }
-  // };
+  const updateAssetAmount = (amt: number) => {
+    if (!amt) {
+      setAssetAmount(undefined);
+      setCollateralAmount(undefined);
+    } else {
+      let price = getPriceFromAssetsArray(coin.value);
+      price = price ? price : 1;
+      setAssetAmount(amt);
+      const value = (amt * (marketPrice / price)) / leverageValue;
+      setCollateralAmount(value);
+    }
+  };
 
   const openPosition = async (buySell: string) => {
     try {
@@ -408,23 +321,23 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
         const longShort = buySell === "buy" ? "01" : "00";
         const subAccountId =
           activeAccount +
-          CollateralAssetCode[coin] +
-          CollateralAssetCode[market] +
+          CollateralAssetCode[coin.value] +
+          CollateralAssetCode[marketToken.value] +
           longShort +
           "000000000000000000";
         const collateralAmountForPosition = BigNumber.from(
           formatStringToUnits(
-            coin,
+            coin.value,
             collateralAmount ? Number(collateralAmount) : 0
           )
         );
         // let units = 18;
-        // if (coin == "USDC" || coin == "USDT") {
+        // if (coin.value == "USDC" || coin.value == "USDT") {
         //   units = 6;
         // }
         const size = BigNumber.from(
           formatStringToUnits(
-            coin,
+            coin.value,
             collateralAmount ? Number(collateralAmount) : 1 * leverageValue
           )
         );
@@ -438,7 +351,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
           AccountManager.abi,
           signer
         );
-        // const contract = new Contract(arbTokensAddress[coin], ERC20.abi, signer);
+        // const contract = new Contract(arbTokensAddress[coin.value], ERC20.abi, signer);
         // const approveMuxContract = await contract.approve(
         //   arbAddressList .muxFutureContractAddress,
         //   collateralAmountForPosition
@@ -486,9 +399,9 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
         );
 
         // const positionSize = BigNumber.from(
-        //   formatBignumberToUnits(coin, collateralAmount.toString())
+        //   formatBignumberToUnits(coin.value, collateralAmount.toString())
         // );
-        // const asset = pairIndex[market];
+        // const asset = pairIndex[marketToken];
         await accountManagerContract.approve(
           activeAccount,
           opAddressList.usdcTokenAddress,
@@ -551,6 +464,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
       console.error(e);
     }
   };
+
   // const closePosition = async (
   //   assetCode: string,
   //   collateralCode: string,
@@ -712,15 +626,15 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
 
       <div className="flex flex-col mb-2 rounded-xl bg-white dark:bg-baseDark py-2">
         <div className="mb-3 flex flex-row justify-between px-2 text-xs text-neutral-500">
-          <div>Use {useValue ? " : $" + useValue : ""}</div>
-          <div>Balance {coinBalance ? " : " + coinBalance : ""}</div>
+          <div>Use {useValue !== undefined ? " : $" + useValue : ""}</div>
+          <div>Balance {coinBalance !== undefined ? " : " + coinBalance : ""}</div>
         </div>
         <div className="flex flex-row justify-between">
           <div className="flex self-stretch pl-2">
             <input
               type="number"
               value={collateralAmount}
-              onChange={(e) => setCollateralAmount(e.target.value)}
+              onChange={(e) => updateCollateralAmount(Number(e.target.value))}
               className="w-full dark:bg-baseDark text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               placeholder="Enter Amount"
             />
@@ -728,8 +642,8 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
           <div className="flex items-center text-base px-2 rounded-xl">
             <FutureDropdown
               options={tokenOptions}
-              defaultValue={selectedToken}
-              onChange={setSelectedToken}
+              defaultValue={coin}
+              onChange={setCoin}
             />
           </div>
         </div>
@@ -739,7 +653,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
         <div className="flex flex-col mb-2 rounded-xl bg-white dark:bg-baseDark py-2">
           <div className="mb-3 flex flex-row justify-between px-2">
             <div className="text-xs text-neutral-500">
-              Long {longValue ? " : " + longValue : ""}
+              Long {longValue !== undefined ? " : " + longValue : ""}
             </div>
           </div>
           <div className="flex flex-row justify-between">
@@ -747,16 +661,16 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market }) => {
               <input
                 type="number"
                 value={assetAmount}
-                onChange={(e) => setAssetAmount(e.target.value)}
+                onChange={(e) => updateAssetAmount(Number(e.target.value))}
                 className="w-full dark:bg-baseDark text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 placeholder="Enter Amount"
               />
             </div>
             <div className="flex items-center text-base px-2 rounded-xl">
               <FutureDropdown
-                options={tokenOptions}
-                defaultValue={selectedToken}
-                onChange={setSelectedToken}
+                options={marketOption}
+                defaultValue={marketToken}
+                onChange={setMarketToken}
               />
             </div>
           </div>
