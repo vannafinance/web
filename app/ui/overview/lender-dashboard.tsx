@@ -117,7 +117,7 @@ const LenderDashboard: React.FC = () => {
         return asset.price;
       }
     }
-    return null;
+    return 1;
   };
 
   const getAssetPrice = async (

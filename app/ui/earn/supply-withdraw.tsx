@@ -29,7 +29,6 @@ import {
 } from "@/app/lib/web3-constants";
 
 import DefaultRateModel from "@/app/abi/vanna/v1/out/DefaultRateModel.sol/DefaultRateModel.json";
-// import Multicall from "@/app/abi/vanna/v1/out/Multicall.sol/Multicall.json";
 import ERC20 from "../../abi/vanna/v1/out/ERC20.sol/ERC20.json";
 import {
   ceilWithPrecision,
@@ -41,6 +40,7 @@ import { useNetwork } from "@/app/context/network-context";
 import { useWeb3React } from "@web3-react/core";
 import Loader from "../components/loader";
 import { formatUSD } from "@/app/lib/number-format-helper";
+import axios from "axios";
 
 const SupplyWithdraw = ({
   pool,
@@ -59,12 +59,12 @@ const SupplyWithdraw = ({
   const [amount, setAmount] = useState<number | undefined>();
   const [selectedToken, setSelectedToken] = useState(pool);
   const [expected, setExpected] = useState(0);
-  const [coinBalance, setCoinBalance] = useState<number | undefined>();
+  const [coinBalance, setCoinBalance] = useState<number | undefined>(0);
   const [youGet, setYouGet] = useState(0);
   const [ethPerVeth, setEthPerVeth] = useState("-");
   const [currentApy, setCurrentApy] = useState(pool.supplyAPY);
   // const [points, setPoints] = useState();
-  const [availableEthLiq, setAvailableEthLiq] = useState(0);
+  const [availableLiq, setAvailableLiq] = useState("-");
 
   const handleToggle = (value: string) => {
     if (
@@ -77,7 +77,7 @@ const SupplyWithdraw = ({
 
   const handlePercentageClick = (percentage: number) => {
     if (coinBalance) {
-      setAmount(Number((coinBalance * (percentage / 100)).toFixed(3)));
+      updateAmount(Number((coinBalance * (percentage / 100)).toFixed(3)));
     }
   };
 
@@ -86,6 +86,10 @@ const SupplyWithdraw = ({
     onTokenUpdate(token);
     setCoinBalance(0);
   };
+
+  useEffect(() => {
+    setCurrentApy(pool.supplyAPY);
+  }, [pool]);
 
   useEffect(() => {
     const tokenName = selectedToken ? selectedToken.name : "";
@@ -109,16 +113,12 @@ const SupplyWithdraw = ({
     }
   }, [amount, coinBalance, isSupply, selectedToken]);
 
-  // const rateModelContract = new Contract(
-  //   arbAddressList.rateModelContractAddress,
-  //   DefaultRateModel.abi,
-  //   library
-  // );
-
   const fetchParams = () => {
     try {
+      if (!currentNetwork) return;
+
       const processParams = async () => {
-        if (library && library?.getSigner() && currentNetwork) {
+        if (library && library?.getSigner()) {
           const signer = await library?.getSigner();
 
           let vEtherContract;
@@ -216,46 +216,257 @@ const SupplyWithdraw = ({
           )
             return;
 
-          if (selectedToken.name == "WETH") {
+          if (selectedToken.name === "WETH") {
             const val = await vEtherContract.convertToShares(
               BigNumber.from("1000000000000000000")
             );
             const ethPerVeth = formatBignumberToUnits(selectedToken.name, val);
 
-            setEthPerVeth(ceilWithPrecision(ethPerVeth));
+            if (isSupply) {
+              setEthPerVeth(ceilWithPrecision(ethPerVeth));
+            } else {
+              setEthPerVeth(ceilWithPrecision(String(1 / Number(ethPerVeth))));
+            }
           } else if (selectedToken.name === "WBTC") {
             const btcPerVbtc = formatBignumberToUnits(
               selectedToken.name,
               await vWbtcContract.convertToShares(parseUnits("1", 18))
             );
 
-            setEthPerVeth(ceilWithPrecision(btcPerVbtc, 6));
+            if (isSupply) {
+              setEthPerVeth(ceilWithPrecision(btcPerVbtc, 6));
+            } else {
+              setEthPerVeth(
+                ceilWithPrecision(String(1 / Number(btcPerVbtc)), 6)
+              );
+            }
           } else if (selectedToken.name === "USDC") {
             const usdcPerVusdc = formatBignumberToUnits(
               selectedToken.name,
               await vUsdcContract.convertToShares(parseUnits("1", 6))
             );
 
-            setEthPerVeth(ceilWithPrecision(usdcPerVusdc, 6));
+            if (isSupply) {
+              setEthPerVeth(ceilWithPrecision(usdcPerVusdc, 6));
+            } else {
+              setEthPerVeth(
+                ceilWithPrecision(String(1 / Number(usdcPerVusdc)), 6)
+              );
+            }
           } else if (selectedToken.name === "USDT") {
             const usdtPerVusdt = formatBignumberToUnits(
               selectedToken.name,
               await vUsdtContract.convertToShares(parseUnits("1", 6))
             );
 
-            setEthPerVeth(ceilWithPrecision(usdtPerVusdt, 6));
+            if (isSupply) {
+              setEthPerVeth(ceilWithPrecision(usdtPerVusdt, 6));
+            } else {
+              setEthPerVeth(
+                ceilWithPrecision(String(1 / Number(usdtPerVusdt)), 6)
+              );
+            }
           } else if (selectedToken.name === "DAI") {
             const daiPerVdai = formatBignumberToUnits(
               selectedToken.name,
               await vDaiContract.convertToShares(parseUnits("1", 18))
             );
 
-            setEthPerVeth(ceilWithPrecision(daiPerVdai, 6));
+            if (isSupply) {
+              setEthPerVeth(ceilWithPrecision(daiPerVdai, 6));
+            } else {
+              setEthPerVeth(
+                ceilWithPrecision(String(1 / Number(daiPerVdai)), 6)
+              );
+            }
           } else {
             console.error("Something went wrong, token = ", selectedToken.name);
+            setEthPerVeth("-");
           }
         } else {
           setEthPerVeth("-");
+        }
+
+        if (!isSupply && account) {
+          let res;
+
+          if (currentNetwork.id === ARBITRUM_NETWORK) {
+            const iFaceEth = new utils.Interface(VEther.abi);
+            const iFaceToken = new utils.Interface(VToken.abi);
+
+            const MCcontract = new Contract(
+              arbAddressList.multicallAddress,
+              Multicall.abi,
+              library
+            );
+
+            const calldata = [];
+            let tempData;
+
+            tempData = utils.arrayify(
+              iFaceEth.encodeFunctionData("balanceOf", [
+                arbAddressList.vEtherContractAddress,
+              ])
+            );
+            calldata.push([arbAddressList.wethTokenAddress, tempData]);
+
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("balanceOf", [
+                arbAddressList.vWBTCContractAddress,
+              ])
+            );
+            calldata.push([arbAddressList.wbtcTokenAddress, tempData]);
+
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("balanceOf", [
+                arbAddressList.vUSDCContractAddress,
+              ])
+            );
+            calldata.push([arbAddressList.usdcTokenAddress, tempData]);
+
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("balanceOf", [
+                arbAddressList.vUSDTContractAddress,
+              ])
+            );
+            calldata.push([arbAddressList.usdtTokenAddress, tempData]);
+
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("balanceOf", [
+                arbAddressList.vDaiContractAddress,
+              ])
+            );
+            calldata.push([arbAddressList.daiTokenAddress, tempData]);
+
+            res = await MCcontract.callStatic.aggregate(calldata);
+          } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+            const iFaceEth = new utils.Interface(VEther.abi);
+            const iFaceToken = new utils.Interface(VToken.abi);
+
+            const MCcontract = new Contract(
+              opAddressList.multicallAddress,
+              Multicall.abi,
+              library
+            );
+
+            const calldata = [];
+            let tempData;
+
+            tempData = utils.arrayify(
+              iFaceEth.encodeFunctionData("balanceOf", [
+                opAddressList.vEtherContractAddress,
+              ])
+            );
+            calldata.push([opAddressList.wethTokenAddress, tempData]);
+
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("balanceOf", [
+                opAddressList.vWBTCContractAddress,
+              ])
+            );
+            calldata.push([opAddressList.wbtcTokenAddress, tempData]);
+
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("balanceOf", [
+                opAddressList.vUSDCContractAddress,
+              ])
+            );
+            calldata.push([opAddressList.usdcTokenAddress, tempData]);
+
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("balanceOf", [
+                opAddressList.vUSDTContractAddress,
+              ])
+            );
+            calldata.push([opAddressList.usdtTokenAddress, tempData]);
+
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("balanceOf", [
+                opAddressList.vDaiContractAddress,
+              ])
+            );
+            calldata.push([opAddressList.daiTokenAddress, tempData]);
+
+            res = await MCcontract.callStatic.aggregate(calldata);
+          } else if (currentNetwork.id === BASE_NETWORK) {
+            const iFaceEth = new utils.Interface(VEther.abi);
+            const iFaceToken = new utils.Interface(VToken.abi);
+
+            const MCcontract = new Contract(
+              baseAddressList.multicallAddress,
+              Multicall.abi,
+              library
+            );
+
+            const calldata = [];
+            let tempData;
+
+            tempData = utils.arrayify(
+              iFaceEth.encodeFunctionData("balanceOf", [
+                baseAddressList.vEtherContractAddress,
+              ])
+            );
+            calldata.push([baseAddressList.wethTokenAddress, tempData]);
+
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("balanceOf", [
+                baseAddressList.vWBTCContractAddress,
+              ])
+            );
+            calldata.push([baseAddressList.wbtcTokenAddress, tempData]);
+
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("balanceOf", [
+                baseAddressList.vUSDCContractAddress,
+              ])
+            );
+            calldata.push([baseAddressList.usdcTokenAddress, tempData]);
+
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("balanceOf", [
+                baseAddressList.vUSDTContractAddress,
+              ])
+            );
+            calldata.push([baseAddressList.usdtTokenAddress, tempData]);
+
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("balanceOf", [
+                baseAddressList.vDaiContractAddress,
+              ])
+            );
+            calldata.push([baseAddressList.daiTokenAddress, tempData]);
+
+            res = await MCcontract.callStatic.aggregate(calldata);
+          }
+
+          if (res) {
+            if (selectedToken.name === "WETH") {
+              const avaibaleETH = check0xHex(res.returnData[0]);
+              setAvailableLiq(ceilWithPrecision(formatUnits(avaibaleETH)));
+            } else if (selectedToken.name === "WBTC") {
+              const avaibaleBTC = check0xHex(res.returnData[1]);
+              setAvailableLiq(ceilWithPrecision(formatUnits(avaibaleBTC)));
+            } else if (selectedToken.name === "USDC") {
+              const avaibaleUSDC = check0xHex(res.returnData[2]);
+              setAvailableLiq(ceilWithPrecision(formatUnits(avaibaleUSDC)));
+            } else if (selectedToken.name === "USDT") {
+              const avaibaleUSDT = check0xHex(res.returnData[3]);
+              setAvailableLiq(ceilWithPrecision(formatUnits(avaibaleUSDT)));
+            } else if (selectedToken.name === "DAI") {
+              const avaibaleDai = check0xHex(res.returnData[4]);
+              setAvailableLiq(ceilWithPrecision(formatUnits(avaibaleDai)));
+            } else {
+              console.error(
+                "Something went wrong, token = ",
+                selectedToken.name
+              );
+              setAvailableLiq("-");
+            }
+          } else {
+            setAvailableLiq("-");
+          }
+        } else {
+          setAvailableLiq("-");
         }
       };
 
@@ -263,6 +474,7 @@ const SupplyWithdraw = ({
     } catch (e) {
       console.error(e);
       setEthPerVeth("-");
+      setAvailableLiq("-");
     }
   };
 
@@ -510,7 +722,41 @@ const SupplyWithdraw = ({
   useEffect(() => {
     getTokenBalance();
     fetchParams();
+    updateAmount(0);
   }, [account, selectedToken, currentNetwork, isSupply]);
+
+  const getPriceFromAssetsArray = async (tokenSymbol: string) => {
+    const rsp = await axios.get("https://app.mux.network/api/liquidityAsset", {
+      timeout: 10 * 1000,
+    });
+
+    const assets = rsp.data.assets;
+
+    tokenSymbol =
+      tokenSymbol === "WETH" || tokenSymbol === "WBTC"
+        ? tokenSymbol.substring(1)
+        : tokenSymbol;
+
+    for (let asset of assets) {
+      if (asset.symbol === tokenSymbol) {
+        return asset.price;
+      }
+    }
+    return 1;
+  };
+
+  const updateAmount = async (amt: string | number) => {
+    if (amt === "") {
+      setExpected(0);
+      setYouGet(0);
+      setAmount(undefined);
+    } else {
+      const val = await getPriceFromAssetsArray(selectedToken.name);
+      setExpected(Number(amt) * Number(val));
+      setYouGet(Number(amt) * Number(ethPerVeth));
+      setAmount(Number(amt));
+    }
+  };
 
   const deposit = async () => {
     if (!currentNetwork) return;
@@ -1241,11 +1487,13 @@ const SupplyWithdraw = ({
       <div className="bg-white dark:bg-baseDark rounded-lg p-4 mb-4">
         <div className="flex justify-between mb-2">
           <div className="flex flex-col">
-            <span className="font-medium text-sm mb-2">Deposit</span>
+            <span className="font-medium text-sm mb-2">
+              {isSupply ? "Deposit" : "Withdraw"}
+            </span>
             <input
               type="number"
               value={amount}
-              onChange={(e) => setAmount(e.target.value === '' ? undefined : Number(e.target.value))}
+              onChange={(e) => updateAmount(e.target.value)}
               className="w-full dark:bg-baseDark text-2xl font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               placeholder="0"
               min={0}
@@ -1259,12 +1507,14 @@ const SupplyWithdraw = ({
           </div>
         </div>
         <div className="flex justify-between mt-2">
+          <div className="text-xs text-neutral-500">{formatUSD(expected)}</div>
           <div className="text-xs text-neutral-500">
-            {formatUSD(expected)}
-          </div>
-          <div className="text-xs text-neutral-500">
-            Balance: {coinBalance}{" "}
-            {coinBalance !== undefined ? isSupply ? selectedToken.name : "v" + selectedToken.name : "-"}
+            Balance: {ceilWithPrecision(String(coinBalance))}{" "}
+            {coinBalance !== undefined
+              ? isSupply
+                ? selectedToken.name
+                : "v" + selectedToken.name
+              : "-"}
           </div>
         </div>
       </div>
@@ -1304,11 +1554,11 @@ const SupplyWithdraw = ({
         </div>
         <div className="flex justify-between text-sm mb-1">
           <span>You get</span>
-          <span>{youGet}</span>
+          <span>{ceilWithPrecision(String(youGet))}</span>
         </div>
         <div className="flex justify-between text-sm mb-1">
           <span>{selectedToken.name + " per " + selectedToken.vToken}</span>
-          <span>{ethPerVeth}</span>
+          <span>{ceilWithPrecision(ethPerVeth)}</span>
         </div>
         {isSupply && (
           <>
@@ -1326,7 +1576,7 @@ const SupplyWithdraw = ({
           <>
             <div className="flex justify-between text-sm mb-1">
               <span>Available liquidity</span>
-              <span>{availableEthLiq}</span>
+              <span>{availableLiq}</span>
             </div>
           </>
         )}

@@ -281,6 +281,8 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
     if (amt === undefined || amt === "") {
       setCollateralAmount(undefined);
       setAssetAmount(undefined);
+      setUseValue("0");
+      setLongValue("0");
     } else {
       let price = getPriceFromAssetsArray(coin.value);
       price = price ? price : 1;

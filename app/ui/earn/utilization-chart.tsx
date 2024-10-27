@@ -20,7 +20,7 @@ const data = [
   { name: "100", value: 40 },
 ];
 
-const UtilizationChart = ({ pool }: { pool: PoolTable }) => {
+const UtilizationChart = ({ pool, utilizationRate }: { pool: PoolTable, utilizationRate: string | undefined }) => {
   useEffect(() => {
     if (pool) {}
     // fetch data here
@@ -30,7 +30,7 @@ const UtilizationChart = ({ pool }: { pool: PoolTable }) => {
     <div className="bg-baseComplementary dark:bg-baseDarkComplementary py-6 px-4 sm:px-10 rounded-2xl text-baseBlack dark:text-baseWhite font-bold">
       <h2 className="text-2xl mb-4">Utilization rate</h2>
       <div className="flex flex-col mb-2">
-        <span className="text-xl mr-2">64.5%</span>
+        <span className="text-xl mr-2">{utilizationRate}</span>
         <span className="text-sm">100%</span>
       </div>
       <div className="h-64 w-full">

@@ -438,7 +438,7 @@ export default function Page({ params }: { params: { id: string } }) {
                 <div className="pt-2">{pool.yourBalance}</div>
               </div>
             </div>
-            <PoolDetailTabMenu pool={pool} />
+            <PoolDetailTabMenu pool={pool} utilizationRate={utilizationRate} />
           </div>
           <div className="flex-none md:w-full lg:w-1/2 xl:w-2/5 pb-10 lg:pb-0">
             <SupplyWithdraw pool={pool} onTokenUpdate={handleTokenUpdate} />

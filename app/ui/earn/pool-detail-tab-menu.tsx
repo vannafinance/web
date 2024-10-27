@@ -7,7 +7,7 @@ import AnalyticsChart from "./analytics-chart";
 import PoolDetails from "./pool-details";
 import { ChartBar, ChartLineUp, FileText } from "@phosphor-icons/react";
 
-const PoolDetailTabMenu = ({ pool }: { pool: PoolTable }) => {
+const PoolDetailTabMenu = ({ pool, utilizationRate }: { pool: PoolTable, utilizationRate: string | undefined }) => {
   const [activeTab, setActiveTab] = useState("Details");
 
   const renderTabContent = () => {
@@ -15,7 +15,7 @@ const PoolDetailTabMenu = ({ pool }: { pool: PoolTable }) => {
       case "Details":
         return <PoolDetails pool={pool} />;
       case "Utilization rate":
-        return <UtilizationChart pool={pool} />;
+        return <UtilizationChart pool={pool} utilizationRate={utilizationRate} />;
       case "Analytics":
         return <AnalyticsChart pool={pool} />;
       default:

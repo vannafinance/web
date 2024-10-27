@@ -121,7 +121,7 @@ const PositionFetching = () =>
           return asset.price;
         }
       }
-      return null;
+      return 1;
     };
 
     const getAssetPrice = async (

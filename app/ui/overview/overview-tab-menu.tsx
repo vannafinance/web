@@ -113,7 +113,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
         return asset.price;
       }
     }
-    return null;
+    return 1;
   };
 
   const getAssetPrice = async (

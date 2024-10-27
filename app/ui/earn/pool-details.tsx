@@ -26,16 +26,35 @@ import VToken from "@/app/abi/vanna/v1/out/VToken.sol/VToken.json";
 import { arbAddressList } from "@/app/lib/web3-constants";
 
 import Multicall from "@/app/abi/vanna/v1/out/Multicall.sol/Multicall.json";
-import {
-  ceilWithPrecision,
-  check0xHex,
-} from "@/app/lib/helper";
+import { ceilWithPrecision, check0xHex } from "@/app/lib/helper";
+import axios from "axios";
+import { formatUSD } from "@/app/lib/number-format-helper";
 
 const PoolDetails = ({ pool }: { pool: PoolTable }) => {
   const { account, library } = useWeb3React();
   const { currentNetwork } = useNetwork();
   const [details, setDetails] = useState(poolDetailsPlaceholder);
   const [poolAddress, setPoolAddress] = useState("-");
+
+  const getPriceFromAssetsArray = async (tokenSymbol: string) => {
+    const rsp = await axios.get("https://app.mux.network/api/liquidityAsset", {
+      timeout: 10 * 1000,
+    });
+
+    const assets = rsp.data.assets;
+
+    tokenSymbol =
+      tokenSymbol === "WETH" || tokenSymbol === "WBTC"
+        ? tokenSymbol.substring(1)
+        : tokenSymbol;
+
+    for (let asset of assets) {
+      if (asset.symbol === tokenSymbol) {
+        return asset.price;
+      }
+    }
+    return 1;
+  };
 
   useEffect(() => {
     if (!currentNetwork) return;
@@ -184,6 +203,8 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
             // utilazation rate
             // let ethUtilization = ethTotalBorrow/parseFloat(formatUnits(pool.supply));
 
+            const val = await getPriceFromAssetsArray(pool.name);
+
             if (pool.name === "WETH") {
               const updatedPoolDetails = details.map((detail) => {
                 if (detail.label === "SUPPLY APY") {
@@ -213,8 +234,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "LQ. IN DOLLAR") {
                   return {
                     ...detail,
-                    // TODO: add logic of mux price
-                    value: pool.supply,
+                    value: formatUSD(Number(pool.supply) * Number(val)),
                   };
                 }
 
@@ -280,8 +300,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "LQ. IN DOLLAR") {
                   return {
                     ...detail,
-                    // TODO: add logic of mux price
-                    value: pool.supply,
+                    value: formatUSD(Number(pool.supply) * Number(val)),
                   };
                 }
 
@@ -347,8 +366,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "LQ. IN DOLLAR") {
                   return {
                     ...detail,
-                    // TODO: add logic of mux price
-                    value: pool.supply,
+                    value: formatUSD(Number(pool.supply) * Number(val)),
                   };
                 }
 
@@ -414,8 +432,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "LQ. IN DOLLAR") {
                   return {
                     ...detail,
-                    // TODO: add logic of mux price
-                    value: pool.supply,
+                    value: formatUSD(Number(pool.supply) * Number(val)),
                   };
                 }
 
@@ -481,8 +498,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "LQ. IN DOLLAR") {
                   return {
                     ...detail,
-                    // TODO: add logic of mux price
-                    value: pool.supply,
+                    value: formatUSD(Number(pool.supply) * Number(val)),
                   };
                 }
 
@@ -954,6 +970,8 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
             // utilazation rate
             // let ethUtilization = ethTotalBorrow/parseFloat(formatUnits(pool.supply));
 
+            const val = await getPriceFromAssetsArray(pool.name);
+
             if (pool.name === "WETH") {
               const updatedPoolDetails = details.map((detail) => {
                 if (detail.label === "SUPPLY APY") {
@@ -983,8 +1001,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "LQ. IN DOLLAR") {
                   return {
                     ...detail,
-                    // TODO: add logic of mux price
-                    value: pool.supply,
+                    value: formatUSD(Number(pool.supply) * Number(val)),
                   };
                 }
 
@@ -1018,6 +1035,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 }
                 return detail;
               });
+              setPoolAddress(opAddressList.vEtherContractAddress);
               setDetails(updatedPoolDetails);
             }
             if (pool.name === "WBTC") {
@@ -1049,8 +1067,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "LQ. IN DOLLAR") {
                   return {
                     ...detail,
-                    // TODO: add logic of mux price
-                    value: pool.supply,
+                    value: formatUSD(Number(pool.supply) * Number(val)),
                   };
                 }
 
@@ -1084,6 +1101,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 }
                 return detail;
               });
+              setPoolAddress(opAddressList.vWBTCContractAddress);
               setDetails(updatedPoolDetails);
             }
             if (pool.name === "USDC") {
@@ -1115,8 +1133,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "LQ. IN DOLLAR") {
                   return {
                     ...detail,
-                    // TODO: add logic of mux price
-                    value: pool.supply,
+                    value: formatUSD(Number(pool.supply) * Number(val)),
                   };
                 }
 
@@ -1150,6 +1167,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 }
                 return detail;
               });
+              setPoolAddress(opAddressList.vUSDCContractAddress);
               setDetails(updatedPoolDetails);
             }
             if (pool.name === "USDT") {
@@ -1181,8 +1199,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "LQ. IN DOLLAR") {
                   return {
                     ...detail,
-                    // TODO: add logic of mux price
-                    value: pool.supply,
+                    value: formatUSD(Number(pool.supply) * Number(val)),
                   };
                 }
 
@@ -1216,6 +1233,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 }
                 return detail;
               });
+              setPoolAddress(opAddressList.vUSDTContractAddress);
               setDetails(updatedPoolDetails);
             }
             if (pool.name === "DAI") {
@@ -1247,8 +1265,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "LQ. IN DOLLAR") {
                   return {
                     ...detail,
-                    // TODO: add logic of mux price
-                    value: pool.supply,
+                    value: formatUSD(Number(pool.supply) * Number(val)),
                   };
                 }
 
@@ -1282,6 +1299,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 }
                 return detail;
               });
+              setPoolAddress(opAddressList.vDaiContractAddress);
               setDetails(updatedPoolDetails);
             }
           };
@@ -1720,6 +1738,8 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //         // utilazation rate
     //         // let ethUtilization = ethTotalBorrow/parseFloat(formatUnits(pool.supply));
 
+    //         const val = await getPriceFromAssetsArray(pool.name);
+
     //         if (pool.name === "WETH") {
     //           const updatedPoolDetails = details.map((detail) => {
     //             if (detail.label === "SUPPLY APY") {
@@ -1749,8 +1769,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //             if (detail.label === "LIQUIDITY IN DOLLAR") {
     //               return {
     //                 ...detail,
-    //                 // TODO: add logic of mux price
-    //                 value: pool.supply + " " + pool.name,
+    //                 value: formatUSD(Number(pool.supply) * Number(val)),
     //               };
     //             }
 
@@ -1785,6 +1804,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //             return detail;
     //           });
     //           setDetails(updatedPoolDetails);
+    //           setPoolAddress(baseAddressList.vEtherContractAddress);
     //         }
     //         if (pool.name === "WBTC") {
     //           const updatedPoolDetails = details.map((detail) => {
@@ -1815,8 +1835,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //             if (detail.label === "LIQUIDITY IN DOLLAR") {
     //               return {
     //                 ...detail,
-    //                 // TODO: add logic of mux price
-    //                 value: pool.supply + " " + pool.name,
+    //                 value: formatUSD(Number(pool.supply) * Number(val)),
     //               };
     //             }
 
@@ -1851,6 +1870,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //             return detail;
     //           });
     //           setDetails(updatedPoolDetails);
+    //           setPoolAddress(baseAddressList.vWBTCContractAddress);
     //         }
     //         if (pool.name === "USDC") {
     //           const updatedPoolDetails = details.map((detail) => {
@@ -1881,8 +1901,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //             if (detail.label === "LIQUIDITY IN DOLLAR") {
     //               return {
     //                 ...detail,
-    //                 // TODO: add logic of mux price
-    //                 value: pool.supply + " " + pool.name,
+    //                 value: formatUSD(Number(pool.supply) * Number(val)),
     //               };
     //             }
 
@@ -1917,6 +1936,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //             return detail;
     //           });
     //           setDetails(updatedPoolDetails);
+    //           setPoolAddress(baseAddressList.vUSDCContractAddress);
     //         }
     //         if (pool.name === "USDT") {
     //           const updatedPoolDetails = details.map((detail) => {
@@ -1947,8 +1967,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //             if (detail.label === "LIQUIDITY IN DOLLAR") {
     //               return {
     //                 ...detail,
-    //                 // TODO: add logic of mux price
-    //                 value: pool.supply + " " + pool.name,
+    //                 value: formatUSD(Number(pool.supply) * Number(val)),
     //               };
     //             }
 
@@ -1983,6 +2002,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //             return detail;
     //           });
     //           setDetails(updatedPoolDetails);
+    //           setPoolAddress(baseAddressList.vUSDTContractAddress);
     //         }
     //         if (pool.name === "DAI") {
     //           const updatedPoolDetails = details.map((detail) => {
@@ -2013,8 +2033,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //             if (detail.label === "LIQUIDITY IN DOLLAR") {
     //               return {
     //                 ...detail,
-    //                 // TODO: add logic of mux price
-    //                 value: pool.supply + " " + pool.name,
+    //                 value: formatUSD(Number(pool.supply) * Number(val)),
     //               };
     //             }
 
@@ -2049,6 +2068,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //             return detail;
     //           });
     //           setDetails(updatedPoolDetails);
+    //           setPoolAddress(baseAddressList.vDaiContractAddress);
     //         }
     //       };
     //       fetchValues();

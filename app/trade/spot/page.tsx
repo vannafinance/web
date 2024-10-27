@@ -258,7 +258,7 @@ export default function Page() {
         return asset.price;
       }
     }
-    return null;
+    return 1;
   };
 
   useEffect(() => {
