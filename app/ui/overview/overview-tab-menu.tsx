@@ -136,10 +136,14 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
 
   useEffect(() => {
     accountCheck();
+    getAssetPrice();
+  }, []);
+
+  useEffect(() => {
+    accountCheck();
   }, [account, library]);
 
   useEffect(() => {
-    getAssetPrice();
     const intervalId = setInterval(getAssetPrice, 100000); // Calls fetchData every second
     return () => clearInterval(intervalId); // This is the cleanup function
   }, []);

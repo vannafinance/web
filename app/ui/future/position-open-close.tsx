@@ -124,15 +124,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
 
   useEffect(() => {
     getAssetPrice(marketToken.value);
-    // setMarketToken();
-    // TODO: complete above getMarketTokenFromMarketOption
-  }, [market]);
-
-  useEffect(() => {
-    getAssetPrice(marketToken.value);
-    // setMarket();
-    // TODO: complete above getMarketTokenFromMarketOption
-  }, [marketToken]);
+  }, [market, marketToken]);
 
   const accountCheck = async () => {
     if (localStorage.getItem("isWalletConnected") === "true") {
@@ -182,7 +174,12 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
 
   useEffect(() => {
     accountCheck();
-  }, [account, library]);
+    getAssetPrice();
+  }, []);
+
+  useEffect(() => {
+    accountCheck();
+  }, [account, library, currentNetwork]);
 
   const getAssetPrice = async (
     assetName = marketToken.value,

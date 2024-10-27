@@ -96,7 +96,12 @@ const PositionFetching = () =>
 
     useEffect(() => {
       accountCheck();
-    }, [account, library]);
+      getAssetPrice();
+    }, []);
+
+    useEffect(() => {
+      accountCheck();
+    }, [account, library, currentNetwork]);
 
     useEffect(() => {
       // getTokenBalance();
