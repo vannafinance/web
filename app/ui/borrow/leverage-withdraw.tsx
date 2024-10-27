@@ -409,7 +409,11 @@ const LevrageWithdraw = () => {
       // const borrowBalance = await riskEngineContract.callStatic.getBorrows(activeAccount);
       // let healthFactor1 = balance/borrowBalance
       // console.log("borrowBalance",healthFactor)
-      //LTV = Leverage Vaule -1 *100
+
+      // ex : 100 deposit => 5x => total borrow => 400 => total Balance => 500 => 400/(500-400) = 4x +1 
+      // Leverage Vaule = (borrowBalance / (balance - borrowBalance) ) + 1
+      
+      // LTV = (Leverage Vaule -1 *100)
       // max - 900
 
       // setHealthFactor(String(healthFactor1));
