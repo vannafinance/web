@@ -9,7 +9,6 @@ import Slider from "./slider";
 import TokenDropdown from "../components/token-dropdown";
 import { Contract } from "ethers";
 import { useWeb3React } from "@web3-react/core";
-// import { useNetwork } from "@/app/context/network-context";
 import {
   arbAddressList,
   arbTokensAddress,
@@ -66,10 +65,12 @@ const LevrageWithdraw = () => {
   const [expected, setExpected] = useState(0);
   const [leverageAmount, setLeverageAmount] = useState<number | undefined>(0);
   const [depositBalance, setDepositBalance] = useState<number | undefined>();
-  // const [borrowBalance, setBorrowBalance] = useState<number | undefined>();
+  const [borrowBalance, setBorrowBalance] = useState<number | undefined>();
   const [debt, setDebt] = useState(0);
   const [healthFactor, setHealthFactor] = useState("-");
   const [activeAccount, setActiveAccount] = useState<string | undefined>();
+  const [leverageUseValue, setLeverageUseValue] = useState(0);
+  const [ltv, setLtv] = useState(0);
 
   const [depositToken, setDepositToken] = useState<PoolTable>(
     poolsPlaceholder[0]
@@ -217,14 +218,14 @@ const LevrageWithdraw = () => {
       if (account && currentNetwork) {
         const signer = await library?.getSigner();
         let depositBalance;
-        let borrowBalance;
+        // let borrowBalance;
 
         if (isLeverage) {
           if (token?.name == "WETH") {
             depositBalance = await library?.getBalance(account);
-            if (activeAccount) {
-              borrowBalance = await library?.getBalance(activeAccount);
-            }
+            // if (activeAccount) {
+            //   borrowBalance = await library?.getBalance(activeAccount);
+            // }
           } else {
             let contract;
             if (currentNetwork.id === ARBITRUM_NETWORK) {
@@ -249,9 +250,9 @@ const LevrageWithdraw = () => {
 
             if (contract) {
               depositBalance = await contract.balanceOf(account);
-              if (activeAccount) {
-                borrowBalance = await contract.balanceOf(activeAccount);
-              }
+              // if (activeAccount) {
+              //   borrowBalance = await contract.balanceOf(activeAccount);
+              // }
             }
           }
 
@@ -259,72 +260,73 @@ const LevrageWithdraw = () => {
             token?.name,
             depositBalance
           );
-          // const borrowBalanceInNumber = formatBignumberToUnits(
-          //   token?.name,
-          //   borrowBalance
-          // );
+          const borrowBalanceInNumber = Number(depositBalanceInNumber) * 10;
           setDepositBalance(
             Number(ceilWithPrecision(String(depositBalanceInNumber)))
           );
-          // setBorrowBalance(ceilWithPrecision(String(borrowBalanceInNumber)));
+          setBorrowBalance(
+            Number(ceilWithPrecision(String(borrowBalanceInNumber)))
+          );
         } else {
-          // @TODO:meet
-          // const getwithdrawBalance = async () => {
-          //   const signer = await library?.getSigner();
-          //   const vEtherContract = new Contract(
-          //     opAddressList.vEtherContractAddress,
-          //     VEther.abi,
-          //     signer
-          //   );
-          //   const vDaiContract = new Contract(
-          //     opAddressList.vDaiContractAddress,
-          //     VToken.abi,
-          //     signer
-          //   );
-          //   const vUsdcContract = new Contract(
-          //     opAddressList.vUSDCContractAddress,
-          //     VToken.abi,
-          //     signer
-          //   );
-          //   const vUsdtContract = new Contract(
-          //     opAddressList.vUSDTContractAddress,
-          //     VToken.abi,
-          //     signer
-          //   );
-          //   const vWbtcContract = new Contract(
-          //     opAddressList.vWBTCContractAddress,
-          //     VToken.abi,
-          //     signer
-          //   );
-          //   // @Withdraw balance
-          //   let accountBalance = await library?.getBalance(account); // here account is active Account
-          //   accountBalance = accountBalance / 1e18;
-          //   let borrowedBalance =
-          //     await vEtherContract.callStatic.getBorrowBalance(activeAccount);
-          //   borrowedBalance = borrowedBalance / 1e18;
-          //   debt1 = accountBalance - borrowedBalance;
-          //   // USDC
-          //   accountBalance = erc20conatract(USDC).balanceOf(account);
-          //   borrowedBalance =
-          //     await vUsdcContract.callStatic.getBorrowBalance(activeAccount);
-          // };
-          // const getRepaybalance = async () => {
-          //   const signer = await library?.getSigner();
-          //   const riskEngineContract = new Contract(
-          //     opAddressList.riskEngineContractAddress,
-          //     RiskEngine.abi,
-          //     signer
-          //   );
-          //   // ETH
-          //   let borrowedBalance =
-          //     await vEtherContract.callStatic.getBorrowBalance(activeAccount);
-          //   // USDC
-          //   let borrowedBalance =
-          //     await vUsdcContract.callStatic.getBorrowBalance(activeAccount);
-          // };
-          // Values to be assigned in below
-          // setDepositBalance();
-          // setBorrowBalance();
+          const signer = await library?.getSigner();
+          const vEtherContract = new Contract(
+            opAddressList.vEtherContractAddress,
+            VEther.abi,
+            signer
+          );
+          const vDaiContract = new Contract(
+            opAddressList.vDaiContractAddress,
+            VToken.abi,
+            signer
+          );
+          const vUsdcContract = new Contract(
+            opAddressList.vUSDCContractAddress,
+            VToken.abi,
+            signer
+          );
+          const vUsdtContract = new Contract(
+            opAddressList.vUSDTContractAddress,
+            VToken.abi,
+            signer
+          );
+          const vWbtcContract = new Contract(
+            opAddressList.vWBTCContractAddress,
+            VToken.abi,
+            signer
+          );
+
+          // @Withdraw balance code
+          let accountBalance = await library?.getBalance(account); // here account is active Account
+          accountBalance = accountBalance / 1e18;
+          let borrowedBalance =
+            await vEtherContract.callStatic.getBorrowBalance(activeAccount);
+          borrowedBalance = borrowedBalance / 1e18;
+          // debt1 = accountBalance - borrowedBalance;
+          // USDC
+          // accountBalance = erc20conatract(USDC).balanceOf(account);
+          // borrowedBalance =
+          //   await vUsdcContract.callStatic.getBorrowBalance(activeAccount);
+
+          // TODO: @vatsal add withdraw balanc in setDepositeBalance();
+          setDepositBalance(borrowedBalance);
+
+          // @Repay balance code
+          const riskEngineContract = new Contract(
+            opAddressList.riskEngineContractAddress,
+            RiskEngine.abi,
+            signer
+          );
+          // ETH
+          borrowedBalance = await vEtherContract.callStatic.getBorrowBalance(
+            activeAccount
+          );
+          // USDC
+          borrowedBalance = await vUsdcContract.callStatic.getBorrowBalance(
+            activeAccount
+          );
+
+          // TODO @vatsal: add repay balance in setBorrowBalance();
+          setBorrowBalance(borrowedBalance);
         }
       }
     } catch (e) {
@@ -404,25 +406,29 @@ const LevrageWithdraw = () => {
       } else {
         setExpected(0);
       }
-      // @TODO:meet 
-      // add logic of realtime data input healthfactor
-      // add heathfactor code here
-      // const riskEngineContract = new Contract(
-      //   opAddressList.riskEngineContractAddress,
-      //   RiskEngine.abi,
-      //   signer
-      // );
-      // const balance = await riskEngineContract.callStatic.getBalance(activeAccount);
-      // const borrowBalance = await riskEngineContract.callStatic.getBorrows(activeAccount);
-      // let healthFactor1 = balance/borrowBalance
 
-      // ex : 100 deposit => 5x => total borrow => 400 => total Balance => 500 => 400/(500-400) = 4x +1 
-      // Leverage Vaule = (borrowBalance / (balance - borrowBalance) ) + 1
-      
-      // LTV = (Leverage Vaule -1 *100)
-      // max - 900
+      const riskEngineContract = new Contract(
+        opAddressList.riskEngineContractAddress,
+        RiskEngine.abi,
+        signer
+      );
+      const balance = await riskEngineContract.callStatic.getBalance(
+        activeAccount
+      );
+      const borrowBalance = await riskEngineContract.callStatic.getBorrows(
+        activeAccount
+      );
 
-      // setHealthFactor(String(healthFactor1));
+      let healthFactor = Number(balance / 1e16) / Number(borrowBalance / 1e16);
+      setHealthFactor(String(healthFactor));
+
+      // TODO @vatsal: 'depositAmount' is the variable which will have current input value entered in Deosit input box. Use it as required and update the above formula to add health Factor
+
+      const leverageUse = borrowBalance / (balance - borrowBalance) + 1;
+      setLeverageUseValue(leverageUse);
+
+      const ltvValue = (leverageUseValue - 1) * 100;
+      setLtv(ltvValue);
     };
 
     calc();
@@ -1048,7 +1054,7 @@ const LevrageWithdraw = () => {
               <div className="flex justify-between items-center mt-2 text-xs text-neutral-500">
                 <div>{formatUSD(leverageAmount)}</div>
                 <div className="flex">
-                  <div className="mr-2">Debt: {debt}</div>
+                  <div className="mr-2">{borrowBalance}</div>
                   <button
                     className="py-0.5 px-1 bg-gradient-to-r from-gradient-1 to-gradient-2 text-xs rounded-md text-baseWhite"
                     onClick={handleMaxClick}
@@ -1076,10 +1082,10 @@ const LevrageWithdraw = () => {
                 </Tooltip>
               </div>
               <div className="flex items-center">
-                <span className="font-semibold">LTV &nbsp;70.00%</span>
+                <span className="font-semibold">LTV &nbsp;{ltv}%</span>
                 &nbsp;&nbsp;
                 <span className="text-xs text-neutral-500 mr-2 self-end">
-                  from 96%
+                  from 900%
                 </span>
               </div>
             </div>
@@ -1127,7 +1133,7 @@ const LevrageWithdraw = () => {
       <div className="flex-none w-full lg:w-2/5 xl:w-1/3 space-y-6 font-medium">
         <AccountOverview
           creditToken={borrowToken}
-          leverage={leverageValue}
+          leverageUseValue={leverageUseValue}
           activeAccount={activeAccount}
         />
       </div>

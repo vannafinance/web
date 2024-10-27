@@ -78,7 +78,7 @@ interface TokenDropdownProps {
 
 interface AccountOverviewProps {
   creditToken: PoolTable | undefined;
-  leverage: number;
+  leverageUseValue: number;
   activeAccount: string | undefined;
 }
 

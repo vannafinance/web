@@ -1,50 +1,69 @@
+
 "use client";
 
 import Image from "next/image";
 import Tooltip from "../components/tooltip";
 import { Info } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
-import { getShortenedAddress } from "@/app/lib/web3-constants";
+import { getShortenedAddress, opAddressList } from "@/app/lib/web3-constants";
+import { Contract } from "ethers";
+import { useWeb3React } from "@web3-react/core";
+import { useNetwork } from "@/app/context/network-context";
+import RiskEngine from "../../abi/vanna/v1/out/RiskEngine.sol/RiskEngine.json";
+import { useSelector } from "react-redux";
+import { RootState } from "@/app/store/store";
 
 const AccountOverview: React.FC<AccountOverviewProps> = ({
   creditToken,
-  leverage,
+  leverageUseValue,
   activeAccount,
 }) => {
-  const [collateral, setCollateral] = useState("-");
-  const [accountValue, setAccountValue] = useState("-");
-  const [debt, setDebt] = useState("-");
-  const [healthFactor, setHealthFactor] = useState("-");
+  const { library } = useWeb3React();
+  const { currentNetwork } = useNetwork();
+
+  const pools = useSelector((state: RootState) => state.pools.poolsData);
+  console.log("Pools: ", pools);
+
+  const [collateral, setCollateral] = useState(0);
+  const [accountValue, setAccountValue] = useState(0);
+  const [debt, setDebt] = useState(0);
+  const [healthFactor, setHealthFactor] = useState(0);
   const [borrowRate, setBorrowRate] = useState("-");
-  const [liquidationPrice, setLiquidationPrice] = useState("-");
+  const [liquidationPrice, setLiquidationPrice] = useState(0);
 
-  // TODO: delete below useEffect
   useEffect(() => {
-    // @TODO:meet
-    // const riskEngineContract = new Contract(
-    //   opAddressList.riskEngineContractAddress,
-    //   RiskEngine.abi,
-    //   signer
-    // );
-    // const balance = await riskEngineContract.callStatic.getBalance(activeAccount); // total Balance  => AccountValue
-    // const borrowBalance = await riskEngineContract.callStatic.getBorrows(activeAccount); // total Borrow Balance 
-    // let healthFactor1 = balance/borrowBalance
-    // setAccountValue(balance);
-    // setCollateral(balance - borrowBalance);
-    // setDebt(borrowBalance);
-    // // setHealthFactor(healthFactor1);
-    // let liqP = balance * 1.05 / healthFactor1
-    // setLiquidationPrice(liqp)
-    //@TODO : add leverage used placholder 
+    const fetchValues = async () => {
+      const signer = library?.getSigner();
 
+      const riskEngineContract = new Contract(
+        opAddressList.riskEngineContractAddress,
+        RiskEngine.abi,
+        signer
+      );
+      const balance = await riskEngineContract.callStatic.getBalance(
+        activeAccount
+      ); // total Balance  => AccountValue
+      const borrowBalance = await riskEngineContract.callStatic.getBorrows(
+        activeAccount
+      ); // total Borrow Balance
+      let healthFactor1 = balance / borrowBalance;
+      let liqP = (balance * 1.05) / healthFactor1;
+      // TODO : @vatsal here balance & borrowBalance is in bignumber ... convert the same and then uncomment the below set statements
 
-    setCollateral("-");
-    setAccountValue("-");
-    setDebt("-");
-    setHealthFactor("-");
-    setBorrowRate("-");
-    setLiquidationPrice("-");
-  }, []);
+      // setAccountValue(balance);
+      // setCollateral(balance - borrowBalance);
+      // setDebt(borrowBalance);
+      // setHealthFactor(healthFactor1);
+      // setLiquidationPrice(liqP);
+    };
+
+    fetchValues();
+  }, [activeAccount]);
+
+  useEffect(() => {
+    const poolValue = pools.find((pool) => pool.name === creditToken?.name)
+    if (poolValue !== undefined) setBorrowRate(poolValue.borrowAPY);
+  }, [creditToken]);
 
   return (
     <>
@@ -87,7 +106,7 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({
             <span className="mr-1">Leverage Used</span>
           </div>
           <div className="flex items-center">
-            <span className="font-semibold">{leverage}x</span>
+            <span className="font-semibold">{leverageUseValue}x</span>
           </div>
         </div>
 
@@ -129,13 +148,9 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({
             <span className="mr-1">Health Factor</span>
           </div>
           <div className="flex items-center">
-            {healthFactor === "-" ? (
-              healthFactor
-            ) : (
-              <span className="font-semibold text-baseSuccess-300 underline">
-                {healthFactor}
-              </span>
-            )}
+            <span className="font-semibold text-baseSuccess-300 underline">
+              {healthFactor}
+            </span>
           </div>
         </div>
       </div>
