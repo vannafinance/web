@@ -36,6 +36,8 @@ import {
   OPTIMISM_NETWORK,
 } from "@/app/lib/constants";
 import { useNetwork } from "@/app/context/network-context";
+import axios from "axios";
+import { formatUSD } from "@/app/lib/number-format-helper";
 
 export default function Page() {
   const { account, library } = useWeb3React();
@@ -45,8 +47,10 @@ export default function Page() {
   const [disableBtn, setDisableBtn] = useState(true);
   const [btnValue, setBtnValue] = useState("Enter an amount");
 
-  const [payInput, setPayInput] = useState<number | undefined>();
-  const [receiveInput, setReceiveInput] = useState<number | undefined>();
+  const [payInput, setPayInput] = useState<number | undefined>(undefined);
+  const [receiveInput, setReceiveInput] = useState<number | undefined>(
+    undefined
+  );
   const [isOpen, setIsOpen] = useState(false);
   const [payCoin, setPayCoin] = useState(poolsPlaceholder[0]);
   const [receiveCoin, setReceiveCoin] = useState(poolsPlaceholder[2]);
@@ -55,12 +59,8 @@ export default function Page() {
   );
   const [payBalance, setPayBalance] = useState<number | undefined>();
   const [receiveBalance, setReceiveBalance] = useState<number | undefined>();
-  const [payAmountInDollar, setPayAmountInDollar] = useState<
-    number | undefined
-  >();
-  const [receiveAmountInDollar, setReceiveAmountInDollar] = useState<
-    number | undefined
-  >();
+  const [payAmountInDollar, setPayAmountInDollar] = useState<number>();
+  const [receiveAmountInDollar, setReceiveAmountInDollar] = useState<number>(0);
   const [maxSlippage, setMaxSlippage] = useState<string | undefined>();
   const [receiveAtLeast, setReceiveAtLeast] = useState<string | undefined>();
   const [fee, setFee] = useState<string | undefined>();
@@ -126,6 +126,10 @@ export default function Page() {
     }
     setLoading(false);
   };
+
+  useEffect(() => {
+    accountCheck();
+  }, []);
 
   useEffect(() => {
     accountCheck();
@@ -237,9 +241,49 @@ export default function Page() {
     }
   };
 
+  const getPriceFromAssetsArray = async (tokenSymbol: string) => {
+    const rsp = await axios.get("https://app.mux.network/api/liquidityAsset", {
+      timeout: 10 * 1000,
+    });
+
+    const assets = rsp.data.assets;
+
+    tokenSymbol =
+      tokenSymbol === "WETH" || tokenSymbol === "WBTC"
+        ? tokenSymbol.substring(1)
+        : tokenSymbol;
+
+    for (let asset of assets) {
+      if (asset.symbol === tokenSymbol) {
+        return asset.price;
+      }
+    }
+    return null;
+  };
+
   useEffect(() => {
-    // update setToCoin, setPayInDollarAmount, setRecieveInDollarAmount
-  }, [payInput]);
+    updatePayInput(payInput || 0);
+  }, [payCoin, receiveCoin]);
+
+  const updatePayInput = async (amt: string | number) => {
+    if (amt === undefined || amt === "") {
+      setPayInput(undefined);
+      setReceiveInput(undefined);
+      // setReceiveUpdated();
+    } else {
+      const currentPriceOfPay = await getPriceFromAssetsArray(payCoin.name);
+      const currentPriceOfReceive = await getPriceFromAssetsArray(
+        receiveCoin.name
+      );
+      const receive = (currentPriceOfPay * Number(amt)) / currentPriceOfReceive;
+
+      setPayInput(Number(amt));
+      setReceiveInput(receive);
+      setPayAmountInDollar(Number(amt) * currentPriceOfPay);
+      setReceiveAmountInDollar(receive * currentPriceOfReceive);
+      // setReceiveUpdated(receive);
+    }
+  };
 
   useEffect(() => {
     balanceFetch();
@@ -594,16 +638,13 @@ export default function Page() {
             <div className="flex flex-col">
               <input
                 value={payInput}
-                onChange={(e) => setPayInput(Number(e.target.value))}
+                onChange={(e) => updatePayInput(e.target.value)}
                 className="w-full text-[2.5rem] font-medium outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none dark:bg-baseDark"
                 placeholder="0"
-                inputMode="decimal"
                 autoComplete="off"
                 autoCorrect="off"
-                type="text"
-                pattern="^[0-9]*[.,]?[0-9]*$"
-                minLength={1}
-                maxLength={79}
+                type="number"
+                min={0}
               />
             </div>
             <div className="flex">
@@ -613,12 +654,13 @@ export default function Page() {
               />
             </div>
           </div>
-          <div className="mt-2 flex justify-between">
-            <div className="text-2xl font-medium">
-              {payAmountInDollar ? payAmountInDollar : "-"}
+          <div className="mt-2 flex justify-between text-base">
+            <div>
+              {formatUSD(payAmountInDollar)}
             </div>
-            <div className="text-base">
-              Balance: {payBalance !== undefined ? payBalance + " " + payCoin.name : "-"}
+            <div>
+              Balance:{" "}
+              {payBalance !== undefined ? payBalance + " " + payCoin.name : "-"}
             </div>
           </div>
         </div>
@@ -640,13 +682,10 @@ export default function Page() {
                 // onChange={(e) => setReceiveInput(e.target.value)}
                 className="w-full text-[2.5rem] font-medium outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none dark:bg-baseDark"
                 placeholder="0"
-                inputMode="decimal"
                 autoComplete="off"
                 autoCorrect="off"
-                type="text"
-                pattern="^[0-9]*[.,]?[0-9]*$"
-                minLength={1}
-                maxLength={79}
+                type="number"
+                min={0}
               />
             </div>
             <div className="flex">
@@ -656,13 +695,15 @@ export default function Page() {
               />
             </div>
           </div>
-          <div className="mt-2 flex justify-between">
-            <div className="text-2xl font-medium">
-              {receiveAmountInDollar ? receiveAmountInDollar : "-"}
+          <div className="mt-2 flex justify-between text-base">
+            <div>
+              {formatUSD(receiveAmountInDollar)}
             </div>
-            <div className="text-base">
-              Balance:{" "}
-              {receiveBalance !== undefined ? receiveBalance + " " + receiveCoin.name : "-"}
+            <div>
+              Balance :{" "}
+              {receiveBalance !== undefined
+                ? receiveBalance + " " + receiveCoin.name
+                : "-"}
             </div>
           </div>
         </div>

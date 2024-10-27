@@ -27,7 +27,6 @@ import { arbAddressList } from "@/app/lib/web3-constants";
 
 import Multicall from "@/app/abi/vanna/v1/out/Multicall.sol/Multicall.json";
 import {
-  ceilWithPrecision6,
   ceilWithPrecision,
   check0xHex,
 } from "@/app/lib/helper";
@@ -222,7 +221,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "TOTAL BORROWED") {
                   return {
                     ...detail,
-                    value: ceilWithPrecision6(formatUnits(ethTotalBorrow)),
+                    value: ceilWithPrecision(formatUnits(ethTotalBorrow)),
                   };
                 }
 
@@ -230,7 +229,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                   return {
                     ...detail,
                     value:
-                      ceilWithPrecision6(formatUnits(avaibaleETH)) +
+                      ceilWithPrecision(formatUnits(avaibaleETH)) +
                       " " +
                       pool.name,
                   };
@@ -289,7 +288,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "TOTAL BORROWED") {
                   return {
                     ...detail,
-                    value: ceilWithPrecision6(formatUnits(wbtcTotalBorrow)),
+                    value: ceilWithPrecision(formatUnits(wbtcTotalBorrow)),
                   };
                 }
 
@@ -297,7 +296,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                   return {
                     ...detail,
                     value:
-                      ceilWithPrecision6(formatUnits(avaibaleBTC)) +
+                      ceilWithPrecision(formatUnits(avaibaleBTC)) +
                       " " +
                       pool.name,
                   };
@@ -356,7 +355,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "TOTAL BORROWED") {
                   return {
                     ...detail,
-                    value: ceilWithPrecision6(formatUnits(usdcTotalBorrow)),
+                    value: ceilWithPrecision(formatUnits(usdcTotalBorrow)),
                   };
                 }
 
@@ -364,7 +363,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                   return {
                     ...detail,
                     value:
-                      ceilWithPrecision6(formatUnits(avaibaleUSDC)) +
+                      ceilWithPrecision(formatUnits(avaibaleUSDC)) +
                       " " +
                       pool.name,
                   };
@@ -423,7 +422,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "TOTAL BORROWED") {
                   return {
                     ...detail,
-                    value: ceilWithPrecision6(formatUnits(usdtTotalBorrow)),
+                    value: ceilWithPrecision(formatUnits(usdtTotalBorrow)),
                   };
                 }
 
@@ -431,7 +430,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                   return {
                     ...detail,
                     value:
-                      ceilWithPrecision6(formatUnits(avaibaleUSDT)) +
+                      ceilWithPrecision(formatUnits(avaibaleUSDT)) +
                       " " +
                       pool.name,
                   };
@@ -490,7 +489,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "TOTAL BORROWED") {
                   return {
                     ...detail,
-                    value: ceilWithPrecision6(formatUnits(daiTotalBorrow)),
+                    value: ceilWithPrecision(formatUnits(daiTotalBorrow)),
                   };
                 }
 
@@ -498,7 +497,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                   return {
                     ...detail,
                     value:
-                      ceilWithPrecision6(formatUnits(avaibaleDai)) +
+                      ceilWithPrecision(formatUnits(avaibaleDai)) +
                       " " +
                       pool.name,
                   };
@@ -992,7 +991,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "TOTAL BORROWED") {
                   return {
                     ...detail,
-                    value: ceilWithPrecision6(formatUnits(ethTotalBorrow)),
+                    value: ceilWithPrecision(formatUnits(ethTotalBorrow)),
                   };
                 }
 
@@ -1000,7 +999,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                   return {
                     ...detail,
                     value:
-                      ceilWithPrecision6(formatUnits(avaibaleETH)) +
+                      ceilWithPrecision(formatUnits(avaibaleETH)) +
                       " " +
                       pool.name,
                   };
@@ -1058,7 +1057,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "TOTAL BORROWED") {
                   return {
                     ...detail,
-                    value: ceilWithPrecision6(formatUnits(wbtcTotalBorrow)),
+                    value: ceilWithPrecision(formatUnits(wbtcTotalBorrow)),
                   };
                 }
 
@@ -1066,7 +1065,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                   return {
                     ...detail,
                     value:
-                      ceilWithPrecision6(formatUnits(avaibaleBTC)) +
+                      ceilWithPrecision(formatUnits(avaibaleBTC)) +
                       " " +
                       pool.name,
                   };
@@ -1124,7 +1123,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "TOTAL BORROWED") {
                   return {
                     ...detail,
-                    value: ceilWithPrecision6(formatUnits(usdcTotalBorrow)),
+                    value: ceilWithPrecision(formatUnits(usdcTotalBorrow)),
                   };
                 }
 
@@ -1132,7 +1131,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                   return {
                     ...detail,
                     value:
-                      ceilWithPrecision6(formatUnits(avaibaleUSDC)) +
+                      ceilWithPrecision(formatUnits(avaibaleUSDC)) +
                       " " +
                       pool.name,
                   };
@@ -1190,7 +1189,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "TOTAL BORROWED") {
                   return {
                     ...detail,
-                    value: ceilWithPrecision6(formatUnits(usdtTotalBorrow)),
+                    value: ceilWithPrecision(formatUnits(usdtTotalBorrow)),
                   };
                 }
 
@@ -1198,7 +1197,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                   return {
                     ...detail,
                     value:
-                      ceilWithPrecision6(formatUnits(avaibaleUSDT)) +
+                      ceilWithPrecision(formatUnits(avaibaleUSDT)) +
                       " " +
                       pool.name,
                   };
@@ -1256,7 +1255,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "TOTAL BORROWED") {
                   return {
                     ...detail,
-                    value: ceilWithPrecision6(formatUnits(daiTotalBorrow)),
+                    value: ceilWithPrecision(formatUnits(daiTotalBorrow)),
                   };
                 }
 
@@ -1264,7 +1263,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                   return {
                     ...detail,
                     value:
-                      ceilWithPrecision6(formatUnits(avaibaleDai)) +
+                      ceilWithPrecision(formatUnits(avaibaleDai)) +
                       " " +
                       pool.name,
                   };
@@ -1758,7 +1757,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //             if (detail.label === "TOTAL BORROWED") {
     //               return {
     //                 ...detail,
-    //                 value: ceilWithPrecision6(formatUnits(ethTotalBorrow)),
+    //                 value: ceilWithPrecision(formatUnits(ethTotalBorrow)),
     //               };
     //             }
 
@@ -1766,7 +1765,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //               return {
     //                 ...detail,
     //                 value:
-    //                   ceilWithPrecision6(formatUnits(avaibaleETH)) +
+    //                   ceilWithPrecision(formatUnits(avaibaleETH)) +
     //                   " " +
     //                   pool.name,
     //               };
@@ -1824,7 +1823,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //             if (detail.label === "TOTAL BORROWED") {
     //               return {
     //                 ...detail,
-    //                 value: ceilWithPrecision6(formatUnits(wbtcTotalBorrow)),
+    //                 value: ceilWithPrecision(formatUnits(wbtcTotalBorrow)),
     //               };
     //             }
 
@@ -1832,7 +1831,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //               return {
     //                 ...detail,
     //                 value:
-    //                   ceilWithPrecision6(formatUnits(avaibaleBTC)) +
+    //                   ceilWithPrecision(formatUnits(avaibaleBTC)) +
     //                   " " +
     //                   pool.name,
     //               };
@@ -1890,7 +1889,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //             if (detail.label === "TOTAL BORROWED") {
     //               return {
     //                 ...detail,
-    //                 value: ceilWithPrecision6(formatUnits(usdcTotalBorrow)),
+    //                 value: ceilWithPrecision(formatUnits(usdcTotalBorrow)),
     //               };
     //             }
 
@@ -1898,7 +1897,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //               return {
     //                 ...detail,
     //                 value:
-    //                   ceilWithPrecision6(formatUnits(avaibaleUSDC)) +
+    //                   ceilWithPrecision(formatUnits(avaibaleUSDC)) +
     //                   " " +
     //                   pool.name,
     //               };
@@ -1956,7 +1955,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //             if (detail.label === "TOTAL BORROWED") {
     //               return {
     //                 ...detail,
-    //                 value: ceilWithPrecision6(formatUnits(usdtTotalBorrow)),
+    //                 value: ceilWithPrecision(formatUnits(usdtTotalBorrow)),
     //               };
     //             }
 
@@ -1964,7 +1963,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //               return {
     //                 ...detail,
     //                 value:
-    //                   ceilWithPrecision6(formatUnits(avaibaleUSDT)) +
+    //                   ceilWithPrecision(formatUnits(avaibaleUSDT)) +
     //                   " " +
     //                   pool.name,
     //               };
@@ -2022,7 +2021,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //             if (detail.label === "TOTAL BORROWED") {
     //               return {
     //                 ...detail,
-    //                 value: ceilWithPrecision6(formatUnits(daiTotalBorrow)),
+    //                 value: ceilWithPrecision(formatUnits(daiTotalBorrow)),
     //               };
     //             }
 
@@ -2030,7 +2029,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //               return {
     //                 ...detail,
     //                 value:
-    //                   ceilWithPrecision6(formatUnits(avaibaleDai)) +
+    //                   ceilWithPrecision(formatUnits(avaibaleDai)) +
     //                   " " +
     //                   pool.name,
     //               };

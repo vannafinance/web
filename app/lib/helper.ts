@@ -16,17 +16,6 @@ export const ceilWithPrecision = (n: string, precision = 3) => {
   if (isNaN(num)) {
     return n;
   }
-  // Round to two decimal places
-  return num.toFixed(precision);
-};
-
-export const ceilWithPrecision6 = (n: string, precision = 6) => {
-  const num = parseFloat(n);
-  // Check if the conversion was successful
-  if (isNaN(num)) {
-    return n;
-  }
-  // Round to two decimal places
   return num.toFixed(precision);
 };
 

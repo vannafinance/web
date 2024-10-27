@@ -15,7 +15,7 @@ import FutureDropdown from "./future-dropdown";
 import FutureSlider from "./future-slider";
 import axios from "axios";
 import {
-  ceilWithPrecision6,
+  ceilWithPrecision,
   formatBignumberToUnits,
   formatStringToUnits,
   sleep,
@@ -39,8 +39,12 @@ import ERC20 from "../../abi/vanna/v1/out/ERC20.sol/ERC20.json";
 import Registry from "../../abi/vanna/v1/out/Registry.sol/Registry.json";
 import { Interface, parseEther } from "ethers/lib/utils";
 import { useNetwork } from "@/app/context/network-context";
+import { formatUSD } from "@/app/lib/number-format-helper";
 
-const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market, setMarket }) => {
+const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
+  market,
+  setMarket,
+}) => {
   const { account, library } = useWeb3React();
   const { currentNetwork } = useNetwork();
 
@@ -88,7 +92,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market, setMarket
   );
   const [assetAmount, setAssetAmount] = useState<number | undefined>(undefined);
 
-  const [marketPrice, setMarketPrice] = useState(0.0);
+  const [marketPrice, setMarketPrice] = useState(1);
   const [assetsPrice, setAssetsPrice] = useState([]);
   const [activeAccount, setActiveAccount] = useState();
   const [coinBalance, setCoinBalance] = useState(0);
@@ -99,17 +103,6 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market, setMarket
   const [cost, setCost] = useState<string | undefined>();
   const [margin, setMargin] = useState<string | undefined>();
   const [estLiqPrice, setEstLiqPrice] = useState<string | undefined>();
-
-  // TODO: delete below useEffect
-  // useEffect(() => {
-  //   setUseValue("");
-  //   setLongValue("");
-  //   setCoinBalance(0);
-  //   setMaxOpen("");
-  //   setCost("");
-  //   setMargin("");
-  //   setEstLiqPrice("");
-  // }, []);
 
   const handleToggle = (value: string) => {
     if ((value === "close" && isOpen) || (value === "open" && !isOpen)) {
@@ -134,7 +127,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market, setMarket
     // setMarketToken();
     // TODO: complete above getMarketTokenFromMarketOption
   }, [market]);
-  
+
   useEffect(() => {
     getAssetPrice(marketToken.value);
     // setMarket();
@@ -212,7 +205,10 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market, setMarket
     tokenSymbol: string,
     assets: MuxPriceFetchingResponseObject[] = assetsPrice
   ) => {
-    tokenSymbol = tokenSymbol === "WETH" ? "ETH" : tokenSymbol;
+    tokenSymbol =
+      tokenSymbol === "WETH" || tokenSymbol === "WBTC"
+        ? tokenSymbol.substring(1)
+        : tokenSymbol;
     for (const asset of assets) {
       if (asset.symbol === tokenSymbol) {
         return asset.price;
@@ -226,7 +222,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market, setMarket
   }, []);
 
   useEffect(() => {
-    if (collateralAmount) {
+    if (collateralAmount !== undefined) {
       updateCollateralAmount(collateralAmount);
     }
   }, [leverageValue]);
@@ -267,7 +263,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market, setMarket
           }
 
           setCoinBalance(
-            Number(ceilWithPrecision6(formatBignumberToUnits(tokenName, bal)))
+            Number(ceilWithPrecision(formatBignumberToUnits(tokenName, bal)))
           );
         }
       }
@@ -281,32 +277,32 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market, setMarket
     updateCollateralAmount(collateralAmount || 0);
   }, [activeAccount, coin]);
 
-  const updateCollateralAmount = (amt: number) => {
-    if (!amt) {
+  const updateCollateralAmount = (amt: string | number) => {
+    if (amt === undefined || amt === "") {
       setCollateralAmount(undefined);
       setAssetAmount(undefined);
     } else {
       let price = getPriceFromAssetsArray(coin.value);
       price = price ? price : 1;
-      setCollateralAmount(amt);
-      const val = (amt * leverageValue) / (marketPrice / price);
+      setCollateralAmount(Number(amt));
+      const val = (Number(amt) * leverageValue) / (marketPrice / price);
       setAssetAmount(val);
-      const useVal = amt * price;
-      setUseValue(ceilWithPrecision6(String(useVal)));
+      const useVal = Number(amt) * price;
+      setUseValue(ceilWithPrecision(String(useVal)));
       const longVal = val * marketPrice;
-      setLongValue(ceilWithPrecision6(String(longVal)));
+      setLongValue(ceilWithPrecision(String(longVal)));
     }
   };
 
-  const updateAssetAmount = (amt: number) => {
-    if (!amt) {
+  const updateAssetAmount = (amt: string | number) => {
+    if (amt === undefined || amt === "") {
       setAssetAmount(undefined);
       setCollateralAmount(undefined);
     } else {
       let price = getPriceFromAssetsArray(coin.value);
       price = price ? price : 1;
-      setAssetAmount(amt);
-      const value = (amt * (marketPrice / price)) / leverageValue;
+      setAssetAmount(Number(amt));
+      const value = (Number(amt) * (marketPrice / price)) / leverageValue;
       setCollateralAmount(value);
     }
   };
@@ -612,6 +608,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market, setMarket
               onChange={(e) => setStopUsdcValue(e.target.value)}
               className="w-full dark:bg-baseDark text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               placeholder="Stop (USDC)"
+              min={0}
             />
           </div>
           <div className="flex items-center text-base px-2 rounded-xl">
@@ -626,17 +623,20 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market, setMarket
 
       <div className="flex flex-col mb-2 rounded-xl bg-white dark:bg-baseDark py-2">
         <div className="mb-3 flex flex-row justify-between px-2 text-xs text-neutral-500">
-          <div>Use {useValue !== undefined ? " : $" + useValue : ""}</div>
-          <div>Balance {coinBalance !== undefined ? " : " + coinBalance : ""}</div>
+          <div>Use : {formatUSD(useValue)}</div>
+          <div>
+            Balance : {coinBalance !== undefined ? coinBalance : "-"}
+          </div>
         </div>
         <div className="flex flex-row justify-between">
           <div className="flex self-stretch pl-2">
             <input
               type="number"
               value={collateralAmount}
-              onChange={(e) => updateCollateralAmount(Number(e.target.value))}
+              onChange={(e) => updateCollateralAmount(e.target.value)}
               className="w-full dark:bg-baseDark text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               placeholder="Enter Amount"
+              min={0}
             />
           </div>
           <div className="flex items-center text-base px-2 rounded-xl">
@@ -653,7 +653,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market, setMarket
         <div className="flex flex-col mb-2 rounded-xl bg-white dark:bg-baseDark py-2">
           <div className="mb-3 flex flex-row justify-between px-2">
             <div className="text-xs text-neutral-500">
-              Long {longValue !== undefined ? " : " + longValue : ""}
+              Long : {longValue !== undefined ? longValue : "-"}
             </div>
           </div>
           <div className="flex flex-row justify-between">
@@ -661,9 +661,10 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market, setMarket
               <input
                 type="number"
                 value={assetAmount}
-                onChange={(e) => updateAssetAmount(Number(e.target.value))}
+                onChange={(e) => updateAssetAmount(e.target.value)}
                 className="w-full dark:bg-baseDark text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 placeholder="Enter Amount"
+                min={0}
               />
             </div>
             <div className="flex items-center text-base px-2 rounded-xl">
@@ -686,6 +687,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market, setMarket
               onChange={(e) => setStopUsdcValue(e.target.value)}
               className="w-full dark:bg-baseDark text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               placeholder="Stop (USDC)"
+              min={0}
             />
           </div>
           <div className="flex items-center text-base px-2 rounded-xl">
@@ -755,6 +757,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market, setMarket
                       onChange={(e) => setTakeProfit(e.target.value)}
                       className="w-full dark:bg-baseDark text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       placeholder="Take Profit"
+                      min={0}
                     />
                   </div>
                   <div className="flex items-center text-base px-2 rounded-xl">
@@ -773,6 +776,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({ market, setMarket
                       onChange={(e) => setStopLoss(e.target.value)}
                       className="w-full dark:bg-baseDark text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       placeholder="Stop Loss"
+                      min={0}
                     />
                   </div>
                   <div className="flex items-center text-base px-2 rounded-xl">

@@ -29,11 +29,7 @@ import {
 } from "@/app/lib/web3-constants";
 import DefaultRateModel from "@/app/abi/vanna/v1/out/DefaultRateModel.sol/DefaultRateModel.json";
 import Multicall from "@/app/abi/vanna/v1/out/Multicall.sol/Multicall.json";
-import {
-  ceilWithPrecision6,
-  ceilWithPrecision,
-  check0xHex,
-} from "@/app/lib/helper";
+import { ceilWithPrecision, check0xHex } from "@/app/lib/helper";
 import { SECS_PER_YEAR, FEES } from "@/app/lib/constants";
 
 const PoolsTable = () => {
@@ -236,7 +232,7 @@ const PoolsTable = () => {
                 ethTotalBorrow,
               ])
             );
-            
+
             calldata1.push([
               arbAddressList.rateModelContractAddress,
               tempData1,
@@ -331,46 +327,46 @@ const PoolsTable = () => {
               if (pool.name === "WETH") {
                 return {
                   ...pool,
-                  supply: ceilWithPrecision6(ethSupply),
+                  supply: ceilWithPrecision(ethSupply),
                   supplyAPY: ceilWithPrecision(String(ethSupplyApy)) + "%",
                   borrowAPY: ceilWithPrecision(String(ethBorrowApy)) + "%",
-                  yourBalance: ceilWithPrecision6(ethBal),
+                  yourBalance: ceilWithPrecision(ethBal),
                 };
               }
               if (pool.name === "WBTC") {
                 return {
                   ...pool,
-                  supply: ceilWithPrecision6(wbtcSupply),
+                  supply: ceilWithPrecision(wbtcSupply),
                   supplyAPY: ceilWithPrecision(String(wbtcSupplyApy)) + "%",
                   borrowAPY: ceilWithPrecision(String(wbtcBorrowApy)) + "%",
-                  yourBalance: ceilWithPrecision6(wbtcBal),
+                  yourBalance: ceilWithPrecision(wbtcBal),
                 };
               }
               if (pool.name === "USDC") {
                 return {
                   ...pool,
-                  supply: ceilWithPrecision6(usdcSupply),
+                  supply: ceilWithPrecision(usdcSupply),
                   supplyAPY: ceilWithPrecision(String(usdcSupplyApy)) + "%",
                   borrowAPY: ceilWithPrecision(String(usdcBorrowApy)) + "%",
-                  yourBalance: ceilWithPrecision6(usdcBal),
+                  yourBalance: ceilWithPrecision(usdcBal),
                 };
               }
               if (pool.name === "USDT") {
                 return {
                   ...pool,
-                  supply: ceilWithPrecision6(usdtSupply),
+                  supply: ceilWithPrecision(usdtSupply),
                   supplyAPY: ceilWithPrecision(String(usdtSupplyApy)) + "%",
                   borrowAPY: ceilWithPrecision(String(usdtBorrowApy)) + "%",
-                  yourBalance: ceilWithPrecision6(usdtBal),
+                  yourBalance: ceilWithPrecision(usdtBal),
                 };
               }
               if (pool.name === "DAI") {
                 return {
                   ...pool,
-                  supply: ceilWithPrecision6(daiSupply),
+                  supply: ceilWithPrecision(daiSupply),
                   supplyAPY: ceilWithPrecision(String(daiSupplyApy)) + "%",
                   borrowAPY: ceilWithPrecision(String(daiBorrowApy)) + "%",
-                  yourBalance: ceilWithPrecision6(daiBal),
+                  yourBalance: ceilWithPrecision(daiBal),
                 };
               }
               return pool;
@@ -518,15 +514,12 @@ const PoolsTable = () => {
               iFaceToken.encodeFunctionData("balanceOf", [account])
             );
             calldata.push([opAddressList.vDaiContractAddress, tempData]);
-            
 
             const res = await MCcontract.callStatic.aggregate(calldata);
-            console.log("res",res);
-          
 
             // assigne value
             //supply
-            
+
             const ethSupply = formatUnits(check0xHex(res.returnData[0]));
             const wbtcSupply = formatUnits(check0xHex(res.returnData[2]));
             const usdcSupply = formatUnits(check0xHex(res.returnData[4]), 6);
@@ -569,8 +562,6 @@ const PoolsTable = () => {
               ])
             );
             calldata1.push([opAddressList.rateModelContractAddress, tempData1]);
-            console.log("avaibaleETH",formatUnits(avaibaleETH));
-            console.log("ethTotalBorrow",formatUnits(ethTotalBorrow));
 
             //BTC
             tempData1 = utils.arrayify(
@@ -649,46 +640,46 @@ const PoolsTable = () => {
               if (pool.name === "WETH") {
                 return {
                   ...pool,
-                  supply: ceilWithPrecision6(ethSupply),
+                  supply: ceilWithPrecision(ethSupply),
                   supplyAPY: ceilWithPrecision(String(ethSupplyApy)) + "%",
                   borrowAPY: ceilWithPrecision(String(ethBorrowApy)) + "%",
-                  yourBalance: ceilWithPrecision6(ethBal),
+                  yourBalance: ceilWithPrecision(ethBal),
                 };
               }
               if (pool.name === "WBTC") {
                 return {
                   ...pool,
-                  supply: ceilWithPrecision6(wbtcSupply),
+                  supply: ceilWithPrecision(wbtcSupply),
                   supplyAPY: ceilWithPrecision(String(wbtcSupplyApy)) + "%",
                   borrowAPY: ceilWithPrecision(String(wbtcBorrowApy)) + "%",
-                  yourBalance: ceilWithPrecision6(wbtcBal),
+                  yourBalance: ceilWithPrecision(wbtcBal),
                 };
               }
               if (pool.name === "USDC") {
                 return {
                   ...pool,
-                  supply: ceilWithPrecision6(usdcSupply),
+                  supply: ceilWithPrecision(usdcSupply),
                   supplyAPY: ceilWithPrecision(String(usdcSupplyApy)) + "%",
                   borrowAPY: ceilWithPrecision(String(usdcBorrowApy)) + "%",
-                  yourBalance: ceilWithPrecision6(usdcBal),
+                  yourBalance: ceilWithPrecision(usdcBal),
                 };
               }
               if (pool.name === "USDT") {
                 return {
                   ...pool,
-                  supply: ceilWithPrecision6(usdtSupply),
+                  supply: ceilWithPrecision(usdtSupply),
                   supplyAPY: ceilWithPrecision(String(usdtSupplyApy)) + "%",
                   borrowAPY: ceilWithPrecision(String(usdtBorrowApy)) + "%",
-                  yourBalance: ceilWithPrecision6(usdtBal),
+                  yourBalance: ceilWithPrecision(usdtBal),
                 };
               }
               if (pool.name === "DAI") {
                 return {
                   ...pool,
-                  supply: ceilWithPrecision6(daiSupply),
+                  supply: ceilWithPrecision(daiSupply),
                   supplyAPY: ceilWithPrecision(String(daiSupplyApy)) + "%",
                   borrowAPY: ceilWithPrecision(String(daiBorrowApy)) + "%",
-                  yourBalance: ceilWithPrecision6(daiBal),
+                  yourBalance: ceilWithPrecision(daiBal),
                 };
               }
               return pool;
@@ -980,46 +971,46 @@ const PoolsTable = () => {
               if (pool.name === "WETH") {
                 return {
                   ...pool,
-                  supply: ceilWithPrecision6(ethSupply),
+                  supply: ceilWithPrecision(ethSupply),
                   supplyAPY: ceilWithPrecision(String(ethSupplyApy)) + "%",
                   borrowAPY: ceilWithPrecision(String(ethBorrowApy)) + "%",
-                  yourBalance: ceilWithPrecision6(ethBal),
+                  yourBalance: ceilWithPrecision(ethBal),
                 };
               }
               if (pool.name === "WBTC") {
                 return {
                   ...pool,
-                  supply: ceilWithPrecision6(wbtcSupply),
+                  supply: ceilWithPrecision(wbtcSupply),
                   supplyAPY: ceilWithPrecision(String(wbtcSupplyApy)) + "%",
                   borrowAPY: ceilWithPrecision(String(wbtcBorrowApy)) + "%",
-                  yourBalance: ceilWithPrecision6(wbtcBal),
+                  yourBalance: ceilWithPrecision(wbtcBal),
                 };
               }
               if (pool.name === "USDC") {
                 return {
                   ...pool,
-                  supply: ceilWithPrecision6(usdcSupply),
+                  supply: ceilWithPrecision(usdcSupply),
                   supplyAPY: ceilWithPrecision(String(usdcSupplyApy)) + "%",
                   borrowAPY: ceilWithPrecision(String(usdcBorrowApy)) + "%",
-                  yourBalance: ceilWithPrecision6(usdcBal),
+                  yourBalance: ceilWithPrecision(usdcBal),
                 };
               }
               if (pool.name === "USDT") {
                 return {
                   ...pool,
-                  supply: ceilWithPrecision6(usdtSupply),
+                  supply: ceilWithPrecision(usdtSupply),
                   supplyAPY: ceilWithPrecision(String(usdtSupplyApy)) + "%",
                   borrowAPY: ceilWithPrecision(String(usdtBorrowApy)) + "%",
-                  yourBalance: ceilWithPrecision6(usdtBal),
+                  yourBalance: ceilWithPrecision(usdtBal),
                 };
               }
               if (pool.name === "DAI") {
                 return {
                   ...pool,
-                  supply: ceilWithPrecision6(daiSupply),
+                  supply: ceilWithPrecision(daiSupply),
                   supplyAPY: ceilWithPrecision(String(daiSupplyApy)) + "%",
                   borrowAPY: ceilWithPrecision(String(daiBorrowApy)) + "%",
-                  yourBalance: ceilWithPrecision6(daiBal),
+                  yourBalance: ceilWithPrecision(daiBal),
                 };
               }
               return pool;
@@ -1080,10 +1071,14 @@ const PoolsTable = () => {
                     </div>
                   </div>
                 </div>
-                <div className="z-10 text-left">{pool.supply} {pool.name}</div>
+                <div className="z-10 text-left">
+                  {pool.supply} {pool.name}
+                </div>
                 <div className="z-10 text-center">{pool.supplyAPY}</div>
                 <div className="z-10 text-center">{pool.borrowAPY}</div>
-                <div className="z-10 text-center">{pool.yourBalance} {pool.name}</div>
+                <div className="z-10 text-center">
+                  {pool.yourBalance} {pool.name}
+                </div>
                 <div className="absolute inset-0 rounded-xl bg-transparent z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-out pointer-events-none">
                   <div className="absolute inset-0 bg-gradient-to-r from-gradient-1 to-gradient-2 rounded-xl"></div>
                   <div className="absolute inset-[1px] bg-white dark:bg-baseDark rounded-xl"></div>

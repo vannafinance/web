@@ -80,6 +80,8 @@ const CreateSmartAccountModal: React.FC<CreateSmartAccountModalProps> = ({
             gasLimit: 2300000,
           });
           await sleep(7000);
+        } else {
+          console.error("Margin account already present");
         }
       }
     } catch (e) {

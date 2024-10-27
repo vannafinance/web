@@ -1,4 +1,9 @@
-import { arbAddressList, baseAddressList, codeToAsset, opAddressList } from "@/app/lib/web3-constants";
+import {
+  arbAddressList,
+  baseAddressList,
+  codeToAsset,
+  opAddressList,
+} from "@/app/lib/web3-constants";
 import { useWeb3React } from "@web3-react/core";
 import axios from "axios";
 import { Contract } from "ethers";
@@ -22,7 +27,11 @@ import {
 import { useNetwork } from "@/app/context/network-context";
 import { formatUSD } from "@/app/lib/number-format-helper";
 import { Interface } from "ethers/lib/utils";
-import { ceilWithPrecision, formatStringToUnits, sleep } from "@/app/lib/helper";
+import {
+  ceilWithPrecision,
+  formatStringToUnits,
+  sleep,
+} from "@/app/lib/helper";
 
 const PositionFetching = () =>
   // closePosition: (arg0: number, arg1: number, arg2: number, arg3: any) => void
@@ -44,7 +53,7 @@ const PositionFetching = () =>
         if (account && currentNetwork) {
           try {
             const signer = await library?.getSigner();
-  
+
             let regitstryContract;
             if (currentNetwork.id === ARBITRUM_NETWORK) {
               regitstryContract = new Contract(
@@ -70,14 +79,11 @@ const PositionFetching = () =>
                 account
               );
               let tempAccount;
-              console.log("accountsArray",accountsArray);
-  
+
               if (accountsArray.length > 0) {
                 tempAccount = accountsArray[0];
                 setActiveAccount(tempAccount);
-    
               }
-
             }
           } catch (e) {
             console.error(e);
@@ -87,11 +93,11 @@ const PositionFetching = () =>
         }
       }
     };
-  
+
     useEffect(() => {
       accountCheck();
     }, [account, library]);
-  
+
     useEffect(() => {
       // getTokenBalance();
       fetchPositions(activeAccount);
@@ -106,7 +112,10 @@ const PositionFetching = () =>
       tokenSymbol: string,
       assets: MuxPriceFetchingResponseObject[] = assetsPrice
     ) => {
-      tokenSymbol = tokenSymbol === "WETH" ? "ETH" : tokenSymbol;
+      tokenSymbol =
+        tokenSymbol === "WETH" || tokenSymbol === "WBTC"
+          ? tokenSymbol.substring(1)
+          : tokenSymbol;
       for (const asset of assets) {
         if (asset.symbol === tokenSymbol) {
           return asset.price;
@@ -182,8 +191,6 @@ const PositionFetching = () =>
               );
               const size = result.size / 1e18;
 
-              console.log(i, j, k, size);
-
               if (size != 0) {
                 const indexPrice = await getAssetPrice(
                   codeToAsset["0" + j]
@@ -229,8 +236,6 @@ const PositionFetching = () =>
                     </button>
                   );
 
-                  console.log(row);
-
                   renderedRows.push(row);
                 }
               }
@@ -241,7 +246,6 @@ const PositionFetching = () =>
           setRows(renderedRows);
           // return price;
         } else if (currentNetwork.id === OPTIMISM_NETWORK) {
-          console.log("here")
           const renderedRows: MarketPosition[] = [];
           const signer = await library?.getSigner();
 
@@ -251,26 +255,31 @@ const PositionFetching = () =>
             signer
           );
 
-          const getNetVal = await OptimismFetchPositionContract.getTotalPositionValue(
-            account,
-            opAddressList.vETH
-          );
-          const netValue = getNetVal / 1e18;
-          console.log("here",netValue)
-
-          if (netValue != 0) {
-            const getETHMarketPrice = await OptimismFetchPositionContract.getMarkPrice(
-              opAddressList.vETH
-            );
-            const indexPrice = getETHMarketPrice / 1e18;
-
-            const getTotalPositionSize = await OptimismFetchPositionContract.getTotalPositionSize(
+          const getNetVal =
+            await OptimismFetchPositionContract.getTotalPositionValue(
               account,
               opAddressList.vETH
             );
-            const totalPositionSize = ceilWithPrecision(String(getTotalPositionSize / 1e18));
+          const netValue = getNetVal / 1e18;
 
-            const getPnlResult = await OptimismFetchPositionContract.getPnlAndPendingFee(account);
+          if (netValue != 0) {
+            const getETHMarketPrice =
+              await OptimismFetchPositionContract.getMarkPrice(
+                opAddressList.vETH
+              );
+            const indexPrice = getETHMarketPrice / 1e18;
+
+            const getTotalPositionSize =
+              await OptimismFetchPositionContract.getTotalPositionSize(
+                account,
+                opAddressList.vETH
+              );
+            const totalPositionSize = ceilWithPrecision(
+              String(getTotalPositionSize / 1e18)
+            );
+
+            const getPnlResult =
+              await OptimismFetchPositionContract.getPnlAndPendingFee(account);
             const pnl = ceilWithPrecision(String(getPnlResult[1] / 1e18));
 
             const ClearingHouseContract = new Contract(
@@ -278,8 +287,12 @@ const PositionFetching = () =>
               ClearingHouse.abi,
               signer
             );
-            const getCollateral = await ClearingHouseContract.getAccountValue(account);
-            const collateralPrice = ceilWithPrecision(String(getCollateral / 1e18));
+            const getCollateral = await ClearingHouseContract.getAccountValue(
+              account
+            );
+            const collateralPrice = ceilWithPrecision(
+              String(getCollateral / 1e18)
+            );
             // const collateralPriceInUSDC = ceilWithPrecision(collateralPrice * indexPrice);
 
             const row: MarketPosition = {
@@ -301,25 +314,25 @@ const PositionFetching = () =>
             //     -{/* {formatUSD(entryPrice)} */}
             //   </p>
             // );
-            row["entryPrice"] = formatUSD(totalPositionSize)
-            row["indexPrice"] = formatUSD(indexPrice)
+            row["entryPrice"] = formatUSD(totalPositionSize);
+            row["indexPrice"] = formatUSD(indexPrice);
             // row["liqPrice"] = (
             //   <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>
             //     -{/* {formatUSD(liquidation)} */}
             //   </p>
             // );
-            row["liqPrice"] = formatUSD(netValue)
-            row["pnlAndRow"] = formatUSD(pnl)
+            row["liqPrice"] = formatUSD(netValue);
+            row["pnlAndRow"] = formatUSD(pnl);
             row["actions"] = (
               <button
-                      className="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-                      onClick={() => {
-                        closePositionOp();
-                      }}
-                    >
-                      Close
-                    </button>
-                  );
+                className="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+                onClick={() => {
+                  closePositionOp();
+                }}
+              >
+                Close
+              </button>
+            );
 
             renderedRows.push(row);
 
@@ -409,12 +422,12 @@ const PositionFetching = () =>
       }
       // setLoading(false);
     };
+
     const closePositionOp = async () => {
-      console.log("works111")
       // setLoading(true);
       try {
         const signer = await library?.getSigner();
-  
+
         const accountManagerOpContract = new Contract(
           opAddressList.accountManagerContractAddress,
           AccountManager_op.abi,
@@ -430,64 +443,60 @@ const PositionFetching = () =>
           PerpVault.abi,
           signer
         );
-      let oppositeAmountBound = await ClearingHouseContract.getAccountValue(activeAccount);
-     
-  
-      
-      const parmas = {
-        baseToken: "0x8C835DFaA34e2AE61775e80EE29E2c724c6AE2BB",
-        sqrtPriceLimitX96: 0,
-        oppositeAmountBound: oppositeAmountBound,
-        deadline: "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
-        referralCode:	"0x0000000000000000000000000000000000000000000000000000000000000000"
-      }
+        let oppositeAmountBound = await ClearingHouseContract.getAccountValue(
+          activeAccount
+        );
 
-      // console.log("parmas",parmas)
-      const data = [];
-      const target = []; 
-      const data1 = [];
-      const target1 = []; 
-      const iface = new Interface(ClearingHouse.abi);
-      target.push(opAddressList.ClearingHouse);
-      data.push(iface.encodeFunctionData("closePosition", [
-        parmas
-      ]));
-      const x = await accountManagerOpContract.exec(
-        activeAccount,
-        target,
-        0,
-        data,
-        { gasLimit: 2300000 }
-      );
-      await x.wait();
-  
-      const withdrawAmount = await PerpVaultContract.getSettlementTokenValue(activeAccount);
+        const parmas = {
+          baseToken: "0x8C835DFaA34e2AE61775e80EE29E2c724c6AE2BB",
+          sqrtPriceLimitX96: 0,
+          oppositeAmountBound: oppositeAmountBound,
+          deadline:
+            "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+          referralCode:
+            "0x0000000000000000000000000000000000000000000000000000000000000000",
+        };
 
-  
-      oppositeAmountBound = withdrawAmount/1e6;
-
-  
-      oppositeAmountBound = Number(
-        formatStringToUnits("USDC", oppositeAmountBound.toString())
-      );
-  
-      const iface1 = new Interface(PerpVault.abi);
-  
-      target1.push(opAddressList.vault);
-      data1.push(iface1.encodeFunctionData("withdraw", [
-        
-        opAddressList.usdcTokenAddress,
-        oppositeAmountBound
-      ]));
-  
-      // data.push()
-        await accountManagerOpContract.exec(
+        const data = [];
+        const target = [];
+        const data1 = [];
+        const target1 = [];
+        const iface = new Interface(ClearingHouse.abi);
+        target.push(opAddressList.ClearingHouse);
+        data.push(iface.encodeFunctionData("closePosition", [parmas]));
+        const x = await accountManagerOpContract.exec(
           activeAccount,
-          target1,
+          target,
           0,
-          data1,
+          data,
           { gasLimit: 2300000 }
         );
+        await x.wait();
+
+        const withdrawAmount = await PerpVaultContract.getSettlementTokenValue(
+          activeAccount
+        );
+
+        oppositeAmountBound = withdrawAmount / 1e6;
+
+        oppositeAmountBound = Number(
+          formatStringToUnits("USDC", oppositeAmountBound.toString())
+        );
+
+        const iface1 = new Interface(PerpVault.abi);
+
+        target1.push(opAddressList.vault);
+        data1.push(
+          iface1.encodeFunctionData("withdraw", [
+            opAddressList.usdcTokenAddress,
+            oppositeAmountBound,
+          ])
+        );
+
+        // data.push()
+        await accountManagerOpContract.exec(activeAccount, target1, 0, data1, {
+          gasLimit: 2300000,
+        });
         fetchPositions(activeAccount);
         // getTokenBalance();
         // postMessage("Transaction successfull.");

@@ -459,6 +459,7 @@ export default function Page() {
               onChange={(e) => setSize(e.target.value)}
               className="w-full text-baseBlack dark:text-baseWhite dark:bg-baseDark text-sm font-normal outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               placeholder="Size"
+              min={0}
             />
           </div>
 
@@ -469,6 +470,7 @@ export default function Page() {
               onChange={(e) => setLimitPrice(e.target.value)}
               className="w-full text-baseBlack dark:text-baseWhite dark:bg-baseDark text-sm font-normal outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               placeholder="Limit Price"
+              min={0}
             />
           </div>
 

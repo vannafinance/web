@@ -43,6 +43,7 @@ import {
 import { useNetwork } from "@/app/context/network-context";
 import { poolsPlaceholder } from "@/app/lib/static-values";
 import axios from "axios";
+import { formatUSD } from "@/app/lib/number-format-helper";
 
 const LevrageWithdraw = () => {
   const { account, library } = useWeb3React();
@@ -63,9 +64,9 @@ const LevrageWithdraw = () => {
   const [borrowAmount, setBorrowAmount] = useState<number | undefined>();
   const [leverageValue, setLeverageValue] = useState<number>(4);
   const [expected, setExpected] = useState(0);
-  const [leverageAmount, setLeverageAmount] = useState<number | undefined>();
+  const [leverageAmount, setLeverageAmount] = useState<number | undefined>(0);
   const [depositBalance, setDepositBalance] = useState<number | undefined>();
-  // const [borrowBalance, setBorrowBalance] = useState<string | undefined>("-");
+  // const [borrowBalance, setBorrowBalance] = useState<number | undefined>();
   const [debt, setDebt] = useState(0);
   const [healthFactor, setHealthFactor] = useState("-");
   const [activeAccount, setActiveAccount] = useState<string | undefined>();
@@ -107,8 +108,7 @@ const LevrageWithdraw = () => {
   };
 
   const handleMaxClick = () => {
-    setDepositAmount(debt);
-    setDebt(5);
+    setBorrowAmount(debt);
   };
 
   useEffect(() => {
@@ -308,7 +308,6 @@ const LevrageWithdraw = () => {
           //   borrowedBalance =
           //     await vUsdcContract.callStatic.getBorrowBalance(activeAccount);
           // };
-
           // const getRepaybalance = async () => {
           //   const signer = await library?.getSigner();
           //   const riskEngineContract = new Contract(
@@ -323,7 +322,6 @@ const LevrageWithdraw = () => {
           //   let borrowedBalance =
           //     await vUsdcContract.callStatic.getBorrowBalance(activeAccount);
           // };
-
           // Values to be assigned in below
           // setDepositBalance();
           // setBorrowBalance();
@@ -338,7 +336,10 @@ const LevrageWithdraw = () => {
     tokenSymbol: string,
     assets: MuxPriceFetchingResponseObject[] = assetsPrice
   ) => {
-    tokenSymbol = tokenSymbol === "WETH" ? "ETH" : tokenSymbol;
+    tokenSymbol =
+      tokenSymbol === "WETH" || tokenSymbol === "WBTC"
+        ? tokenSymbol.substring(1)
+        : tokenSymbol;
     for (const asset of assets) {
       if (asset.symbol === tokenSymbol) {
         return asset.price;
@@ -384,18 +385,24 @@ const LevrageWithdraw = () => {
   }, [account, activeAccount, currentNetwork]);
 
   useEffect(() => {
-    if (borrowAmount && borrowAmount > 0) {
-      setLeverageAmount(borrowAmount * leverageValue);
+    const val = getPriceFromAssetsArray(borrowToken.name);
+    if (borrowAmount && borrowAmount > 0 && val !== null) {
+      setLeverageAmount(
+        borrowAmount * (leverageValue < 2 ? 1 : leverageValue) * val
+      );
+    } else {
+      setLeverageAmount(0);
     }
-  }, [leverageValue, borrowAmount]);
+  }, [leverageValue, borrowAmount, borrowToken]);
 
   useEffect(() => {
     const calc = async () => {
-      console.log("here");
       const signer = await library?.getSigner();
       const val = getPriceFromAssetsArray(depositToken.name);
       if (depositAmount !== undefined && val !== null) {
         setExpected(depositAmount * val);
+      } else {
+        setExpected(0);
       }
       // @TODO:meet
       // add logic of realtime data input healthfactor
@@ -408,7 +415,6 @@ const LevrageWithdraw = () => {
       // const balance = await riskEngineContract.callStatic.getBalance(activeAccount);
       // const borrowBalance = await riskEngineContract.callStatic.getBorrows(activeAccount);
       // let healthFactor1 = balance/borrowBalance
-      // console.log("borrowBalance",healthFactor)
 
       // setHealthFactor(String(healthFactor1));
     };
@@ -572,7 +578,6 @@ const LevrageWithdraw = () => {
           ERC20.abi,
           signer
         );
-        console.log(await erc20Contract.balanceOf(activeAccount));
         const allowance = await erc20Contract.allowance(
           account,
           opAddressList.accountManagerContractAddress
@@ -834,7 +839,6 @@ const LevrageWithdraw = () => {
           { gasLimit: 2300000 }
         );
       } else {
-        console.log("Here");
         await accountManagerContract.borrow(
           activeAccount,
           baseTokensAddress[borrowToken?.name],
@@ -879,7 +883,6 @@ const LevrageWithdraw = () => {
       );
       if (borrowToken === undefined || !accountManagerContract) return;
       else if (borrowToken?.name === "USDC" || borrowToken?.name === "USDT") {
-        console.log("here", borrowToken?.name);
         await accountManagerContract.repay(
           activeAccount,
           opTokensAddress[borrowToken?.name],
@@ -972,9 +975,16 @@ const LevrageWithdraw = () => {
                   <input
                     type="number"
                     value={depositAmount}
-                    onChange={(e) => setDepositAmount(Number(e.target.value))}
+                    onChange={(e) =>
+                      setDepositAmount(
+                        e.target.value === ""
+                          ? undefined
+                          : Number(e.target.value)
+                      )
+                    }
                     className="w-full dark:bg-baseDark text-2xl font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     placeholder="0"
+                    min={0}
                   />
                 </div>
                 <div className="flex">
@@ -984,11 +994,9 @@ const LevrageWithdraw = () => {
                   />
                 </div>
               </div>
-              <div className="mt-2 flex justify-between">
-                <div className="text-xs text-neutral-500">
-                  Expected {expected} USD
-                </div>
-                <div className="text-xs text-neutral-500">
+              <div className="mt-2 flex justify-between text-xs text-neutral-500">
+                <div>{formatUSD(expected)}</div>
+                <div>
                   Balance: {depositBalance}{" "}
                   {depositBalance !== undefined ? depositToken?.name : "-"}
                 </div>
@@ -1021,6 +1029,7 @@ const LevrageWithdraw = () => {
                     onChange={(e) => setBorrowAmount(Number(e.target.value))}
                     className="w-full dark:bg-baseDark text-2xl font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     placeholder="0"
+                    min={0}
                   />
                 </div>
                 <div className="flex">
@@ -1030,14 +1039,10 @@ const LevrageWithdraw = () => {
                   />
                 </div>
               </div>
-              <div className="flex justify-end items-center mt-2">
-                {/* <div className="text-xs text-neutral-500">
-                  Leverage Value: {leverageAmount ? leverageAmount : "-"}
-                </div> */}
+              <div className="flex justify-between items-center mt-2 text-xs text-neutral-500">
+                <div>{formatUSD(leverageAmount)}</div>
                 <div className="flex">
-                  <div className="text-xs text-neutral-500 mr-2">
-                    Debt: {debt}
-                  </div>
+                  <div className="mr-2">Debt: {debt}</div>
                   <button
                     className="py-0.5 px-1 bg-gradient-to-r from-gradient-1 to-gradient-2 text-xs rounded-md text-baseWhite"
                     onClick={handleMaxClick}

@@ -19,9 +19,7 @@ import RiskEngine from "../../abi/vanna/v1/out/RiskEngine.sol/RiskEngine.json";
 import VEther from "@/app/abi/vanna/v1/out/VEther.sol/VEther.json";
 import VToken from "@/app/abi/vanna/v1/out/VToken.sol/VToken.json";
 
-import {
-  check0xHex,
-} from "@/app/lib/helper";
+import { check0xHex } from "@/app/lib/helper";
 import {
   ARBITRUM_NETWORK,
   OPTIMISM_NETWORK,
@@ -84,7 +82,6 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
               account
             );
             let tempAccount;
-            console.log("accountsArray", accountsArray);
 
             if (accountsArray.length > 0) {
               tempAccount = accountsArray[0];
@@ -104,7 +101,10 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
     tokenSymbol: string,
     assets: MuxPriceFetchingResponseObject[] = assetsPrice
   ) => {
-    tokenSymbol = tokenSymbol === "WETH" ? "ETH" : tokenSymbol;
+    tokenSymbol =
+      tokenSymbol === "WETH" || tokenSymbol === "WBTC"
+        ? tokenSymbol.substring(1)
+        : tokenSymbol;
     for (const asset of assets) {
       if (asset.symbol === tokenSymbol) {
         return asset.price;
@@ -112,7 +112,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
     }
     return null;
   };
-  
+
   const getAssetPrice = async (
     assetName = market
     // shouldSetMarketPrice = true
@@ -124,7 +124,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
     setAssetsPrice(rsp.data.assets);
 
     // if (shouldSetMarketPrice && price) {
-      //   setMarketPrice(price);
+    //   setMarketPrice(price);
     //   marketPrice;
     // }
 
@@ -454,7 +454,6 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
           calldata.push([arbAddressList.vDaiContractAddress, tempData]);
 
           const res = await MCcontract.callStatic.aggregate(calldata);
-          console.log("res", res);
 
           //User v token Asset balance
           const ethBal = formatUnits(check0xHex(res.returnData[0]), 18);

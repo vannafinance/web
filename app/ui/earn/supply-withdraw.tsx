@@ -40,6 +40,7 @@ import {
 import { useNetwork } from "@/app/context/network-context";
 import { useWeb3React } from "@web3-react/core";
 import Loader from "../components/loader";
+import { formatUSD } from "@/app/lib/number-format-helper";
 
 const SupplyWithdraw = ({
   pool,
@@ -83,6 +84,7 @@ const SupplyWithdraw = ({
   const handleTokenSelect = (token: PoolTable) => {
     setSelectedToken(token);
     onTokenUpdate(token);
+    setCoinBalance(0);
   };
 
   useEffect(() => {
@@ -354,7 +356,6 @@ const SupplyWithdraw = ({
               calldata.push([arbAddressList.vDaiContractAddress, tempData]);
 
               const res = await MCcontract.callStatic.aggregate(calldata);
-              console.log("res", res);
 
               //User v token Asset balance
               const ethBal = formatUnits(check0xHex(res.returnData[0]), 18);
@@ -829,7 +830,6 @@ const SupplyWithdraw = ({
               account,
               opAddressList.vUSDCContractAddress
             );
-            console.log("allowance", allowance / 1e6);
 
             if (amount && allowance < amount) {
               await USDCContract.approve(
@@ -1245,9 +1245,10 @@ const SupplyWithdraw = ({
             <input
               type="number"
               value={amount}
-              onChange={(e) => setAmount(Number(e.target.value))}
+              onChange={(e) => setAmount(e.target.value === '' ? undefined : Number(e.target.value))}
               className="w-full dark:bg-baseDark text-2xl font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               placeholder="0"
+              min={0}
             />
           </div>
           <div className="flex">
@@ -1259,7 +1260,7 @@ const SupplyWithdraw = ({
         </div>
         <div className="flex justify-between mt-2">
           <div className="text-xs text-neutral-500">
-            Expected {expected} USD
+            {formatUSD(expected)}
           </div>
           <div className="text-xs text-neutral-500">
             Balance: {coinBalance}{" "}

@@ -108,7 +108,10 @@ const LenderDashboard: React.FC = () => {
     tokenSymbol: string,
     assets: MuxPriceFetchingResponseObject[] = assetsPrice
   ) => {
-    tokenSymbol = tokenSymbol === "WETH" ? "ETH" : tokenSymbol;
+    tokenSymbol =
+      tokenSymbol === "WETH" || tokenSymbol === "WBTC"
+        ? tokenSymbol.substring(1)
+        : tokenSymbol;
     for (const asset of assets) {
       if (asset.symbol === tokenSymbol) {
         return asset.price;
@@ -187,7 +190,6 @@ const LenderDashboard: React.FC = () => {
         calldata.push([arbAddressList.vDaiContractAddress, tempData]);
 
         const res = await MCcontract.callStatic.aggregate(calldata);
-        console.log("res", res);
 
         //User v token Asset balance
         const ethBal = formatUnits(check0xHex(res.returnData[0]), 18);
@@ -569,7 +571,6 @@ const LenderDashboard: React.FC = () => {
         calldata.push([opAddressList.vDaiContractAddress, tempData]);
 
         const res = await MCcontract.callStatic.aggregate(calldata);
-        console.log("res", res);
 
         //User v token Asset balance
         const ethBal = formatUnits(check0xHex(res.returnData[0]), 18);
@@ -952,7 +953,6 @@ const LenderDashboard: React.FC = () => {
         calldata.push([baseAddressList.vDaiContractAddress, tempData]);
 
         const res = await MCcontract.callStatic.aggregate(calldata);
-        console.log("res", res);
 
         //User v token Asset balance
         const ethBal = formatUnits(check0xHex(res.returnData[0]), 18);
@@ -1348,7 +1348,10 @@ const LenderDashboard: React.FC = () => {
         {pools.map(
           (pool, index) =>
             pool.amount > 0 && (
-              <div key={index} className="bg-white dark:bg-baseDark rounded-3xl border border-purpleBG-lighter dark:border-neutral-700 p-4 mb-3">
+              <div
+                key={index}
+                className="bg-white dark:bg-baseDark rounded-3xl border border-purpleBG-lighter dark:border-neutral-700 p-4 mb-3"
+              >
                 <div className="flex items-center mb-8 text-base font-medium">
                   <span className="mr-4 text-neutral-500">{index + 1}</span>
                   <div className="relative w-6 h-6 mr-2">
