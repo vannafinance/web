@@ -297,7 +297,7 @@ const LevrageWithdraw = () => {
           //     signer
           //   );
           //   // @Withdraw balance
-          //   let accountBalance = await library?.getBalance(account);
+          //   let accountBalance = await library?.getBalance(account); // here account is active Account
           //   accountBalance = accountBalance / 1e18;
           //   let borrowedBalance =
           //     await vEtherContract.callStatic.getBorrowBalance(activeAccount);
@@ -397,7 +397,7 @@ const LevrageWithdraw = () => {
       if (depositAmount !== undefined && val !== null) {
         setExpected(depositAmount * val);
       }
-      // @TODO:meet
+      // @TODO:meet 
       // add logic of realtime data input healthfactor
       // add heathfactor code here
       // const riskEngineContract = new Contract(
@@ -409,6 +409,8 @@ const LevrageWithdraw = () => {
       // const borrowBalance = await riskEngineContract.callStatic.getBorrows(activeAccount);
       // let healthFactor1 = balance/borrowBalance
       // console.log("borrowBalance",healthFactor)
+      //LTV = Leverage Vaule -1 *100
+      // max - 900
 
       // setHealthFactor(String(healthFactor1));
     };
