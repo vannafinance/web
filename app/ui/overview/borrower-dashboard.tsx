@@ -3,8 +3,38 @@
 import { ArrowCircleUpRight } from "@phosphor-icons/react";
 import TradingInfoPanel from "./trading-info-panel";
 import { useEffect, useState } from "react";
+import { useWeb3React } from "@web3-react/core";
+import { useNetwork } from "@/app/context/network-context";
+import {
+  ARBITRUM_NETWORK,
+  OPTIMISM_NETWORK,
+  BASE_NETWORK,
+} from "@/app/lib/constants";
+import { Contract } from "ethers";
+import {
+  arbAddressList,
+  opAddressList,
+  baseAddressList,
+} from "@/app/lib/web3-constants";
+import AccountManager from "../../abi/vanna/v1/out/AccountManager.sol/AccountManager.json";
+import AccountManagerop from "../../abi/vanna/v1/out/AccountManager-op.sol/AccountManager-op.json";
+import MUX from "../../abi/vanna/v1/out/MUX.sol/MUX.json";
+import PerpVault from "../../abi/vanna/v1/out/PerpVault.sol/PerpVault.json";
+import ClearingHouse from "../../abi/vanna/v1/out/ClearingHouse.sol/ClearingHouse.json";
+import ERC20 from "../../abi/vanna/v1/out/ERC20.sol/ERC20.json";
+import Multicall from "../../abi/vanna/v1/out/Multicall.sol/Multicall.json";
+import Registry from "../../abi/vanna/v1/out/Registry.sol/Registry.json";
+import RiskEngine from "../../abi/vanna/v1/out/RiskEngine.sol/RiskEngine.json";
+import VEther from "../../abi/vanna/v1/out/VEther.sol/VEther.json";
+import VToken from "../../abi/vanna/v1/out/VToken.sol/VToken.json";
+import axios from "axios";
 
 const BorrowerDashboard = () => {
+  const { account, library } = useWeb3React();
+  const { currentNetwork } = useNetwork();
+
+  const [activeAccount, setActiveAccount] = useState<string | undefined>();
+
   const [depositedAmount, setDepositedAmount] = useState<string | undefined>();
   const [repayableAmount, setRepayableAmount] = useState<string | undefined>();
   const [repayablePercentage, setRepayablePercentage] = useState<
@@ -17,216 +47,295 @@ const BorrowerDashboard = () => {
   const [withdrawableAmount, setWithdrawableAmount] = useState<
     string | undefined
   >();
-  //@TODO : 
-  // const signer = await library?.getSigner();
 
-  // let daiContract;
-  // let wethContract;
-  // let usdcContract;
-  // let usdtContract;
-  // let wbtcContract;
-  // let vEtherContract;
-  // let vDaiContract;
-  // let vUsdcContract;
-  // let vUsdtContract;
-  // let vWbtcContract;
+  const accountCheck = async () => {
+    if (localStorage.getItem("isWalletConnected") === "true") {
+      if (account && currentNetwork) {
+        try {
+          const signer = await library?.getSigner();
 
-  // if (currentNetwork.id === ARBITRUM_NETWORK) {
-  //   daiContract = new Contract(
-  //     arbAddressList.daiTokenAddress,
-  //     ERC20.abi,
-  //     signer
-  //   );
-  //   usdcContract = new Contract(
-  //     arbAddressList.usdcTokenAddress,
-  //     ERC20.abi,
-  //     signer
-  //   );
-  //   usdtContract = new Contract(
-  //     arbAddressList.usdtTokenAddress,
-  //     ERC20.abi,
-  //     signer
-  //   );
-  //   wethContract = new Contract(
-  //     arbAddressList.wethTokenAddress,
-  //     ERC20.abi,
-  //     signer
-  //   );
-  //   wbtcContract = new Contract(
-  //     arbAddressList.wbtcTokenAddress,
-  //     ERC20.abi,
-  //     signer
-  //   );
-  //   vEtherContract = new Contract(
-  //     arbAddressList.vEtherContractAddress,
-  //     VEther.abi,
-  //     signer
-  //   );
-  //   vDaiContract = new Contract(
-  //     arbAddressList.vDaiContractAddress,
-  //     VToken.abi,
-  //     signer
-  //   );
-  //   vUsdcContract = new Contract(
-  //     arbAddressList.vUSDCContractAddress,
-  //     VToken.abi,
-  //     signer
-  //   );
-  //   vUsdtContract = new Contract(
-  //     arbAddressList.vUSDTContractAddress,
-  //     VToken.abi,
-  //     signer
-  //   );
-  //   vWbtcContract = new Contract(
-  //     arbAddressList.vWBTCContractAddress,
-  //     VToken.abi,
-  //     signer
-  //   );
-  // } else if (currentNetwork.id === OPTIMISM_NETWORK) {
-  //   daiContract = new Contract(
-  //     opAddressList.daiTokenAddress,
-  //     ERC20.abi,
-  //     signer
-  //   );
-  //   usdcContract = new Contract(
-  //     opAddressList.usdcTokenAddress,
-  //     ERC20.abi,
-  //     signer
-  //   );
-  //   usdtContract = new Contract(
-  //     opAddressList.usdtTokenAddress,
-  //     ERC20.abi,
-  //     signer
-  //   );
-  //   wethContract = new Contract(
-  //     opAddressList.wethTokenAddress,
-  //     ERC20.abi,
-  //     signer
-  //   );
-  //   wbtcContract = new Contract(
-  //     opAddressList.wbtcTokenAddress,
-  //     ERC20.abi,
-  //     signer
-  //   );
-  //   vEtherContract = new Contract(
-  //     opAddressList.vEtherContractAddress,
-  //     VEther.abi,
-  //     signer
-  //   );
-  //   vDaiContract = new Contract(
-  //     opAddressList.vDaiContractAddress,
-  //     VToken.abi,
-  //     signer
-  //   );
-  //   vUsdcContract = new Contract(
-  //     opAddressList.vUSDCContractAddress,
-  //     VToken.abi,
-  //     signer
-  //   );
-  //   vUsdtContract = new Contract(
-  //     opAddressList.vUSDTContractAddress,
-  //     VToken.abi,
-  //     signer
-  //   );
-  //   vWbtcContract = new Contract(
-  //     opAddressList.vWBTCContractAddress,
-  //     VToken.abi,
-  //     signer
-  //   );
-  //  // ETH
-  // let accountBalance = await library?.getBalance(activeAccount);
-  // const waccountBalance = await wethContract.balanceOf(activeAccount);
+          let regitstryContract;
+          if (currentNetwork.id === ARBITRUM_NETWORK) {
+            regitstryContract = new Contract(
+              arbAddressList.registryContractAddress,
+              Registry.abi,
+              signer
+            );
+          } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+            regitstryContract = new Contract(
+              opAddressList.registryContractAddress,
+              Registry.abi,
+              signer
+            );
+          } else if (currentNetwork.id === BASE_NETWORK) {
+            regitstryContract = new Contract(
+              baseAddressList.registryContractAddress,
+              Registry.abi,
+              signer
+            );
+          }
+          if (regitstryContract) {
+            const accountsArray = await regitstryContract.accountsOwnedBy(
+              account
+            );
+            let tempAccount;
+            if (accountsArray.length > 0) {
+              tempAccount = accountsArray[0];
+              setActiveAccount(tempAccount);
+            }
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      } else {
+        setActiveAccount(undefined);
+      }
+    }
+    // setLoading(false);
+  };
 
-  // accountBalance = Number(accountBalance) + Number(waccountBalance);
-
-  // let borrowedBalance = await vEtherContract.callStatic.getBorrowBalance(
-  //   activeAccount
-  // );
-  // borrowedBalance = Number(borrowedBalance / 1);
-
-  // let val = Number(getPriceFromAssetsArray("ETH"));
-
-  // let balance = Number(
-  //   (Number(accountBalance - borrowedBalance) / 1e18) * val * 1e6
-  // );
-
-  // // USDC
-  // accountBalance = await usdcContract.balanceOf(activeAccount);
-
-  // borrowedBalance = await vUsdcContract.callStatic.getBorrowBalance(
-  //   activeAccount
-  // );
-
-  // val = Number(getPriceFromAssetsArray("USDC"));
-  // balance += Number(accountBalance - borrowedBalance) * val;
-
-  // // WBTC
-  // accountBalance = await wbtcContract.balanceOf(activeAccount);
-
-  // borrowedBalance = await vWbtcContract.callStatic.getBorrowBalance(
-  //   activeAccount
-  // );
-
-  // val = Number(getPriceFromAssetsArray("BTC"));
-  // balance += (accountBalance - borrowedBalance) * val;
-
-  // //USDT
-  // accountBalance = await usdtContract.balanceOf(activeAccount);
-  // borrowedBalance = await vUsdtContract.callStatic.getBorrowBalance(
-  //   activeAccount
-  // );
-  // val = Number(getPriceFromAssetsArray("USDT"));
-  // balance += (accountBalance - borrowedBalance) * val;
-
-  // // DAI
-  // accountBalance = await daiContract.balanceOf(activeAccount);
-  // borrowedBalance = await vDaiContract.callStatic.getBorrowBalance(
-  //   activeAccount
-  // );
-  // val = Number(getPriceFromAssetsArray("DAI"));
-  // balance += (accountBalance - borrowedBalance) * val;
-
-  // setDepositedAmount(balance);
-
-  // const riskEngineContract = new Contract(
-  //   opAddressList.riskEngineContractAddress,
-  //   RiskEngine.abi,
-  //   signer
-  // );
-
-  // const totalbalance = await riskEngineContract.callStatic.getBalance(
-  //   activeAccount
-  // );
-  // const borrowBalance = await riskEngineContract.callStatic.getBorrows(
-  //   activeAccount
-  // );
-
-  // setBorrowedAmount(borrowBalance);
-  // setRepayableAmount(borrowBalance);
-  // setWithdrawableAmount(totalbalance - borrowBalance);
-  
-  
-
-
-
-  // TODO: delete below useEffect
   useEffect(() => {
-    setDepositedAmount(undefined);
-    setRepayableAmount(undefined);
-    setRepayablePercentage(undefined);
-    setBorrowedAmount(undefined);
-    setBorrowedLeverage(undefined);
-    setWithdrawableAmount(undefined);
+    accountCheck();
   }, []);
+
+  const getPriceFromAssetsArray = async (tokenSymbol: string) => {
+    const rsp = await axios.get("https://app.mux.network/api/liquidityAsset", {
+      timeout: 10 * 1000,
+    });
+
+    const assets = rsp.data.assets;
+
+    tokenSymbol =
+      tokenSymbol === "WETH" || tokenSymbol === "WBTC"
+        ? tokenSymbol.substring(1)
+        : tokenSymbol;
+
+    for (let asset of assets) {
+      if (asset.symbol === tokenSymbol) {
+        return asset.price;
+      }
+    }
+    return 1;
+  };
+
+  useEffect(() => {
+    const fetchValues = async () => {
+      if (!currentNetwork || !activeAccount) return;
+
+      const signer = await library?.getSigner();
+
+      let daiContract;
+      let wethContract;
+      let usdcContract;
+      let usdtContract;
+      let wbtcContract;
+      let vEtherContract;
+      let vDaiContract;
+      let vUsdcContract;
+      let vUsdtContract;
+      let vWbtcContract;
+
+      if (currentNetwork.id === ARBITRUM_NETWORK) {
+        daiContract = new Contract(
+          arbAddressList.daiTokenAddress,
+          ERC20.abi,
+          signer
+        );
+        usdcContract = new Contract(
+          arbAddressList.usdcTokenAddress,
+          ERC20.abi,
+          signer
+        );
+        usdtContract = new Contract(
+          arbAddressList.usdtTokenAddress,
+          ERC20.abi,
+          signer
+        );
+        wethContract = new Contract(
+          arbAddressList.wethTokenAddress,
+          ERC20.abi,
+          signer
+        );
+        wbtcContract = new Contract(
+          arbAddressList.wbtcTokenAddress,
+          ERC20.abi,
+          signer
+        );
+        vEtherContract = new Contract(
+          arbAddressList.vEtherContractAddress,
+          VEther.abi,
+          signer
+        );
+        vDaiContract = new Contract(
+          arbAddressList.vDaiContractAddress,
+          VToken.abi,
+          signer
+        );
+        vUsdcContract = new Contract(
+          arbAddressList.vUSDCContractAddress,
+          VToken.abi,
+          signer
+        );
+        vUsdtContract = new Contract(
+          arbAddressList.vUSDTContractAddress,
+          VToken.abi,
+          signer
+        );
+        vWbtcContract = new Contract(
+          arbAddressList.vWBTCContractAddress,
+          VToken.abi,
+          signer
+        );
+      } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+        daiContract = new Contract(
+          opAddressList.daiTokenAddress,
+          ERC20.abi,
+          signer
+        );
+        usdcContract = new Contract(
+          opAddressList.usdcTokenAddress,
+          ERC20.abi,
+          signer
+        );
+        usdtContract = new Contract(
+          opAddressList.usdtTokenAddress,
+          ERC20.abi,
+          signer
+        );
+        wethContract = new Contract(
+          opAddressList.wethTokenAddress,
+          ERC20.abi,
+          signer
+        );
+        wbtcContract = new Contract(
+          opAddressList.wbtcTokenAddress,
+          ERC20.abi,
+          signer
+        );
+        vEtherContract = new Contract(
+          opAddressList.vEtherContractAddress,
+          VEther.abi,
+          signer
+        );
+        vDaiContract = new Contract(
+          opAddressList.vDaiContractAddress,
+          VToken.abi,
+          signer
+        );
+        vUsdcContract = new Contract(
+          opAddressList.vUSDCContractAddress,
+          VToken.abi,
+          signer
+        );
+        vUsdtContract = new Contract(
+          opAddressList.vUSDTContractAddress,
+          VToken.abi,
+          signer
+        );
+        vWbtcContract = new Contract(
+          opAddressList.vWBTCContractAddress,
+          VToken.abi,
+          signer
+        );
+      }
+
+      if (
+        !daiContract ||
+        !wethContract ||
+        !usdcContract ||
+        !usdtContract ||
+        !wbtcContract ||
+        !vEtherContract ||
+        !vDaiContract ||
+        !vUsdcContract ||
+        !vUsdtContract ||
+        !vWbtcContract
+      )
+        return;
+
+      // ETH
+      let accountBalance = await library?.getBalance(activeAccount);
+      const waccountBalance = await wethContract.balanceOf(activeAccount);
+
+      accountBalance = Number(accountBalance) + Number(waccountBalance);
+
+      let borrowedBalance = await vEtherContract.callStatic.getBorrowBalance(
+        activeAccount
+      );
+      borrowedBalance = Number(borrowedBalance / 1);
+
+      let val = Number(getPriceFromAssetsArray("ETH"));
+
+      let balance = Number(
+        (Number(accountBalance - borrowedBalance) / 1e18) * val * 1e6
+      );
+
+      // USDC
+      accountBalance = await usdcContract.balanceOf(activeAccount);
+
+      borrowedBalance = await vUsdcContract.callStatic.getBorrowBalance(
+        activeAccount
+      );
+
+      val = Number(getPriceFromAssetsArray("USDC"));
+      balance += Number(accountBalance - borrowedBalance) * val;
+
+      // WBTC
+      accountBalance = await wbtcContract.balanceOf(activeAccount);
+
+      borrowedBalance = await vWbtcContract.callStatic.getBorrowBalance(
+        activeAccount
+      );
+
+      val = Number(getPriceFromAssetsArray("BTC"));
+      balance += (accountBalance - borrowedBalance) * val;
+
+      //USDT
+      accountBalance = await usdtContract.balanceOf(activeAccount);
+      borrowedBalance = await vUsdtContract.callStatic.getBorrowBalance(
+        activeAccount
+      );
+      val = Number(getPriceFromAssetsArray("USDT"));
+      balance += (accountBalance - borrowedBalance) * val;
+
+      // DAI
+      accountBalance = await daiContract.balanceOf(activeAccount);
+      borrowedBalance = await vDaiContract.callStatic.getBorrowBalance(
+        activeAccount
+      );
+      val = Number(getPriceFromAssetsArray("DAI"));
+      balance += (accountBalance - borrowedBalance) * val;
+
+      setDepositedAmount(String(balance));
+
+      const riskEngineContract = new Contract(
+        opAddressList.riskEngineContractAddress,
+        RiskEngine.abi,
+        signer
+      );
+
+      const totalbalance = await riskEngineContract.callStatic.getBalance(
+        activeAccount
+      );
+      const borrowBalance = await riskEngineContract.callStatic.getBorrows(
+        activeAccount
+      );
+
+      // TODO: @vatsal here totalbalance & borrowBalance is in bignumber ... convert the same and then uncomment the below set statements
+      // setBorrowedAmount(borrowBalance);
+      // setRepayableAmount(borrowBalance);
+      // setWithdrawableAmount(String(totalbalance - borrowBalance));
+    };
+
+    fetchValues();
+  }, [activeAccount]);
 
   return (
     <div>
       <div className="grid grid-cols-2 gap-x-4 my-3 lg:my-0 text-baseBlack dark:text-baseWhite">
         <div className="bg-white dark:bg-baseDark rounded-3xl border border-purpleBG-lighter dark:border-neutral-700 p-3 lg:p-6 mb-5 lg:mb-7">
           <div className="flex justify-between items-start mb-10">
-            <h2 className="text-base font-medium">
-              Deopsited Amount
-            </h2>
+            <h2 className="text-base font-medium">Deopsited Amount</h2>
             <ArrowCircleUpRight size={24} fill="#7a45da" />
           </div>
           <p className="text-2xl lg:text-3xl font-semibold mb-2">
@@ -236,9 +345,7 @@ const BorrowerDashboard = () => {
 
         <div className="bg-white dark:bg-baseDark rounded-3xl border border-purpleBG-lighter dark:border-neutral-700 p-3 lg:p-6 mb-5 lg:mb-7">
           <div className="flex justify-between items-start mb-10">
-            <h2 className="text-base font-medium">
-              Repayable Amount
-            </h2>
+            <h2 className="text-base font-medium">Repayable Amount</h2>
             <ArrowCircleUpRight size={24} fill="#7a45da" />
           </div>
           <p className="text-2xl lg:text-3xl font-semibold mb-2">
@@ -253,9 +360,7 @@ const BorrowerDashboard = () => {
 
         <div className="bg-white dark:bg-baseDark rounded-3xl border border-purpleBG-lighter dark:border-neutral-700 p-3 lg:p-6 mb-5 lg:mb-7">
           <div className="flex justify-between items-start mb-10">
-            <h2 className="text-base font-medium">
-              Borrowed Amount
-            </h2>
+            <h2 className="text-base font-medium">Borrowed Amount</h2>
             <ArrowCircleUpRight size={24} fill="#7a45da" />
           </div>
           <p className="text-2xl lg:text-3xl font-semibold mb-2">
@@ -270,9 +375,7 @@ const BorrowerDashboard = () => {
 
         <div className="bg-white dark:bg-baseDark rounded-3xl border border-purpleBG-lighter dark:border-neutral-700 p-3 lg:p-6 mb-5 lg:mb-7">
           <div className="flex justify-between items-start mb-10">
-            <h2 className="text-base font-medium">
-              Withdrawable Amount
-            </h2>
+            <h2 className="text-base font-medium">Withdrawable Amount</h2>
             <ArrowCircleUpRight size={24} fill="#7a45da" />
           </div>
           <p className="text-2xl lg:text-3xl font-semibold mb-2">

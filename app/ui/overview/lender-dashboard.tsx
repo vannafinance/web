@@ -13,7 +13,7 @@ import DefaultRateModel from "@/app/abi/vanna/v1/out/DefaultRateModel.sol/Defaul
 import Multicall from "@/app/abi/vanna/v1/out/Multicall.sol/Multicall.json";
 import VEther from "@/app/abi/vanna/v1/out/VEther.sol/VEther.json";
 import VToken from "@/app/abi/vanna/v1/out/VToken.sol/VToken.json";
-import { check0xHex } from "@/app/lib/helper";
+import { ceilWithPrecision, check0xHex } from "@/app/lib/helper";
 import {
   SECS_PER_YEAR,
   ARBITRUM_NETWORK,
@@ -541,7 +541,7 @@ const LenderDashboard: React.FC = () => {
           Multicall.abi,
           library
         );
-        
+
         // let bal = (await vEtherContract.balanceOf(account))
         // console.log("actual ETH balance",(await vEtherContract.balanceOf(account))/1);
         // console.log("convert shares to assets", (await vEtherContract.convertToAssets(bal)/1));
@@ -624,7 +624,7 @@ const LenderDashboard: React.FC = () => {
         let usdcusdcBal = formatUnits(check0xHex(res1.returnData[2]), 6);
         const usdtusdcBal = formatUnits(check0xHex(res1.returnData[3]), 6);
         const daiusdcBal = formatUnits(check0xHex(res1.returnData[4]), 18);
-        // @TEMP not able to get the actual value from the multicall that's why this way 
+        // @TEMP not able to get the actual value from the multicall that's why this way
         let vEtherContract;
         let vUsdcContract;
         vEtherContract = new Contract(
@@ -632,32 +632,31 @@ const LenderDashboard: React.FC = () => {
           VEther.abi,
           library
         );
-        vUsdcContract =  new Contract(
+        vUsdcContract = new Contract(
           opAddressList.vUSDCContractAddress,
           VToken.abi,
           library
         );
-        
-        let ethbal = (await vEtherContract.balanceOf(account))
-        let ethusdcfetchBal = (await vEtherContract.convertToAssets(ethbal)/1);
-        let usdcbal = (await vUsdcContract.balanceOf(account));
-        let UusdcfetchBal = (await vUsdcContract.convertToAssets(usdcbal)/1);
+
+        let ethbal = await vEtherContract.balanceOf(account);
+        let ethusdcfetchBal =
+          (await vEtherContract.convertToAssets(ethbal)) / 1;
+        let usdcbal = await vUsdcContract.balanceOf(account);
+        let UusdcfetchBal = (await vUsdcContract.convertToAssets(usdcbal)) / 1;
 
         // const ethusdcfetchBal = (await vEtherContract.convertToAssets(ethBal)/1e18);
 
-        let ethPnl = (Number(ethusdcfetchBal) - Number(ethbal))/1e18;
+        let ethPnl = (Number(ethusdcfetchBal) - Number(ethbal)) / 1e18;
         const ethPercentage = (ethPnl / Number(ethusdcfetchBal)) * 100;
 
         const usdcPnl = Number(UusdcfetchBal) - Number(usdcBal);
         const usdcPercentage = (usdcPnl / Number(usdcusdcBal)) * 100;
         let ethval = Number(getPriceFromAssetsArray("ETH"));
-        console.log("val",ethval); //  @TODO: not geting value 
-        console.log("ethPnl",ethPnl);
+        console.log("val", ethval); //  @TODO: not geting value
+        console.log("ethPnl", ethPnl);
         ethPnl = ethPnl;
-        console.log("ethPnl",ethPnl);
+        console.log("ethPnl", ethPnl);
 
-        
-        
         const wbtcPnl = Number(wbtcusdcBal) - Number(wbtcBal);
         const wbtcPercentage = (wbtcPnl / Number(wbtcusdcBal)) * 100;
         // const usdcPnl = Number(usdcusdcBal) - Number(usdcBal);
@@ -666,7 +665,6 @@ const LenderDashboard: React.FC = () => {
         const usdtPercentage = (usdtPnl / Number(usdtusdcBal)) * 100;
         const daiPnl = Number(daiusdcBal) - Number(daiBal);
         const daiPercentage = (daiPnl / Number(daiusdcBal)) * 100;
-        
 
         // ----------------- For borrow APY -----------------------
 
@@ -802,8 +800,7 @@ const LenderDashboard: React.FC = () => {
         calldata.push([opAddressList.vDaiContractAddress, tempData]);
 
         const res2 = await MCcontract.callStatic.aggregate(calldata);
-        
-       
+
         //avaibaleAssetsInContract
 
         const avaibaleETH = res2.returnData[1];
@@ -811,9 +808,7 @@ const LenderDashboard: React.FC = () => {
         const avaibaleUSDC = res2.returnData[5];
         const avaibaleUSDT = res2.returnData[7];
         const avaibaleDai = res2.returnData[9];
-        console.log("here111111",avaibaleETH);
-
-        
+        console.log("here111111", avaibaleETH);
 
         // totalBorrow
 
@@ -822,12 +817,11 @@ const LenderDashboard: React.FC = () => {
         const usdcTotalBorrow = res2.returnData[12];
         const usdtTotalBorrow = res2.returnData[13];
         const daiTotalBorrow = res2.returnData[14];
-        
 
         // Dependent varibale data fetching
         const calldata1 = [];
         let tempData1;
-        
+
         const iFaceRateModel = new utils.Interface(DefaultRateModel.abi);
 
         //BorrowAPY
@@ -858,7 +852,6 @@ const LenderDashboard: React.FC = () => {
           ])
         );
         calldata1.push([opAddressList.rateModelContractAddress, tempData1]);
-        
 
         //USDT
         tempData1 = utils.arrayify(
@@ -879,8 +872,7 @@ const LenderDashboard: React.FC = () => {
         calldata1.push([opAddressList.rateModelContractAddress, tempData1]);
 
         const res3 = await MCcontract.callStatic.aggregate(calldata1);
-        console.log('opAddressList')
-       
+        console.log("opAddressList");
 
         const ethBorrowAPY = res3.returnData[0];
         const ethBorrowApy =
@@ -963,11 +955,7 @@ const LenderDashboard: React.FC = () => {
         });
 
         setPools(updatedPools);
-      } 
-      
-      
-      
-      else if (currentNetwork.id === BASE_NETWORK) {
+      } else if (currentNetwork.id === BASE_NETWORK) {
         const MCcontract = new Contract(
           baseAddressList.multicallAddress,
           Multicall.abi,
@@ -1381,10 +1369,10 @@ const LenderDashboard: React.FC = () => {
                 key={index}
                 number={index + 1}
                 name={pool.name}
-                amount={pool.amount}
-                profit={pool.profit}
-                apy={pool.apy}
-                percentage={pool.percentage}
+                amount={Number(ceilWithPrecision(String(pool.amount)))}
+                profit={Number(ceilWithPrecision(String(pool.profit)))}
+                apy={Number(ceilWithPrecision(String(pool.apy)))}
+                percentage={Number(ceilWithPrecision(String(pool.percentage)))}
                 icon={pool.icon}
                 isLoss
               />
@@ -1420,20 +1408,20 @@ const LenderDashboard: React.FC = () => {
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-4 text-base">
                   <div>
                     <p className="text-sm text-gray-500 mb-1">In Pool</p>
-                    <p>{pool.amount}</p>
+                    <p>{ceilWithPrecision(String(pool.amount))}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500 mb-1">Profit & Loss</p>
                     <p>
-                      {pool.profit}{" "}
+                      {ceilWithPrecision(String(pool.profit))}{" "}
                       <span className="text-baseSecondary-500 text-xs">
-                        ({pool.percentage})
+                        ({ceilWithPrecision(String(pool.percentage))})
                       </span>
                     </p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500 mb-1">Expected APY</p>
-                    <p>{pool.apy}</p>
+                    <p>{ceilWithPrecision(String(pool.apy))}</p>
                   </div>
                 </div>
               </div>
