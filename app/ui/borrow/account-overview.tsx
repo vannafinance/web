@@ -26,8 +26,8 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({
     //   RiskEngine.abi,
     //   signer
     // );
-    // const balance = await riskEngineContract.callStatic.getBalance(activeAccount);
-    // const borrowBalance = await riskEngineContract.callStatic.getBorrows(activeAccount);
+    // const balance = await riskEngineContract.callStatic.getBalance(activeAccount); // total Balance  => AccountValue
+    // const borrowBalance = await riskEngineContract.callStatic.getBorrows(activeAccount); // total Borrow Balance 
     // let healthFactor1 = balance/borrowBalance
     // setAccountValue(balance);
     // setCollateral(balance - borrowBalance);
@@ -35,6 +35,7 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({
     // // setHealthFactor(healthFactor1);
     // let liqP = balance * 1.05 / healthFactor1
     // setLiquidationPrice(liqp)
+    //@TODO : add leverage used placholder 
 
 
     setCollateral("-");

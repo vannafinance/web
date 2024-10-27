@@ -19,7 +19,10 @@ import RiskEngine from "../../abi/vanna/v1/out/RiskEngine.sol/RiskEngine.json";
 import VEther from "@/app/abi/vanna/v1/out/VEther.sol/VEther.json";
 import VToken from "@/app/abi/vanna/v1/out/VToken.sol/VToken.json";
 
-import { check0xHex } from "@/app/lib/helper";
+import {
+  ceilWithPrecision,
+  check0xHex,
+} from "@/app/lib/helper";
 import {
   ARBITRUM_NETWORK,
   OPTIMISM_NETWORK,
@@ -785,7 +788,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
             {activeTab === "Borrower" ? "Initial Margin" : "Total Holdings"}
           </h2>
           <p className="text-3xl font-semibold mb-2">
-            {totalHoldings ? totalHoldings : "-"}
+            {totalHoldings ? ceilWithPrecision(String(totalHoldings),2) : "-"}
           </p>
         </div>
         <Image src={vannaLogoWithTextSrc} width="92" height="28" alt="Vanna" />
@@ -807,10 +810,10 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
                 : "text-baseBlack dark:text-baseWhite"
             )}
           >
-            {totalReturnsAmount ? totalReturnsAmount : "-"}
+            {totalReturnsAmount ? ceilWithPrecision(String(totalReturnsAmount),2): "-"}
             {totalReturnsPercentage && (
               <span className="text-sm font-medium">
-                ({totalReturnsPercentage})
+                ({ceilWithPrecision(String(totalReturnsPercentage),2)})
               </span>
             )}
           </p>
@@ -826,7 +829,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
                   : "text-baseSuccess-300"
               )}
             >
-              {healthFactor ? healthFactor : "-"}
+              {healthFactor ? ceilWithPrecision(String(healthFactor),2) : "-"}
             </p>
             <p className="text-sm text-gray-500">Health Factor</p>
           </div>
