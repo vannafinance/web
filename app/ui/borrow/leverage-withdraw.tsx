@@ -1,6 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from "react";
 import { Question } from "@phosphor-icons/react";
 import clsx from "clsx";
@@ -419,7 +419,7 @@ const LevrageWithdraw = () => {
         activeAccount
       );
 
-      let healthFactor = Number(balance / 1e16) / Number(borrowBalance / 1e16);
+      const healthFactor = Number(balance / 1e16) / Number(borrowBalance / 1e16);
       setHealthFactor(String(healthFactor));
 
       // TODO @vatsal: 'depositAmount' is the variable which will have current input value entered in Deosit input box. Use it as required and update the above formula to add health Factor

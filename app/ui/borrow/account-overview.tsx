@@ -1,4 +1,4 @@
-
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import Image from "next/image";
@@ -46,8 +46,8 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({
       const borrowBalance = await riskEngineContract.callStatic.getBorrows(
         activeAccount
       ); // total Borrow Balance
-      let healthFactor1 = balance / borrowBalance;
-      let liqP = (balance * 1.05) / healthFactor1;
+      const healthFactor1 = balance / borrowBalance;
+      const liqP = (balance * 1.05) / healthFactor1;
       // TODO : @vatsal here balance & borrowBalance is in bignumber ... convert the same and then uncomment the below set statements
 
       // setAccountValue(balance);

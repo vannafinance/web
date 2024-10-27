@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { ArrowCircleUpRight } from "@phosphor-icons/react";
@@ -110,7 +111,7 @@ const BorrowerDashboard = () => {
         ? tokenSymbol.substring(1)
         : tokenSymbol;
 
-    for (let asset of assets) {
+    for (const asset of assets) {
       if (asset.symbol === tokenSymbol) {
         return asset.price;
       }

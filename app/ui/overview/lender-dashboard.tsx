@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -619,30 +620,29 @@ const LenderDashboard: React.FC = () => {
         const res1 = await MCcontract.callStatic.aggregate(calldata);
 
         //User actual Asset balance
-        let ethusdcBal = formatUnits(check0xHex(res1.returnData[0]), 18);
+        const ethusdcBal = formatUnits(check0xHex(res1.returnData[0]), 18);
         const wbtcusdcBal = formatUnits(check0xHex(res1.returnData[1]), 18);
-        let usdcusdcBal = formatUnits(check0xHex(res1.returnData[2]), 6);
+        const usdcusdcBal = formatUnits(check0xHex(res1.returnData[2]), 6);
         const usdtusdcBal = formatUnits(check0xHex(res1.returnData[3]), 6);
         const daiusdcBal = formatUnits(check0xHex(res1.returnData[4]), 18);
         // @TEMP not able to get the actual value from the multicall that's why this way
-        let vEtherContract;
-        let vUsdcContract;
-        vEtherContract = new Contract(
+        const vEtherContract = new Contract(
           opAddressList.vEtherContractAddress,
           VEther.abi,
           library
         );
-        vUsdcContract = new Contract(
+        const vUsdcContract = new Contract(
           opAddressList.vUSDCContractAddress,
           VToken.abi,
           library
         );
 
-        let ethbal = await vEtherContract.balanceOf(account);
-        let ethusdcfetchBal =
+        const ethbal = await vEtherContract.balanceOf(account);
+        const ethusdcfetchBal =
           (await vEtherContract.convertToAssets(ethbal)) / 1;
-        let usdcbal = await vUsdcContract.balanceOf(account);
-        let UusdcfetchBal = (await vUsdcContract.convertToAssets(usdcbal)) / 1;
+        const usdcbal = await vUsdcContract.balanceOf(account);
+        const UusdcfetchBal =
+          (await vUsdcContract.convertToAssets(usdcbal)) / 1;
 
         // const ethusdcfetchBal = (await vEtherContract.convertToAssets(ethBal)/1e18);
 
@@ -651,7 +651,7 @@ const LenderDashboard: React.FC = () => {
 
         const usdcPnl = Number(UusdcfetchBal) - Number(usdcBal);
         const usdcPercentage = (usdcPnl / Number(usdcusdcBal)) * 100;
-        let ethval = Number(getPriceFromAssetsArray("ETH"));
+        const ethval = Number(getPriceFromAssetsArray("ETH"));
         console.log("val", ethval); //  @TODO: not geting value
         console.log("ethPnl", ethPnl);
         ethPnl = ethPnl;

@@ -1,4 +1,3 @@
-/* eslint-disable no-var */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
@@ -48,7 +47,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
         ? tokenSymbol.substring(1)
         : tokenSymbol;
 
-    for (let asset of assets) {
+    for (const asset of assets) {
       if (asset.symbol === tokenSymbol) {
         return asset.price;
       }
@@ -175,7 +174,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
             );
             calldata.push([arbAddressList.vDaiContractAddress, tempData]);
 
-            var res = await MCcontract.callStatic.aggregate(calldata);
+            const res = await MCcontract.callStatic.aggregate(calldata);
 
             //avaibaleAssetsInContract
 
@@ -942,7 +941,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
             );
             calldata.push([opAddressList.vDaiContractAddress, tempData]);
 
-            var res = await MCcontract.callStatic.aggregate(calldata);
+            const res = await MCcontract.callStatic.aggregate(calldata);
 
             //avaibaleAssetsInContract
 
