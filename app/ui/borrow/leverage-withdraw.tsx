@@ -428,7 +428,7 @@ const LevrageWithdraw = () => {
       setLeverageUseValue(leverageUse);
 
       const ltvValue = (leverageUseValue - 1) * 100;
-      setLtv(ltvValue);
+      setLtv(Number(ceilWithPrecision(String(ltvValue),2)));
     };
 
     calc();
