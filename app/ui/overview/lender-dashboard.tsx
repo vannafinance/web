@@ -1374,7 +1374,7 @@ const LenderDashboard: React.FC = () => {
                 apy={Number(ceilWithPrecision(String(pool.apy)))}
                 percentage={Number(ceilWithPrecision(String(pool.percentage)))}
                 icon={pool.icon}
-                isLoss
+                isLoss={pool.percentage < 0 ? true : false}
               />
             )
         )}
@@ -1414,9 +1414,15 @@ const LenderDashboard: React.FC = () => {
                     <p className="text-sm text-gray-500 mb-1">Profit & Loss</p>
                     <p>
                       {ceilWithPrecision(String(pool.profit))}{" "}
-                      <span className="text-baseSecondary-500 text-xs">
-                        ({ceilWithPrecision(String(pool.percentage))})
-                      </span>
+                      {pool.percentage < 0 ? (
+                        <span className="text-baseSecondary-500 text-xs">
+                          ({ceilWithPrecision(String(pool.percentage))})
+                        </span>
+                      ) : (
+                        <span className="text-baseSuccess-300 text-xs">
+                          ({ceilWithPrecision(String(pool.percentage))})
+                        </span>
+                      )}
                     </p>
                   </div>
                   <div>
