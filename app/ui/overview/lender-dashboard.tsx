@@ -118,6 +118,7 @@ const LenderDashboard: React.FC = () => {
         return asset.price;
       }
     }
+    console.log("assets",assets);
     return 1;
   };
 
@@ -134,6 +135,7 @@ const LenderDashboard: React.FC = () => {
     // if (shouldSetMarketPrice && price) {
     //   setMarketPrice(price);
     // }
+
 
     return price;
   };
@@ -649,12 +651,12 @@ const LenderDashboard: React.FC = () => {
         let ethPnl = (Number(ethusdcfetchBal) - Number(ethbal)) / 1e18;
         const ethPercentage = (ethPnl / Number(ethusdcfetchBal)) * 100;
 
-        const usdcPnl = Number(UusdcfetchBal) - Number(usdcBal);
-        const usdcPercentage = (usdcPnl / Number(usdcusdcBal)) * 100;
-        const ethval = Number(getPriceFromAssetsArray("ETH"));
+        const usdcPnl = ( Number(UusdcfetchBal) - Number(usdcBal)) / 1e6;
+        const usdcPercentage = (usdcPnl / Number(usdcusdcBal));
+        const ethval = Number(await getPriceFromAssetsArray("WETH"));
         console.log("val", ethval); //  @TODO: not geting value
-        console.log("ethPnl", ethPnl);
-        ethPnl = ethPnl;
+        console.log("usdcPnl", usdcPnl);
+        ethPnl = ethPnl * ethval;
         console.log("ethPnl", ethPnl);
 
         const wbtcPnl = Number(wbtcusdcBal) - Number(wbtcBal);
@@ -911,7 +913,7 @@ const LenderDashboard: React.FC = () => {
               ...pool,
               amount: Number(ethBal),
               profit: ethPnl,
-              apy: ethBorrowApy,
+              apy: ethBorrowApy+ " %",
               percentage: ethPercentage,
             };
           }
