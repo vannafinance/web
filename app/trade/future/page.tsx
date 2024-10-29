@@ -56,10 +56,18 @@ export default function Page() {
   >("");
   const [volume, setVolume] = useState<string | undefined>("");
 
-  // TODO: delete below useEffect
+  const indexPriceContractAddress = "0x722Ef09F933f09069257C68563B715486365B895";
+  const markPriceContractAddress = "0x3d03748A0FbBa8DD5F07b16c0178cdd1327FC58a";
+
   useEffect(() => {
-    setIndexPrice("58,289.70");
-    setMarkPrice("58,289.70");
+
+    // TODO: @vatsal help me fetch index price & mark price here add your code in comment
+    // contract address are added above (indexPriceContractAddress, markPriceContractAddress) but I think we will need their abi's as well
+    // assign it to below 2 commented lines
+    // setIndexPrice();
+    // setMarkPrice();
+
+
     setHighLow("58364/58093");
     setNetRatePositive("+0.05%");
     setNetRateNegative("-0.04%");

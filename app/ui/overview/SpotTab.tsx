@@ -11,6 +11,9 @@ const SpotTab: React.FC = () => {
 
   // TODO: delete below useEffect
   useEffect(() => {
+
+    // TODO: @vatsal this is page for spot in borrow dashboard in overview page. Add code here for balance fetching
+
     setETH("");
     setWETH("");
     setBTC("");

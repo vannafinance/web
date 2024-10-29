@@ -481,9 +481,9 @@ export default function Page() {
             <span className="text-baseSecondary-500">$346.8</span>
           </div>
 
-          <div className="flex justify-between items-center mb-5">
+          {/* <div className="flex justify-between items-center mb-5">
             <OptionSlider value={leverageValue} onChange={setLeverageValue} />
-          </div>
+          </div> */}
 
           <div className="space-y-2 text-xs font-normal py-5 px-4 mb-5 border-y border-purpleBG-lighter dark:border-neutral-700">
             <div className="flex justify-between">

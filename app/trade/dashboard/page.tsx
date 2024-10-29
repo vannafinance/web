@@ -7,7 +7,7 @@ import FutureDropdown from "@/app/ui/future/future-dropdown";
 import { CheckSquare, Square } from "@phosphor-icons/react";
 // import { useNetwork } from "@/app/context/network-context";
 // import { useWeb3React } from "@web3-react/core";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Page() {
   // const { account, library } = useWeb3React();
@@ -25,6 +25,10 @@ export default function Page() {
     healthFactor: "1.8",
     borrowRate: "50%",
   };
+
+  useEffect(() => {
+    // TODO: @vatsal add code here to get availableBalance, marginUsage, totalPnl, healthFactor, borrowRate in trade -> dashboard page
+  }, []);
 
   const expiryOptions: Option[] = [
     { value: "2024-09-20", label: "20 September 2024" },
