@@ -69,7 +69,6 @@ const LevrageWithdraw = () => {
   const [debt, setDebt] = useState(0);
   const [healthFactor, setHealthFactor] = useState("-");
   const [activeAccount, setActiveAccount] = useState<string | undefined>();
-  const [leverageUseValue, setLeverageUseValue] = useState(0);
   const [ltv, setLtv] = useState(0);
 
   const [depositToken, setDepositToken] = useState<PoolTable>(
@@ -124,7 +123,7 @@ const LevrageWithdraw = () => {
     const val =
       (depositAmount * depositAmountInDollar * num) / borrowAmountInDollar;
 
-    setBorrowAmount(val);
+    setBorrowAmount(Number(ceilWithPrecision(String(val))));
     setLeverageValue(num);
   };
 
@@ -284,65 +283,71 @@ const LevrageWithdraw = () => {
           //   Number(ceilWithPrecision(String(borrowBalanceInNumber)))
           // );
         } else {
+          if (!currentNetwork) return;
           const signer = await library?.getSigner();
-          const vEtherContract = new Contract(
-            opAddressList.vEtherContractAddress,
-            VEther.abi,
-            signer
-          );
-          const vDaiContract = new Contract(
-            opAddressList.vDaiContractAddress,
-            VToken.abi,
-            signer
-          );
-          const vUsdcContract = new Contract(
-            opAddressList.vUSDCContractAddress,
-            VToken.abi,
-            signer
-          );
-          const vUsdtContract = new Contract(
-            opAddressList.vUSDTContractAddress,
-            VToken.abi,
-            signer
-          );
-          const vWbtcContract = new Contract(
-            opAddressList.vWBTCContractAddress,
-            VToken.abi,
-            signer
-          );
 
-          // @Withdraw balance code
-          let accountBalance = await library?.getBalance(account); // here account is active Account
-          accountBalance = accountBalance / 1e18;
-          let borrowedBalance =
-            await vEtherContract.callStatic.getBorrowBalance(activeAccount);
-          borrowedBalance = borrowedBalance / 1e18;
-          // debt1 = accountBalance - borrowedBalance;
-          // USDC
-          // accountBalance = erc20conatract(USDC).balanceOf(account);
-          // borrowedBalance =
-          //   await vUsdcContract.callStatic.getBorrowBalance(activeAccount);
+          if (currentNetwork.id === ARBITRUM_NETWORK) {
+          } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+            const vEtherContract = new Contract(
+              opAddressList.vEtherContractAddress,
+              VEther.abi,
+              signer
+            );
+            const vDaiContract = new Contract(
+              opAddressList.vDaiContractAddress,
+              VToken.abi,
+              signer
+            );
+            const vUsdcContract = new Contract(
+              opAddressList.vUSDCContractAddress,
+              VToken.abi,
+              signer
+            );
+            const vUsdtContract = new Contract(
+              opAddressList.vUSDTContractAddress,
+              VToken.abi,
+              signer
+            );
+            const vWbtcContract = new Contract(
+              opAddressList.vWBTCContractAddress,
+              VToken.abi,
+              signer
+            );
 
-          // TODO: @vatsal add withdraw balanc in setDepositeBalance();
-          setDepositBalance(borrowedBalance);
+            // @Withdraw balance code
+            let accountBalance = await library?.getBalance(account); // here account is active Account
+            accountBalance = accountBalance / 1e18;
+            let borrowedBalance =
+              await vEtherContract.callStatic.getBorrowBalance(activeAccount);
+            borrowedBalance = borrowedBalance / 1e18;
+            // debt1 = accountBalance - borrowedBalance;
+            // USDC
+            // accountBalance = erc20conatract(USDC).balanceOf(account);
+            // borrowedBalance =
+            //   await vUsdcContract.callStatic.getBorrowBalance(activeAccount);
 
-          // @Repay balance code
-          const riskEngineContract = new Contract(
-            opAddressList.riskEngineContractAddress,
-            RiskEngine.abi,
-            signer
-          );
-          // ETH
-          borrowedBalance = await vEtherContract.callStatic.getBorrowBalance(
-            activeAccount
-          );
-          // USDC
-          borrowedBalance = await vUsdcContract.callStatic.getBorrowBalance(
-            activeAccount
-          );
+            // TODO: @vatsal add withdraw balanc in setDepositeBalance();
+            setDepositBalance(borrowedBalance);
 
-          // TODO @vatsal: add repay balance in setBorrowBalance();
-          setBorrowBalance(borrowedBalance);
+            // @Repay balance code
+            const riskEngineContract = new Contract(
+              opAddressList.riskEngineContractAddress,
+              RiskEngine.abi,
+              signer
+            );
+            // ETH
+            borrowedBalance = await vEtherContract.callStatic.getBorrowBalance(
+              activeAccount
+            );
+            // USDC
+            borrowedBalance = await vUsdcContract.callStatic.getBorrowBalance(
+              activeAccount
+            );
+
+            // TODO @vatsal: add repay balance in setBorrowBalance();
+            setBorrowBalance(borrowedBalance);
+          } else if (currentNetwork.id === BASE_NETWORK) {
+          }
         }
       }
     } catch (e) {
@@ -422,11 +427,31 @@ const LevrageWithdraw = () => {
       setExpected(0);
     }
 
-    const riskEngineContract = new Contract(
-      opAddressList.riskEngineContractAddress,
-      RiskEngine.abi,
-      signer
-    );
+    if (!currentNetwork) return;
+
+    let riskEngineContract;
+    if (currentNetwork.id === ARBITRUM_NETWORK) {
+      riskEngineContract = new Contract(
+        arbAddressList.riskEngineContractAddress,
+        RiskEngine.abi,
+        signer
+      );
+    } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+      riskEngineContract = new Contract(
+        opAddressList.riskEngineContractAddress,
+        RiskEngine.abi,
+        signer
+      );
+    } else if (currentNetwork.id === BASE_NETWORK) {
+      riskEngineContract = new Contract(
+        baseAddressList.riskEngineContractAddress,
+        RiskEngine.abi,
+        signer
+      );
+    } else {
+      return;
+    }
+
     const balance = await riskEngineContract.callStatic.getBalance(
       activeAccount
     );
@@ -440,7 +465,6 @@ const LevrageWithdraw = () => {
     const borrowBalanceInNum = Number(borrowBalance / 1e16);
 
     let healthFactor;
-
     if (depositAmount !== undefined && borrowAmount !== undefined) {
       healthFactor =
         (balanceInNum +
@@ -463,12 +487,35 @@ const LevrageWithdraw = () => {
 
     // TODO @vatsal: 'depositAmount' is the variable which will have current input value entered in Deosit input box. Use it as required and update the above formula to add health Factor
 
-    const leverageUse = borrowBalance / (balance - borrowBalance) + 1;
-    setLeverageUseValue(Number(ceilWithPrecision(String(leverageUse))));
-    console.log(
-      "here i am trying to fetch the leverage used value",
-      leverageUse
-    );
+    let leverageUse;
+    if (depositAmount !== undefined && borrowAmount !== undefined) {
+      leverageUse =
+        (borrowBalanceInNum + borrowAmount * borrowAmountInDollar) /
+        (balanceInNum +
+          depositAmount * depositAmountInDollar +
+          borrowAmount * borrowAmountInDollar -
+          borrowBalanceInNum +
+          borrowAmount * borrowAmountInDollar +
+          1);
+    } else if (depositAmount !== undefined && borrowAmount === undefined) {
+      leverageUse =
+        borrowBalanceInNum /
+        (balanceInNum +
+          depositAmount * depositAmountInDollar -
+          borrowBalanceInNum +
+          1);
+    } else if (depositAmount === undefined && borrowAmount !== undefined) {
+      leverageUse =
+        (borrowBalanceInNum + borrowAmount * borrowAmountInDollar) /
+        (balanceInNum +
+          borrowAmount * borrowAmountInDollar -
+          borrowBalanceInNum +
+          borrowAmount * borrowAmountInDollar +
+          1);
+    } else {
+      leverageUse =
+        borrowBalanceInNum / (balanceInNum - borrowBalanceInNum + 1);
+    }
 
     const ltvValue = (leverageUse - 1) * 1e4;
     setLtv(Number(ceilWithPrecision(String(ltvValue), 2)));
@@ -476,7 +523,7 @@ const LevrageWithdraw = () => {
 
   useEffect(() => {
     calc();
-  }, [depositAmount, depositToken]);
+  }, [depositAmount, depositToken, borrowAmount, borrowToken]);
 
   useEffect(() => {
     if (isLeverage && depositAmount !== undefined) {
@@ -488,7 +535,7 @@ const LevrageWithdraw = () => {
     } else {
       setBorrowBalance(0);
     }
-    setBorrowAmount(0);
+    setBorrowAmount(undefined);
     setLeverageValue(0);
   }, [depositAmount, depositToken, borrowToken]);
 
@@ -763,10 +810,7 @@ const LevrageWithdraw = () => {
           parseEther(String(borrowAmount)),
           { gasLimit: 2300000 }
         );
-      } else if (
-        borrowToken?.name === "USDC" ||
-        borrowToken?.name === "USDT"
-      ) {
+      } else if (borrowToken?.name === "USDC" || borrowToken?.name === "USDT") {
         await accountManagerContract.withdraw(
           activeAccount,
           arbTokensAddress[borrowToken?.name],
@@ -787,7 +831,6 @@ const LevrageWithdraw = () => {
         AccountManager.abi,
         signer
       );
-      console.log("borrowAmount", borrowAmount);
       if (borrowToken?.name === undefined || !accountManagerContract) return;
       else if (borrowToken?.name === "WETH") {
         await accountManagerContract.withdrawEth(
@@ -795,10 +838,7 @@ const LevrageWithdraw = () => {
           parseEther(String(borrowAmount)),
           { gasLimit: 2300000 }
         );
-      } else if (
-        borrowToken?.name === "USDC" ||
-        borrowToken?.name === "USDT"
-      ) {
+      } else if (borrowToken?.name === "USDC" || borrowToken?.name === "USDT") {
         await accountManagerContract.withdraw(
           activeAccount,
           opTokensAddress[borrowToken?.name],
@@ -826,10 +866,7 @@ const LevrageWithdraw = () => {
           parseEther(String(borrowAmount)),
           { gasLimit: 2300000 }
         );
-      } else if (
-        borrowToken?.name === "USDC" ||
-        borrowToken?.name === "USDT"
-      ) {
+      } else if (borrowToken?.name === "USDC" || borrowToken?.name === "USDT") {
         await accountManagerContract.withdraw(
           activeAccount,
           baseTokensAddress[borrowToken?.name],
@@ -952,7 +989,6 @@ const LevrageWithdraw = () => {
         AccountManager.abi,
         signer
       );
-      console.log("depositamount", depositAmount);
       if (depositToken === undefined || !accountManagerContract) return;
       else if (depositToken?.name === "USDC" || depositToken?.name === "USDT") {
         await accountManagerContract.repay(
@@ -1046,7 +1082,7 @@ const LevrageWithdraw = () => {
                   </span>
                   <input
                     type="number"
-                    value={ceilWithPrecision(String(depositAmount))}
+                    value={depositAmount}
                     onChange={(e) =>
                       setDepositAmount(
                         e.target.value === ""
@@ -1100,7 +1136,7 @@ const LevrageWithdraw = () => {
                   </span>
                   <input
                     type="number"
-                    value={ceilWithPrecision(String(borrowAmount))}
+                    value={borrowAmount}
                     onChange={(e) =>
                       setBorrowAmount(
                         e.target.value === ""
@@ -1207,7 +1243,6 @@ const LevrageWithdraw = () => {
       <div className="flex-none w-full lg:w-2/5 xl:w-1/3 space-y-6 font-medium">
         <AccountOverview
           creditToken={borrowToken}
-          leverageUseValue={leverageUseValue}
           activeAccount={activeAccount}
         />
       </div>

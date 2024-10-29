@@ -5,7 +5,12 @@ import Image from "next/image";
 import Tooltip from "../components/tooltip";
 import { Info } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
-import { getShortenedAddress, opAddressList } from "@/app/lib/web3-constants";
+import {
+  arbAddressList,
+  baseAddressList,
+  getShortenedAddress,
+  opAddressList,
+} from "@/app/lib/web3-constants";
 import { Contract } from "ethers";
 import { useWeb3React } from "@web3-react/core";
 import { useNetwork } from "@/app/context/network-context";
@@ -13,10 +18,14 @@ import RiskEngine from "../../abi/vanna/v1/out/RiskEngine.sol/RiskEngine.json";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store/store";
 import { ceilWithPrecision } from "@/app/lib/helper";
+import {
+  ARBITRUM_NETWORK,
+  BASE_NETWORK,
+  OPTIMISM_NETWORK,
+} from "@/app/lib/constants";
 
 const AccountOverview: React.FC<AccountOverviewProps> = ({
   creditToken,
-  leverageUseValue,
   activeAccount,
 }) => {
   const { library } = useWeb3React();
@@ -30,45 +39,67 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({
   const [healthFactor, setHealthFactor] = useState(0);
   const [borrowRate, setBorrowRate] = useState("-");
   const [liquidationPrice, setLiquidationPrice] = useState(0);
-  
+  const [leverageUseValue, setLeverageUseValue] = useState(0);
 
   useEffect(() => {
     const fetchValues = async () => {
+      if (!currentNetwork) return;
       const signer = library?.getSigner();
 
-      const riskEngineContract = new Contract(
-        opAddressList.riskEngineContractAddress,
-        RiskEngine.abi,
-        signer
-      );
-      
-      const balance = (await riskEngineContract.callStatic.getBalance(
-        activeAccount
-      )/1);
-      
+      let riskEngineContract;
+      if (currentNetwork.id === ARBITRUM_NETWORK) {
+        riskEngineContract = new Contract(
+          arbAddressList.riskEngineContractAddress,
+          RiskEngine.abi,
+          signer
+        );
+      } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+        riskEngineContract = new Contract(
+          opAddressList.riskEngineContractAddress,
+          RiskEngine.abi,
+          signer
+        );
+      } else if (currentNetwork.id === BASE_NETWORK) {
+        riskEngineContract = new Contract(
+          baseAddressList.riskEngineContractAddress,
+          RiskEngine.abi,
+          signer
+        );
+      } else {
+        return;
+      }
 
-      console.log("balance",balance) // total Balance  => AccountValue
-      const borrowBalance = (await riskEngineContract.callStatic.getBorrows(
-        activeAccount
-      )/1); // total Borrow Balance
-      console.log("borrowBalance",borrowBalance)
+      const balance =
+        (await riskEngineContract.callStatic.getBalance(activeAccount)) / 1;
+
+      console.log("balance", balance); // total Balance  => AccountValue
+      const borrowBalance =
+        (await riskEngineContract.callStatic.getBorrows(activeAccount)) / 1; // total Borrow Balance
+      console.log("borrowBalance", borrowBalance);
       const healthFactor1 = balance / borrowBalance;
-      console.log("healthFactor1",healthFactor1)
+      console.log("healthFactor1", healthFactor1);
       const liqP = (balance * 1.05) / healthFactor1;
       // TODO : @vatsal here balance & borrowBalance is in bignumber ... convert the same and then uncomment the below set statements
       const collateral = balance - borrowBalance;
-      setAccountValue(Number(ceilWithPrecision(String(balance/1e18),2)));
-      setCollateral(Number(ceilWithPrecision(String(collateral/1e18),2)));
-      setDebt(Number(ceilWithPrecision(String(borrowBalance/1e18),2)));
-      setHealthFactor(Number(ceilWithPrecision(String(healthFactor1),2)));
-      setLiquidationPrice(Number(ceilWithPrecision(String(liqP/1e16),2)));
+
+      const leverageUse =
+        Number(borrowBalance / 1e16) /
+          (Number(balance / 1e16) - Number(borrowBalance / 1e16)) +
+        1;
+
+      setAccountValue(Number(ceilWithPrecision(String(balance / 1e18), 2)));
+      setCollateral(Number(ceilWithPrecision(String(collateral / 1e18), 2)));
+      setDebt(Number(ceilWithPrecision(String(borrowBalance / 1e18), 2)));
+      setHealthFactor(Number(ceilWithPrecision(String(healthFactor1), 2)));
+      setLiquidationPrice(Number(ceilWithPrecision(String(liqP / 1e16), 2)));
+      setLeverageUseValue(Number(ceilWithPrecision(String(leverageUse))));
     };
 
     fetchValues();
-  }, [activeAccount]);
+  }, [activeAccount, currentNetwork]);
 
   useEffect(() => {
-    const poolValue = pools.find((pool) => pool.name === creditToken?.name)
+    const poolValue = pools.find((pool) => pool.name === creditToken?.name);
     if (poolValue !== undefined) setBorrowRate(poolValue.borrowAPY);
   }, [creditToken]);
 
