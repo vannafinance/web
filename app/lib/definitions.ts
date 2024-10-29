@@ -204,6 +204,8 @@ interface CreateSmartAccountModalProps {
 interface MuxPriceFetchingResponseObject {
   symbol: string;
   price: number;
+  availableForLong: number;
+  availableForShort: number;
 }
 
 interface MarketPosition {

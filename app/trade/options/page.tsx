@@ -4,7 +4,7 @@
 // import { ARBITRUM_NETWORK } from "@/app/lib/constants";
 import { generateDummyData } from "@/app/lib/helper";
 import FutureDropdown from "@/app/ui/future/future-dropdown";
-import OptionSlider from "@/app/ui/options/option-slider";
+// import OptionSlider from "@/app/ui/options/option-slider";
 import PositionsSection from "@/app/ui/options/positions-section";
 import { CaretDown, Plus, PlusSquare, X } from "@phosphor-icons/react";
 import { TrendDown, TrendUp } from "@phosphor-icons/react/dist/ssr";
@@ -69,7 +69,7 @@ export default function Page() {
   const [selectedOrderType, setSelectedOrderType] = useState<Option>(
     orderTypeOptions[0]
   );
-  const [leverageValue, setLeverageValue] = useState<number>(50);
+  // const [leverageValue, setLeverageValue] = useState<number>(50);
 
   const handleOptionChange = (option: OptionType) => {
     setSelectedOption(option);

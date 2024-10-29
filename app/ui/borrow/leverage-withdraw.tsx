@@ -284,7 +284,6 @@ const LevrageWithdraw = () => {
           // );
         } else {
           if (!currentNetwork) return;
-          const signer = await library?.getSigner();
 
           if (currentNetwork.id === ARBITRUM_NETWORK) {
           } else if (currentNetwork.id === OPTIMISM_NETWORK) {
@@ -405,6 +404,7 @@ const LevrageWithdraw = () => {
   useEffect(() => {
     accountCheck();
     getTokenBalance();
+    calc();
   }, [account, activeAccount, currentNetwork]);
 
   useEffect(() => {

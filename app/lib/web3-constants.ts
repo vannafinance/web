@@ -104,6 +104,8 @@ export const opAddressList = {
   vETH: "0x8C835DFaA34e2AE61775e80EE29E2c724c6AE2BB",
   optimismFetchPositionContractAddress:
     "0xA7f3FC32043757039d5e13d790EE43edBcBa8b7c",
+  indexPriceContractAddress: "0x722Ef09F933f09069257C68563B715486365B895",
+  markPriceContractAddress: "0x3d03748A0FbBa8DD5F07b16c0178cdd1327FC58a",
 };
 
 // =============== BASE ============================================

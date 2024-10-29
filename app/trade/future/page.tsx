@@ -11,11 +11,16 @@ import PositionOpenClose from "@/app/ui/future/position-open-close";
 import PositionsSection from "@/app/ui/future/positions-section";
 import TradingViewChart from "@/app/ui/future/trading-view-chart";
 import axios from "axios";
-// import { useWeb3React } from "@web3-react/core";
+import { Contract } from "ethers";
+import { useWeb3React } from "@web3-react/core";
 import { useEffect, useState } from "react";
+import { opAddressList } from "@/app/lib/web3-constants";
+import OpMarkPrice from "../../abi/vanna/v1/out/OpMarkPrice.sol/OpMarkPrice.json";
+import OpIndexPrice from "../../abi/vanna/v1/out/OpIndexPrice.sol/OpIndexPrice.json";
+import { ceilWithPrecision } from "@/app/lib/helper";
 
 export default function Page() {
-  // const { account, library } = useWeb3React();
+  const { account, library } = useWeb3React();
   const { currentNetwork } = useNetwork();
 
   const pairOptions: Option[] = [
@@ -26,7 +31,7 @@ export default function Page() {
   const networkOptionsMap: { [key: string]: Option[] } = {
     [BASE_NETWORK]: [{ value: "MUX", label: "MUX" }],
     [ARBITRUM_NETWORK]: [{ value: "dYdX", label: "dYdX" }],
-    [OPTIMISM_NETWORK]: [{ value: "perp", label: "perp" }],
+    [OPTIMISM_NETWORK]: [{ value: "Perp", label: "perp" }],
   };
 
   const protocolOptions: Option[] = networkOptionsMap[
@@ -42,12 +47,13 @@ export default function Page() {
   const [indexPrice, setIndexPrice] = useState<string | undefined>("");
   const [markPrice, setMarkPrice] = useState<string | undefined>("");
   const [highLow, setHighLow] = useState<string | undefined>("");
-  const [netRatePositive, setNetRatePositive] = useState<string | undefined>(
-    ""
-  );
-  const [netRateNegative, setNetRateNegative] = useState<string | undefined>(
-    ""
-  );
+  const [fundingRate, setFundingRate] = useState<string | undefined>("");
+  // const [netRatePositive, setNetRatePositive] = useState<string | undefined>(
+  //   ""
+  // );
+  // const [netRateNegative, setNetRateNegative] = useState<string | undefined>(
+  //   ""
+  // );
   const [openInterestPositive, setOpenInterestPositive] = useState<
     string | undefined
   >("");
@@ -56,45 +62,73 @@ export default function Page() {
   >("");
   const [volume, setVolume] = useState<string | undefined>("");
 
-  const indexPriceContractAddress = "0x722Ef09F933f09069257C68563B715486365B895";
-  const markPriceContractAddress = "0x3d03748A0FbBa8DD5F07b16c0178cdd1327FC58a";
-
   useEffect(() => {
+    const fetchValues = async () => {
+      if (!currentNetwork) return;
+      const signer = await library?.getSigner();
 
-    // TODO: @vatsal help me fetch index price & mark price here add your code in comment
-    // contract address are added above (indexPriceContractAddress, markPriceContractAddress) but I think we will need their abi's as well
-    // assign it to below 2 commented lines
-    // setIndexPrice();
-    // setMarkPrice();
+      let indexPriceContract;
+      let markPriceContract;
+      if (currentNetwork.id === ARBITRUM_NETWORK) {
+      } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+        indexPriceContract = new Contract(
+          opAddressList.indexPriceContractAddress,
+          OpIndexPrice.abi,
+          signer
+        );
+        markPriceContract = new Contract(
+          opAddressList.markPriceContractAddress,
+          OpMarkPrice.abi,
+          signer
+        );
+      } else if (currentNetwork.id === BASE_NETWORK) {
+      }
 
+      if (!indexPriceContract || !markPriceContract) {
+        return;
+      }
 
-    setHighLow("58364/58093");
-    setNetRatePositive("+0.05%");
-    setNetRateNegative("-0.04%");
+      const indexPrice = await indexPriceContract.getIndexPrice();
+      const markPrice = await markPriceContract.getMarkPrice();
+      const fundingRate =
+        ((markPrice / 1e18 - indexPrice / 1e8) / (indexPrice / 1e8) / 3) * 100;
+      setIndexPrice(ceilWithPrecision(String(indexPrice / 1e8), 2));
+      setMarkPrice(ceilWithPrecision(String(markPrice / 1e18), 2));
+      setFundingRate(ceilWithPrecision(String(fundingRate), 3) + "%");
+    };
+
+    fetchValues();
+
     setOpenInterestPositive("$668.4k");
     setOpenInterestNegative("$805.5k");
     setVolume("58,289.70");
-  }, []);
+  }, [library, currentNetwork]);
 
   useEffect(() => {
     setSelectedProtocol(protocolOptions[0]);
   }, [currentNetwork]);
 
-  const getAssetPrice = async (
-    shouldSetMarketPrice = true
-  ) => {
+  const getAssetPrice = async (shouldSetMarketPrice = true) => {
     const rsp = await axios.get("https://app.mux.network/api/liquidityAsset");
-    const price = getPriceFromAssetsArray(selectedPair.value, rsp.data.assets);
+    const asset = getAssetFromAssetsArray(selectedPair.value, rsp.data.assets);
 
     if (shouldSetMarketPrice) {
-      console.log("price", price, "  selectedPair.value", selectedPair.value);
-      setMarketPrice(price);
+      // console.log("price", price, "  selectedPair.value", selectedPair.value);
+      setMarketPrice(asset.price);
+      const fourPercent = (asset.price * 4) / 100;
+      const high = Number(asset.price) + Number(fourPercent);
+      const low = asset.price - fourPercent;
+      setHighLow(
+        ceilWithPrecision(String(high), 2) +
+          "/" +
+          ceilWithPrecision(String(low), 2)
+      );
     }
 
-    return price;
+    return asset.price;
   };
 
-  const getPriceFromAssetsArray = (
+  const getAssetFromAssetsArray = (
     tokenSymbol: string,
     assets: MuxPriceFetchingResponseObject[]
   ) => {
@@ -104,7 +138,7 @@ export default function Page() {
         : tokenSymbol;
     for (const asset of assets) {
       if (asset.symbol === tokenSymbol) {
-        return asset.price;
+        return asset;
       }
     }
     return 1;
@@ -170,10 +204,11 @@ export default function Page() {
             <p className="text-sm">{highLow}</p>
           </div>
           <div className="col-span-2 sm:col-auto">
-            <p className="text-neutral-500 text-xs">Net Rate/1Hr</p>
+            <p className="text-neutral-500 text-xs">Funding Rate (8H)</p>
             <div className="flex items-center space-x-1">
-              <p className="text-green-500 text-sm">{netRatePositive}</p>
-              <p className="text-red-500 text-sm">{netRateNegative}</p>
+              <p className="text=sm">{fundingRate}</p>
+              {/* <p className="text-green-500 text-sm">{netRatePositive}</p>
+              <p className="text-red-500 text-sm">{netRateNegative}</p> */}
             </div>
           </div>
           <div className="col-span-2 sm:col-auto">

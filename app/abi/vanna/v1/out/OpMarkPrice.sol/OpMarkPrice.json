@@ -1,0 +1,193 @@
+{
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "oldCaller",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "newCaller",
+          "type": "address"
+        }
+      ],
+      "name": "UpdateCaller",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        { "internalType": "address", "name": "token", "type": "address" },
+        { "internalType": "uint256", "name": "amount", "type": "uint256" }
+      ],
+      "name": "deposit",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getAccountValueSafe_6",
+      "outputs": [{ "internalType": "int256", "name": "", "type": "int256" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getBaseToken",
+      "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getCaller",
+      "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint24",
+          "name": "targetMarginRatio",
+          "type": "uint24"
+        }
+      ],
+      "name": "getDeleveragedPositionSize",
+      "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getMarkPrice",
+      "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getSettlementToken",
+      "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getTakerPositionSize",
+      "outputs": [
+        { "internalType": "int256", "name": "size", "type": "int256" }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "clearingHouseArg",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "vBaseTokenArg",
+          "type": "address"
+        }
+      ],
+      "name": "initialize",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "uint24", "name": "ratio", "type": "uint24" }
+      ],
+      "name": "isMarginSufficientByRatio",
+      "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            { "internalType": "bool", "name": "isBaseToQuote", "type": "bool" },
+            { "internalType": "bool", "name": "isExactInput", "type": "bool" },
+            { "internalType": "uint256", "name": "amount", "type": "uint256" },
+            {
+              "internalType": "uint256",
+              "name": "oppositeAmountBound",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "deadline",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint160",
+              "name": "sqrtPriceLimitX96",
+              "type": "uint160"
+            }
+          ],
+          "internalType": "struct IPerpPositionManager.OpenPositionFullParams",
+          "name": "params",
+          "type": "tuple"
+        }
+      ],
+      "name": "openPosition",
+      "outputs": [
+        { "internalType": "uint256", "name": "base", "type": "uint256" },
+        { "internalType": "uint256", "name": "quote", "type": "uint256" }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            { "internalType": "bool", "name": "isBaseToQuote", "type": "bool" },
+            { "internalType": "bool", "name": "isExactInput", "type": "bool" },
+            { "internalType": "uint256", "name": "amount", "type": "uint256" }
+          ],
+          "internalType": "struct IPerpPositionManager.OpenPositionParams",
+          "name": "params",
+          "type": "tuple"
+        }
+      ],
+      "name": "openPosition",
+      "outputs": [
+        { "internalType": "uint256", "name": "base", "type": "uint256" },
+        { "internalType": "uint256", "name": "quote", "type": "uint256" }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "address", "name": "newCaller", "type": "address" }
+      ],
+      "name": "setCaller",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "address", "name": "token", "type": "address" },
+        { "internalType": "uint256", "name": "amount", "type": "uint256" }
+      ],
+      "name": "withdraw",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ]
+}
