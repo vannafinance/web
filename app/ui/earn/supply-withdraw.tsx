@@ -1557,7 +1557,11 @@ const SupplyWithdraw = ({
           <span>{ceilWithPrecision(String(youGet))}</span>
         </div>
         <div className="flex justify-between text-sm mb-1">
-          <span>{selectedToken.name + " per " + selectedToken.vToken}</span>
+          <span>
+            {isSupply
+              ? selectedToken.name + " per " + selectedToken.vToken
+              : selectedToken.vToken + " per " + selectedToken.name}
+          </span>
           <span>{ceilWithPrecision(ethPerVeth)}</span>
         </div>
         {isSupply && (

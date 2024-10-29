@@ -100,6 +100,10 @@ const BorrowerDashboard = () => {
     accountCheck();
   }, []);
 
+  useEffect(() => {
+    accountCheck();
+  }, [account, currentNetwork]);
+
   const getPriceFromAssetsArray = async (tokenSymbol: string) => {
     const rsp = await axios.get("https://app.mux.network/api/liquidityAsset", {
       timeout: 10 * 1000,
@@ -121,7 +125,6 @@ const BorrowerDashboard = () => {
   };
 
   useEffect(() => {
-  
     const fetchValues = async () => {
       if (!currentNetwork || !activeAccount) return;
 
@@ -190,8 +193,7 @@ const BorrowerDashboard = () => {
           signer
         );
       } else if (currentNetwork.id === OPTIMISM_NETWORK) {
-
-        console.log("here at borrow page ")
+        console.log("here at borrow page ");
         daiContract = new Contract(
           opAddressList.daiTokenAddress,
           ERC20.abi,
@@ -268,31 +270,28 @@ const BorrowerDashboard = () => {
       let borrowedBalance = await vEtherContract.callStatic.getBorrowBalance(
         activeAccount
       );
-      
-      borrowedBalance = Number(borrowedBalance);
-      console.log("borrowedBalance",borrowedBalance);
 
+      borrowedBalance = Number(borrowedBalance);
+      console.log("borrowedBalance", borrowedBalance);
 
       let val = Number(await getPriceFromAssetsArray("ETH"));
-    
 
       let balance = Number(
-        (Number(accountBalance - borrowedBalance)/1e18) * val 
+        (Number(accountBalance - borrowedBalance) / 1e18) * val
       );
-     
 
       // USDC
       accountBalance = await usdcContract.balanceOf(activeAccount);
-      console.log("accountBalance",accountBalance);
+      console.log("accountBalance", accountBalance);
 
       borrowedBalance = await vUsdcContract.callStatic.getBorrowBalance(
         activeAccount
       );
-      console.log("borrowedBalance",Number(accountBalance - borrowedBalance));
+      console.log("borrowedBalance", Number(accountBalance - borrowedBalance));
 
       val = Number(await getPriceFromAssetsArray("USDC"));
-      balance += (Number(accountBalance - borrowedBalance)/1e6) * val;
-      console.log("balance",balance)
+      balance += (Number(accountBalance - borrowedBalance) / 1e6) * val;
+      console.log("balance", balance);
 
       // WBTC
       accountBalance = await wbtcContract.balanceOf(activeAccount);
@@ -320,22 +319,22 @@ const BorrowerDashboard = () => {
       val = Number(await getPriceFromAssetsArray("DAI"));
       balance += (accountBalance - borrowedBalance) * val;
 
-      setDepositedAmount(ceilWithPrecision(String(balance),2));
+      setDepositedAmount(ceilWithPrecision(String(balance), 2));
 
       const riskEngineContract = new Contract(
         opAddressList.riskEngineContractAddress,
         RiskEngine.abi,
         signer
       );
-      console.log("activeAccount",activeAccount);
+      console.log("activeAccount", activeAccount);
       const totalbalance = await riskEngineContract.callStatic.getBalance(
         activeAccount
       );
-      console.log("totalbalance",totalbalance/1);
+      console.log("totalbalance", totalbalance / 1);
       const borrowBalance = await riskEngineContract.callStatic.getBorrows(
         activeAccount
       );
-      console.log("borrowBalance",borrowBalance);
+      console.log("borrowBalance", borrowBalance);
 
       // TODO: @vatsal here totalbalance & borrowBalance is in bignumber ... convert the same and then uncomment the below set statements
       // setBorrowedAmount(borrowBalance);

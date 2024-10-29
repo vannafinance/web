@@ -19,10 +19,7 @@ import RiskEngine from "../../abi/vanna/v1/out/RiskEngine.sol/RiskEngine.json";
 import VEther from "@/app/abi/vanna/v1/out/VEther.sol/VEther.json";
 import VToken from "@/app/abi/vanna/v1/out/VToken.sol/VToken.json";
 
-import {
-  ceilWithPrecision,
-  check0xHex,
-} from "@/app/lib/helper";
+import { ceilWithPrecision, check0xHex } from "@/app/lib/helper";
 import {
   ARBITRUM_NETWORK,
   OPTIMISM_NETWORK,
@@ -141,7 +138,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
 
   useEffect(() => {
     accountCheck();
-  }, [account, library]);
+  }, [account, library, currentNetwork]);
 
   useEffect(() => {
     const intervalId = setInterval(getAssetPrice, 100000); // Calls fetchData every second
@@ -158,9 +155,10 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
 
   useEffect(() => {
     if (!currentNetwork) return;
-    if (assetsPrice.length === 0) return;
     if (activeTab === "Borrower") {
       const fetchValues = async () => {
+        if (!activeAccount) return;
+
         const signer = await library?.getSigner();
 
         let daiContract;
@@ -414,6 +412,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
 
       fetchValues();
     } else {
+      if (!account) return;
       const fetchValues = async () => {
         const iFaceEth = new utils.Interface(VEther.abi);
         const iFaceToken = new utils.Interface(VToken.abi);
@@ -783,7 +782,8 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
 
       fetchValues();
     }
-  }, [activeTab, currentNetwork, activeAccount, account, assetsPrice]);
+  }, [activeTab, currentNetwork, activeAccount, account, assetsPrice, library]);
+
   return (
     <div className="bg-white dark:bg-baseDark rounded-3xl border border-purpleBG-lighter dark:border-neutral-700 p-4 lg:p-7 mb-7">
       <div className="flex justify-between items-start mb-10">
@@ -792,7 +792,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
             {activeTab === "Borrower" ? "Initial Margin" : "Total Holdings"}
           </h2>
           <p className="text-3xl font-semibold mb-2">
-            {totalHoldings ? ceilWithPrecision(String(totalHoldings),2) : "-"}
+            {totalHoldings ? ceilWithPrecision(String(totalHoldings), 2) : "-"}
           </p>
         </div>
         <Image src={vannaLogoWithTextSrc} width="92" height="28" alt="Vanna" />
@@ -814,10 +814,12 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
                 : "text-baseBlack dark:text-baseWhite"
             )}
           >
-            {totalReturnsAmount ? ceilWithPrecision(String(totalReturnsAmount),2): "-"}
+            {totalReturnsAmount
+              ? ceilWithPrecision(String(totalReturnsAmount), 2)
+              : "-"}
             {totalReturnsPercentage && (
               <span className="text-sm font-medium">
-                ({ceilWithPrecision(String(totalReturnsPercentage),2)})
+                ({ceilWithPrecision(String(totalReturnsPercentage), 2)}%)
               </span>
             )}
           </p>
@@ -833,7 +835,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
                   : "text-baseSuccess-300"
               )}
             >
-              {healthFactor ? ceilWithPrecision(String(healthFactor),2) : "-"}
+              {healthFactor ? ceilWithPrecision(String(healthFactor), 2) : "-"}
             </p>
             <p className="text-sm text-gray-500">Health Factor</p>
           </div>

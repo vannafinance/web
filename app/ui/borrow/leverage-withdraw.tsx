@@ -64,8 +64,8 @@ const LevrageWithdraw = () => {
   const [leverageValue, setLeverageValue] = useState<number>(4);
   const [expected, setExpected] = useState(0);
   const [leverageAmount, setLeverageAmount] = useState<number | undefined>(0);
-  const [depositBalance, setDepositBalance] = useState<number | undefined>();
-  const [borrowBalance, setBorrowBalance] = useState<number | undefined>();
+  const [depositBalance, setDepositBalance] = useState<number | undefined>(0);
+  const [borrowBalance, setBorrowBalance] = useState<number | undefined>(0);
   const [debt, setDebt] = useState(0);
   const [healthFactor, setHealthFactor] = useState("-");
   const [activeAccount, setActiveAccount] = useState<string | undefined>();
@@ -260,13 +260,13 @@ const LevrageWithdraw = () => {
             token?.name,
             depositBalance
           );
-          const borrowBalanceInNumber = Number(depositBalanceInNumber) * 10;
+          // const borrowBalanceInNumber = Number(depositBalanceInNumber) * 10;
           setDepositBalance(
             Number(ceilWithPrecision(String(depositBalanceInNumber)))
           );
-          setBorrowBalance(
-            Number(ceilWithPrecision(String(borrowBalanceInNumber)))
-          );
+          // setBorrowBalance(
+          //   Number(ceilWithPrecision(String(borrowBalanceInNumber)))
+          // );
         } else {
           const signer = await library?.getSigner();
           const vEtherContract = new Contract(
@@ -401,7 +401,7 @@ const LevrageWithdraw = () => {
     const calc = async () => {
       const signer = await library?.getSigner();
       const val = getPriceFromAssetsArray(depositToken.name);
-      if (depositAmount !== undefined && val !== null) {
+      if (depositAmount !== undefined) {
         setExpected(depositAmount * val);
       } else {
         setExpected(0);
@@ -419,7 +419,8 @@ const LevrageWithdraw = () => {
         activeAccount
       );
 
-      const healthFactor = Number(balance / 1e16) / Number(borrowBalance / 1e16);
+      const healthFactor =
+        Number(balance / 1e16) / Number(borrowBalance / 1e16);
       setHealthFactor(String(healthFactor));
 
       // TODO @vatsal: 'depositAmount' is the variable which will have current input value entered in Deosit input box. Use it as required and update the above formula to add health Factor
@@ -428,11 +429,22 @@ const LevrageWithdraw = () => {
       setLeverageUseValue(leverageUse);
 
       const ltvValue = (leverageUseValue - 1) * 100;
-      setLtv(Number(ceilWithPrecision(String(ltvValue),2)));
+      setLtv(Number(ceilWithPrecision(String(ltvValue), 2)));
     };
 
     calc();
   }, [depositAmount, depositToken]);
+
+  useEffect(() => {
+    if (isLeverage && depositAmount !== undefined) {
+      const depositAmountInDollar = getPriceFromAssetsArray(depositToken.name);
+      const borrowAmountInDollar = getPriceFromAssetsArray(borrowToken.name);
+
+      const val =
+        (depositAmount * depositAmountInDollar * 10) / borrowAmountInDollar;
+      setBorrowBalance(val);
+    }
+  }, [depositAmount, depositToken, borrowToken]);
 
   const process = async () => {
     if (isLeverage) {
@@ -1054,7 +1066,10 @@ const LevrageWithdraw = () => {
               <div className="flex justify-between items-center mt-2 text-xs text-neutral-500">
                 <div>{formatUSD(leverageAmount)}</div>
                 <div className="flex">
-                  <div className="mr-2">{borrowBalance}</div>
+                  <div className="mr-2">
+                    {borrowBalance}{" "}
+                    {borrowBalance !== undefined ? borrowToken?.name : "-"}
+                  </div>
                   <button
                     className="py-0.5 px-1 bg-gradient-to-r from-gradient-1 to-gradient-2 text-xs rounded-md text-baseWhite"
                     onClick={handleMaxClick}

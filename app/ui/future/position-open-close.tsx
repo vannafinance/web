@@ -45,6 +45,7 @@ import { formatUSD } from "@/app/lib/number-format-helper";
 const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
   market,
   setMarket,
+  marketOption,
 }) => {
   const { account, library } = useWeb3React();
   const { currentNetwork } = useNetwork();
@@ -66,9 +67,6 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
     { value: "USDC", label: "USDC", icon: "/usdc-icon.svg" },
     { value: "USDT", label: "USDT", icon: "/usdt-icon.svg" },
     { value: "DAI", label: "DAI", icon: "/dai-icon.svg" },
-  ];
-  const marketOption: Option[] = [
-    { value: "ETH", label: "ETH", icon: "/eth-icon.svg" },
   ];
 
   const [isOpen, setIsOpen] = useState(true);
@@ -123,9 +121,13 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
 
   // }
 
-  useEffect(() => {
-    getAssetPrice(marketToken.value);
-  }, [market, marketToken]);
+  // useEffect(() => {
+  //   setMarket(marketToken);
+  // }, [marketToken]);
+
+  // useEffect(() => {
+  //   setMarketToken(market);
+  // }, [market]);
 
   const accountCheck = async () => {
     if (localStorage.getItem("isWalletConnected") === "true") {
@@ -176,6 +178,9 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
   useEffect(() => {
     accountCheck();
     getAssetPrice();
+
+    const intervalId = setInterval(getAssetPrice, 1000); // Calls fetchData every second
+    return () => clearInterval(intervalId); // This is the cleanup function
   }, []);
 
   useEffect(() => {
@@ -214,10 +219,6 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
     }
     return 1;
   };
-
-  useEffect(() => {
-    getAssetPrice();
-  }, []);
 
   useEffect(() => {
     if (collateralAmount !== undefined) {
@@ -537,11 +538,6 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
   //   }
   // };
 
-  // useEffect(() => {
-  //   const intervalId = setInterval(getAssetPrice, 1000); // Calls fetchData every second
-  //   return () => clearInterval(intervalId); // This is the cleanup function
-  // }, []);
-
   return (
     <div className="bg-baseComplementary dark:bg-baseDarkComplementary p-2 pb-6 rounded-3xl w-full text-baseBlack dark:text-baseWhite">
       <div className="flex mb-5 p-1 text-lg">
@@ -583,6 +579,11 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
         <div className="w-full text-center p-2.5 bg-white dark:bg-baseDark rounded-xl">
           ISOLATED
         </div>
+        {isOpen && (
+          <div className="w-fit text-center ml-2.5 p-2.5 bg-white dark:bg-baseDark rounded-xl">
+            {leverageValue}X
+          </div>
+        )}
       </div>
 
       <div className="flex justify-end mb-2">
@@ -624,9 +625,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
       <div className="flex flex-col mb-2 rounded-xl bg-white dark:bg-baseDark py-2">
         <div className="mb-3 flex flex-row justify-between px-2 text-xs text-neutral-500">
           <div>Use : {formatUSD(useValue)}</div>
-          <div>
-            Balance : {coinBalance !== undefined ? coinBalance : "-"}
-          </div>
+          <div>Balance : {coinBalance !== undefined ? coinBalance : "-"}</div>
         </div>
         <div className="flex flex-row justify-between">
           <div className="flex self-stretch pl-2">

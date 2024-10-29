@@ -71,7 +71,7 @@ const FutureSlider: React.FC<SliderProps> = ({ value, onChange }) => {
 
           {/* Hexagon thumb with logo placeholder */}
           <div
-            className="absolute -translate-y-[60%] -translate-x-1/4 z-10 pointer-events-none"
+            className="absolute -translate-y-[60%] -translate-x-1/4 z-[5] pointer-events-none"
             style={{ left: `${percentage}%` }}
           >
             <div
@@ -106,7 +106,7 @@ const FutureSlider: React.FC<SliderProps> = ({ value, onChange }) => {
             step="1"
             value={value}
             onChange={handleSliderChange}
-            className="absolute left-0 w-full -translate-y-3/4 h-8 opacity-0 cursor-pointer z-20"
+            className="absolute left-0 w-full -translate-y-3/4 h-8 opacity-0 cursor-pointer z-[8]"
           />
 
           {/* Tick marks */}

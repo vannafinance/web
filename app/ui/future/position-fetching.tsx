@@ -312,6 +312,7 @@ const PositionFetching = () =>
               actions: <div></div>, // or some default JSX
             };
             row["market"] = "ETH";
+            row["isLong"] = false; // TODO: @vatsal add logic here for long / short
             row["netValue"] = formatUSD(netValue);
             row["collateral"] = Number(collateralPrice);
             // row["entryPrice"] = (

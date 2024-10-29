@@ -1,11 +1,16 @@
 "use client";
 
 import { useNetwork } from "@/app/context/network-context";
-import { ARBITRUM_NETWORK } from "@/app/lib/constants";
+import {
+  ARBITRUM_NETWORK,
+  BASE_NETWORK,
+  OPTIMISM_NETWORK,
+} from "@/app/lib/constants";
 import FutureDropdown from "@/app/ui/future/future-dropdown";
 import PositionOpenClose from "@/app/ui/future/position-open-close";
 import PositionsSection from "@/app/ui/future/positions-section";
 import TradingViewChart from "@/app/ui/future/trading-view-chart";
+import axios from "axios";
 // import { useWeb3React } from "@web3-react/core";
 import { useEffect, useState } from "react";
 
@@ -14,23 +19,26 @@ export default function Page() {
   const { currentNetwork } = useNetwork();
 
   const pairOptions: Option[] = [
-    { value: "ETH", label: "ETH/USD", icon: "/eth-icon.svg" },
-    { value: "BTC", label: "BTC/USD", icon: "/btc-icon.svg" },
+    { value: "ETH", label: "ETH", icon: "/eth-icon.svg" },
+    { value: "BTC", label: "BTC", icon: "/btc-icon.svg" },
   ];
-  const protocolOptions: Option[] = [
-    { value: "MUX", label: "MUX" },
-    ...(currentNetwork?.id === ARBITRUM_NETWORK
-      ? [{ value: "GMX", label: "GMX" }]
-      : []),
-  ];
+
+  const networkOptionsMap: { [key: string]: Option[] } = {
+    [BASE_NETWORK]: [{ value: "MUX", label: "MUX" }],
+    [ARBITRUM_NETWORK]: [{ value: "dYdX", label: "dYdX" }],
+    [OPTIMISM_NETWORK]: [{ value: "perp", label: "perp" }],
+  };
+
+  const protocolOptions: Option[] = networkOptionsMap[
+    currentNetwork?.id || ""
+  ] || [{ value: "MUX", label: "MUX" }];
 
   const [selectedPair, setSelectedPair] = useState<Option>(pairOptions[0]);
   const [selectedProtocol, setSelectedProtocol] = useState<Option>(
     protocolOptions[0]
   );
 
-  // const [price, setPrice] = useState<string | undefined>("");
-  // const [change, setChange] = useState<string | undefined>("");
+  const [marketPrice, setMarketPrice] = useState(1);
   const [indexPrice, setIndexPrice] = useState<string | undefined>("");
   const [markPrice, setMarkPrice] = useState<string | undefined>("");
   const [highLow, setHighLow] = useState<string | undefined>("");
@@ -64,6 +72,47 @@ export default function Page() {
     setSelectedProtocol(protocolOptions[0]);
   }, [currentNetwork]);
 
+  const getAssetPrice = async (
+    shouldSetMarketPrice = true
+  ) => {
+    const rsp = await axios.get("https://app.mux.network/api/liquidityAsset");
+    const price = getPriceFromAssetsArray(selectedPair.value, rsp.data.assets);
+
+    if (shouldSetMarketPrice) {
+      console.log("price", price, "  selectedPair.value", selectedPair.value);
+      setMarketPrice(price);
+    }
+
+    return price;
+  };
+
+  const getPriceFromAssetsArray = (
+    tokenSymbol: string,
+    assets: MuxPriceFetchingResponseObject[]
+  ) => {
+    tokenSymbol =
+      tokenSymbol === "WETH" || tokenSymbol === "WBTC"
+        ? tokenSymbol.substring(1)
+        : tokenSymbol;
+    for (const asset of assets) {
+      if (asset.symbol === tokenSymbol) {
+        return asset.price;
+      }
+    }
+    return 1;
+  };
+
+  useEffect(() => {
+    // console.log("selectedPair.value", selectedPair.value);
+    // getAssetPrice();
+  }, [selectedPair]);
+
+  useEffect(() => {
+    getAssetPrice();
+    const intervalId = setInterval(getAssetPrice, 1000); // Calls fetchData every second
+    return () => clearInterval(intervalId); // This is the cleanup function
+  }, []);
+
   return (
     <div className="flex flex-col lg:flex-row space-x-0 lg:space-x-5 text-base pt-4 px-2.5 md:px-5 lg:px-7 xl:px-10 text-baseBlack dark:text-baseWhite">
       <div className="w-full mx-auto mb-6">
@@ -78,8 +127,10 @@ export default function Page() {
                 defaultValue={selectedPair}
                 onChange={setSelectedPair}
               />
-              <span className="text-green-500 font-semibold ml-2">58250.3</span>
-              <span className="text-sm text-green-500 ml-1">+1.09%</span>
+              <span className="text-green-500 font-semibold ml-2">
+                {marketPrice}
+              </span>
+              {/* <span className="text-sm text-green-500 ml-1">+1.09%</span> */}
             </div>
           </div>
           <div className="ml-0 sm:ml-auto mt-2 sm:mt-0 flex flex-row sm:flex-col justify-between sm:justify-normal items-center border border-neutral-100 dark:border-neutral-700 rounded-xl px-2 py-2">
@@ -140,7 +191,11 @@ export default function Page() {
       </div>
 
       <div className="flex-none w-full lg:w-[30%] pb-9">
-        <PositionOpenClose market={selectedPair} setMarket={setSelectedPair} />
+        <PositionOpenClose
+          market={selectedPair}
+          setMarket={setSelectedPair}
+          marketOption={pairOptions}
+        />
       </div>
     </div>
   );

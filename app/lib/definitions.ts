@@ -111,6 +111,7 @@ interface CryptoData {
 interface PositionOpenCloseProps {
   market: Option;
   setMarket: React.Dispatch<React.SetStateAction<Option>>;
+  marketOption: Option[];
 }
 
 interface UserData {
