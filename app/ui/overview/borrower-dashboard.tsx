@@ -30,6 +30,8 @@ import RiskEngine from "../../abi/vanna/v1/out/RiskEngine.sol/RiskEngine.json";
 import VEther from "../../abi/vanna/v1/out/VEther.sol/VEther.json";
 import VToken from "../../abi/vanna/v1/out/VToken.sol/VToken.json";
 import axios from "axios";
+import { formatUSD } from "@/app/lib/number-format-helper";
+import Link from "next/link";
 
 const BorrowerDashboard = () => {
   const { account, library } = useWeb3React();
@@ -193,7 +195,6 @@ const BorrowerDashboard = () => {
           signer
         );
       } else if (currentNetwork.id === OPTIMISM_NETWORK) {
-        console.log("here at borrow page ");
         daiContract = new Contract(
           opAddressList.daiTokenAddress,
           ERC20.abi,
@@ -244,6 +245,7 @@ const BorrowerDashboard = () => {
           VToken.abi,
           signer
         );
+      } else if (currentNetwork.id === BASE_NETWORK) {
       }
 
       if (
@@ -259,7 +261,6 @@ const BorrowerDashboard = () => {
         !vWbtcContract
       )
         return;
-      console.log("here at borrow ");
       // ETH
       let accountBalance = await library?.getBalance(activeAccount);
 
@@ -272,7 +273,6 @@ const BorrowerDashboard = () => {
       );
 
       borrowedBalance = Number(borrowedBalance);
-      console.log("borrowedBalance", borrowedBalance);
 
       let val = Number(await getPriceFromAssetsArray("ETH"));
 
@@ -282,16 +282,13 @@ const BorrowerDashboard = () => {
 
       // USDC
       accountBalance = await usdcContract.balanceOf(activeAccount);
-      console.log("accountBalance", accountBalance);
 
       borrowedBalance = await vUsdcContract.callStatic.getBorrowBalance(
         activeAccount
       );
-      console.log("borrowedBalance", Number(accountBalance - borrowedBalance));
 
       val = Number(await getPriceFromAssetsArray("USDC"));
       balance += (Number(accountBalance - borrowedBalance) / 1e6) * val;
-      console.log("balance", balance);
 
       // WBTC
       accountBalance = await wbtcContract.balanceOf(activeAccount);
@@ -326,15 +323,14 @@ const BorrowerDashboard = () => {
         RiskEngine.abi,
         signer
       );
-      console.log("activeAccount", activeAccount);
+
       const totalbalance = await riskEngineContract.callStatic.getBalance(
         activeAccount
       );
-      console.log("totalbalance", totalbalance / 1);
+
       const borrowBalance = await riskEngineContract.callStatic.getBorrows(
         activeAccount
       );
-      console.log("borrowBalance", borrowBalance);
 
       // TODO: @vatsal here totalbalance & borrowBalance is in bignumber ... convert the same and then uncomment the below set statements
       // setBorrowedAmount(borrowBalance);
@@ -351,20 +347,24 @@ const BorrowerDashboard = () => {
         <div className="bg-white dark:bg-baseDark rounded-3xl border border-purpleBG-lighter dark:border-neutral-700 p-3 lg:p-6 mb-5 lg:mb-7">
           <div className="flex justify-between items-start mb-10">
             <h2 className="text-base font-medium">Deopsited Amount</h2>
-            <ArrowCircleUpRight size={24} fill="#7a45da" />
+            <Link href="/borrow">
+              <ArrowCircleUpRight size={24} fill="#7a45da" />
+            </Link>
           </div>
           <p className="text-2xl lg:text-3xl font-semibold mb-2">
-            {depositedAmount ? depositedAmount : "-"}
+            {depositedAmount ? formatUSD(depositedAmount) : "-"}
           </p>
         </div>
 
         <div className="bg-white dark:bg-baseDark rounded-3xl border border-purpleBG-lighter dark:border-neutral-700 p-3 lg:p-6 mb-5 lg:mb-7">
           <div className="flex justify-between items-start mb-10">
             <h2 className="text-base font-medium">Repayable Amount</h2>
-            <ArrowCircleUpRight size={24} fill="#7a45da" />
+            <Link href="/borrow">
+              <ArrowCircleUpRight size={24} fill="#7a45da" />
+            </Link>
           </div>
           <p className="text-2xl lg:text-3xl font-semibold mb-2">
-            {repayableAmount ? repayableAmount : "-"}{" "}
+            {repayableAmount ? formatUSD(repayableAmount) : "-"}{" "}
             {repayablePercentage && (
               <span className="text-baseSuccess-300 text-base font-medium">
                 {repayablePercentage}
@@ -376,10 +376,12 @@ const BorrowerDashboard = () => {
         <div className="bg-white dark:bg-baseDark rounded-3xl border border-purpleBG-lighter dark:border-neutral-700 p-3 lg:p-6 mb-5 lg:mb-7">
           <div className="flex justify-between items-start mb-10">
             <h2 className="text-base font-medium">Borrowed Amount</h2>
-            <ArrowCircleUpRight size={24} fill="#7a45da" />
+            <Link href="/borrow">
+              <ArrowCircleUpRight size={24} fill="#7a45da" />
+            </Link>
           </div>
           <p className="text-2xl lg:text-3xl font-semibold mb-2">
-            {borrowedAmount ? borrowedAmount : "-"}{" "}
+            {borrowedAmount ? formatUSD(borrowedAmount) : "-"}{" "}
             {borrowedLeverage && (
               <span className="px-2 inline-flex text-xs leading-4 font-medium rounded-md bg-purpleBG-lighter text-purple">
                 {borrowedLeverage}x Leverage
@@ -391,10 +393,12 @@ const BorrowerDashboard = () => {
         <div className="bg-white dark:bg-baseDark rounded-3xl border border-purpleBG-lighter dark:border-neutral-700 p-3 lg:p-6 mb-5 lg:mb-7">
           <div className="flex justify-between items-start mb-10">
             <h2 className="text-base font-medium">Withdrawable Amount</h2>
-            <ArrowCircleUpRight size={24} fill="#7a45da" />
+            <Link href="/borrow">
+              <ArrowCircleUpRight size={24} fill="#7a45da" />
+            </Link>
           </div>
           <p className="text-2xl lg:text-3xl font-semibold mb-2">
-            {withdrawableAmount ? withdrawableAmount : "-"}
+            {withdrawableAmount ? formatUSD(withdrawableAmount) : "-"}
           </p>
         </div>
       </div>

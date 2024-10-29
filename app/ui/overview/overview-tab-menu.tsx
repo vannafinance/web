@@ -29,6 +29,7 @@ import { useNetwork } from "@/app/context/network-context";
 import { useWeb3React } from "@web3-react/core";
 import { formatUnits } from "ethers/lib/utils";
 import axios from "axios";
+import { formatUSD } from "@/app/lib/number-format-helper";
 
 const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
   const { isDarkMode } = useDarkMode();
@@ -792,7 +793,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
             {activeTab === "Borrower" ? "Initial Margin" : "Total Holdings"}
           </h2>
           <p className="text-3xl font-semibold mb-2">
-            {totalHoldings ? ceilWithPrecision(String(totalHoldings), 2) : "-"}
+            {totalHoldings ? formatUSD(ceilWithPrecision(String(totalHoldings), 2)) : "-"}
           </p>
         </div>
         <Image src={vannaLogoWithTextSrc} width="92" height="28" alt="Vanna" />
@@ -815,7 +816,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
             )}
           >
             {totalReturnsAmount
-              ? ceilWithPrecision(String(totalReturnsAmount), 2)
+              ? formatUSD(ceilWithPrecision(String(totalReturnsAmount), 2))
               : "-"}
             {totalReturnsPercentage && (
               <span className="text-sm font-medium">

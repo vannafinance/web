@@ -25,6 +25,7 @@ import { useNetwork } from "@/app/context/network-context";
 import { useWeb3React } from "@web3-react/core";
 import { formatUnits } from "ethers/lib/utils";
 import axios from "axios";
+import { formatUSD } from "@/app/lib/number-format-helper";
 
 const Pool: React.FC<PoolPropsLenderDashboard> = ({
   number,
@@ -41,9 +42,9 @@ const Pool: React.FC<PoolPropsLenderDashboard> = ({
     <div className="flex flex-row justify-between w-20">
       <Image src={icon} alt={name} width={24} height={24} /> {name}
     </div>
-    <div>{amount}</div>
+    <div>{amount} {name}</div>
     <div>
-      {profit}{" "}
+      {formatUSD(profit)}{" "}
       {isLoss ? (
         <span className="text-baseSecondary-500 text-xs">({percentage}%)</span>
       ) : (
@@ -117,7 +118,6 @@ const LenderDashboard: React.FC = () => {
         return asset.price;
       }
     }
-    console.log("assets", assets);
     return 1;
   };
 
@@ -135,7 +135,6 @@ const LenderDashboard: React.FC = () => {
 
   const fetchValues = async () => {
     if (!currentNetwork || !account) return;
-    getAssetPrice();
     const iFaceEth = new utils.Interface(VEther.abi);
     const iFaceToken = new utils.Interface(VToken.abi);
     let calldata = [];
@@ -634,10 +633,7 @@ const LenderDashboard: React.FC = () => {
       const usdcPnl = (Number(UusdcfetchBal) - Number(usdcBal)) / 1e6;
       const usdcPercentage = usdcPnl / Number(usdcusdcBal);
       const ethval = Number(await getPriceFromAssetsArray("WETH"));
-      console.log("val", ethval); //  @TODO: not geting value
-      console.log("usdcPnl", usdcPnl);
       ethPnl = ethPnl * ethval;
-      console.log("ethPnl", ethPnl);
 
       const wbtcPnl = Number(wbtcusdcBal) - Number(wbtcBal);
       const wbtcPercentage = (wbtcPnl / Number(wbtcusdcBal)) * 100;
@@ -786,7 +782,6 @@ const LenderDashboard: React.FC = () => {
       const avaibaleUSDC = res2.returnData[5];
       const avaibaleUSDT = res2.returnData[7];
       const avaibaleDai = res2.returnData[9];
-      console.log("here111111", avaibaleETH);
 
       // totalBorrow
 
@@ -811,7 +806,6 @@ const LenderDashboard: React.FC = () => {
         ])
       );
       calldata1.push([opAddressList.rateModelContractAddress, tempData1]);
-      console.log("res21212");
 
       //BTC
       tempData1 = utils.arrayify(
@@ -850,7 +844,6 @@ const LenderDashboard: React.FC = () => {
       calldata1.push([opAddressList.rateModelContractAddress, tempData1]);
 
       const res3 = await MCcontract.callStatic.aggregate(calldata1);
-      console.log("opAddressList");
 
       const ethBorrowAPY = res3.returnData[0];
       const ethBorrowApy =
@@ -883,7 +876,6 @@ const LenderDashboard: React.FC = () => {
           : 0;
 
       const updatedPools = pools.map((pool) => {
-        console.log("here");
         if (pool.name === "WETH" && Number(ethBal) > 0) {
           return {
             ...pool,
@@ -1313,14 +1305,14 @@ const LenderDashboard: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchValues();
+    getAssetPrice();
     const intervalId = setInterval(getAssetPrice, 1000); // Calls fetchData every second
     return () => clearInterval(intervalId); // This is the cleanup function
   }, []);
 
   useEffect(() => {
     fetchValues();
-  }, [account, currentNetwork]);
+  }, [account, currentNetwork, assetsPrice]);
 
   return (
     <div className="text-baseBlack dark:text-baseWhite">
@@ -1389,12 +1381,12 @@ const LenderDashboard: React.FC = () => {
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-4 text-base">
                   <div>
                     <p className="text-sm text-gray-500 mb-1">In Pool</p>
-                    <p>{ceilWithPrecision(String(pool.amount))}</p>
+                    <p>{ceilWithPrecision(String(pool.amount)) + ' ' + pool.name}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500 mb-1">Profit & Loss</p>
                     <p>
-                      {ceilWithPrecision(String(pool.profit))}{" "}
+                      {formatUSD(ceilWithPrecision(String(pool.profit)))}{" "}
                       {pool.percentage < 0 ? (
                         <span className="text-baseSecondary-500 text-xs">
                           ({ceilWithPrecision(String(pool.percentage))}%)
