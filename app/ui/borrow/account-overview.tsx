@@ -12,6 +12,7 @@ import { useNetwork } from "@/app/context/network-context";
 import RiskEngine from "../../abi/vanna/v1/out/RiskEngine.sol/RiskEngine.json";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store/store";
+import { ceilWithPrecision } from "@/app/lib/helper";
 
 const AccountOverview: React.FC<AccountOverviewProps> = ({
   creditToken,
@@ -22,7 +23,6 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({
   const { currentNetwork } = useNetwork();
 
   const pools = useSelector((state: RootState) => state.pools.poolsData);
-  console.log("Pools: ", pools);
 
   const [collateral, setCollateral] = useState(0);
   const [accountValue, setAccountValue] = useState(0);
@@ -30,6 +30,7 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({
   const [healthFactor, setHealthFactor] = useState(0);
   const [borrowRate, setBorrowRate] = useState("-");
   const [liquidationPrice, setLiquidationPrice] = useState(0);
+  
 
   useEffect(() => {
     const fetchValues = async () => {
@@ -40,21 +41,27 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({
         RiskEngine.abi,
         signer
       );
-      const balance = await riskEngineContract.callStatic.getBalance(
+      
+      const balance = (await riskEngineContract.callStatic.getBalance(
         activeAccount
-      ); // total Balance  => AccountValue
-      const borrowBalance = await riskEngineContract.callStatic.getBorrows(
+      )/1);
+      
+
+      console.log("balance",balance) // total Balance  => AccountValue
+      const borrowBalance = (await riskEngineContract.callStatic.getBorrows(
         activeAccount
-      ); // total Borrow Balance
+      )/1); // total Borrow Balance
+      console.log("borrowBalance",borrowBalance)
       const healthFactor1 = balance / borrowBalance;
+      console.log("healthFactor1",healthFactor1)
       const liqP = (balance * 1.05) / healthFactor1;
       // TODO : @vatsal here balance & borrowBalance is in bignumber ... convert the same and then uncomment the below set statements
-
-      // setAccountValue(balance);
-      // setCollateral(balance - borrowBalance);
-      // setDebt(borrowBalance);
-      // setHealthFactor(healthFactor1);
-      // setLiquidationPrice(liqP);
+      const collateral = balance - borrowBalance;
+      setAccountValue(Number(ceilWithPrecision(String(balance/1e18),2)));
+      setCollateral(Number(ceilWithPrecision(String(collateral/1e18),2)));
+      setDebt(Number(ceilWithPrecision(String(borrowBalance/1e18),2)));
+      setHealthFactor(Number(ceilWithPrecision(String(healthFactor1),2)));
+      setLiquidationPrice(Number(ceilWithPrecision(String(liqP/1e16),2)));
     };
 
     fetchValues();
