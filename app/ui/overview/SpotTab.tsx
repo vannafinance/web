@@ -14,7 +14,7 @@ const SpotTab: React.FC = () => {
 
     // TODO: @vatsal this is page for spot in borrow dashboard in overview page. Add code here for balance fetching
 
-    try {
+    // try {
     //   if (activeAccount && currentNetwork) {
     //     const signer = await library?.getSigner();
 

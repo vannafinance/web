@@ -368,7 +368,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
         let accountBalance;
         if (tokenName === "WETH") {
           accountBalance = await library?.getBalance(activeAccount);
-          console.log(accountBalance, waccountBalance, tokenName);
+          // console.log(accountBalance, waccountBalance, tokenName);
           // accountBalance = Number(accountBalance) + Number(waccountBalance);
         } else if (tokenName === "WBTC") {
           accountBalance = await usdcContract.balanceOf(activeAccount);

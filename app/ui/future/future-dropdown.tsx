@@ -24,6 +24,10 @@ const FutureDropdown: React.FC<FutureDropdownProps> = ({
   }, []);
 
   useEffect(() => {
+    setSelectedOption(defaultValue);
+  }, [defaultValue]);
+
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         dropdownRef.current &&

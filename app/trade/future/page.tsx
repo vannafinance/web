@@ -20,7 +20,7 @@ import OpIndexPrice from "../../abi/vanna/v1/out/OpIndexPrice.sol/OpIndexPrice.j
 import { ceilWithPrecision } from "@/app/lib/helper";
 
 export default function Page() {
-  const { account, library } = useWeb3React();
+  const { library } = useWeb3React();
   const { currentNetwork } = useNetwork();
 
   const pairOptions: Option[] = [
@@ -31,36 +31,33 @@ export default function Page() {
   const networkOptionsMap: { [key: string]: Option[] } = {
     [BASE_NETWORK]: [{ value: "MUX", label: "MUX" }],
     [ARBITRUM_NETWORK]: [{ value: "dYdX", label: "dYdX" }],
-    [OPTIMISM_NETWORK]: [{ value: "Perp", label: "perp" }],
+    [OPTIMISM_NETWORK]: [{ value: "perp", label: "Perp" }],
   };
 
-  const protocolOptions: Option[] = networkOptionsMap[
-    currentNetwork?.id || ""
-  ] || [{ value: "MUX", label: "MUX" }];
-
   const [selectedPair, setSelectedPair] = useState<Option>(pairOptions[0]);
+  const [protocolOptions, setProtocolOptions] = useState<Option[]>([
+    { value: "MUX", label: "MUX" },
+  ]);
   const [selectedProtocol, setSelectedProtocol] = useState<Option>(
     protocolOptions[0]
   );
 
-  const [marketPrice, setMarketPrice] = useState(1);
-  const [indexPrice, setIndexPrice] = useState<string | undefined>("");
-  const [markPrice, setMarkPrice] = useState<string | undefined>("");
-  const [highLow, setHighLow] = useState<string | undefined>("");
-  const [fundingRate, setFundingRate] = useState<string | undefined>("");
-  // const [netRatePositive, setNetRatePositive] = useState<string | undefined>(
+  const [marketPrice, setMarketPrice] = useState<number>(1);
+  const [indexPrice, setIndexPrice] = useState<string>("-");
+  const [markPrice, setMarkPrice] = useState<string>("-");
+  const [highLow, setHighLow] = useState<string>("-");
+  const [fundingRate, setFundingRate] = useState<string>("-");
+  // const [netRatePositive, setNetRatePositive] = useState<string>(
   //   ""
   // );
-  // const [netRateNegative, setNetRateNegative] = useState<string | undefined>(
+  // const [netRateNegative, setNetRateNegative] = useState<string>(
   //   ""
   // );
-  const [openInterestPositive, setOpenInterestPositive] = useState<
-    string | undefined
-  >("");
-  const [openInterestNegative, setOpenInterestNegative] = useState<
-    string | undefined
-  >("");
-  const [volume, setVolume] = useState<string | undefined>("");
+  const [openInterestPositive, setOpenInterestPositive] = useState<string>("-");
+  const [openInterestNegative, setOpenInterestNegative] = useState<string>("");
+  const [openInterestInPercentage, setOpenInterestInPercentage] =
+    useState<string>("");
+  const [volume, setVolume] = useState<string>("-");
 
   useEffect(() => {
     const fetchValues = async () => {
@@ -99,31 +96,43 @@ export default function Page() {
 
     fetchValues();
 
-    setOpenInterestPositive("$668.4k");
-    setOpenInterestNegative("$805.5k");
     setVolume("58,289.70");
   }, [library, currentNetwork]);
 
   useEffect(() => {
-    setSelectedProtocol(protocolOptions[0]);
+    const protocol = networkOptionsMap[currentNetwork?.id || ""] || [
+      { value: "MUX", label: "MUX" },
+    ];
+    setProtocolOptions(protocol);
+    setSelectedProtocol(protocol[0]);
   }, [currentNetwork]);
 
-  const getAssetPrice = async (shouldSetMarketPrice = true) => {
+  const getAssetPrice = async () => {
     const rsp = await axios.get("https://app.mux.network/api/liquidityAsset");
     const asset = getAssetFromAssetsArray(selectedPair.value, rsp.data.assets);
 
-    if (shouldSetMarketPrice) {
-      // console.log("price", price, "  selectedPair.value", selectedPair.value);
-      setMarketPrice(asset.price);
-      const fourPercent = (asset.price * 4) / 100;
-      const high = Number(asset.price) + Number(fourPercent);
-      const low = asset.price - fourPercent;
-      setHighLow(
-        ceilWithPrecision(String(high), 2) +
-          "/" +
-          ceilWithPrecision(String(low), 2)
-      );
-    }
+    setMarketPrice(asset.price);
+    const fourPercent = (asset.price * 4) / 100;
+    const high = Number(asset.price) + Number(fourPercent);
+    const low = asset.price - fourPercent;
+    setHighLow(
+      ceilWithPrecision(String(high), 2) +
+        "/" +
+        ceilWithPrecision(String(low), 2)
+    );
+    setOpenInterestPositive(
+      ceilWithPrecision(String(asset.availableForLong), 1)
+    );
+    setOpenInterestNegative(
+      ceilWithPrecision(String(asset.availableForShort), 1)
+    );
+    const longPercent = Math.ceil((asset.availableForLong / asset.price) * 100);
+    const shortPercent = Math.ceil(
+      (asset.availableForShort / asset.price) * 100
+    );
+    setOpenInterestInPercentage(
+      "(" + String(longPercent) + "%/" + String(shortPercent) + "%)"
+    );
 
     return asset.price;
   };
@@ -141,7 +150,7 @@ export default function Page() {
         return asset;
       }
     }
-    return 1;
+    return { symbol: "", price: 1, availableForLong: 1, availableForShort: 1 };
   };
 
   useEffect(() => {
@@ -212,7 +221,9 @@ export default function Page() {
             </div>
           </div>
           <div className="col-span-2 sm:col-auto">
-            <p className="text-neutral-500 text-xs">Open Interest (45%/55%)</p>
+            <p className="text-neutral-500 text-xs">
+              Open Interest {openInterestInPercentage}
+            </p>
             <div className="flex items-center space-x-1">
               <p className="text-green-500 text-sm">{openInterestPositive}</p>
               <p className="text-red-500 text-sm">{openInterestNegative}</p>
