@@ -39,7 +39,7 @@ const FutureTab: React.FC = () => {
   const [entryPrice, setEntryPrice] = useState("");
   const [liquidationPrice, setLiquidationPrice] = useState("");
   const [profitLoss, setProfitLoss] = useState("");
-  const [profitLossPercentage, setProfitLossPercentage] = useState("");
+  // const [profitLossPercentage, setProfitLossPercentage] = useState("");
 
   const accountCheck = async () => {
     if (
@@ -258,12 +258,6 @@ const FutureTab: React.FC = () => {
         const netValue = getNetVal / 1e18;
 
         if (netValue != 0) {
-          const getETHMarketPrice =
-            await OptimismFetchPositionContract.getMarkPrice(
-              opAddressList.vETH
-            );
-          const indexPrice = getETHMarketPrice / 1e18;
-
           const getTotalPositionSize =
             await OptimismFetchPositionContract.getTotalPositionSize(
               account,
@@ -320,7 +314,9 @@ const FutureTab: React.FC = () => {
       <InfoRow label="Collateral" value={collateral} />
       <InfoRow label="Entry Price" value={entryPrice} />
       <InfoRow label="Liq. Price" value={liquidationPrice} />
-      <InfoRow label="PNL" value={profitLoss} subValue={profitLossPercentage} />
+      <InfoRow label="PNL" value={profitLoss} 
+      // subValue={profitLossPercentage}
+      />
     </div>
   );
 };
