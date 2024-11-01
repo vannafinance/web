@@ -53,48 +53,51 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
   const [vannaLogoWithTextSrc, setVannaLogoWithTextSrc] = useState("");
 
   const accountCheck = async () => {
-    if (localStorage.getItem("isWalletConnected") === "true") {
-      if (account && currentNetwork) {
-        try {
-          const signer = await library?.getSigner();
+    if (
+      localStorage.getItem("isWalletConnected") === "true" &&
+      account &&
+      currentNetwork
+    ) {
+      try {
+        const signer = await library?.getSigner();
 
-          let regitstryContract;
-          if (currentNetwork.id === ARBITRUM_NETWORK) {
-            regitstryContract = new Contract(
-              arbAddressList.registryContractAddress,
-              Registry.abi,
-              signer
-            );
-          } else if (currentNetwork.id === OPTIMISM_NETWORK) {
-            regitstryContract = new Contract(
-              opAddressList.registryContractAddress,
-              Registry.abi,
-              signer
-            );
-          } else if (currentNetwork.id === BASE_NETWORK) {
-            regitstryContract = new Contract(
-              baseAddressList.registryContractAddress,
-              Registry.abi,
-              signer
-            );
-          }
-          if (regitstryContract) {
-            const accountsArray = await regitstryContract.accountsOwnedBy(
-              account
-            );
-            let tempAccount;
-
-            if (accountsArray.length > 0) {
-              tempAccount = accountsArray[0];
-              setActiveAccount(tempAccount);
-            }
-          }
-        } catch (e) {
-          console.error(e);
+        let regitstryContract;
+        if (currentNetwork.id === ARBITRUM_NETWORK) {
+          regitstryContract = new Contract(
+            arbAddressList.registryContractAddress,
+            Registry.abi,
+            signer
+          );
+        } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+          regitstryContract = new Contract(
+            opAddressList.registryContractAddress,
+            Registry.abi,
+            signer
+          );
+        } else if (currentNetwork.id === BASE_NETWORK) {
+          regitstryContract = new Contract(
+            baseAddressList.registryContractAddress,
+            Registry.abi,
+            signer
+          );
         }
-      } else {
+        if (regitstryContract) {
+          const accountsArray = await regitstryContract.accountsOwnedBy(
+            account
+          );
+          let tempAccount;
+
+          if (accountsArray.length > 0) {
+            tempAccount = accountsArray[0];
+            setActiveAccount(tempAccount);
+          }
+        }
+      } catch (e) {
+        console.error(e);
         setActiveAccount(undefined);
       }
+    } else {
+      setActiveAccount(undefined);
     }
   };
 
@@ -793,7 +796,9 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
             {activeTab === "Borrower" ? "Initial Margin" : "Total Holdings"}
           </h2>
           <p className="text-3xl font-semibold mb-2">
-            {totalHoldings ? formatUSD(ceilWithPrecision(String(totalHoldings), 2)) : "-"}
+            {totalHoldings
+              ? formatUSD(ceilWithPrecision(String(totalHoldings), 2))
+              : "-"}
           </p>
         </div>
         <Image src={vannaLogoWithTextSrc} width="92" height="28" alt="Vanna" />

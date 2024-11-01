@@ -80,8 +80,7 @@ export default function Page() {
   };
 
   const accountCheck = async () => {
-    if (localStorage.getItem("isWalletConnected") === "true") {
-      if (account && currentNetwork) {
+    if (localStorage.getItem("isWalletConnected") === "true" && account && currentNetwork) {
         try {
           const signer = await library?.getSigner();
 
@@ -119,10 +118,10 @@ export default function Page() {
           }
         } catch (e) {
           console.error(e);
+          setActiveAccount(undefined);
         }
       } else {
-        setActiveAccount(undefined);
-      }
+      setActiveAccount(undefined);
     }
     setLoading(false);
   };

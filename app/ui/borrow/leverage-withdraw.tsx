@@ -61,7 +61,7 @@ const LevrageWithdraw = () => {
   const [isLeverage, setIsLeverage] = useState(true);
   const [depositAmount, setDepositAmount] = useState<number | undefined>();
   const [borrowAmount, setBorrowAmount] = useState<number | undefined>();
-  const [leverageValue, setLeverageValue] = useState<number>(0);
+  const [leverageValue, setLeverageValue] = useState<number>(1);
   const [expected, setExpected] = useState(0);
   const [leverageAmount, setLeverageAmount] = useState<number | undefined>(0);
   const [depositBalance, setDepositBalance] = useState<number | undefined>(0);
@@ -181,47 +181,50 @@ const LevrageWithdraw = () => {
   ]);
 
   const accountCheck = async () => {
-    if (localStorage.getItem("isWalletConnected") === "true") {
-      if (account && currentNetwork) {
-        try {
-          const signer = await library?.getSigner();
+    if (
+      localStorage.getItem("isWalletConnected") === "true" &&
+      account &&
+      currentNetwork
+    ) {
+      try {
+        const signer = await library?.getSigner();
 
-          let regitstryContract;
-          if (currentNetwork.id === ARBITRUM_NETWORK) {
-            regitstryContract = new Contract(
-              arbAddressList.registryContractAddress,
-              Registry.abi,
-              signer
-            );
-          } else if (currentNetwork.id === OPTIMISM_NETWORK) {
-            regitstryContract = new Contract(
-              opAddressList.registryContractAddress,
-              Registry.abi,
-              signer
-            );
-          } else if (currentNetwork.id === BASE_NETWORK) {
-            regitstryContract = new Contract(
-              baseAddressList.registryContractAddress,
-              Registry.abi,
-              signer
-            );
-          }
-          if (regitstryContract) {
-            const accountsArray = await regitstryContract.accountsOwnedBy(
-              account
-            );
-            let tempAccount;
-            if (accountsArray.length > 0) {
-              tempAccount = accountsArray[0];
-              setActiveAccount(tempAccount);
-            }
-          }
-        } catch (e) {
-          console.error(e);
+        let regitstryContract;
+        if (currentNetwork.id === ARBITRUM_NETWORK) {
+          regitstryContract = new Contract(
+            arbAddressList.registryContractAddress,
+            Registry.abi,
+            signer
+          );
+        } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+          regitstryContract = new Contract(
+            opAddressList.registryContractAddress,
+            Registry.abi,
+            signer
+          );
+        } else if (currentNetwork.id === BASE_NETWORK) {
+          regitstryContract = new Contract(
+            baseAddressList.registryContractAddress,
+            Registry.abi,
+            signer
+          );
         }
-      } else {
+        if (regitstryContract) {
+          const accountsArray = await regitstryContract.accountsOwnedBy(
+            account
+          );
+          let tempAccount;
+          if (accountsArray.length > 0) {
+            tempAccount = accountsArray[0];
+            setActiveAccount(tempAccount);
+          }
+        }
+      } catch (e) {
+        console.error(e);
         setActiveAccount(undefined);
       }
+    } else {
+      setActiveAccount(undefined);
     }
     setLoading(false);
   };
@@ -344,7 +347,7 @@ const LevrageWithdraw = () => {
             );
 
             // TODO @vatsal: add repay balance in setBorrowBalance();
-            setBorrowBalance(borrowedBalance);
+            // setBorrowBalance(borrowedBalance);
           } else if (currentNetwork.id === BASE_NETWORK) {
           }
         }
@@ -532,11 +535,12 @@ const LevrageWithdraw = () => {
       const val =
         (depositAmount * depositAmountInDollar * 10) / borrowAmountInDollar;
       setBorrowBalance(val);
+      setBorrowAmount(val / 10);
     } else {
       setBorrowBalance(0);
+      setBorrowAmount(0);
     }
-    setBorrowAmount(undefined);
-    setLeverageValue(0);
+    setLeverageValue(1);
   }, [depositAmount, depositToken, borrowToken]);
 
   const process = async () => {
