@@ -1,6 +1,8 @@
 /* eslint-disable */
 "use client";
 
+import { capitalizeFirstLetter } from "@/app/lib/helper";
+
 export const SimpleTableComponent: React.FC<{
   title: string;
   data: any;
@@ -21,7 +23,7 @@ export const SimpleTableComponent: React.FC<{
                     : ""
                 } ${ index === 0 ? "text-left" : ""}`}
               >
-                {header}
+                {capitalizeFirstLetter(header)}
               </th>
             ))}
           </tr>
@@ -30,7 +32,7 @@ export const SimpleTableComponent: React.FC<{
           {Object.entries(data).map(([asset, values], rowIndex) => (
             <tr key={rowIndex}>
               <td className="py-1 px-2 text-xs font-semibold border-r border-neutral-300 dark:border-neutral-700">
-                {asset}
+                {capitalizeFirstLetter(asset)}
               </td>
               {headers.slice(1).map((header, colIndex) => (
                 <td

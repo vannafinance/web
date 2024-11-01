@@ -2,33 +2,51 @@
 
 import OptionPayoffChart from "@/app/ui/dashboard/option-payoff-chart";
 import { SimpleTableComponent } from "@/app/ui/dashboard/simple-table";
-import { calculateRemainingTime } from "@/app/lib/helper";
+import { calculateRemainingTime, ceilWithPrecision } from "@/app/lib/helper";
 import FutureDropdown from "@/app/ui/future/future-dropdown";
 import { CheckSquare, Square } from "@phosphor-icons/react";
-// import { useNetwork } from "@/app/context/network-context";
-// import { useWeb3React } from "@web3-react/core";
+import { useNetwork } from "@/app/context/network-context";
+import { useWeb3React } from "@web3-react/core";
 import { useEffect, useState } from "react";
+import {
+  ARBITRUM_NETWORK,
+  OPTIMISM_NETWORK,
+  BASE_NETWORK,
+} from "@/app/lib/constants";
+import { formatUSD } from "@/app/lib/number-format-helper";
+import {
+  arbAddressList,
+  opAddressList,
+  baseAddressList,
+  codeToAsset,
+} from "@/app/lib/web3-constants";
+import axios from "axios";
+import { Contract } from "ethers";
+import { formatUnits } from "ethers/lib/utils";
+import ClearingHouse from "../../abi/vanna/v1/out/ClearingHouse.sol/ClearingHouse.json";
+import ERC20 from "../../abi/vanna/v1/out/ERC20.sol/ERC20.json";
+import LiquidityPool from "../../abi/vanna/v1/out/LiquidityPool.sol/LiquidityPool.json";
+import OptimismFetchPosition from "../../abi/vanna/v1/out/OptimismFetchPosition.sol/OptimismFetchPosition.json";
+import Registry from "../../abi/vanna/v1/out/Registry.sol/Registry.json";
+import RiskEngine from "../../abi/vanna/v1/out/RiskEngine.sol/RiskEngine.json";
 
 export default function Page() {
-  // const { account, library } = useWeb3React();
-  // const { currentNetwork } = useNetwork();
+  const { account, library } = useWeb3React();
+  const { currentNetwork } = useNetwork();
+  const [activeAccount, setActiveAccount] = useState<string | undefined>();
 
   const pairOptions: Option[] = [
     { value: "ETH", label: "ETH/USD", icon: "/eth-icon.svg" },
     { value: "BTC", label: "BTC/USD", icon: "/btc-icon.svg" },
   ];
 
-  const userData: UserData = {
-    availableBalance: "$100.00",
-    marginUsage: "$950.00",
-    totalPnl: "+$56.00",
-    healthFactor: "1.8",
-    borrowRate: "50%",
-  };
-
-  useEffect(() => {
-    // TODO: @vatsal add code here to get availableBalance, marginUsage, totalPnl, healthFactor, borrowRate in trade -> dashboard page
-  }, []);
+  const [userData, setUserData] = useState<UserData>({
+    availableBalance: "-",
+    marginUsage: "-",
+    totalPnl: "-",
+    healthFactor: "-",
+    borrowRate: "-",
+  });
 
   const expiryOptions: Option[] = [
     { value: "2024-09-20", label: "20 September 2024" },
@@ -176,33 +194,33 @@ export default function Page() {
     },
   ]);
 
-  const portfolioSummary = {
-    future: 80.0,
-    premium: 0.0,
-    option: 0.0,
-    grossPnl: 0.0,
-    netBal: 0.0,
-    theta: 0.0,
-    vega: 0.0,
-    gamma: 0.0,
-  };
+  const [portfolioSummary, setPortfolioSummary] = useState({
+    future: "-",
+    premium: "-",
+    option: "-",
+    grossPnl: "-",
+    netBal: "-",
+    theta: "-",
+    vega: "-",
+    gamma: "-",
+  });
 
-  const options = {
-    Delta: { Call: "$0.00", Put: "$0.00", Total: "$0.00" },
-    Theta: { Call: "$0.00", Put: "$0.00", Total: "$0.00" },
-    Vega: { Call: "$0.00", Put: "$0.00", Total: "$0.00" },
-    Gamma: { Call: "$0.00", Put: "$0.00", Total: "$0.00" },
-    Long: { Call: "$0.00", Put: "$0.00", Total: "$0.00" },
-    Short: { Call: "$0.00", Put: "$0.00", Total: "$0.00" },
-    Net: { Call: "$0.00", Put: "$0.00", Total: "$0.00" },
-  };
+  const [options, setOptions] = useState({
+    delta: { call: "$0.00", put: "$0.00", total: "$0.00" },
+    theta: { call: "$0.00", put: "$0.00", total: "$0.00" },
+    vega: { call: "$0.00", put: "$0.00", total: "$0.00" },
+    gamma: { call: "$0.00", put: "$0.00", total: "$0.00" },
+    long: { call: "$0.00", put: "$0.00", total: "$0.00" },
+    short: { call: "$0.00", put: "$0.00", total: "$0.00" },
+    net: { call: "$0.00", put: "$0.00", total: "$0.00" },
+  });
 
-  const futures = {
-    PrevBal: { Equity: "$0.00", Future: "$0.00", Average: "$0.00" },
-    Todays: { Equity: "$0.00", Future: "$0.00", Average: "$0.00" },
-    Net: { Equity: "$0.00", Future: "$0.00", Average: "$0.00" },
-    Traded: { Equity: "$0.00", Future: "$0.00", Average: "$0.00" },
-  };
+  const [futures, setFutures] = useState({
+    prevBal: { equity: "$0.00", future: "$0.00", average: "$0.00" },
+    todays: { equity: "$0.00", future: "$0.00", average: "$0.00" },
+    net: { equity: "$0.00", future: "$0.00", average: "$0.00" },
+    traded: { equity: "$0.00", future: "$0.00", average: "$0.00" },
+  });
 
   const handleOptionPositionSelect = (id: number) => {
     setOptionPositions(
@@ -234,6 +252,433 @@ export default function Page() {
     month: "short",
     year: "numeric",
   });
+
+  const accountCheck = async () => {
+    if (
+      localStorage.getItem("isWalletConnected") === "true" &&
+      account &&
+      currentNetwork
+    ) {
+      try {
+        const signer = await library?.getSigner();
+
+        let registryContract;
+        if (currentNetwork.id === ARBITRUM_NETWORK) {
+          registryContract = new Contract(
+            arbAddressList.registryContractAddress,
+            Registry.abi,
+            signer
+          );
+        } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+          registryContract = new Contract(
+            opAddressList.registryContractAddress,
+            Registry.abi,
+            signer
+          );
+        } else if (currentNetwork.id === BASE_NETWORK) {
+          registryContract = new Contract(
+            baseAddressList.registryContractAddress,
+            Registry.abi,
+            signer
+          );
+        }
+
+        if (registryContract) {
+          const accountsArray = await registryContract.accountsOwnedBy(account);
+          let tempAccount;
+
+          if (accountsArray.length > 0) {
+            tempAccount = accountsArray[0];
+            setActiveAccount(tempAccount);
+          }
+        }
+      } catch (e) {
+        console.error(e);
+        setActiveAccount(undefined);
+      }
+    } else {
+      setActiveAccount(undefined);
+    }
+  };
+
+  useEffect(() => {
+    accountCheck();
+  }, []);
+
+  useEffect(() => {
+    accountCheck();
+  }, [account, library, currentNetwork]);
+
+  useEffect(() => {
+    // TODO: @vatsal add code here to get availableBalance, marginUsage, totalPnl, healthFactor, borrowRate in trade -> dashboard page
+  }, []);
+
+  useEffect(() => {
+    const intervalId = setInterval(getAssetPrice, 1000); // Calls fetchData every second
+    return () => clearInterval(intervalId); // This is the cleanup function
+  }, []);
+
+  const getPriceFromAssetsArray = (
+    tokenSymbol: string,
+    assets: MuxPriceFetchingResponseObject[]
+  ) => {
+    tokenSymbol =
+      tokenSymbol === "WETH" || tokenSymbol === "WBTC"
+        ? tokenSymbol.substring(1)
+        : tokenSymbol;
+    for (const asset of assets) {
+      if (asset.symbol === tokenSymbol) {
+        return asset.price;
+      }
+    }
+    return 1;
+  };
+
+  const getAssetPrice = async (
+    assetName: string
+    // shouldSetMarketPrice = true
+  ) => {
+    const rsp = await axios.get("https://app.mux.network/api/liquidityAsset", {
+      timeout: 10 * 1000,
+    });
+    const price = getPriceFromAssetsArray(assetName, rsp.data.assets);
+
+    // if (shouldSetMarketPrice && price) {
+    //   setMarketPrice(price);
+    // }
+
+    return price;
+  };
+
+  const calcPnl = (
+    currentPrice: number,
+    entryPrice: number,
+    size: number,
+    IsLong: number
+  ) => {
+    let PNL;
+    if (IsLong == 1) {
+      PNL = (currentPrice - entryPrice) * size;
+    } else {
+      PNL = (entryPrice - currentPrice) * size;
+    }
+    return PNL;
+  };
+
+  const fetchFuturePositions = async () => {
+    if (!currentNetwork) return;
+
+    let deltaCall = 0;
+    let deltaPut = 0;
+    let collateralSum = 0;
+
+    // let collateralSumString;
+    let deltaCallString;
+    let deltaPutString;
+    let deltaTotalString;
+    let netBalanceString;
+    let availaleBalanceString;
+    let todayAverageString;
+    let currhealthFactor;
+
+    let riskEngineContract;
+    let WETHContract;
+
+    if (activeAccount) {
+      if (currentNetwork.id === ARBITRUM_NETWORK) {
+        const renderedRows: MarketPosition[] = [];
+        const signer = await library?.getSigner();
+        const liquidityPoolContract = new Contract(
+          arbAddressList.muxLiquidityPoolAddress,
+          LiquidityPool.abi,
+          signer
+        );
+
+        // let price = 0;
+        let subAccountId;
+
+        // for (let i = 0; i < 5; i++) {
+        const i = 3;
+        for (let j = 3; j < 5; j++) {
+          for (let k = 0; k < 2; k++) {
+            subAccountId =
+              activeAccount.toString() +
+              "0" +
+              i +
+              "0" +
+              j +
+              "0" +
+              k +
+              "000000000000000000";
+            const result = await liquidityPoolContract.getSubAccount(
+              subAccountId
+            );
+            const size = result.size / 1e18;
+
+            if (size != 0) {
+              const indexPrice = await getAssetPrice(
+                codeToAsset["0" + j]
+                // false
+              );
+              if (indexPrice) {
+                const netValue = indexPrice * size;
+                const collateralPrice = result.collateral / 1e18;
+                const entryPrice = result.entryPrice / 1e18;
+                const liquidation =
+                  entryPrice - (collateralPrice * entryPrice) / size;
+                const pnl = calcPnl(indexPrice, entryPrice, size, k);
+                // price += pnl;
+
+                const row: MarketPosition = {
+                  market: "",
+                  isLong: false,
+                  netValue: "",
+                  collateral: 0,
+                  entryPrice: "",
+                  indexPrice: "",
+                  liqPrice: "",
+                  pnlAndRow: "",
+                  actions: <div></div>, // or some default JSX
+                };
+
+                row["market"] = "ETH/USD";
+                row["isLong"] = k === 1;
+                row["netValue"] = formatUSD(netValue);
+                row["collateral"] = collateralPrice;
+                row["entryPrice"] = formatUSD(entryPrice);
+                row["indexPrice"] = formatUSD(indexPrice);
+                row["liqPrice"] = formatUSD(liquidation);
+                row["pnlAndRow"] = formatUSD(pnl);
+                // row["actions"] = (
+                //   <button
+                //     className="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+                //     onClick={() => {
+                //       closePositionArb(i, j, k, result.size);
+                //     }}
+                //   >
+                //     Close
+                //   </button>
+                // );
+
+                if (k === 1) {
+                  deltaCall += pnl;
+                } else {
+                  deltaPut += pnl;
+                }
+                collateralSum += collateralPrice;
+
+                renderedRows.push(row);
+              }
+            }
+          }
+          // }
+        }
+
+        // setFuturesPositions(renderedRows);
+
+        riskEngineContract = new Contract(
+          arbAddressList.riskEngineContractAddress,
+          RiskEngine.abi,
+          signer
+        );
+        WETHContract = new Contract(
+          arbAddressList.wethTokenAddress,
+          ERC20.abi,
+          library
+        );
+      } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+        const renderedRows: MarketPosition[] = [];
+        const signer = await library?.getSigner();
+
+        const OptimismFetchPositionContract = new Contract(
+          opAddressList.optimismFetchPositionContractAddress,
+          OptimismFetchPosition.abi,
+          signer
+        );
+
+        const getNetVal =
+          await OptimismFetchPositionContract.getTotalPositionValue(
+            activeAccount,
+            opAddressList.vETH
+          );
+        const netValue = getNetVal / 1e18;
+
+        if (netValue != 0) {
+          const getETHMarketPrice =
+            await OptimismFetchPositionContract.getMarkPrice(
+              opAddressList.vETH
+            );
+          const indexPrice = getETHMarketPrice / 1e18;
+
+          const getTotalPositionSize =
+            await OptimismFetchPositionContract.getTotalPositionSize(
+              activeAccount,
+              opAddressList.vETH
+            );
+          const totalPositionSize = ceilWithPrecision(
+            String(getTotalPositionSize / 1e18)
+          );
+
+          const getPnlResult =
+            await OptimismFetchPositionContract.getPnlAndPendingFee(
+              activeAccount
+            );
+          const pnl = ceilWithPrecision(String(getPnlResult[1] / 1e18));
+
+          const ClearingHouseContract = new Contract(
+            opAddressList.ClearingHouse,
+            ClearingHouse.abi,
+            signer
+          );
+          const getCollateral = await ClearingHouseContract.getAccountValue(
+            activeAccount
+          );
+          const collateralPrice = Number(
+            ceilWithPrecision(String(getCollateral / 1e18))
+          );
+          // const collateralPriceInUSDC = ceilWithPrecision(collateralPrice * indexPrice);
+
+          const row: MarketPosition = {
+            market: "",
+            isLong: false,
+            netValue: "",
+            collateral: 0,
+            entryPrice: "",
+            indexPrice: "",
+            liqPrice: "",
+            pnlAndRow: "",
+            actions: <div></div>, // or some default JSX
+          };
+          row["market"] = "ETH";
+          row["isLong"] = false; // TODO: @vatsal add logic here for long / short
+          row["netValue"] = formatUSD(netValue);
+          row["collateral"] = collateralPrice;
+          // row["entryPrice"] = (
+          //   <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>
+          //     -{/* {formatUSD(entryPrice)} */}
+          //   </p>
+          // );
+          row["entryPrice"] = formatUSD(totalPositionSize);
+          row["indexPrice"] = formatUSD(indexPrice);
+          // row["liqPrice"] = (
+          //   <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>
+          //     -{/* {formatUSD(liquidation)} */}
+          //   </p>
+          // );
+          row["liqPrice"] = formatUSD(netValue);
+          row["pnlAndRow"] = formatUSD(pnl);
+          // row["actions"] = (
+          //   <button
+          //     className="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+          //     onClick={() => {
+          //       closePositionOp();
+          //     }}
+          //   >
+          //     Close
+          //   </button>
+          // );
+
+          // if () { // add logic here to know if it's long / short
+          //   deltaCall += pnl;
+          // } else {
+          //   deltaPut += pnl;
+          // }
+          collateralSum += collateralPrice;
+
+          renderedRows.push(row);
+
+          riskEngineContract = new Contract(
+            opAddressList.riskEngineContractAddress,
+            RiskEngine.abi,
+            signer
+          );
+          WETHContract = new Contract(
+            opAddressList.wethTokenAddress,
+            ERC20.abi,
+            library
+          );
+
+          // setFuturesPositions(renderedRows);
+        }
+      } else if (currentNetwork.id === BASE_NETWORK) {
+      }
+
+      if (riskEngineContract === undefined || WETHContract === undefined)
+        return;
+
+      let balance = await riskEngineContract.callStatic.getBalance(
+        activeAccount
+      );
+      balance = balance / 1e18;
+      let borrowBalance = await riskEngineContract.callStatic.getBorrows(
+        activeAccount
+      );
+      borrowBalance = borrowBalance / 1e18;
+      currhealthFactor = balance / borrowBalance;
+
+      const currentEthPrice = await getAssetPrice("ETH");
+      const bal = formatUnits(await WETHContract.balanceOf(activeAccount));
+      const availaleBalance = Number(bal) * currentEthPrice;
+
+      const deltaTotal = deltaCall + deltaPut;
+      const netBalance = deltaTotal + availaleBalance;
+
+      const collateralLoss = deltaTotal / currentEthPrice;
+      const finalCollateral = collateralSum - collateralLoss;
+      const todayAverage = (currentEthPrice * finalCollateral) / collateralSum;
+
+      // collateralSumString = ceilWithPrecision(String(collateralSum), 6);
+      deltaCallString = ceilWithPrecision(String(deltaCall));
+      deltaPutString = ceilWithPrecision(String(deltaPut));
+      deltaTotalString = ceilWithPrecision(String(deltaTotal));
+      netBalanceString = ceilWithPrecision(String(netBalance));
+      availaleBalanceString = ceilWithPrecision(String(availaleBalance));
+      todayAverageString = isNaN(todayAverage)
+        ? 0
+        : ceilWithPrecision(String(todayAverage));
+
+      // header params
+      // collateralSumString // we were fetching this earlier, do we need ?
+      const currentUserData = userData;
+      currentUserData["availableBalance"] = formatUSD(availaleBalanceString); // check if this is correct value we are assigning, same we are assigning below as well. Check all instances ?
+      currentUserData["healthFactor"] = ceilWithPrecision(
+        String(currhealthFactor)
+      );
+      setUserData(currentUserData);
+
+      // option data from below onwards
+      const currentOptions = options;
+      currentOptions["delta"]["call"] = formatUSD(deltaCallString);
+      currentOptions["delta"]["put"] = formatUSD(deltaPutString);
+      currentOptions["delta"]["total"] = formatUSD(deltaTotalString);
+      currentOptions["long"]["call"] = formatUSD(deltaCallString);
+      currentOptions["long"]["total"] = formatUSD(deltaCallString);
+      currentOptions["short"]["put"] = formatUSD(deltaPutString);
+      currentOptions["short"]["total"] = formatUSD(deltaPutString);
+      currentOptions["net"]["call"] = formatUSD(deltaCallString);
+      currentOptions["net"]["put"] = formatUSD(deltaPutString);
+      currentOptions["net"]["total"] = formatUSD(deltaTotalString);
+      setOptions(currentOptions);
+
+      // future data from below onwards
+      const currentFutures = futures;
+      currentFutures["todays"]["equity"] = formatUSD(availaleBalanceString);
+      currentFutures["todays"]["future"] = formatUSD(deltaTotalString);
+      currentFutures["todays"]["average"] = formatUSD(todayAverageString);
+      setFutures(currentFutures);
+
+      // portfolio summary data from below onwards
+      const currentPorfolioSummary = portfolioSummary;
+      currentPorfolioSummary["future"] = formatUSD(deltaTotalString);
+      currentPorfolioSummary["grossPnl"] = formatUSD(availaleBalanceString);
+      currentPorfolioSummary["netBal"] = formatUSD(netBalanceString);
+      setPortfolioSummary(currentPorfolioSummary);
+    }
+  };
+
+  useEffect(() => {
+    fetchFuturePositions();
+  }, [activeAccount]);
 
   return (
     <div className="pt-5 sm:pt-7 lg:pt-10 pb-5 px-2.5 md:px-5 lg:px-7 xl:px-10 text-baseBlack dark:text-baseWhite">
@@ -293,12 +738,12 @@ export default function Page() {
             <SimpleTableComponent
               title="Options"
               data={options}
-              headers={["Assets", "Call", "Put", "Total"]}
+              headers={["Assets", "call", "put", "total"]}
             />
             <SimpleTableComponent
               title="Futures"
               data={futures}
-              headers={["Assets", "Equity", "Future", "Average"]}
+              headers={["Assets", "equity", "future", "average"]}
             />
           </div>
         </div>
@@ -513,35 +958,35 @@ export default function Page() {
       <div className="w-full grid grid-cols-4 sm:grid-cols-8 gap-2.5 lg:gap-5 justify-between px-2.5 lg:px-5 py-5 border border-neutral-100 dark:border-neutral-700 rounded-xl font-semibold mb-2.5 text-xs">
         <div>
           <p className="text-neutral-500 font-normal">FUTURE</p>
-          <p>${portfolioSummary.future.toFixed(2)}</p>
+          <p>{portfolioSummary.future}</p>
         </div>
         <div>
           <p className="text-neutral-500 font-normal">PREMIUM</p>
-          <p>${portfolioSummary.premium.toFixed(2)}</p>
+          <p>{portfolioSummary.premium}</p>
         </div>
         <div>
           <p className="text-neutral-500 font-normal">OPTION</p>
-          <p>${portfolioSummary.option.toFixed(2)}</p>
+          <p>{portfolioSummary.option}</p>
         </div>
         <div>
           <p className="text-neutral-500 font-normal">GROSS PNL</p>
-          <p>${portfolioSummary.grossPnl.toFixed(2)}</p>
+          <p>{portfolioSummary.grossPnl}</p>
         </div>
         <div>
           <p className="text-neutral-500 font-normal">NET BAL</p>
-          <p>${portfolioSummary.netBal.toFixed(2)}</p>
+          <p>{portfolioSummary.netBal}</p>
         </div>
         <div>
           <p className="text-neutral-500 font-normal">THETA</p>
-          <p>${portfolioSummary.theta.toFixed(2)}</p>
+          <p>{portfolioSummary.theta}</p>
         </div>
         <div>
           <p className="text-neutral-500 font-normal">VEGA</p>
-          <p>${portfolioSummary.vega.toFixed(2)}</p>
+          <p>{portfolioSummary.vega}</p>
         </div>
         <div>
           <p className="text-neutral-500 font-normal">GAMMA</p>
-          <p>${portfolioSummary.gamma.toFixed(2)}</p>
+          <p>{portfolioSummary.gamma}</p>
         </div>
       </div>
     </div>

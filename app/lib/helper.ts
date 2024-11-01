@@ -66,3 +66,7 @@ export const generateDummyData = (
 export const check0xHex = (num: BigNumberish) => {
   return num === "0x" ? BigNumber.from(0) : num;
 };
+
+export const capitalizeFirstLetter = (val: string) => {
+  return val.charAt(0).toUpperCase() + val.slice(1);
+}
