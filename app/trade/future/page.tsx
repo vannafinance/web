@@ -13,7 +13,7 @@ import TradingViewChart from "@/app/ui/future/trading-view-chart";
 import axios from "axios";
 import { Contract } from "ethers";
 import { useWeb3React } from "@web3-react/core";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { opAddressList } from "@/app/lib/web3-constants";
 import OpMarkPrice from "../../abi/vanna/v1/out/OpMarkPrice.sol/OpMarkPrice.json";
 import OpIndexPrice from "../../abi/vanna/v1/out/OpIndexPrice.sol/OpIndexPrice.json";
@@ -35,6 +35,7 @@ export default function Page() {
   };
 
   const [selectedPair, setSelectedPair] = useState<Option>(pairOptions[0]);
+  const selectedPairRef = useRef(selectedPair);
   const [protocolOptions, setProtocolOptions] = useState<Option[]>([
     { value: "MUX", label: "MUX" },
   ]);
@@ -109,8 +110,8 @@ export default function Page() {
 
   const getAssetPrice = async () => {
     const rsp = await axios.get("https://app.mux.network/api/liquidityAsset");
-    const asset = getAssetFromAssetsArray(selectedPair.value, rsp.data.assets);
-
+    const asset = getAssetFromAssetsArray(selectedPairRef.current.value, rsp.data.assets);
+    console.log("selectedPairRef",selectedPairRef);
     setMarketPrice(asset.price);
     const fourPercent = (asset.price * 4) / 100;
     const high = Number(asset.price) + Number(fourPercent);
@@ -154,8 +155,7 @@ export default function Page() {
   };
 
   useEffect(() => {
-    // console.log("selectedPair.value", selectedPair.value);
-    // getAssetPrice();
+    selectedPairRef.current = selectedPair;
   }, [selectedPair]);
 
   useEffect(() => {
