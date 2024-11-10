@@ -4,6 +4,7 @@
 
 // import { useNetwork } from "@/app/context/network-context";
 import {
+  ceilWithPrecision,
   formatBignumberToUnits,
   formatStringToUnits,
   sleep,
@@ -224,11 +225,11 @@ export default function Page() {
 
         const listOfBalance: { [key: string]: string } = {};
 
-        listOfBalance["WETH"] = formatBignumberToUnits("WETH", ethBalOfSA);
-        listOfBalance["WBTC"] = formatBignumberToUnits("WBTC", daiBalOfSA);
-        listOfBalance["USDC"] = formatBignumberToUnits("USDC", usdcBalOfSA);
-        listOfBalance["USDT"] = formatBignumberToUnits("USDT", usdtBalOfSA);
-        listOfBalance["DAI"] = formatBignumberToUnits("DAI", wbtcBalOfSA);
+        listOfBalance["WETH"] = ceilWithPrecision(formatBignumberToUnits("WETH", ethBalOfSA),3);
+        listOfBalance["WBTC"] = ceilWithPrecision(formatBignumberToUnits("WBTC", daiBalOfSA));
+        listOfBalance["USDC"] = ceilWithPrecision(formatBignumberToUnits("USDC", usdcBalOfSA));
+        listOfBalance["USDT"] = ceilWithPrecision(formatBignumberToUnits("USDT", usdtBalOfSA));
+        listOfBalance["DAI"] = ceilWithPrecision(formatBignumberToUnits("DAI", wbtcBalOfSA));
 
         setBalList(listOfBalance);
 
