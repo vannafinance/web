@@ -81,47 +81,49 @@ export default function Page() {
   };
 
   const accountCheck = async () => {
-    if (localStorage.getItem("isWalletConnected") === "true" && account && currentNetwork) {
-        try {
-          const signer = await library?.getSigner();
+    if (
+      localStorage.getItem("isWalletConnected") === "true" &&
+      account &&
+      currentNetwork
+    ) {
+      try {
+        const signer = await library?.getSigner();
 
-          let registryContract;
-          if (currentNetwork.id === ARBITRUM_NETWORK) {
-            registryContract = new Contract(
-              arbAddressList.registryContractAddress,
-              Registry.abi,
-              signer
-            );
-          } else if (currentNetwork.id === OPTIMISM_NETWORK) {
-            registryContract = new Contract(
-              opAddressList.registryContractAddress,
-              Registry.abi,
-              signer
-            );
-          } else if (currentNetwork.id === BASE_NETWORK) {
-            registryContract = new Contract(
-              baseAddressList.registryContractAddress,
-              Registry.abi,
-              signer
-            );
-          }
-
-          if (registryContract) {
-            const accountsArray = await registryContract.accountsOwnedBy(
-              account
-            );
-            let tempAccount;
-
-            if (accountsArray.length > 0) {
-              tempAccount = accountsArray[0];
-              setActiveAccount(tempAccount);
-            }
-          }
-        } catch (e) {
-          console.error(e);
-          setActiveAccount(undefined);
+        let registryContract;
+        if (currentNetwork.id === ARBITRUM_NETWORK) {
+          registryContract = new Contract(
+            arbAddressList.registryContractAddress,
+            Registry.abi,
+            signer
+          );
+        } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+          registryContract = new Contract(
+            opAddressList.registryContractAddress,
+            Registry.abi,
+            signer
+          );
+        } else if (currentNetwork.id === BASE_NETWORK) {
+          registryContract = new Contract(
+            baseAddressList.registryContractAddress,
+            Registry.abi,
+            signer
+          );
         }
-      } else {
+
+        if (registryContract) {
+          const accountsArray = await registryContract.accountsOwnedBy(account);
+          let tempAccount;
+
+          if (accountsArray.length > 0) {
+            tempAccount = accountsArray[0];
+            setActiveAccount(tempAccount);
+          }
+        }
+      } catch (e) {
+        console.error(e);
+        setActiveAccount(undefined);
+      }
+    } else {
       setActiveAccount(undefined);
     }
     setLoading(false);
@@ -225,11 +227,22 @@ export default function Page() {
 
         const listOfBalance: { [key: string]: string } = {};
 
-        listOfBalance["WETH"] = ceilWithPrecision(formatBignumberToUnits("WETH", ethBalOfSA),3);
-        listOfBalance["WBTC"] = ceilWithPrecision(formatBignumberToUnits("WBTC", daiBalOfSA));
-        listOfBalance["USDC"] = ceilWithPrecision(formatBignumberToUnits("USDC", usdcBalOfSA));
-        listOfBalance["USDT"] = ceilWithPrecision(formatBignumberToUnits("USDT", usdtBalOfSA));
-        listOfBalance["DAI"] = ceilWithPrecision(formatBignumberToUnits("DAI", wbtcBalOfSA));
+        listOfBalance["WETH"] = ceilWithPrecision(
+          formatBignumberToUnits("WETH", ethBalOfSA),
+          3
+        );
+        listOfBalance["WBTC"] = ceilWithPrecision(
+          formatBignumberToUnits("WBTC", daiBalOfSA)
+        );
+        listOfBalance["USDC"] = ceilWithPrecision(
+          formatBignumberToUnits("USDC", usdcBalOfSA)
+        );
+        listOfBalance["USDT"] = ceilWithPrecision(
+          formatBignumberToUnits("USDT", usdtBalOfSA)
+        );
+        listOfBalance["DAI"] = ceilWithPrecision(
+          formatBignumberToUnits("DAI", wbtcBalOfSA)
+        );
 
         setBalList(listOfBalance);
 
@@ -655,11 +668,8 @@ export default function Page() {
             </div>
           </div>
           <div className="mt-2 flex justify-between text-base">
+            <div>{formatUSD(payAmountInDollar)}</div>
             <div>
-              {formatUSD(payAmountInDollar)}
-            </div>
-            <div>
-              Balance:{" "}
               {payBalance !== undefined ? payBalance + " " + payCoin.name : "-"}
             </div>
           </div>
@@ -696,11 +706,8 @@ export default function Page() {
             </div>
           </div>
           <div className="mt-2 flex justify-between text-base">
+            <div>{formatUSD(receiveAmountInDollar)}</div>
             <div>
-              {formatUSD(receiveAmountInDollar)}
-            </div>
-            <div>
-              Balance :{" "}
               {receiveBalance !== undefined
                 ? receiveBalance + " " + receiveCoin.name
                 : "-"}

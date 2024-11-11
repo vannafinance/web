@@ -18,7 +18,7 @@ import Registry from "../../abi/vanna/v1/out/Registry.sol/Registry.json";
 import RiskEngine from "../../abi/vanna/v1/out/RiskEngine.sol/RiskEngine.json";
 import VEther from "@/app/abi/vanna/v1/out/VEther.sol/VEther.json";
 import VToken from "@/app/abi/vanna/v1/out/VToken.sol/VToken.json";
-import OracleFacade from "../../abi/vanna/v1/out/OracleFacade.sol/OracleFacade.json"
+import OracleFacade from "../../abi/vanna/v1/out/OracleFacade.sol/OracleFacade.json";
 
 import { ceilWithPrecision, check0xHex } from "@/app/lib/helper";
 import {
@@ -160,7 +160,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
 
   useEffect(() => {
     if (!currentNetwork) return;
-    if (activeTab === "Borrower") {
+    if (activeTab === "Trader") {
       const fetchValues = async () => {
         if (!activeAccount) return;
 
@@ -284,7 +284,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
             opAddressList.OracleFacade,
             OracleFacade.abi,
             signer
-          )
+          );
         } else if (currentNetwork.id === BASE_NETWORK) {
           daiContract = new Contract(
             baseAddressList.daiTokenAddress,
@@ -365,7 +365,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
         );
 
         val = Number(getPriceFromAssetsArray("USDC"));
-        balance += (Number(accountBalance - borrowedBalance) / 1e6)* val;
+        balance += (Number(accountBalance - borrowedBalance) / 1e6) * val;
 
         // WBTC
         accountBalance = await wbtcContract.balanceOf(activeAccount);
@@ -392,14 +392,20 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
         );
         val = Number(getPriceFromAssetsArray("DAI"));
         balance += (accountBalance - borrowedBalance) * val;
-        
-        //@TODO: currently we are fetchign the currnt balance with PNL 
-        // need to subtract the PNL 
-        // tToken 
-        accountBalance = (await tTokenOracleContract.callStatic.getPrice(opAddressList.tTokenAddress, activeAccount))/1e18;
-        val = accountBalance * Number(await getPriceFromAssetsArray("WETH"));
-    
-        balance +=val;
+
+        //@TODO: currently we are fetchign the currnt balance with PNL
+        // need to subtract the PNL
+        // tToken
+        if (tTokenOracleContract !== undefined) {
+          accountBalance =
+            (await tTokenOracleContract.callStatic.getPrice(
+              opAddressList.tTokenAddress,
+              activeAccount
+            )) / 1e18;
+          val = accountBalance * Number(await getPriceFromAssetsArray("WETH"));
+        }
+
+        balance += val;
         // totalHoldings = balance;
 
         const riskEngineContract = new Contract(
@@ -408,21 +414,21 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
           signer
         );
         //TODO: vatsal rework on this getBalance varibale till the assigne you have to rework for fetching the data
-        let totalbalance = (await riskEngineContract.callStatic.getBalance(
-          activeAccount
-        ))/1e18;
+        let totalbalance =
+          (await riskEngineContract.callStatic.getBalance(activeAccount)) /
+          1e18;
 
-        totalbalance = totalbalance * Number(await getPriceFromAssetsArray("WETH"));
-        
-        let borrowBalance = (await riskEngineContract.callStatic.getBorrows(
-          activeAccount
-        ))/1e18;
+        totalbalance = totalbalance * Number(getPriceFromAssetsArray("WETH"));
 
-        borrowBalance = borrowBalance * Number(await getPriceFromAssetsArray("WETH"));
+        let borrowBalance =
+          (await riskEngineContract.callStatic.getBorrows(activeAccount)) /
+          1e18;
+
+        borrowBalance = borrowBalance * Number(getPriceFromAssetsArray("WETH"));
 
         const balanceWithoutReapy = totalbalance - borrowBalance;
 
-        const totalReturnsAmount = Number((balanceWithoutReapy)) - balance;
+        const totalReturnsAmount = Number(balanceWithoutReapy) - balance;
         const totalReturnsPercentage = (totalReturnsAmount / balance) * 100;
         // add color while showing this
         // console.log("totalbalance",totalbalance);
@@ -818,7 +824,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
       <div className="flex justify-between items-start mb-10">
         <div>
           <h2 className="text-base font-medium text-neutral-500">
-            {activeTab === "Borrower" ? "Initial Margin" : "Total Holdings"}
+            {activeTab === "Trader" ? "Initial Margin" : "Total Holdings"}
           </h2>
           <p className="text-3xl font-semibold mb-2">
             {totalHoldings
@@ -831,7 +837,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
       <div
         className={clsx(
           "flex items-start",
-          activeTab === "Borrower" ? "justify-between" : "justify-start"
+          activeTab === "Trader" ? "justify-between" : "justify-start"
         )}
       >
         <div>
@@ -856,7 +862,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
           </p>
           <p className="text-sm text-gray-500">Total Returns</p>
         </div>
-        {activeTab === "Borrower" && (
+        {activeTab === "Trader" && (
           <div>
             <p
               className={clsx(
@@ -912,7 +918,7 @@ const OverviewTabMenu = () => {
     switch (activeTab) {
       case "Lender":
         return <LenderDashboard />;
-      case "Borrower":
+      case "Trader":
         return <BorrowerDashboard />;
       default:
         return null;
@@ -922,7 +928,7 @@ const OverviewTabMenu = () => {
   return (
     <div className="bg-white dark:bg-baseDark mt-6 rounded-lg text-baseBlack dark:text-baseWhite">
       <div className="flex space-x-6 mb-6 border-b border-neutral-100 dark:border-neutral-700 pb-2 text-xl">
-        {["Lender", "Borrower"].map((tab) => (
+        {["Lender", "Trader"].map((tab) => (
           <div
             key={tab}
             className={clsx(

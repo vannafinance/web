@@ -753,7 +753,9 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
       <div className="flex flex-col mb-2 rounded-xl bg-white dark:bg-baseDark py-2">
         <div className="mb-3 flex flex-row justify-between px-2 text-xs text-neutral-500">
           <div>Use : {formatUSD(useValue)}</div>
-          <div>Balance : {coinBalance !== undefined ? coinBalance : "-"}</div>
+          <div>
+            {coinBalance !== undefined ? coinBalance + " " + coin?.label : "-"}
+          </div>
         </div>
         <div className="flex flex-row justify-between">
           <div className="flex self-stretch pl-2">

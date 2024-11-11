@@ -59,8 +59,8 @@ const LevrageWithdraw = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [isLeverage, setIsLeverage] = useState(true);
-  const [depositAmount, setDepositAmount] = useState<number | undefined>();
-  const [borrowAmount, setBorrowAmount] = useState<number | undefined>();
+  const [depositAmount, setDepositAmount] = useState<string>("");
+  const [borrowAmount, setBorrowAmount] = useState<string>("");
   const [leverageValue, setLeverageValue] = useState<number>(1);
   const [expected, setExpected] = useState(0);
   const [leverageAmount, setLeverageAmount] = useState<number | undefined>(0);
@@ -93,7 +93,7 @@ const LevrageWithdraw = () => {
   const handlePercentageClick = (percentage: number) => {
     if (depositBalance) {
       setDepositAmount(
-        Number(((depositBalance * percentage) / 100).toFixed(3))
+        ceilWithPrecision(String((depositBalance * percentage) / 100))
       );
     }
   };
@@ -101,6 +101,8 @@ const LevrageWithdraw = () => {
   const handleDepositTokenSelect = (token: PoolTable) => {
     setDepositToken(token);
     getTokenBalance(token);
+    setDepositAmount("");
+    setBorrowAmount("");
   };
 
   const handleBorrowTokenSelect = (token: PoolTable) => {
@@ -108,64 +110,65 @@ const LevrageWithdraw = () => {
   };
 
   const handleMaxClick = () => {
-    setBorrowAmount(borrowBalance);
+    setBorrowAmount(String(borrowBalance));
     setLeverageValue(10);
   };
 
   const handleLeverageChange = (num: number) => {
-    if (depositAmount === undefined) {
-      setBorrowAmount(undefined);
+    if (depositAmount === "") {
+      setBorrowAmount("");
       return;
     }
 
     const depositAmountInDollar = getPriceFromAssetsArray(depositToken.name);
     const borrowAmountInDollar = getPriceFromAssetsArray(borrowToken.name);
     const val =
-      (depositAmount * depositAmountInDollar * num) / borrowAmountInDollar;
+      (Number(depositAmount) * depositAmountInDollar * num) /
+      borrowAmountInDollar;
 
-    setBorrowAmount(Number(ceilWithPrecision(String(val))));
+    setBorrowAmount(ceilWithPrecision(String(val)));
     setLeverageValue(num);
   };
 
   useEffect(() => {
     const tokenName = depositToken ? depositToken.name : "";
     if (
-      (depositAmount === undefined && borrowAmount === undefined) ||
-      (depositAmount === undefined &&
-        borrowAmount !== undefined &&
-        borrowAmount <= 0) ||
-      (borrowAmount === undefined &&
-        depositAmount !== undefined &&
-        depositAmount <= 0) ||
-      (depositAmount !== undefined &&
-        depositAmount <= 0 &&
-        borrowAmount !== undefined &&
-        borrowAmount <= 0)
+      (depositAmount === "" && borrowAmount === "") ||
+      (depositAmount === "" &&
+        borrowAmount !== "" &&
+        Number(borrowAmount) <= 0) ||
+      (borrowAmount === "" &&
+        depositAmount !== "" &&
+        Number(depositAmount) <= 0) ||
+      (depositAmount !== "" &&
+        Number(depositAmount) <= 0 &&
+        borrowAmount !== "" &&
+        Number(borrowAmount) <= 0)
     ) {
       setBtnValue("Enter an amount");
       setDisableBtn(true);
     } else if (
       depositBalance &&
-      depositAmount &&
-      Number(depositBalance) * 1.0 < depositAmount * 1.0
+      depositAmount !== "" &&
+      Number(depositBalance) * 1.0 < Number(depositAmount) * 1.0
     ) {
       setBtnValue("Insufficient " + tokenName + " balance");
       setDisableBtn(true);
     } else {
       setBtnValue(
         isLeverage
-          ? depositAmount && borrowAmount
+          ? depositAmount !== "" && borrowAmount !== ""
             ? tokenName === "WETH"
               ? "Deposit & Borrow"
               : "Approve - Deposit & Borrow"
-            : !borrowAmount || borrowAmount <= 0
+            : borrowAmount !== "" || Number(borrowAmount) <= 0
             ? tokenName === "WETH"
               ? "Deposit"
               : "Approve - Deposit"
             : "Borrow"
-          : depositAmount && borrowAmount
+          : depositAmount !== "" && borrowAmount !== ""
           ? "Repay & Withdraw"
-          : !borrowAmount || borrowAmount <= 0
+          : borrowAmount !== "" || Number(borrowAmount) <= 0
           ? "Repay"
           : "Withdraw"
       );
@@ -354,74 +357,72 @@ const LevrageWithdraw = () => {
             //   await vUsdcContract.callStatic.getBorrowBalance(activeAccount);
 
             // TODO: @vatsal add repay balanc in setDepositeBalance();
-            console.log("Here at reapy balance")
-            let repayBalance; 
+            console.log("Here at reapy balance");
+            let repayBalance;
             if (token?.name == "WETH") {
-              console.log("after If ")
-              repayBalance = (await vEtherContract.callStatic.getBorrowBalance(activeAccount))/1e18;
-              console.log("repayBalance",repayBalance);
-
+              console.log("after If ");
+              repayBalance =
+                (await vEtherContract.callStatic.getBorrowBalance(
+                  activeAccount
+                )) / 1e18;
+              console.log("repayBalance", repayBalance);
+            } else if (token?.name == "WBTC") {
+              repayBalance = await vWbtcContract.callStatic.getBorrowBalance(
+                activeAccount
+              );
+            } else if (token?.name == "USDC") {
+              repayBalance = await vUsdcContract.callStatic.getBorrowBalance(
+                activeAccount
+              );
+              console.log("repayBalance", repayBalance);
+            } else if (token?.name == "USDT") {
+              repayBalance = await vUsdtContract.callStatic.getBorrowBalance(
+                activeAccount
+              );
+            } else if (token?.name == "DAI") {
+              repayBalance = await vDaiContract.callStatic.getBorrowBalance(
+                activeAccount
+              );
             }
-            else if (token?.name == "WBTC") {
-              repayBalance = await vWbtcContract.callStatic.getBorrowBalance(activeAccount);
-              
-
-            }
-            else if (token?.name == "USDC") {
-              repayBalance = await vUsdcContract.callStatic.getBorrowBalance(activeAccount);
-              console.log("repayBalance",repayBalance);
-
-            }
-            else if (token?.name == "USDT") {
-              repayBalance = await vUsdtContract.callStatic.getBorrowBalance(activeAccount);
-
-            }
-            else if (token?.name == "DAI") {
-              repayBalance = await vDaiContract.callStatic.getBorrowBalance(activeAccount);
-
-            }
-            // @meet: need to get the precesion data, also deal with 1e18 and 1e6 
+            // @meet: need to get the precesion data, also deal with 1e18 and 1e6
             // console.log("with numer ", repayBalance/1e6);
             // console.log("Number(ceilWithPrecision(String(repayBalance/1e18),8))",Number(ceilWithPrecision(String(repayBalance/1e18),8)));
-            setDepositBalance(Number(ceilWithPrecision(String(repayBalance),8)));
-
+            setDepositBalance(
+              Number(ceilWithPrecision(String(repayBalance), 8))
+            );
 
             // TODO @vatsal: add withdraw balance in setBorrowBalance();
-            // task: find the total balance of the account and then subtract the borrowed balance 
+            // task: find the total balance of the account and then subtract the borrowed balance
 
-            //@MEET : neeed to look at here 
-            // fetching the total Balance 
+            //@MEET : neeed to look at here
+            // fetching the total Balance
             let ethRepayBalance;
             let btcRepayBalance;
             let usdcRepayBalance;
             let usdtRepayBalance;
             let daiRepaybalance;
             if (borrowToken?.name == "WETH") {
-              ethRepayBalance = await vEtherContract.callStatic.getBorrowBalance(activeAccount);
-              
-
+              ethRepayBalance =
+                await vEtherContract.callStatic.getBorrowBalance(activeAccount);
+            } else if (borrowToken?.name == "WBTC") {
+              btcRepayBalance = await vWbtcContract.callStatic.getBorrowBalance(
+                activeAccount
+              );
+            } else if (borrowToken?.name == "USDC") {
+              usdcRepayBalance =
+                await vUsdcContract.callStatic.getBorrowBalance(activeAccount);
+            } else if (borrowToken?.name == "USDT") {
+              usdtRepayBalance =
+                await vUsdtContract.callStatic.getBorrowBalance(activeAccount);
+            } else if (borrowToken?.name == "DAI") {
+              daiRepaybalance = await vDaiContract.callStatic.getBorrowBalance(
+                activeAccount
+              );
             }
-            else if (borrowToken?.name == "WBTC") {
-              btcRepayBalance = await vWbtcContract.callStatic.getBorrowBalance(activeAccount);
-              
-
-            }
-            else if (borrowToken?.name == "USDC") {
-              usdcRepayBalance = await vUsdcContract.callStatic.getBorrowBalance(activeAccount);
-
-            }
-            else if (borrowToken?.name == "USDT") {
-              usdtRepayBalance = await vUsdtContract.callStatic.getBorrowBalance(activeAccount);
-
-            }
-            else if (borrowToken?.name == "DAI") {
-              daiRepaybalance = await vDaiContract.callStatic.getBorrowBalance(activeAccount);
-
-            }
-            let totalBalance; 
+            let totalBalance;
             if (borrowToken?.name == "WETH") {
               totalBalance = await library?.getBalance(account);
-              // also including the WETH balance 
+              // also including the WETH balance
               let contract;
               contract = new Contract(
                 opTokensAddress[token?.name],
@@ -441,12 +442,7 @@ const LevrageWithdraw = () => {
                 totalBalance = await contract.balanceOf(account);
                 borrowedBalance = totalBalance - usdcRepayBalance;
               }
-
-
             }
-
-
-
 
             setBorrowBalance(borrowedBalance);
           } else if (currentNetwork.id === BASE_NETWORK) {
@@ -513,9 +509,9 @@ const LevrageWithdraw = () => {
 
   useEffect(() => {
     const val = getPriceFromAssetsArray(borrowToken.name);
-    if (borrowAmount && borrowAmount > 0) {
+    if (borrowAmount !== "" && Number(borrowAmount) > 0) {
       setLeverageAmount(
-        borrowAmount * (leverageValue < 2 ? 1 : leverageValue) * val
+        Number(borrowAmount) * (leverageValue < 2 ? 1 : leverageValue) * val
       );
     } else {
       setLeverageAmount(0);
@@ -525,8 +521,8 @@ const LevrageWithdraw = () => {
   const calc = async () => {
     const signer = await library?.getSigner();
     const val = getPriceFromAssetsArray(depositToken.name);
-    if (depositAmount !== undefined) {
-      setExpected(depositAmount * val);
+    if (depositAmount !== "") {
+      setExpected(Number(depositAmount) * val);
     } else {
       setExpected(0);
     }
@@ -569,53 +565,52 @@ const LevrageWithdraw = () => {
     const borrowBalanceInNum = Number(borrowBalance / 1e16);
 
     let healthFactor;
-    if (depositAmount !== undefined && borrowAmount !== undefined) {
+    if (depositAmount !== "" && borrowAmount !== "") {
       healthFactor =
         (balanceInNum +
-          depositAmount * depositAmountInDollar +
-          borrowAmount * borrowAmountInDollar) /
-        (borrowBalanceInNum + borrowAmount * borrowAmountInDollar);
-    } else if (depositAmount !== undefined && borrowAmount === undefined) {
+          Number(depositAmount) * depositAmountInDollar +
+          Number(borrowAmount) * borrowAmountInDollar) /
+        (borrowBalanceInNum + Number(borrowAmount) * borrowAmountInDollar);
+    } else if (depositAmount !== "" && borrowAmount === "") {
       healthFactor =
-        (balanceInNum + depositAmount * depositAmountInDollar) /
+        (balanceInNum + Number(depositAmount) * depositAmountInDollar) /
         borrowBalanceInNum;
-    } else if (depositAmount === undefined && borrowAmount !== undefined) {
+    } else if (depositAmount === "" && borrowAmount !== "") {
       healthFactor =
-        (balanceInNum + borrowAmount * borrowAmountInDollar) /
-        (borrowBalanceInNum + borrowAmount * borrowAmountInDollar);
+        (balanceInNum + Number(borrowAmount) * borrowAmountInDollar) /
+        (borrowBalanceInNum + Number(borrowAmount) * borrowAmountInDollar);
     } else {
       healthFactor = balanceInNum / borrowBalanceInNum;
     }
 
     setHealthFactor(ceilWithPrecision(String(healthFactor), 2));
 
-
     // TODO @vatsal: 'depositAmount' is the variable which will have current input value entered in Deosit input box. Use it as required and update the above formula to add health Factor
 
     let leverageUse;
-    if (depositAmount !== undefined && borrowAmount !== undefined) {
+    if (depositAmount !== "" && borrowAmount !== "") {
       leverageUse =
-        (borrowBalanceInNum + borrowAmount * borrowAmountInDollar) /
+        (borrowBalanceInNum + Number(borrowAmount) * borrowAmountInDollar) /
         (balanceInNum +
-          depositAmount * depositAmountInDollar +
-          borrowAmount * borrowAmountInDollar -
+          Number(depositAmount) * depositAmountInDollar +
+          Number(borrowAmount) * borrowAmountInDollar -
           borrowBalanceInNum +
-          borrowAmount * borrowAmountInDollar +
+          Number(borrowAmount) * borrowAmountInDollar +
           1);
-    } else if (depositAmount !== undefined && borrowAmount === undefined) {
+    } else if (depositAmount !== "" && borrowAmount === "") {
       leverageUse =
         borrowBalanceInNum /
         (balanceInNum +
-          depositAmount * depositAmountInDollar -
+          Number(depositAmount) * depositAmountInDollar -
           borrowBalanceInNum +
           1);
-    } else if (depositAmount === undefined && borrowAmount !== undefined) {
+    } else if (depositAmount === "" && borrowAmount !== "") {
       leverageUse =
-        (borrowBalanceInNum + borrowAmount * borrowAmountInDollar) /
+        (borrowBalanceInNum + Number(borrowAmount) * borrowAmountInDollar) /
         (balanceInNum +
-          borrowAmount * borrowAmountInDollar -
+          Number(borrowAmount) * borrowAmountInDollar -
           borrowBalanceInNum +
-          borrowAmount * borrowAmountInDollar +
+          Number(borrowAmount) * borrowAmountInDollar +
           1);
     } else {
       leverageUse =
@@ -631,16 +626,17 @@ const LevrageWithdraw = () => {
   }, [depositAmount, depositToken, borrowAmount, borrowToken]);
 
   useEffect(() => {
-    if (isLeverage && depositAmount !== undefined) {
+    if (isLeverage && depositAmount !== "") {
       const depositAmountInDollar = getPriceFromAssetsArray(depositToken.name);
       const borrowAmountInDollar = getPriceFromAssetsArray(borrowToken.name);
       const val =
-        (depositAmount * depositAmountInDollar * 10) / borrowAmountInDollar;
+        (Number(depositAmount) * depositAmountInDollar * 10) /
+        borrowAmountInDollar;
       setBorrowBalance(val);
-      setBorrowAmount(val / 10);
+      setBorrowAmount(String(val / 10));
     } else {
       setBorrowBalance(0);
-      setBorrowAmount(0);
+      setBorrowAmount("");
     }
     setLeverageValue(1);
   }, [depositAmount, depositToken, borrowToken]);
@@ -682,14 +678,14 @@ const LevrageWithdraw = () => {
 
       if (
         depositToken === undefined ||
-        depositAmount === undefined ||
+        depositAmount === "" ||
         !activeAccount ||
         !accountManagerContract
       )
         return;
       else if (depositToken?.name === "WETH") {
         await accountManagerContract.depositEth(activeAccount, {
-          value: parseEther(String(depositAmount)),
+          value: parseEther(depositAmount),
           gasLimit: 2300000,
         });
       } else if (
@@ -706,10 +702,10 @@ const LevrageWithdraw = () => {
           account,
           arbAddressList.accountManagerContractAddress
         );
-        if (allowance < depositAmount) {
+        if (allowance < Number(depositAmount)) {
           await erc20Contract.approve(
             arbAddressList.accountManagerContractAddress,
-            parseUnits(String(depositAmount - allowance), 6),
+            parseUnits(String(Number(depositAmount) - allowance), 6),
             { gasLimit: 2300000 }
           );
           await sleep(3000);
@@ -718,7 +714,7 @@ const LevrageWithdraw = () => {
         await accountManagerContract.deposit(
           activeAccount,
           arbTokensAddress[depositToken?.name],
-          parseUnits(String(depositAmount), 6),
+          parseUnits(depositAmount, 6),
           { gasLimit: 2300000 }
         );
       } else {
@@ -732,10 +728,10 @@ const LevrageWithdraw = () => {
           arbAddressList.accountManagerContractAddress
         );
 
-        if (allowance < depositAmount) {
+        if (allowance < Number(depositAmount)) {
           await erc20Contract.approve(
             arbAddressList.accountManagerContractAddress,
-            parseEther(String(depositAmount - allowance)),
+            parseEther(String(Number(depositAmount) - allowance)),
             { gasLimit: 2300000 }
           );
           await sleep(3000);
@@ -744,7 +740,7 @@ const LevrageWithdraw = () => {
         await accountManagerContract.deposit(
           activeAccount,
           arbTokensAddress[depositToken?.name],
-          parseEther(String(depositAmount)),
+          parseEther(depositAmount),
           { gasLimit: 2300000 }
         );
       }
@@ -756,14 +752,14 @@ const LevrageWithdraw = () => {
       );
       if (
         depositToken === undefined ||
-        depositAmount === undefined ||
+        depositAmount === "" ||
         !activeAccount ||
         !accountManagerContract
       )
         return;
       else if (depositToken?.name === "WETH") {
         await accountManagerContract.depositEth(activeAccount, {
-          value: parseEther(String(depositAmount)),
+          value: parseEther(depositAmount),
           gasLimit: 2300000,
         });
       } else if (
@@ -780,10 +776,10 @@ const LevrageWithdraw = () => {
           account,
           opAddressList.accountManagerContractAddress
         );
-        if (allowance < depositAmount) {
+        if (allowance < Number(depositAmount)) {
           await erc20Contract.approve(
             opAddressList.accountManagerContractAddress,
-            parseUnits(String(depositAmount - allowance), 6),
+            parseUnits(String(Number(depositAmount) - allowance), 6),
             { gasLimit: 2300000 }
           );
           await sleep(3000);
@@ -792,7 +788,7 @@ const LevrageWithdraw = () => {
         await accountManagerContract.deposit(
           activeAccount,
           opTokensAddress[depositToken?.name],
-          parseUnits(String(depositAmount), 6),
+          parseUnits(depositAmount, 6),
           { gasLimit: 2300000 }
         );
       } else {
@@ -806,10 +802,10 @@ const LevrageWithdraw = () => {
           opAddressList.accountManagerContractAddress
         );
 
-        if (allowance < depositAmount) {
+        if (allowance < Number(depositAmount)) {
           await erc20Contract.approve(
             opAddressList.accountManagerContractAddress,
-            parseEther(String(depositAmount - allowance)),
+            parseEther(String(Number(depositAmount) - allowance)),
             { gasLimit: 2300000 }
           );
           await sleep(3000);
@@ -818,7 +814,7 @@ const LevrageWithdraw = () => {
         await accountManagerContract.deposit(
           activeAccount,
           opTokensAddress[depositToken?.name],
-          parseEther(String(depositAmount)),
+          parseEther(depositAmount),
           { gasLimit: 2300000 }
         );
       }
@@ -830,14 +826,14 @@ const LevrageWithdraw = () => {
       );
       if (
         depositToken === undefined ||
-        depositAmount === undefined ||
+        depositAmount === "" ||
         !activeAccount ||
         !accountManagerContract
       )
         return;
       else if (depositToken?.name === "WETH") {
         await accountManagerContract.depositEth(activeAccount, {
-          value: parseEther(String(depositAmount)),
+          value: parseEther(depositAmount),
           gasLimit: 2300000,
         });
       } else if (
@@ -854,10 +850,10 @@ const LevrageWithdraw = () => {
           account,
           baseAddressList.accountManagerContractAddress
         );
-        if (allowance < depositAmount) {
+        if (allowance < Number(depositAmount)) {
           await erc20Contract.approve(
             baseAddressList.accountManagerContractAddress,
-            parseUnits(String(depositAmount - allowance), 6),
+            parseUnits(String(Number(depositAmount) - allowance), 6),
             { gasLimit: 2300000 }
           );
           await sleep(3000);
@@ -866,7 +862,7 @@ const LevrageWithdraw = () => {
         await accountManagerContract.deposit(
           activeAccount,
           baseTokensAddress[depositToken?.name],
-          parseUnits(String(depositAmount), 6),
+          parseUnits(depositAmount, 6),
           { gasLimit: 2300000 }
         );
       } else {
@@ -880,10 +876,10 @@ const LevrageWithdraw = () => {
           baseAddressList.accountManagerContractAddress
         );
 
-        if (allowance < depositAmount) {
+        if (allowance < Number(depositAmount)) {
           await erc20Contract.approve(
             baseAddressList.accountManagerContractAddress,
-            parseEther(String(depositAmount - allowance)),
+            parseEther(String(Number(depositAmount) - allowance)),
             { gasLimit: 2300000 }
           );
           await sleep(3000);
@@ -892,7 +888,7 @@ const LevrageWithdraw = () => {
         await accountManagerContract.deposit(
           activeAccount,
           baseTokensAddress[depositToken?.name],
-          parseEther(String(depositAmount)),
+          parseEther(depositAmount),
           { gasLimit: 2300000 }
         );
       }
@@ -913,21 +909,21 @@ const LevrageWithdraw = () => {
       else if (borrowToken?.name === "WETH") {
         await accountManagerContract.withdrawEth(
           activeAccount,
-          parseEther(String(borrowAmount)),
+          parseEther(borrowAmount),
           { gasLimit: 2300000 }
         );
       } else if (borrowToken?.name === "USDC" || borrowToken?.name === "USDT") {
         await accountManagerContract.withdraw(
           activeAccount,
           arbTokensAddress[borrowToken?.name],
-          parseUnits(String(borrowAmount), 6),
+          parseUnits(borrowAmount, 6),
           { gasLimit: 2300000 }
         );
       } else {
         await accountManagerContract.withdraw(
           activeAccount,
           arbTokensAddress[borrowToken?.name],
-          parseEther(String(borrowAmount)),
+          parseEther(borrowAmount),
           { gasLimit: 2300000 }
         );
       }
@@ -941,21 +937,21 @@ const LevrageWithdraw = () => {
       else if (borrowToken?.name === "WETH") {
         await accountManagerContract.withdrawEth(
           activeAccount,
-          parseEther(String(borrowAmount)),
+          parseEther(borrowAmount),
           { gasLimit: 2300000 }
         );
       } else if (borrowToken?.name === "USDC" || borrowToken?.name === "USDT") {
         await accountManagerContract.withdraw(
           activeAccount,
           opTokensAddress[borrowToken?.name],
-          parseUnits(String(borrowAmount), 6),
+          parseUnits(borrowAmount, 6),
           { gasLimit: 2300000 }
         );
       } else {
         await accountManagerContract.withdraw(
           activeAccount,
           opTokensAddress[borrowToken?.name],
-          parseEther(String(borrowAmount)),
+          parseEther(borrowAmount),
           { gasLimit: 2300000 }
         );
       }
@@ -969,21 +965,21 @@ const LevrageWithdraw = () => {
       else if (borrowToken?.name === "WETH") {
         await accountManagerContract.withdrawEth(
           activeAccount,
-          parseEther(String(borrowAmount)),
+          parseEther(borrowAmount),
           { gasLimit: 2300000 }
         );
       } else if (borrowToken?.name === "USDC" || borrowToken?.name === "USDT") {
         await accountManagerContract.withdraw(
           activeAccount,
           baseTokensAddress[borrowToken?.name],
-          parseUnits(String(borrowAmount), 6),
+          parseUnits(borrowAmount, 6),
           { gasLimit: 2300000 }
         );
       } else {
         await accountManagerContract.withdraw(
           activeAccount,
           baseTokensAddress[borrowToken?.name],
-          parseEther(String(borrowAmount)),
+          parseEther(borrowAmount),
           { gasLimit: 2300000 }
         );
       }
@@ -1005,14 +1001,14 @@ const LevrageWithdraw = () => {
         await accountManagerContract.borrow(
           activeAccount,
           arbTokensAddress[borrowToken?.name],
-          parseUnits(String(borrowAmount), 6),
+          parseUnits(borrowAmount, 6),
           { gasLimit: 2300000 }
         );
       } else {
         await accountManagerContract.borrow(
           activeAccount,
           arbTokensAddress[borrowToken?.name],
-          parseEther(String(borrowAmount)),
+          parseEther(borrowAmount),
           { gasLimit: 2300000 }
         );
       }
@@ -1027,14 +1023,14 @@ const LevrageWithdraw = () => {
         await accountManagerContract.borrow(
           activeAccount,
           opTokensAddress[borrowToken?.name],
-          parseUnits(String(borrowAmount), 6),
+          parseUnits(borrowAmount, 6),
           { gasLimit: 2300000 }
         );
       } else {
         await accountManagerContract.borrow(
           activeAccount,
           opTokensAddress[borrowToken?.name],
-          parseEther(String(borrowAmount)),
+          parseEther(borrowAmount),
           { gasLimit: 2300000 }
         );
       }
@@ -1049,14 +1045,14 @@ const LevrageWithdraw = () => {
         await accountManagerContract.borrow(
           activeAccount,
           baseTokensAddress[borrowToken?.name],
-          parseUnits(String(borrowAmount), 6),
+          parseUnits(borrowAmount, 6),
           { gasLimit: 2300000 }
         );
       } else {
         await accountManagerContract.borrow(
           activeAccount,
           baseTokensAddress[borrowToken?.name],
-          parseEther(String(borrowAmount)),
+          parseEther(borrowAmount),
           { gasLimit: 2300000 }
         );
       }
@@ -1078,14 +1074,14 @@ const LevrageWithdraw = () => {
         await accountManagerContract.repay(
           activeAccount,
           arbTokensAddress[depositToken?.name],
-          parseUnits(String(depositAmount), 6),
+          parseUnits(depositAmount, 6),
           { gasLimit: 2300000 }
         );
       } else {
         await accountManagerContract.repay(
           activeAccount,
           arbTokensAddress[depositToken?.name],
-          parseEther(String(depositAmount)),
+          parseEther(depositAmount),
           { gasLimit: 2300000 }
         );
       }
@@ -1100,14 +1096,14 @@ const LevrageWithdraw = () => {
         await accountManagerContract.repay(
           activeAccount,
           opTokensAddress[depositToken?.name],
-          parseUnits(String(depositAmount), 6),
+          parseUnits(depositAmount, 6),
           { gasLimit: 2300000 }
         );
       } else {
         await accountManagerContract.repay(
           activeAccount,
           opTokensAddress[depositToken?.name],
-          parseEther(String(depositAmount)),
+          parseEther(depositAmount),
           { gasLimit: 2300000 }
         );
       }
@@ -1122,14 +1118,14 @@ const LevrageWithdraw = () => {
         await accountManagerContract.repay(
           activeAccount,
           baseTokensAddress[depositToken?.name],
-          parseUnits(String(depositAmount), 6),
+          parseUnits(depositAmount, 6),
           { gasLimit: 2300000 }
         );
       } else {
         await accountManagerContract.repay(
           activeAccount,
           baseTokensAddress[depositToken?.name],
-          parseEther(String(depositAmount)),
+          parseEther(depositAmount),
           { gasLimit: 2300000 }
         );
       }
@@ -1189,13 +1185,7 @@ const LevrageWithdraw = () => {
                   <input
                     type="number"
                     value={depositAmount}
-                    onChange={(e) =>
-                      setDepositAmount(
-                        e.target.value === ""
-                          ? undefined
-                          : Number(e.target.value)
-                      )
-                    }
+                    onChange={(e) => setDepositAmount(e.target.value)}
                     className="w-full dark:bg-baseDark text-2xl font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     placeholder="0"
                     min={0}
@@ -1211,11 +1201,11 @@ const LevrageWithdraw = () => {
               <div className="mt-2 flex justify-between text-xs text-neutral-500">
                 <div>{formatUSD(expected)}</div>
                 <div>
-                  Balance:{" "}
                   {depositBalance
-                    ? ceilWithPrecision(String(depositBalance),5)
+                    ? ceilWithPrecision(String(depositBalance), 5) +
+                      " " +
+                      depositToken?.name
                     : depositBalance}{" "}
-                  {depositBalance !== undefined ? depositToken?.name : "-"}
                 </div>
               </div>
             </div>
@@ -1243,13 +1233,7 @@ const LevrageWithdraw = () => {
                   <input
                     type="number"
                     value={borrowAmount}
-                    onChange={(e) =>
-                      setBorrowAmount(
-                        e.target.value === ""
-                          ? undefined
-                          : Number(e.target.value)
-                      )
-                    }
+                    onChange={(e) => setBorrowAmount(e.target.value)}
                     className="w-full dark:bg-baseDark text-2xl font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     placeholder="0"
                     min={0}
@@ -1267,9 +1251,10 @@ const LevrageWithdraw = () => {
                 <div className="flex">
                   <div className="mr-2">
                     {borrowBalance
-                      ? ceilWithPrecision(String(borrowBalance))
+                      ? ceilWithPrecision(String(borrowBalance), 5) +
+                        " " +
+                        borrowToken?.name
                       : borrowBalance}{" "}
-                    {borrowBalance !== undefined ? borrowToken?.name : "-"}
                   </div>
                   <button
                     className="py-0.5 px-1 bg-gradient-to-r from-gradient-1 to-gradient-2 text-xs rounded-md text-baseWhite"

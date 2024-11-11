@@ -77,7 +77,7 @@ const SupplyWithdraw = ({
 
   const handlePercentageClick = (percentage: number) => {
     if (coinBalance) {
-      updateAmount(Number((coinBalance * (percentage / 100)).toFixed(3)));
+      updateAmount(Number(ceilWithPrecision(String(coinBalance * (percentage / 100)))));
     }
   };
 
@@ -105,9 +105,7 @@ const SupplyWithdraw = ({
           ? tokenName === "WETH"
             ? "Deposit"
             : "Approve - Deposit"
-          : tokenName === "WETH"
-          ? "Withdraw"
-          : "Approve - Withdraw"
+          : "Withdraw"
       );
       setDisableBtn(false);
     }
@@ -1509,7 +1507,7 @@ const SupplyWithdraw = ({
         <div className="flex justify-between mt-2">
           <div className="text-xs text-neutral-500">{formatUSD(expected)}</div>
           <div className="text-xs text-neutral-500">
-            Balance: {ceilWithPrecision(String(coinBalance))}{" "}
+            {ceilWithPrecision(String(coinBalance))}{" "}
             {coinBalance !== undefined
               ? isSupply
                 ? selectedToken.name
