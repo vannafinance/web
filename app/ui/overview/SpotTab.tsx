@@ -224,20 +224,25 @@ const SpotTab: React.FC = () => {
           )
             return;
 
-          // ethAccountBalance = await library?.getBalance(activeAccount);
-          // console.log(accountBalance, waccountBalance, tokenName);
-          // // accountBalance = Number(accountBalance) + Number(waccountBalance);
+          const ethAccountBalance = (await library?.getBalance(activeAccount))/1e18;
+          const wethAccounBalance = (await wethContract.balanceOf(activeAccount))/1e18;
+          const wbtcAccounBalance = (await wbtcContract.balanceOf(activeAccount))/1e18;
+          const usdcAccounBalance = (await usdcContract.balanceOf(activeAccount))/1e18;
+          const usdtAccounBalance = (await usdtContract.balanceOf(activeAccount))/1e18;
+          const daiAccounBalance = (await daiContract.balanceOf(activeAccount))/1e18;
 
-          // ethAccountBalance = await usdcContract.balanceOf(activeAccount);
+       
 
-          // console.log(accountBalance, tokenName);
+          console.log("ethAccountBalance", ethAccountBalance);
+          console.log("wethAccounBalance", wethAccounBalance);
+          console.log("usdcAccounBalance", usdcAccounBalance);
 
-          setETH("");
-          setWETH("");
-          setBTC("");
-          setUSDC("");
-          setUSDT("");
-          setDAI("");
+          setETH(String(ethAccountBalance));
+          setWETH(String(wethAccounBalance));
+          setBTC(String(wbtcAccounBalance));
+          setUSDC(String(usdcAccounBalance));
+          setUSDT(String(usdtAccounBalance));
+          setDAI(String(daiAccounBalance));
         }
       } catch (e) {
         console.error(e);
