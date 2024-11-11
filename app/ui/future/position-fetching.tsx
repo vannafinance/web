@@ -214,24 +214,24 @@ const PositionFetching = () =>
                   // price += pnl;
 
                   const row: MarketPosition = {
-                    market: "",
+                    Market: "",
                     isLong: false,
-                    netValue: "",
+                    Size: "",
                     collateral: 0,
-                    entryPrice: "",
-                    indexPrice: "",
-                    liqPrice: "",
+                    EntryPrice: "",
+                    MarketPrice: "",
+                    LiqPrice: "",
                     pnlAndRow: "",
                     actions: <div></div>, // or some default JSX
                   };
 
-                  row["market"] = "ETH/USD";
+                  row["Market"] = "ETH/USD";
                   row["isLong"] = k === 1;
-                  row["netValue"] = formatUSD(netValue);
+                  row["Size"] = formatUSD(netValue);
                   row["collateral"] = collateralPrice;
-                  row["entryPrice"] = formatUSD(entryPrice);
-                  row["indexPrice"] = formatUSD(indexPrice);
-                  row["liqPrice"] = formatUSD(liquidation);
+                  row["EntryPrice"] = formatUSD(entryPrice);
+                  row["MarketPrice"] = formatUSD(indexPrice);
+                  row["LiqPrice"] = formatUSD(liquidation);
                   row["pnlAndRow"] = formatUSD(pnl);
                   row["actions"] = (
                     <button
@@ -304,33 +304,33 @@ const PositionFetching = () =>
             // const collateralPriceInUSDC = ceilWithPrecision(collateralPrice * indexPrice);
 
             const row: MarketPosition = {
-              market: "",
+              Market: "",
               isLong: false,
-              netValue: "",
+              Size: "",
               collateral: 0,
-              entryPrice: "",
-              indexPrice: "",
-              liqPrice: "",
+              EntryPrice: "",
+              MarketPrice: "",
+              LiqPrice: "",
               pnlAndRow: "",
               actions: <div></div>, // or some default JSX
             };
-            row["market"] = "ETH";
+            row["Market"] = "ETH";
             row["isLong"] = false; // TODO: @vatsal add logic here for long / short
-            row["netValue"] = formatUSD(netValue);
+            row["Size"] = formatUSD(netValue);
             row["collateral"] = Number(collateralPrice);
             // row["entryPrice"] = (
             //   <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>
             //     -{/* {formatUSD(entryPrice)} */}
             //   </p>
             // );
-            row["entryPrice"] = formatUSD(totalPositionSize);
-            row["indexPrice"] = formatUSD(indexPrice);
+            row["EntryPrice"] = formatUSD(totalPositionSize);
+            row["MarketPrice"] = formatUSD(indexPrice);
             // row["liqPrice"] = (
             //   <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>
             //     -{/* {formatUSD(liquidation)} */}
             //   </p>
             // );
-            row["liqPrice"] = formatUSD(netValue);
+            row["LiqPrice"] = formatUSD(netValue);
             row["pnlAndRow"] = formatUSD(pnl);
             row["actions"] = (
               <button
@@ -540,10 +540,10 @@ const PositionFetching = () =>
           {/* Header */}
           <div className="bg-baseComplementary dark:bg-baseDarkComplementary grid grid-cols-8 rounded-xl px-3 py-1.5 md:py-4 font-semibold">
             <div>Market</div>
-            <div>Net Value</div>
+            <div>Size</div>
             <div>Collateral</div>
             <div>Entry Price</div>
-            <div>Index Price</div>
+            <div>Market Price</div>
             <div>Liq. Price</div>
             <div>PNL & ROE</div>
             <div>Actions</div>
@@ -557,14 +557,14 @@ const PositionFetching = () =>
                 key={index}
               >
                 <div>
-                  {item.market}
+                  {item.Market}
                   <p className="text-xs">{item.isLong ? "Long" : "Short"}</p>
                 </div>
-                <div>{item.netValue}</div>
+                <div>{item.Size}</div>
                 <div>{item.collateral}</div>
-                <div>{item.entryPrice}</div>
-                <div>{item.indexPrice}</div>
-                <div>{item.liqPrice}</div>
+                <div>{item.EntryPrice}</div>
+                <div>{item.MarketPrice}</div>
+                <div>{item.LiqPrice}</div>
                 <div>{item.pnlAndRow}</div>
                 <div>{item.actions}</div>
               </div>

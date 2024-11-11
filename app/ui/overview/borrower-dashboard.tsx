@@ -17,12 +17,14 @@ import {
   opAddressList,
   baseAddressList,
 } from "@/app/lib/web3-constants";
+
 import { ceilWithPrecision, check0xHex } from "@/app/lib/helper";
 import AccountManager from "../../abi/vanna/v1/out/AccountManager.sol/AccountManager.json";
 import AccountManagerop from "../../abi/vanna/v1/out/AccountManager-op.sol/AccountManager-op.json";
 import MUX from "../../abi/vanna/v1/out/MUX.sol/MUX.json";
 import PerpVault from "../../abi/vanna/v1/out/PerpVault.sol/PerpVault.json";
 import ClearingHouse from "../../abi/vanna/v1/out/ClearingHouse.sol/ClearingHouse.json";
+import OracleFacade from "../../abi/vanna/v1/out/OracleFacade.sol/OracleFacade.json"
 import ERC20 from "../../abi/vanna/v1/out/ERC20.sol/ERC20.json";
 import Multicall from "../../abi/vanna/v1/out/Multicall.sol/Multicall.json";
 import Registry from "../../abi/vanna/v1/out/Registry.sol/Registry.json";
@@ -145,6 +147,7 @@ const BorrowerDashboard = () => {
       let vUsdcContract;
       let vUsdtContract;
       let vWbtcContract;
+      let tTokenOracleContract;
 
       if (currentNetwork.id === ARBITRUM_NETWORK) {
         daiContract = new Contract(
@@ -197,6 +200,11 @@ const BorrowerDashboard = () => {
           VToken.abi,
           signer
         );
+        // tTokenOracleContract = new Contract(
+        //   opAddressList.OracleFacade,
+        //   OracleFacade.abi,
+        //   signer
+        // )
       } else if (currentNetwork.id === OPTIMISM_NETWORK) {
         daiContract = new Contract(
           opAddressList.daiTokenAddress,
@@ -248,7 +256,17 @@ const BorrowerDashboard = () => {
           VToken.abi,
           signer
         );
+        tTokenOracleContract = new Contract(
+          opAddressList.OracleFacade,
+          OracleFacade.abi,
+          signer
+        )
       } else if (currentNetwork.id === BASE_NETWORK) {
+        // tTokenOracleContract = new Contract(
+        //   opAddressList.OracleFacade,
+        //   OracleFacade.abi,
+        //   signer
+        // )
       }
 
       if (
@@ -261,7 +279,8 @@ const BorrowerDashboard = () => {
         !vDaiContract ||
         !vUsdcContract ||
         !vUsdtContract ||
-        !vWbtcContract
+        !vWbtcContract ||
+        !tTokenOracleContract
       )
         return;
       // ETH
@@ -319,6 +338,13 @@ const BorrowerDashboard = () => {
       val = Number(await getPriceFromAssetsArray("DAI"));
       balance += (accountBalance - borrowedBalance) * val;
 
+      // tToken 
+      accountBalance = (await tTokenOracleContract.callStatic.getPrice(opAddressList.tTokenAddress, activeAccount))/1e18;
+      val = accountBalance * Number(await getPriceFromAssetsArray("WETH"));
+    
+      balance +=val;
+     
+
       setDepositedAmount(ceilWithPrecision(String(balance), 2));
 
       const riskEngineContract = new Contract(
@@ -327,18 +353,27 @@ const BorrowerDashboard = () => {
         signer
       );
 
-      const totalbalance = await riskEngineContract.callStatic.getBalance(
+      let totalbalance = (await riskEngineContract.callStatic.getBalance(
         activeAccount
-      );
+      ))/1e18;
+      totalbalance = totalbalance * Number(await getPriceFromAssetsArray("WETH"));
+    
 
-      const borrowBalance = await riskEngineContract.callStatic.getBorrows(
+      console.log("totalbalance",totalbalance);
+
+      let borrowBalance = (await riskEngineContract.callStatic.getBorrows(
         activeAccount
-      );
+      ))/1e18;
+      borrowBalance = borrowBalance * Number(await getPriceFromAssetsArray("WETH"));
+      console.log("borrowBalance",borrowBalance);
 
-      // TODO: @vatsal here totalbalance & borrowBalance is in bignumber ... convert the same and then uncomment the below set statements
-      // setBorrowedAmount(borrowBalance);
-      // setRepayableAmount(borrowBalance);
-      // setWithdrawableAmount(String(totalbalance - borrowBalance));
+
+
+      // @TODO ; Vatsal : currently it's not accurate but way 
+      // balance of each token * share to assets of that 
+      setBorrowedAmount(String(borrowBalance));
+      setRepayableAmount(String(borrowBalance));
+      setWithdrawableAmount(String(totalbalance - borrowBalance));
     };
 
     fetchValues();

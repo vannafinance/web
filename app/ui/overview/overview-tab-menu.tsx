@@ -18,6 +18,7 @@ import Registry from "../../abi/vanna/v1/out/Registry.sol/Registry.json";
 import RiskEngine from "../../abi/vanna/v1/out/RiskEngine.sol/RiskEngine.json";
 import VEther from "@/app/abi/vanna/v1/out/VEther.sol/VEther.json";
 import VToken from "@/app/abi/vanna/v1/out/VToken.sol/VToken.json";
+import OracleFacade from "../../abi/vanna/v1/out/OracleFacade.sol/OracleFacade.json"
 
 import { ceilWithPrecision, check0xHex } from "@/app/lib/helper";
 import {
@@ -175,6 +176,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
         let vUsdcContract;
         let vUsdtContract;
         let vWbtcContract;
+        let tTokenOracleContract;
 
         if (currentNetwork.id === ARBITRUM_NETWORK) {
           daiContract = new Contract(
@@ -278,6 +280,11 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
             VToken.abi,
             signer
           );
+          tTokenOracleContract = new Contract(
+            opAddressList.OracleFacade,
+            OracleFacade.abi,
+            signer
+          )
         } else if (currentNetwork.id === BASE_NETWORK) {
           daiContract = new Contract(
             baseAddressList.daiTokenAddress,
@@ -342,12 +349,12 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
         let borrowedBalance = await vEtherContract.callStatic.getBorrowBalance(
           activeAccount
         );
-        borrowedBalance = Number(borrowedBalance / 1);
+        borrowedBalance = Number(borrowedBalance);
 
         let val = Number(getPriceFromAssetsArray("ETH"));
 
         let balance = Number(
-          (Number(accountBalance - borrowedBalance) / 1e18) * val * 1e6
+          (Number(accountBalance - borrowedBalance) / 1e18) * val
         );
 
         // USDC
@@ -358,7 +365,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
         );
 
         val = Number(getPriceFromAssetsArray("USDC"));
-        balance += Number(accountBalance - borrowedBalance) * val;
+        balance += (Number(accountBalance - borrowedBalance) / 1e6)* val;
 
         // WBTC
         accountBalance = await wbtcContract.balanceOf(activeAccount);
@@ -385,8 +392,14 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
         );
         val = Number(getPriceFromAssetsArray("DAI"));
         balance += (accountBalance - borrowedBalance) * val;
-        balance = Number(balance / 1e6);
-
+        
+        //@TODO: currently we are fetchign the currnt balance with PNL 
+        // need to subtract the PNL 
+        // tToken 
+        accountBalance = (await tTokenOracleContract.callStatic.getPrice(opAddressList.tTokenAddress, activeAccount))/1e18;
+        val = accountBalance * Number(await getPriceFromAssetsArray("WETH"));
+    
+        balance +=val;
         // totalHoldings = balance;
 
         const riskEngineContract = new Contract(
@@ -395,17 +408,29 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
           signer
         );
         //TODO: vatsal rework on this getBalance varibale till the assigne you have to rework for fetching the data
-        const totalbalance = await riskEngineContract.callStatic.getBalance(
+        let totalbalance = (await riskEngineContract.callStatic.getBalance(
           activeAccount
-        );
+        ))/1e18;
 
-        const totalReturnsAmount = Number(totalbalance / 1e16) - balance;
+        totalbalance = totalbalance * Number(await getPriceFromAssetsArray("WETH"));
+        
+        let borrowBalance = (await riskEngineContract.callStatic.getBorrows(
+          activeAccount
+        ))/1e18;
+
+        borrowBalance = borrowBalance * Number(await getPriceFromAssetsArray("WETH"));
+
+        const balanceWithoutReapy = totalbalance - borrowBalance;
+
+        const totalReturnsAmount = Number((balanceWithoutReapy)) - balance;
         const totalReturnsPercentage = (totalReturnsAmount / balance) * 100;
         // add color while showing this
-        const borrowBalance = await riskEngineContract.callStatic.getBorrows(
-          activeAccount
-        );
-        const healthFactor = balance / Number(borrowBalance / 1e15);
+        // console.log("totalbalance",totalbalance);
+        // console.log("borrowBalance",borrowBalance);
+        // console.log("balanceWithoutReapy",balanceWithoutReapy);
+        // console.log("balance",balance);
+        // console.log("totalReturnsPercentage",totalReturnsPercentage);
+        const healthFactor = balance / Number(borrowBalance);
         // if healther < 1.5 the color red else green
 
         setTotalHolding(balance);

@@ -77,6 +77,7 @@ export const opAddressList = {
   wethTokenAddress: "0x4200000000000000000000000000000000000006",
   usdtTokenAddress: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
   wbtcTokenAddress: "0x68f180fcCe6836688e9084f035309E29Bf0A2095",
+  tTokenAddress: "0xc8b4aA9729EE997adE0B14723e9A37f5C01b9531",
 
   vDaiContractAddress: "0x278e5d039ba2E09FaD254b87787f852f31060118",
   vUSDCContractAddress: "0x010305302F7BFc12Ec2597Cef77AF2DE91a90Ee9",
@@ -106,6 +107,7 @@ export const opAddressList = {
     "0xA7f3FC32043757039d5e13d790EE43edBcBa8b7c",
   indexPriceContractAddress: "0x722Ef09F933f09069257C68563B715486365B895",
   markPriceContractAddress: "0x3d03748A0FbBa8DD5F07b16c0178cdd1327FC58a",
+  OracleFacade: "0x61959f47e62A3F92F36B2391b0F4a111c659F042"
 };
 
 // =============== BASE ============================================

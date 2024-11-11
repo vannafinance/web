@@ -290,6 +290,36 @@ const LevrageWithdraw = () => {
 
           if (currentNetwork.id === ARBITRUM_NETWORK) {
           } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+            let daiContract;
+            let wethContract;
+            let usdcContract;
+            let usdtContract;
+            let wbtcContract;
+            daiContract = new Contract(
+              arbAddressList.daiTokenAddress,
+              ERC20.abi,
+              signer
+            );
+            usdcContract = new Contract(
+              arbAddressList.usdcTokenAddress,
+              ERC20.abi,
+              signer
+            );
+            usdtContract = new Contract(
+              arbAddressList.usdtTokenAddress,
+              ERC20.abi,
+              signer
+            );
+            wethContract = new Contract(
+              arbAddressList.wethTokenAddress,
+              ERC20.abi,
+              signer
+            );
+            wbtcContract = new Contract(
+              arbAddressList.wbtcTokenAddress,
+              ERC20.abi,
+              signer
+            );
             const vEtherContract = new Contract(
               opAddressList.vEtherContractAddress,
               VEther.abi,
@@ -328,26 +358,102 @@ const LevrageWithdraw = () => {
             // borrowedBalance =
             //   await vUsdcContract.callStatic.getBorrowBalance(activeAccount);
 
-            // TODO: @vatsal add withdraw balanc in setDepositeBalance();
-            setDepositBalance(borrowedBalance);
+            // TODO: @vatsal add repay balanc in setDepositeBalance();
+            console.log("Here at reapy balance")
+            let repayBalance; 
+            if (token?.name == "WETH") {
+              console.log("after If ")
+              repayBalance = (await vEtherContract.callStatic.getBorrowBalance(activeAccount))/1e18;
+              console.log("repayBalance",repayBalance);
 
-            // @Repay balance code
-            const riskEngineContract = new Contract(
-              opAddressList.riskEngineContractAddress,
-              RiskEngine.abi,
-              signer
-            );
-            // ETH
-            borrowedBalance = await vEtherContract.callStatic.getBorrowBalance(
-              activeAccount
-            );
-            // USDC
-            borrowedBalance = await vUsdcContract.callStatic.getBorrowBalance(
-              activeAccount
-            );
+            }
+            else if (token?.name == "WBTC") {
+              repayBalance = await vWbtcContract.callStatic.getBorrowBalance(activeAccount);
+              
 
-            // TODO @vatsal: add repay balance in setBorrowBalance();
-            // setBorrowBalance(borrowedBalance);
+            }
+            else if (token?.name == "USDC") {
+              repayBalance = await vUsdcContract.callStatic.getBorrowBalance(activeAccount);
+              console.log("repayBalance",repayBalance);
+
+            }
+            else if (token?.name == "USDT") {
+              repayBalance = await vUsdtContract.callStatic.getBorrowBalance(activeAccount);
+
+            }
+            else if (token?.name == "DAI") {
+              repayBalance = await vDaiContract.callStatic.getBorrowBalance(activeAccount);
+
+            }
+            // @meet: need to get the precesion data, also deal with 1e18 and 1e6 
+            // console.log("with numer ", repayBalance/1e6);
+            // console.log("Number(ceilWithPrecision(String(repayBalance/1e18),8))",Number(ceilWithPrecision(String(repayBalance/1e18),8)));
+            setDepositBalance(Number(ceilWithPrecision(String(repayBalance),8)));
+
+
+            // TODO @vatsal: add withdraw balance in setBorrowBalance();
+            // task: find the total balance of the account and then subtract the borrowed balance 
+
+            //@MEET : neeed to look at here 
+            // fetching the total Balance 
+            let ethRepayBalance;
+            let btcRepayBalance;
+            let usdcRepayBalance;
+            let usdtRepayBalance;
+            let daiRepaybalance;
+            if (borrowToken?.name == "WETH") {
+              ethRepayBalance = await vEtherContract.callStatic.getBorrowBalance(activeAccount);
+              
+
+            }
+            else if (borrowToken?.name == "WBTC") {
+              btcRepayBalance = await vWbtcContract.callStatic.getBorrowBalance(activeAccount);
+              
+
+            }
+            else if (borrowToken?.name == "USDC") {
+              usdcRepayBalance = await vUsdcContract.callStatic.getBorrowBalance(activeAccount);
+
+            }
+            else if (borrowToken?.name == "USDT") {
+              usdtRepayBalance = await vUsdtContract.callStatic.getBorrowBalance(activeAccount);
+
+            }
+            else if (borrowToken?.name == "DAI") {
+              daiRepaybalance = await vDaiContract.callStatic.getBorrowBalance(activeAccount);
+
+            }
+            let totalBalance; 
+            if (borrowToken?.name == "WETH") {
+              totalBalance = await library?.getBalance(account);
+              // also including the WETH balance 
+              let contract;
+              contract = new Contract(
+                opTokensAddress[token?.name],
+                ERC20.abi,
+                signer
+              );
+              if (contract) {
+                totalBalance += await contract.balanceOf(account);
+              }
+              borrowedBalance = totalBalance - ethRepayBalance;
+              contract = new Contract(
+                opTokensAddress[token?.name],
+                ERC20.abi,
+                signer
+              );
+              if (contract) {
+                totalBalance = await contract.balanceOf(account);
+                borrowedBalance = totalBalance - usdcRepayBalance;
+              }
+
+
+            }
+
+
+
+
+            setBorrowBalance(borrowedBalance);
           } else if (currentNetwork.id === BASE_NETWORK) {
           }
         }
@@ -488,6 +594,7 @@ const LevrageWithdraw = () => {
 
     setHealthFactor(ceilWithPrecision(String(healthFactor), 2));
 
+
     // TODO @vatsal: 'depositAmount' is the variable which will have current input value entered in Deosit input box. Use it as required and update the above formula to add health Factor
 
     let leverageUse;
@@ -521,7 +628,7 @@ const LevrageWithdraw = () => {
     }
 
     const ltvValue = (leverageUse - 1) * 1e4;
-    setLtv(Number(ceilWithPrecision(String(ltvValue), 2)));
+    setLtv(Number(ceilWithPrecision(String(900), 2)));
   };
 
   useEffect(() => {
@@ -1111,7 +1218,7 @@ const LevrageWithdraw = () => {
                 <div>
                   Balance:{" "}
                   {depositBalance
-                    ? ceilWithPrecision(String(depositBalance))
+                    ? ceilWithPrecision(String(depositBalance),5)
                     : depositBalance}{" "}
                   {depositBalance !== undefined ? depositToken?.name : "-"}
                 </div>

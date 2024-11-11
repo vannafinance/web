@@ -209,13 +209,13 @@ interface MuxPriceFetchingResponseObject {
 }
 
 interface MarketPosition {
-  market: string;
+  Market: string;
   isLong: boolean;
-  netValue: string;
+  Size: string;
   collateral: number;
-  entryPrice: string;
-  indexPrice: string;
-  liqPrice: string;
+  EntryPrice: string;
+  MarketPrice: string;
+  LiqPrice: string;
   pnlAndRow: string;
   actions: JSX.Element;
 }

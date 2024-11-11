@@ -45,6 +45,7 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({
     const fetchValues = async () => {
       if (!currentNetwork) return;
       const signer = library?.getSigner();
+      console.log("here");
 
       let riskEngineContract;
       if (currentNetwork.id === ARBITRUM_NETWORK) {
@@ -69,13 +70,16 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({
         return;
       }
 
-      const balance =
-        (await riskEngineContract.callStatic.getBalance(activeAccount)) / 1;
+      let balance =
+        (await riskEngineContract.callStatic.getBalance(activeAccount)) / 1e18;
+      // balance = balance * getPriceFromAssetsArray("WETH");
+      
 
       console.log("balance", balance); // total Balance  => AccountValue
-      const borrowBalance =
-        (await riskEngineContract.callStatic.getBorrows(activeAccount)) / 1; // total Borrow Balance
-      console.log("borrowBalance", borrowBalance);
+      let borrowBalance =
+        (await riskEngineContract.callStatic.getBorrows(activeAccount)) / 1e18; // total Borrow Balance
+      // borrowBalance = borrowBalance * getPriceFromAssetsArray("WETH");
+
       const healthFactor1 = balance / borrowBalance;
       console.log("healthFactor1", healthFactor1);
       const liqP = (balance * 1.05) / healthFactor1;
@@ -87,11 +91,11 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({
           (Number(balance / 1e16) - Number(borrowBalance / 1e16)) +
         1;
 
-      setAccountValue(Number(ceilWithPrecision(String(balance / 1e18), 2)));
-      setCollateral(Number(ceilWithPrecision(String(collateral / 1e18), 2)));
-      setDebt(Number(ceilWithPrecision(String(borrowBalance / 1e18), 2)));
-      setHealthFactor(Number(ceilWithPrecision(String(healthFactor1), 2)));
-      setLiquidationPrice(Number(ceilWithPrecision(String(liqP / 1e16), 2)));
+      setAccountValue(Number(ceilWithPrecision(String(balance), 4)));
+      setCollateral(Number(ceilWithPrecision(String(collateral), 4)));
+      setDebt(Number(ceilWithPrecision(String(borrowBalance), 6)));
+      setHealthFactor(Number(ceilWithPrecision(String(healthFactor1), 4)));
+      setLiquidationPrice(Number(ceilWithPrecision(String(liqP / 1e16), 4)));
       setLeverageUseValue(Number(ceilWithPrecision(String(leverageUse))));
     };
 

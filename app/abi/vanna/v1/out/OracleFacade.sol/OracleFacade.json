@@ -1,1510 +1,396 @@
 {
   "abi": [
-    {
-      "inputs": [],
-      "stateMutability": "nonpayable",
-      "type": "constructor"
-    },
-    {
-      "inputs": [],
-      "name": "AdminOnly",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "PriceUnavailable",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "ZeroAddress",
-      "type": "error"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "previousAdmin",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "newAdmin",
-          "type": "address"
-        }
-      ],
-      "name": "OwnershipTransferred",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "token",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "feed",
-          "type": "address"
-        }
-      ],
-      "name": "UpdateOracle",
-      "type": "event"
-    },
-    {
-      "inputs": [],
-      "name": "admin",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "token",
-          "type": "address"
-        }
-      ],
-      "name": "getPrice",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "oracle",
-      "outputs": [
-        {
-          "internalType": "contract IOracle",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "token",
-          "type": "address"
-        },
-        {
-          "internalType": "contract IOracle",
-          "name": "_oracle",
-          "type": "address"
-        }
-      ],
-      "name": "setOracle",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "newAdmin",
-          "type": "address"
-        }
-      ],
-      "name": "transferOwnership",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    }
-  ],
-  "bytecode": {
-    "object": "0x608060405234801561001057600080fd5b5033806100305760405163d92e233d60e01b815260040160405180910390fd5b600080546001600160a01b039092166001600160a01b03199092169190911790556103b1806100606000396000f3fe608060405234801561001057600080fd5b50600436106100575760003560e01c806341976e091461005c5780635c38eb3a14610082578063eb37d34914610097578063f2fde38b146100d8578063f851a440146100eb575b600080fd5b61006f61006a366004610305565b6100fe565b6040519081526020015b60405180910390f35b610095610090366004610329565b6101be565b005b6100c06100a5366004610305565b6001602052600090815260409020546001600160a01b031681565b6040516001600160a01b039091168152602001610079565b6100956100e6366004610305565b610240565b6000546100c0906001600160a01b031681565b6001600160a01b038181166000908152600160205260408120549091166101385760405163cb08be8160e01b815260040160405180910390fd5b6001600160a01b03828116600081815260016020526040908190205490516341976e0960e01b81526004810192909252909116906341976e09906024016020604051808303816000875af1158015610194573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906101b89190610362565b92915050565b6000546001600160a01b031633146101e957604051633057182d60e21b815260040160405180910390fd5b6001600160a01b0382811660008181526001602052604080822080546001600160a01b0319169486169485179055517fb1d1442dba579887e297ac433e5716c847abf2dc052ee9de4869b7b1b8f6206d9190a35050565b6000546001600160a01b0316331461026b57604051633057182d60e21b815260040160405180910390fd5b6001600160a01b0381166102925760405163d92e233d60e01b815260040160405180910390fd5b600080546040516001600160a01b03808516939216917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a3600080546001600160a01b0319166001600160a01b0392909216919091179055565b6001600160a01b038116811461030257600080fd5b50565b60006020828403121561031757600080fd5b8135610322816102ed565b9392505050565b6000806040838503121561033c57600080fd5b8235610347816102ed565b91506020830135610357816102ed565b809150509250929050565b60006020828403121561037457600080fd5b505191905056fea2646970667358221220722f46270a16dcbbabe18debd90599de7bd533e4c988af2396c1ff7af0f5610864736f6c63430008110033",
-    "sourceMap": "340:1952:33:-:0;;;1049:36;;;;;;;;;-1:-1:-1;1071:10:33;;283:53:38;;316:20;;-1:-1:-1;;;316:20:38;;;;;;;;;;;283:53;346:5;:14;;-1:-1:-1;;;;;346:14:38;;;-1:-1:-1;;;;;;346:14:38;;;;;;;;;340:1952:33;;;;;;",
-    "linkReferences": {}
-  },
-  "deployedBytecode": {
-    "object": "0x608060405234801561001057600080fd5b50600436106100575760003560e01c806341976e091461005c5780635c38eb3a14610082578063eb37d34914610097578063f2fde38b146100d8578063f851a440146100eb575b600080fd5b61006f61006a366004610305565b6100fe565b6040519081526020015b60405180910390f35b610095610090366004610329565b6101be565b005b6100c06100a5366004610305565b6001602052600090815260409020546001600160a01b031681565b6040516001600160a01b039091168152602001610079565b6100956100e6366004610305565b610240565b6000546100c0906001600160a01b031681565b6001600160a01b038181166000908152600160205260408120549091166101385760405163cb08be8160e01b815260040160405180910390fd5b6001600160a01b03828116600081815260016020526040908190205490516341976e0960e01b81526004810192909252909116906341976e09906024016020604051808303816000875af1158015610194573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906101b89190610362565b92915050565b6000546001600160a01b031633146101e957604051633057182d60e21b815260040160405180910390fd5b6001600160a01b0382811660008181526001602052604080822080546001600160a01b0319169486169485179055517fb1d1442dba579887e297ac433e5716c847abf2dc052ee9de4869b7b1b8f6206d9190a35050565b6000546001600160a01b0316331461026b57604051633057182d60e21b815260040160405180910390fd5b6001600160a01b0381166102925760405163d92e233d60e01b815260040160405180910390fd5b600080546040516001600160a01b03808516939216917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a3600080546001600160a01b0319166001600160a01b0392909216919091179055565b6001600160a01b038116811461030257600080fd5b50565b60006020828403121561031757600080fd5b8135610322816102ed565b9392505050565b6000806040838503121561033c57600080fd5b8235610347816102ed565b91506020830135610357816102ed565b809150509250929050565b60006020828403121561037457600080fd5b505191905056fea2646970667358221220722f46270a16dcbbabe18debd90599de7bd533e4c988af2396c1ff7af0f5610864736f6c63430008110033",
-    "sourceMap": "340:1952:33:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1673:193;;;;;;:::i;:::-;;:::i;:::-;;;548:25:78;;;536:2;521:18;1673:193:33;;;;;;;;2128:162;;;;;;:::i;:::-;;:::i;:::-;;708:41;;;;;;:::i;:::-;;;;;;;;;;;;-1:-1:-1;;;;;708:41:33;;;;;;-1:-1:-1;;;;;1175:32:78;;;1157:51;;1145:2;1130:18;708:41:33;994:220:78;478:222:38;;;;;;:::i;:::-;;:::i;128:20::-;;;;;-1:-1:-1;;;;;128:20:38;;;1673:193:33;-1:-1:-1;;;;;1751:13:33;;;1724:4;1751:13;;;:6;:13;;;;;;1724:4;;1751:13;1740:73;;1788:25;;-1:-1:-1;;;1788:25:33;;;;;;;;;;;1740:73;-1:-1:-1;;;;;1830:13:33;;;;;;;:6;:13;;;;;;;;:29;;-1:-1:-1;;;1830:29:33;;;;;1157:51:78;;;;1830:13:33;;;;:22;;1130:18:78;;1830:29:33;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;1823:36;1673:193;-1:-1:-1;;1673:193:33:o;2128:162::-;408:5:38;;-1:-1:-1;;;;;408:5:38;417:10;408:19;404:50;;436:18;;-1:-1:-1;;;436:18:38;;;;;;;;;;;404:50;-1:-1:-1;;;;;2208:13:33;;::::1;;::::0;;;:6:::1;:13;::::0;;;;;:23;;-1:-1:-1;;;;;;2208:23:33::1;::::0;;::::1;::::0;;::::1;::::0;;2246:37;::::1;::::0;2208:13;2246:37:::1;2128:162:::0;;:::o;478:222:38:-;408:5;;-1:-1:-1;;;;;408:5:38;417:10;408:19;404:50;;436:18;;-1:-1:-1;;;436:18:38;;;;;;;;;;;404:50;-1:-1:-1;;;;;564:22:38;::::1;560:55;;595:20;;-1:-1:-1::0;;;595:20:38::1;;;;;;;;;;;560:55;651:5;::::0;;630:37:::1;::::0;-1:-1:-1;;;;;630:37:38;;::::1;::::0;651:5;::::1;::::0;630:37:::1;::::0;::::1;677:5;:16:::0;;-1:-1:-1;;;;;;677:16:38::1;-1:-1:-1::0;;;;;677:16:38;;;::::1;::::0;;;::::1;::::0;;478:222::o;14:131:78:-;-1:-1:-1;;;;;89:31:78;;79:42;;69:70;;135:1;132;125:12;69:70;14:131;:::o;150:247::-;209:6;262:2;250:9;241:7;237:23;233:32;230:52;;;278:1;275;268:12;230:52;317:9;304:23;336:31;361:5;336:31;:::i;:::-;386:5;150:247;-1:-1:-1;;;150:247:78:o;584:405::-;669:6;677;730:2;718:9;709:7;705:23;701:32;698:52;;;746:1;743;736:12;698:52;785:9;772:23;804:31;829:5;804:31;:::i;:::-;854:5;-1:-1:-1;911:2:78;896:18;;883:32;924:33;883:32;924:33;:::i;:::-;976:7;966:17;;;584:405;;;;;:::o;1427:184::-;1497:6;1550:2;1538:9;1529:7;1525:23;1521:32;1518:52;;;1566:1;1563;1556:12;1518:52;-1:-1:-1;1589:16:78;;1427:184;-1:-1:-1;1427:184:78:o",
-    "linkReferences": {}
-  },
-  "methodIdentifiers": {
-    "admin()": "f851a440",
-    "getPrice(address)": "41976e09",
-    "oracle(address)": "eb37d349",
-    "setOracle(address,address)": "5c38eb3a",
-    "transferOwnership(address)": "f2fde38b"
-  },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"AdminOnly\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PriceUnavailable\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ZeroAddress\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousAdmin\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newAdmin\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"feed\",\"type\":\"address\"}],\"name\":\"UpdateOracle\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"admin\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"getPrice\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"oracle\",\"outputs\":[{\"internalType\":\"contract IOracle\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"contract IOracle\",\"name\":\"_oracle\",\"type\":\"address\"}],\"name\":\"setOracle\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newAdmin\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"getPrice(address)\":{\"params\":{\"token\":\"Address of token\"},\"returns\":{\"_0\":\"price Price of token in terms of ETH\"}}},\"title\":\"Oracle Facade\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"constructor\":{\"notice\":\"Contract Constructor\"},\"getPrice(address)\":{\"notice\":\"Fetches price of a given token in terms of ETH\"},\"oracle(address)\":{\"notice\":\"Mapping of token to Price Oracle for the token\"}},\"notice\":\"This contract acts as a single interface for the client to fetch price of a given token in terms of eth\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"lib/oracle/src/core/OracleFacade.sol\":\"OracleFacade\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":controller/=lib/controller/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":oracle/=lib/oracle/src/\",\":solidity-bytes-utils/=lib/controller/lib/solidity-bytes-utils/contracts/\",\":solmate/=lib/solmate/src/\",\":v3-core/=lib/oracle/lib/v3-core/\"]},\"sources\":{\"lib/oracle/src/core/IOracle.sol\":{\"keccak256\":\"0x51c9836ee541402c95bbca8d1d258c7a0611e23e4de4dc47a74ab54639d083d7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://2500f067fc053ff04238a8cab750f85eb703fdb76bae29609b4dddd347f2d414\",\"dweb:/ipfs/QmUpycswLMU7S9AetagrqzCUbA68tE8nWRxBcJQvVFyrx7\"]},\"lib/oracle/src/core/OracleFacade.sol\":{\"keccak256\":\"0xb4a0c4b0c4f5fd50be53becd8b45930d6d8aa7f979f13cfdd7d6c7ac1d3448f7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://dcf493e2144667d167097122806363a1481c36c05c888ed276b59b22b503c974\",\"dweb:/ipfs/QmVqvxwogSaqsSpaZkF8SP4q4ENFLR7PMbA9adefZ2LhLP\"]},\"lib/oracle/src/utils/Errors.sol\":{\"keccak256\":\"0x7d4d70d5611d4188eaaf14d181a5a7aa9dfc8f01c416f6796db193fb9fce844e\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://b9aafab4c25baa9bd78ec7940885d790695a48a4f59c73b6a8fd090a4306484d\",\"dweb:/ipfs/QmVTZfjB2Hx3GiqrzrdDqkZkTjkby8K1u8qb9PzFm4Bm1R\"]},\"lib/oracle/src/utils/Ownable.sol\":{\"keccak256\":\"0x9fb09af29b3e1baf46e7b86d69275e97985ff23505d0fe8c348cce055dcde384\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://3c62eed390399e4e42e4056699d4c7ecb804a913a7a38777b090462afa70daf4\",\"dweb:/ipfs/QmeWnBm7pBWVZysZMiqB5EEE5rzNKeEjyfbm4S4yUwWLPr\"]}},\"version\":1}",
-  "metadata": {
-    "compiler": {
-      "version": "0.8.17+commit.8df45f5f"
-    },
-    "language": "Solidity",
-    "output": {
-      "abi": [
-        {
+      {
+          "type": "constructor",
           "inputs": [],
-          "stateMutability": "nonpayable",
-          "type": "constructor"
-        },
-        {
-          "inputs": [],
-          "type": "error",
-          "name": "AdminOnly"
-        },
-        {
-          "inputs": [],
-          "type": "error",
-          "name": "PriceUnavailable"
-        },
-        {
-          "inputs": [],
-          "type": "error",
-          "name": "ZeroAddress"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "previousAdmin",
-              "type": "address",
-              "indexed": true
-            },
-            {
-              "internalType": "address",
-              "name": "newAdmin",
-              "type": "address",
-              "indexed": true
-            }
-          ],
-          "type": "event",
-          "name": "OwnershipTransferred",
-          "anonymous": false
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "token",
-              "type": "address",
-              "indexed": true
-            },
-            {
-              "internalType": "address",
-              "name": "feed",
-              "type": "address",
-              "indexed": true
-            }
-          ],
-          "type": "event",
-          "name": "UpdateOracle",
-          "anonymous": false
-        },
-        {
-          "inputs": [],
-          "stateMutability": "view",
+          "stateMutability": "nonpayable"
+      },
+      {
           "type": "function",
           "name": "admin",
+          "inputs": [],
           "outputs": [
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            }
-          ]
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "token",
-              "type": "address"
-            }
+              {
+                  "name": "",
+                  "type": "address",
+                  "internalType": "address"
+              }
           ],
-          "stateMutability": "nonpayable",
+          "stateMutability": "view"
+      },
+      {
           "type": "function",
           "name": "getPrice",
-          "outputs": [
-            {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
-            }
-          ]
-        },
-        {
           "inputs": [
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            }
+              {
+                  "name": "token",
+                  "type": "address",
+                  "internalType": "address"
+              },
+              {
+                  "name": "account",
+                  "type": "address",
+                  "internalType": "address"
+              }
           ],
-          "stateMutability": "view",
+          "outputs": [
+              {
+                  "name": "",
+                  "type": "uint256",
+                  "internalType": "uint256"
+              }
+          ],
+          "stateMutability": "nonpayable"
+      },
+      {
           "type": "function",
           "name": "oracle",
-          "outputs": [
-            {
-              "internalType": "contract IOracle",
-              "name": "",
-              "type": "address"
-            }
-          ]
-        },
-        {
           "inputs": [
-            {
-              "internalType": "address",
-              "name": "token",
-              "type": "address"
-            },
-            {
-              "internalType": "contract IOracle",
-              "name": "_oracle",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "nonpayable",
-          "type": "function",
-          "name": "setOracle"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "newAdmin",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "nonpayable",
-          "type": "function",
-          "name": "transferOwnership"
-        }
-      ],
-      "devdoc": {
-        "kind": "dev",
-        "methods": {
-          "getPrice(address)": {
-            "params": {
-              "token": "Address of token"
-            },
-            "returns": {
-              "_0": "price Price of token in terms of ETH"
-            }
-          }
-        },
-        "version": 1
-      },
-      "userdoc": {
-        "kind": "user",
-        "methods": {
-          "constructor": {
-            "notice": "Contract Constructor"
-          },
-          "getPrice(address)": {
-            "notice": "Fetches price of a given token in terms of ETH"
-          },
-          "oracle(address)": {
-            "notice": "Mapping of token to Price Oracle for the token"
-          }
-        },
-        "version": 1
-      }
-    },
-    "settings": {
-      "remappings": [
-        ":controller/=lib/controller/",
-        ":ds-test/=lib/forge-std/lib/ds-test/src/",
-        ":forge-std/=lib/forge-std/src/",
-        ":oracle/=lib/oracle/src/",
-        ":solidity-bytes-utils/=lib/controller/lib/solidity-bytes-utils/contracts/",
-        ":solmate/=lib/solmate/src/",
-        ":v3-core/=lib/oracle/lib/v3-core/"
-      ],
-      "optimizer": {
-        "enabled": true,
-        "runs": 200
-      },
-      "metadata": {
-        "bytecodeHash": "ipfs"
-      },
-      "compilationTarget": {
-        "lib/oracle/src/core/OracleFacade.sol": "OracleFacade"
-      },
-      "libraries": {}
-    },
-    "sources": {
-      "lib/oracle/src/core/IOracle.sol": {
-        "keccak256": "0x51c9836ee541402c95bbca8d1d258c7a0611e23e4de4dc47a74ab54639d083d7",
-        "urls": [
-          "bzz-raw://2500f067fc053ff04238a8cab750f85eb703fdb76bae29609b4dddd347f2d414",
-          "dweb:/ipfs/QmUpycswLMU7S9AetagrqzCUbA68tE8nWRxBcJQvVFyrx7"
-        ],
-        "license": "MIT"
-      },
-      "lib/oracle/src/core/OracleFacade.sol": {
-        "keccak256": "0xb4a0c4b0c4f5fd50be53becd8b45930d6d8aa7f979f13cfdd7d6c7ac1d3448f7",
-        "urls": [
-          "bzz-raw://dcf493e2144667d167097122806363a1481c36c05c888ed276b59b22b503c974",
-          "dweb:/ipfs/QmVqvxwogSaqsSpaZkF8SP4q4ENFLR7PMbA9adefZ2LhLP"
-        ],
-        "license": "MIT"
-      },
-      "lib/oracle/src/utils/Errors.sol": {
-        "keccak256": "0x7d4d70d5611d4188eaaf14d181a5a7aa9dfc8f01c416f6796db193fb9fce844e",
-        "urls": [
-          "bzz-raw://b9aafab4c25baa9bd78ec7940885d790695a48a4f59c73b6a8fd090a4306484d",
-          "dweb:/ipfs/QmVTZfjB2Hx3GiqrzrdDqkZkTjkby8K1u8qb9PzFm4Bm1R"
-        ],
-        "license": "MIT"
-      },
-      "lib/oracle/src/utils/Ownable.sol": {
-        "keccak256": "0x9fb09af29b3e1baf46e7b86d69275e97985ff23505d0fe8c348cce055dcde384",
-        "urls": [
-          "bzz-raw://3c62eed390399e4e42e4056699d4c7ecb804a913a7a38777b090462afa70daf4",
-          "dweb:/ipfs/QmeWnBm7pBWVZysZMiqB5EEE5rzNKeEjyfbm4S4yUwWLPr"
-        ],
-        "license": "MIT"
-      }
-    },
-    "version": 1
-  },
-  "ast": {
-    "absolutePath": "lib/oracle/src/core/OracleFacade.sol",
-    "id": 32488,
-    "exportedSymbols": {
-      "Errors": [
-        32707
-      ],
-      "IOracle": [
-        32395
-      ],
-      "OracleFacade": [
-        32487
-      ],
-      "Ownable": [
-        32800
-      ]
-    },
-    "nodeType": "SourceUnit",
-    "src": "32:2260:33",
-    "nodes": [
-      {
-        "id": 32397,
-        "nodeType": "PragmaDirective",
-        "src": "32:24:33",
-        "nodes": [],
-        "literals": [
-          "solidity",
-          "^",
-          "0.8",
-          ".17"
-        ]
-      },
-      {
-        "id": 32399,
-        "nodeType": "ImportDirective",
-        "src": "58:38:33",
-        "nodes": [],
-        "absolutePath": "lib/oracle/src/core/IOracle.sol",
-        "file": "./IOracle.sol",
-        "nameLocation": "-1:-1:-1",
-        "scope": 32488,
-        "sourceUnit": 32396,
-        "symbolAliases": [
-          {
-            "foreign": {
-              "id": 32398,
-              "name": "IOracle",
-              "nodeType": "Identifier",
-              "overloadedDeclarations": [],
-              "referencedDeclaration": 32395,
-              "src": "66:7:33",
-              "typeDescriptions": {}
-            },
-            "nameLocation": "-1:-1:-1"
-          }
-        ],
-        "unitAlias": ""
-      },
-      {
-        "id": 32401,
-        "nodeType": "ImportDirective",
-        "src": "97:43:33",
-        "nodes": [],
-        "absolutePath": "lib/oracle/src/utils/Errors.sol",
-        "file": "../utils/Errors.sol",
-        "nameLocation": "-1:-1:-1",
-        "scope": 32488,
-        "sourceUnit": 32708,
-        "symbolAliases": [
-          {
-            "foreign": {
-              "id": 32400,
-              "name": "Errors",
-              "nodeType": "Identifier",
-              "overloadedDeclarations": [],
-              "referencedDeclaration": 32707,
-              "src": "105:6:33",
-              "typeDescriptions": {}
-            },
-            "nameLocation": "-1:-1:-1"
-          }
-        ],
-        "unitAlias": ""
-      },
-      {
-        "id": 32403,
-        "nodeType": "ImportDirective",
-        "src": "141:45:33",
-        "nodes": [],
-        "absolutePath": "lib/oracle/src/utils/Ownable.sol",
-        "file": "../utils/Ownable.sol",
-        "nameLocation": "-1:-1:-1",
-        "scope": 32488,
-        "sourceUnit": 32801,
-        "symbolAliases": [
-          {
-            "foreign": {
-              "id": 32402,
-              "name": "Ownable",
-              "nodeType": "Identifier",
-              "overloadedDeclarations": [],
-              "referencedDeclaration": 32800,
-              "src": "149:7:33",
-              "typeDescriptions": {}
-            },
-            "nameLocation": "-1:-1:-1"
-          }
-        ],
-        "unitAlias": ""
-      },
-      {
-        "id": 32487,
-        "nodeType": "ContractDefinition",
-        "src": "340:1952:33",
-        "nodes": [
-          {
-            "id": 32414,
-            "nodeType": "VariableDeclaration",
-            "src": "708:41:33",
-            "nodes": [],
-            "constant": false,
-            "documentation": {
-              "id": 32409,
-              "nodeType": "StructuredDocumentation",
-              "src": "645:58:33",
-              "text": "@notice Mapping of token to Price Oracle for the token"
-            },
-            "functionSelector": "eb37d349",
-            "mutability": "mutable",
-            "name": "oracle",
-            "nameLocation": "743:6:33",
-            "scope": 32487,
-            "stateVariable": true,
-            "storageLocation": "default",
-            "typeDescriptions": {
-              "typeIdentifier": "t_mapping$_t_address_$_t_contract$_IOracle_$32395_$",
-              "typeString": "mapping(address => contract IOracle)"
-            },
-            "typeName": {
-              "id": 32413,
-              "keyType": {
-                "id": 32410,
-                "name": "address",
-                "nodeType": "ElementaryTypeName",
-                "src": "716:7:33",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_address",
-                  "typeString": "address"
-                }
-              },
-              "nodeType": "Mapping",
-              "src": "708:27:33",
-              "typeDescriptions": {
-                "typeIdentifier": "t_mapping$_t_address_$_t_contract$_IOracle_$32395_$",
-                "typeString": "mapping(address => contract IOracle)"
-              },
-              "valueType": {
-                "id": 32412,
-                "nodeType": "UserDefinedTypeName",
-                "pathNode": {
-                  "id": 32411,
-                  "name": "IOracle",
-                  "nameLocations": [
-                    "727:7:33"
-                  ],
-                  "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 32395,
-                  "src": "727:7:33"
-                },
-                "referencedDeclaration": 32395,
-                "src": "727:7:33",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_contract$_IOracle_$32395",
-                  "typeString": "contract IOracle"
-                }
-              }
-            },
-            "visibility": "public"
-          },
-          {
-            "id": 32423,
-            "nodeType": "FunctionDefinition",
-            "src": "1049:36:33",
-            "nodes": [],
-            "body": {
-              "id": 32422,
-              "nodeType": "Block",
-              "src": "1083:2:33",
-              "nodes": [],
-              "statements": []
-            },
-            "documentation": {
-              "id": 32415,
-              "nodeType": "StructuredDocumentation",
-              "src": "1012:32:33",
-              "text": "@notice Contract Constructor"
-            },
-            "implemented": true,
-            "kind": "constructor",
-            "modifiers": [
               {
-                "arguments": [
-                  {
-                    "expression": {
-                      "id": 32418,
-                      "name": "msg",
-                      "nodeType": "Identifier",
-                      "overloadedDeclarations": [],
-                      "referencedDeclaration": -15,
-                      "src": "1071:3:33",
-                      "typeDescriptions": {
-                        "typeIdentifier": "t_magic_message",
-                        "typeString": "msg"
-                      }
-                    },
-                    "id": 32419,
-                    "isConstant": false,
-                    "isLValue": false,
-                    "isPure": false,
-                    "lValueRequested": false,
-                    "memberLocation": "1075:6:33",
-                    "memberName": "sender",
-                    "nodeType": "MemberAccess",
-                    "src": "1071:10:33",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_address",
-                      "typeString": "address"
-                    }
-                  }
-                ],
-                "id": 32420,
-                "kind": "baseConstructorSpecifier",
-                "modifierName": {
-                  "id": 32417,
-                  "name": "Ownable",
-                  "nameLocations": [
-                    "1063:7:33"
-                  ],
-                  "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 32800,
-                  "src": "1063:7:33"
-                },
-                "nodeType": "ModifierInvocation",
-                "src": "1063:19:33"
-              }
-            ],
-            "name": "",
-            "nameLocation": "-1:-1:-1",
-            "parameters": {
-              "id": 32416,
-              "nodeType": "ParameterList",
-              "parameters": [],
-              "src": "1060:2:33"
-            },
-            "returnParameters": {
-              "id": 32421,
-              "nodeType": "ParameterList",
-              "parameters": [],
-              "src": "1083:0:33"
-            },
-            "scope": 32487,
-            "stateMutability": "nonpayable",
-            "virtual": false,
-            "visibility": "public"
-          },
-          {
-            "id": 32429,
-            "nodeType": "EventDefinition",
-            "src": "1347:64:33",
-            "nodes": [],
-            "anonymous": false,
-            "eventSelector": "b1d1442dba579887e297ac433e5716c847abf2dc052ee9de4869b7b1b8f6206d",
-            "name": "UpdateOracle",
-            "nameLocation": "1353:12:33",
-            "parameters": {
-              "id": 32428,
-              "nodeType": "ParameterList",
-              "parameters": [
-                {
-                  "constant": false,
-                  "id": 32425,
-                  "indexed": true,
-                  "mutability": "mutable",
-                  "name": "token",
-                  "nameLocation": "1382:5:33",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 32429,
-                  "src": "1366:21:33",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_address",
-                    "typeString": "address"
-                  },
-                  "typeName": {
-                    "id": 32424,
-                    "name": "address",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "1366:7:33",
-                    "stateMutability": "nonpayable",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_address",
-                      "typeString": "address"
-                    }
-                  },
-                  "visibility": "internal"
-                },
-                {
-                  "constant": false,
-                  "id": 32427,
-                  "indexed": true,
-                  "mutability": "mutable",
-                  "name": "feed",
-                  "nameLocation": "1405:4:33",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 32429,
-                  "src": "1389:20:33",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_address",
-                    "typeString": "address"
-                  },
-                  "typeName": {
-                    "id": 32426,
-                    "name": "address",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "1389:7:33",
-                    "stateMutability": "nonpayable",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_address",
-                      "typeString": "address"
-                    }
-                  },
-                  "visibility": "internal"
-                }
-              ],
-              "src": "1365:45:33"
-            }
-          },
-          {
-            "id": 32461,
-            "nodeType": "FunctionDefinition",
-            "src": "1673:193:33",
-            "nodes": [],
-            "body": {
-              "id": 32460,
-              "nodeType": "Block",
-              "src": "1730:136:33",
-              "nodes": [],
-              "statements": [
-                {
-                  "condition": {
-                    "commonType": {
-                      "typeIdentifier": "t_address",
-                      "typeString": "address"
-                    },
-                    "id": 32446,
-                    "isConstant": false,
-                    "isLValue": false,
-                    "isPure": false,
-                    "lValueRequested": false,
-                    "leftExpression": {
-                      "arguments": [
-                        {
-                          "baseExpression": {
-                            "id": 32438,
-                            "name": "oracle",
-                            "nodeType": "Identifier",
-                            "overloadedDeclarations": [],
-                            "referencedDeclaration": 32414,
-                            "src": "1751:6:33",
-                            "typeDescriptions": {
-                              "typeIdentifier": "t_mapping$_t_address_$_t_contract$_IOracle_$32395_$",
-                              "typeString": "mapping(address => contract IOracle)"
-                            }
-                          },
-                          "id": 32440,
-                          "indexExpression": {
-                            "id": 32439,
-                            "name": "token",
-                            "nodeType": "Identifier",
-                            "overloadedDeclarations": [],
-                            "referencedDeclaration": 32431,
-                            "src": "1758:5:33",
-                            "typeDescriptions": {
-                              "typeIdentifier": "t_address",
-                              "typeString": "address"
-                            }
-                          },
-                          "isConstant": false,
-                          "isLValue": true,
-                          "isPure": false,
-                          "lValueRequested": false,
-                          "nodeType": "IndexAccess",
-                          "src": "1751:13:33",
-                          "typeDescriptions": {
-                            "typeIdentifier": "t_contract$_IOracle_$32395",
-                            "typeString": "contract IOracle"
-                          }
-                        }
-                      ],
-                      "expression": {
-                        "argumentTypes": [
-                          {
-                            "typeIdentifier": "t_contract$_IOracle_$32395",
-                            "typeString": "contract IOracle"
-                          }
-                        ],
-                        "id": 32437,
-                        "isConstant": false,
-                        "isLValue": false,
-                        "isPure": true,
-                        "lValueRequested": false,
-                        "nodeType": "ElementaryTypeNameExpression",
-                        "src": "1743:7:33",
-                        "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_address_$",
-                          "typeString": "type(address)"
-                        },
-                        "typeName": {
-                          "id": 32436,
-                          "name": "address",
-                          "nodeType": "ElementaryTypeName",
-                          "src": "1743:7:33",
-                          "typeDescriptions": {}
-                        }
-                      },
-                      "id": 32441,
-                      "isConstant": false,
-                      "isLValue": false,
-                      "isPure": false,
-                      "kind": "typeConversion",
-                      "lValueRequested": false,
-                      "nameLocations": [],
-                      "names": [],
-                      "nodeType": "FunctionCall",
-                      "src": "1743:22:33",
-                      "tryCall": false,
-                      "typeDescriptions": {
-                        "typeIdentifier": "t_address",
-                        "typeString": "address"
-                      }
-                    },
-                    "nodeType": "BinaryOperation",
-                    "operator": "==",
-                    "rightExpression": {
-                      "arguments": [
-                        {
-                          "hexValue": "30",
-                          "id": 32444,
-                          "isConstant": false,
-                          "isLValue": false,
-                          "isPure": true,
-                          "kind": "number",
-                          "lValueRequested": false,
-                          "nodeType": "Literal",
-                          "src": "1777:1:33",
-                          "typeDescriptions": {
-                            "typeIdentifier": "t_rational_0_by_1",
-                            "typeString": "int_const 0"
-                          },
-                          "value": "0"
-                        }
-                      ],
-                      "expression": {
-                        "argumentTypes": [
-                          {
-                            "typeIdentifier": "t_rational_0_by_1",
-                            "typeString": "int_const 0"
-                          }
-                        ],
-                        "id": 32443,
-                        "isConstant": false,
-                        "isLValue": false,
-                        "isPure": true,
-                        "lValueRequested": false,
-                        "nodeType": "ElementaryTypeNameExpression",
-                        "src": "1769:7:33",
-                        "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_address_$",
-                          "typeString": "type(address)"
-                        },
-                        "typeName": {
-                          "id": 32442,
-                          "name": "address",
-                          "nodeType": "ElementaryTypeName",
-                          "src": "1769:7:33",
-                          "typeDescriptions": {}
-                        }
-                      },
-                      "id": 32445,
-                      "isConstant": false,
-                      "isLValue": false,
-                      "isPure": true,
-                      "kind": "typeConversion",
-                      "lValueRequested": false,
-                      "nameLocations": [],
-                      "names": [],
-                      "nodeType": "FunctionCall",
-                      "src": "1769:10:33",
-                      "tryCall": false,
-                      "typeDescriptions": {
-                        "typeIdentifier": "t_address",
-                        "typeString": "address"
-                      }
-                    },
-                    "src": "1743:36:33",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_bool",
-                      "typeString": "bool"
-                    }
-                  },
-                  "id": 32452,
-                  "nodeType": "IfStatement",
-                  "src": "1740:73:33",
-                  "trueBody": {
-                    "errorCall": {
-                      "arguments": [],
-                      "expression": {
-                        "argumentTypes": [],
-                        "expression": {
-                          "id": 32447,
-                          "name": "Errors",
-                          "nodeType": "Identifier",
-                          "overloadedDeclarations": [],
-                          "referencedDeclaration": 32707,
-                          "src": "1788:6:33",
-                          "typeDescriptions": {
-                            "typeIdentifier": "t_type$_t_contract$_Errors_$32707_$",
-                            "typeString": "type(contract Errors)"
-                          }
-                        },
-                        "id": 32449,
-                        "isConstant": false,
-                        "isLValue": false,
-                        "isPure": false,
-                        "lValueRequested": false,
-                        "memberLocation": "1795:16:33",
-                        "memberName": "PriceUnavailable",
-                        "nodeType": "MemberAccess",
-                        "referencedDeclaration": 32686,
-                        "src": "1788:23:33",
-                        "typeDescriptions": {
-                          "typeIdentifier": "t_function_error_pure$__$returns$__$",
-                          "typeString": "function () pure"
-                        }
-                      },
-                      "id": 32450,
-                      "isConstant": false,
-                      "isLValue": false,
-                      "isPure": false,
-                      "kind": "functionCall",
-                      "lValueRequested": false,
-                      "nameLocations": [],
-                      "names": [],
-                      "nodeType": "FunctionCall",
-                      "src": "1788:25:33",
-                      "tryCall": false,
-                      "typeDescriptions": {
-                        "typeIdentifier": "t_tuple$__$",
-                        "typeString": "tuple()"
-                      }
-                    },
-                    "id": 32451,
-                    "nodeType": "RevertStatement",
-                    "src": "1781:32:33"
-                  }
-                },
-                {
-                  "expression": {
-                    "arguments": [
-                      {
-                        "id": 32457,
-                        "name": "token",
-                        "nodeType": "Identifier",
-                        "overloadedDeclarations": [],
-                        "referencedDeclaration": 32431,
-                        "src": "1853:5:33",
-                        "typeDescriptions": {
-                          "typeIdentifier": "t_address",
-                          "typeString": "address"
-                        }
-                      }
-                    ],
-                    "expression": {
-                      "argumentTypes": [
-                        {
-                          "typeIdentifier": "t_address",
-                          "typeString": "address"
-                        }
-                      ],
-                      "expression": {
-                        "baseExpression": {
-                          "id": 32453,
-                          "name": "oracle",
-                          "nodeType": "Identifier",
-                          "overloadedDeclarations": [],
-                          "referencedDeclaration": 32414,
-                          "src": "1830:6:33",
-                          "typeDescriptions": {
-                            "typeIdentifier": "t_mapping$_t_address_$_t_contract$_IOracle_$32395_$",
-                            "typeString": "mapping(address => contract IOracle)"
-                          }
-                        },
-                        "id": 32455,
-                        "indexExpression": {
-                          "id": 32454,
-                          "name": "token",
-                          "nodeType": "Identifier",
-                          "overloadedDeclarations": [],
-                          "referencedDeclaration": 32431,
-                          "src": "1837:5:33",
-                          "typeDescriptions": {
-                            "typeIdentifier": "t_address",
-                            "typeString": "address"
-                          }
-                        },
-                        "isConstant": false,
-                        "isLValue": true,
-                        "isPure": false,
-                        "lValueRequested": false,
-                        "nodeType": "IndexAccess",
-                        "src": "1830:13:33",
-                        "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_IOracle_$32395",
-                          "typeString": "contract IOracle"
-                        }
-                      },
-                      "id": 32456,
-                      "isConstant": false,
-                      "isLValue": false,
-                      "isPure": false,
-                      "lValueRequested": false,
-                      "memberLocation": "1844:8:33",
-                      "memberName": "getPrice",
-                      "nodeType": "MemberAccess",
-                      "referencedDeclaration": 32394,
-                      "src": "1830:22:33",
-                      "typeDescriptions": {
-                        "typeIdentifier": "t_function_external_nonpayable$_t_address_$returns$_t_uint256_$",
-                        "typeString": "function (address) external returns (uint256)"
-                      }
-                    },
-                    "id": 32458,
-                    "isConstant": false,
-                    "isLValue": false,
-                    "isPure": false,
-                    "kind": "functionCall",
-                    "lValueRequested": false,
-                    "nameLocations": [],
-                    "names": [],
-                    "nodeType": "FunctionCall",
-                    "src": "1830:29:33",
-                    "tryCall": false,
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
-                    }
-                  },
-                  "functionReturnParameters": 32435,
-                  "id": 32459,
-                  "nodeType": "Return",
-                  "src": "1823:36:33"
-                }
-              ]
-            },
-            "baseFunctions": [
-              32394
-            ],
-            "functionSelector": "41976e09",
-            "implemented": true,
-            "kind": "function",
-            "modifiers": [],
-            "name": "getPrice",
-            "nameLocation": "1682:8:33",
-            "parameters": {
-              "id": 32432,
-              "nodeType": "ParameterList",
-              "parameters": [
-                {
-                  "constant": false,
-                  "id": 32431,
-                  "mutability": "mutable",
-                  "name": "token",
-                  "nameLocation": "1699:5:33",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 32461,
-                  "src": "1691:13:33",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_address",
-                    "typeString": "address"
-                  },
-                  "typeName": {
-                    "id": 32430,
-                    "name": "address",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "1691:7:33",
-                    "stateMutability": "nonpayable",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_address",
-                      "typeString": "address"
-                    }
-                  },
-                  "visibility": "internal"
-                }
-              ],
-              "src": "1690:15:33"
-            },
-            "returnParameters": {
-              "id": 32435,
-              "nodeType": "ParameterList",
-              "parameters": [
-                {
-                  "constant": false,
-                  "id": 32434,
-                  "mutability": "mutable",
                   "name": "",
-                  "nameLocation": "-1:-1:-1",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 32461,
-                  "src": "1724:4:33",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
-                  },
-                  "typeName": {
-                    "id": 32433,
-                    "name": "uint",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "1724:4:33",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
-                    }
-                  },
-                  "visibility": "internal"
-                }
-              ],
-              "src": "1723:6:33"
-            },
-            "scope": 32487,
-            "stateMutability": "nonpayable",
-            "virtual": false,
-            "visibility": "external"
-          },
-          {
-            "id": 32486,
-            "nodeType": "FunctionDefinition",
-            "src": "2128:162:33",
-            "nodes": [],
-            "body": {
-              "id": 32485,
-              "nodeType": "Block",
-              "src": "2198:92:33",
-              "nodes": [],
-              "statements": [
-                {
-                  "expression": {
-                    "id": 32475,
-                    "isConstant": false,
-                    "isLValue": false,
-                    "isPure": false,
-                    "lValueRequested": false,
-                    "leftHandSide": {
-                      "baseExpression": {
-                        "id": 32471,
-                        "name": "oracle",
-                        "nodeType": "Identifier",
-                        "overloadedDeclarations": [],
-                        "referencedDeclaration": 32414,
-                        "src": "2208:6:33",
-                        "typeDescriptions": {
-                          "typeIdentifier": "t_mapping$_t_address_$_t_contract$_IOracle_$32395_$",
-                          "typeString": "mapping(address => contract IOracle)"
-                        }
-                      },
-                      "id": 32473,
-                      "indexExpression": {
-                        "id": 32472,
-                        "name": "token",
-                        "nodeType": "Identifier",
-                        "overloadedDeclarations": [],
-                        "referencedDeclaration": 32463,
-                        "src": "2215:5:33",
-                        "typeDescriptions": {
-                          "typeIdentifier": "t_address",
-                          "typeString": "address"
-                        }
-                      },
-                      "isConstant": false,
-                      "isLValue": true,
-                      "isPure": false,
-                      "lValueRequested": true,
-                      "nodeType": "IndexAccess",
-                      "src": "2208:13:33",
-                      "typeDescriptions": {
-                        "typeIdentifier": "t_contract$_IOracle_$32395",
-                        "typeString": "contract IOracle"
-                      }
-                    },
-                    "nodeType": "Assignment",
-                    "operator": "=",
-                    "rightHandSide": {
-                      "id": 32474,
-                      "name": "_oracle",
-                      "nodeType": "Identifier",
-                      "overloadedDeclarations": [],
-                      "referencedDeclaration": 32466,
-                      "src": "2224:7:33",
-                      "typeDescriptions": {
-                        "typeIdentifier": "t_contract$_IOracle_$32395",
-                        "typeString": "contract IOracle"
-                      }
-                    },
-                    "src": "2208:23:33",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_IOracle_$32395",
-                      "typeString": "contract IOracle"
-                    }
-                  },
-                  "id": 32476,
-                  "nodeType": "ExpressionStatement",
-                  "src": "2208:23:33"
-                },
-                {
-                  "eventCall": {
-                    "arguments": [
-                      {
-                        "id": 32478,
-                        "name": "token",
-                        "nodeType": "Identifier",
-                        "overloadedDeclarations": [],
-                        "referencedDeclaration": 32463,
-                        "src": "2259:5:33",
-                        "typeDescriptions": {
-                          "typeIdentifier": "t_address",
-                          "typeString": "address"
-                        }
-                      },
-                      {
-                        "arguments": [
-                          {
-                            "id": 32481,
-                            "name": "_oracle",
-                            "nodeType": "Identifier",
-                            "overloadedDeclarations": [],
-                            "referencedDeclaration": 32466,
-                            "src": "2274:7:33",
-                            "typeDescriptions": {
-                              "typeIdentifier": "t_contract$_IOracle_$32395",
-                              "typeString": "contract IOracle"
-                            }
-                          }
-                        ],
-                        "expression": {
-                          "argumentTypes": [
-                            {
-                              "typeIdentifier": "t_contract$_IOracle_$32395",
-                              "typeString": "contract IOracle"
-                            }
-                          ],
-                          "id": 32480,
-                          "isConstant": false,
-                          "isLValue": false,
-                          "isPure": true,
-                          "lValueRequested": false,
-                          "nodeType": "ElementaryTypeNameExpression",
-                          "src": "2266:7:33",
-                          "typeDescriptions": {
-                            "typeIdentifier": "t_type$_t_address_$",
-                            "typeString": "type(address)"
-                          },
-                          "typeName": {
-                            "id": 32479,
-                            "name": "address",
-                            "nodeType": "ElementaryTypeName",
-                            "src": "2266:7:33",
-                            "typeDescriptions": {}
-                          }
-                        },
-                        "id": 32482,
-                        "isConstant": false,
-                        "isLValue": false,
-                        "isPure": false,
-                        "kind": "typeConversion",
-                        "lValueRequested": false,
-                        "nameLocations": [],
-                        "names": [],
-                        "nodeType": "FunctionCall",
-                        "src": "2266:16:33",
-                        "tryCall": false,
-                        "typeDescriptions": {
-                          "typeIdentifier": "t_address",
-                          "typeString": "address"
-                        }
-                      }
-                    ],
-                    "expression": {
-                      "argumentTypes": [
-                        {
-                          "typeIdentifier": "t_address",
-                          "typeString": "address"
-                        },
-                        {
-                          "typeIdentifier": "t_address",
-                          "typeString": "address"
-                        }
-                      ],
-                      "id": 32477,
-                      "name": "UpdateOracle",
-                      "nodeType": "Identifier",
-                      "overloadedDeclarations": [],
-                      "referencedDeclaration": 32429,
-                      "src": "2246:12:33",
-                      "typeDescriptions": {
-                        "typeIdentifier": "t_function_event_nonpayable$_t_address_$_t_address_$returns$__$",
-                        "typeString": "function (address,address)"
-                      }
-                    },
-                    "id": 32483,
-                    "isConstant": false,
-                    "isLValue": false,
-                    "isPure": false,
-                    "kind": "functionCall",
-                    "lValueRequested": false,
-                    "nameLocations": [],
-                    "names": [],
-                    "nodeType": "FunctionCall",
-                    "src": "2246:37:33",
-                    "tryCall": false,
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_tuple$__$",
-                      "typeString": "tuple()"
-                    }
-                  },
-                  "id": 32484,
-                  "nodeType": "EmitStatement",
-                  "src": "2241:42:33"
-                }
-              ]
-            },
-            "functionSelector": "5c38eb3a",
-            "implemented": true,
-            "kind": "function",
-            "modifiers": [
-              {
-                "id": 32469,
-                "kind": "modifierInvocation",
-                "modifierName": {
-                  "id": 32468,
-                  "name": "adminOnly",
-                  "nameLocations": [
-                    "2188:9:33"
-                  ],
-                  "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 32770,
-                  "src": "2188:9:33"
-                },
-                "nodeType": "ModifierInvocation",
-                "src": "2188:9:33"
+                  "type": "address",
+                  "internalType": "address"
               }
-            ],
-            "name": "setOracle",
-            "nameLocation": "2137:9:33",
-            "parameters": {
-              "id": 32467,
-              "nodeType": "ParameterList",
-              "parameters": [
-                {
-                  "constant": false,
-                  "id": 32463,
-                  "mutability": "mutable",
+          ],
+          "outputs": [
+              {
+                  "name": "",
+                  "type": "address",
+                  "internalType": "contract IOracle"
+              }
+          ],
+          "stateMutability": "view"
+      },
+      {
+          "type": "function",
+          "name": "setOracle",
+          "inputs": [
+              {
                   "name": "token",
-                  "nameLocation": "2155:5:33",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 32486,
-                  "src": "2147:13:33",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_address",
-                    "typeString": "address"
-                  },
-                  "typeName": {
-                    "id": 32462,
-                    "name": "address",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "2147:7:33",
-                    "stateMutability": "nonpayable",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_address",
-                      "typeString": "address"
-                    }
-                  },
-                  "visibility": "internal"
-                },
-                {
-                  "constant": false,
-                  "id": 32466,
-                  "mutability": "mutable",
+                  "type": "address",
+                  "internalType": "address"
+              },
+              {
                   "name": "_oracle",
-                  "nameLocation": "2170:7:33",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 32486,
-                  "src": "2162:15:33",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_contract$_IOracle_$32395",
-                    "typeString": "contract IOracle"
-                  },
-                  "typeName": {
-                    "id": 32465,
-                    "nodeType": "UserDefinedTypeName",
-                    "pathNode": {
-                      "id": 32464,
-                      "name": "IOracle",
-                      "nameLocations": [
-                        "2162:7:33"
-                      ],
-                      "nodeType": "IdentifierPath",
-                      "referencedDeclaration": 32395,
-                      "src": "2162:7:33"
-                    },
-                    "referencedDeclaration": 32395,
-                    "src": "2162:7:33",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_IOracle_$32395",
-                      "typeString": "contract IOracle"
-                    }
-                  },
-                  "visibility": "internal"
-                }
-              ],
-              "src": "2146:32:33"
-            },
-            "returnParameters": {
-              "id": 32470,
-              "nodeType": "ParameterList",
-              "parameters": [],
-              "src": "2198:0:33"
-            },
-            "scope": 32487,
-            "stateMutability": "nonpayable",
-            "virtual": false,
-            "visibility": "external"
-          }
-        ],
-        "abstract": false,
-        "baseContracts": [
-          {
-            "baseName": {
-              "id": 32405,
-              "name": "Ownable",
-              "nameLocations": [
-                "365:7:33"
-              ],
-              "nodeType": "IdentifierPath",
-              "referencedDeclaration": 32800,
-              "src": "365:7:33"
-            },
-            "id": 32406,
-            "nodeType": "InheritanceSpecifier",
-            "src": "365:7:33"
-          },
-          {
-            "baseName": {
-              "id": 32407,
-              "name": "IOracle",
-              "nameLocations": [
-                "374:7:33"
-              ],
-              "nodeType": "IdentifierPath",
-              "referencedDeclaration": 32395,
-              "src": "374:7:33"
-            },
-            "id": 32408,
-            "nodeType": "InheritanceSpecifier",
-            "src": "374:7:33"
-          }
-        ],
-        "canonicalName": "OracleFacade",
-        "contractDependencies": [],
-        "contractKind": "contract",
-        "documentation": {
-          "id": 32404,
-          "nodeType": "StructuredDocumentation",
-          "src": "188:151:33",
-          "text": "@title Oracle Facade\n@notice This contract acts as a single interface for the client to fetch\nprice of a given token in terms of eth"
-        },
-        "fullyImplemented": true,
-        "linearizedBaseContracts": [
-          32487,
-          32395,
-          32800
-        ],
-        "name": "OracleFacade",
-        "nameLocation": "349:12:33",
-        "scope": 32488,
-        "usedErrors": [
-          32682,
-          32684,
-          32686
-        ]
+                  "type": "address",
+                  "internalType": "contract IOracle"
+              }
+          ],
+          "outputs": [],
+          "stateMutability": "nonpayable"
+      },
+      {
+          "type": "function",
+          "name": "transferOwnership",
+          "inputs": [
+              {
+                  "name": "newAdmin",
+                  "type": "address",
+                  "internalType": "address"
+              }
+          ],
+          "outputs": [],
+          "stateMutability": "nonpayable"
+      },
+      {
+          "type": "event",
+          "name": "OwnershipTransferred",
+          "inputs": [
+              {
+                  "name": "previousAdmin",
+                  "type": "address",
+                  "indexed": true,
+                  "internalType": "address"
+              },
+              {
+                  "name": "newAdmin",
+                  "type": "address",
+                  "indexed": true,
+                  "internalType": "address"
+              }
+          ],
+          "anonymous": false
+      },
+      {
+          "type": "event",
+          "name": "UpdateOracle",
+          "inputs": [
+              {
+                  "name": "token",
+                  "type": "address",
+                  "indexed": true,
+                  "internalType": "address"
+              },
+              {
+                  "name": "feed",
+                  "type": "address",
+                  "indexed": true,
+                  "internalType": "address"
+              }
+          ],
+          "anonymous": false
+      },
+      {
+          "type": "error",
+          "name": "AdminOnly",
+          "inputs": []
+      },
+      {
+          "type": "error",
+          "name": "PriceUnavailable",
+          "inputs": []
+      },
+      {
+          "type": "error",
+          "name": "ZeroAddress",
+          "inputs": []
       }
-    ],
-    "license": "MIT"
+  ],
+  "bytecode": {
+      "object": "0x6080604052348015600f57600080fd5b503380602e5760405163d92e233d60e01b815260040160405180910390fd5b600080546001600160a01b039092166001600160a01b03199092169190911790556103b38061005e6000396000f3fe608060405234801561001057600080fd5b50600436106100575760003560e01c80635c38eb3a1461005c578063ac41865a14610071578063eb37d34914610097578063f2fde38b146100d8578063f851a440146100eb575b600080fd5b61006f61006a36600461030e565b6100fe565b005b61008461007f36600461030e565b610180565b6040519081526020015b60405180910390f35b6100c06100a5366004610347565b6001602052600090815260409020546001600160a01b031681565b6040516001600160a01b03909116815260200161008e565b61006f6100e6366004610347565b610249565b6000546100c0906001600160a01b031681565b6000546001600160a01b0316331461012957604051633057182d60e21b815260040160405180910390fd5b6001600160a01b0382811660008181526001602052604080822080546001600160a01b0319169486169485179055517fb1d1442dba579887e297ac433e5716c847abf2dc052ee9de4869b7b1b8f6206d9190a35050565b6001600160a01b038281166000908152600160205260408120549091166101ba5760405163cb08be8160e01b815260040160405180910390fd5b6001600160a01b0383811660008181526001602052604090819020549051635620c32d60e11b8152600481019290925284831660248301529091169063ac41865a906044016020604051808303816000875af115801561021e573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906102429190610364565b9392505050565b6000546001600160a01b0316331461027457604051633057182d60e21b815260040160405180910390fd5b6001600160a01b03811661029b5760405163d92e233d60e01b815260040160405180910390fd5b600080546040516001600160a01b03808516939216917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a3600080546001600160a01b0319166001600160a01b0392909216919091179055565b6001600160a01b038116811461030b57600080fd5b50565b6000806040838503121561032157600080fd5b823561032c816102f6565b9150602083013561033c816102f6565b809150509250929050565b60006020828403121561035957600080fd5b8135610242816102f6565b60006020828403121561037657600080fd5b505191905056fea26469706673582212201dc5106fcccadffda741b4b3b5ed8547e9194847671f65a8e0ca7210b5547de464736f6c63430008190033",
+      "sourceMap": "340:1982:25:-:0;;;1049:42;;;;;;;;;-1:-1:-1;1071:10:25;;283:53:35;;316:20;;-1:-1:-1;;;316:20:35;;;;;;;;;;;283:53;346:5;:14;;-1:-1:-1;;;;;346:14:35;;;-1:-1:-1;;;;;;346:14:35;;;;;;;;;340:1982:25;;;;;;",
+      "linkReferences": {}
   },
-  "id": 33
+  "deployedBytecode": {
+      "object": "0x608060405234801561001057600080fd5b50600436106100575760003560e01c80635c38eb3a1461005c578063ac41865a14610071578063eb37d34914610097578063f2fde38b146100d8578063f851a440146100eb575b600080fd5b61006f61006a36600461030e565b6100fe565b005b61008461007f36600461030e565b610180565b6040519081526020015b60405180910390f35b6100c06100a5366004610347565b6001602052600090815260409020546001600160a01b031681565b6040516001600160a01b03909116815260200161008e565b61006f6100e6366004610347565b610249565b6000546100c0906001600160a01b031681565b6000546001600160a01b0316331461012957604051633057182d60e21b815260040160405180910390fd5b6001600160a01b0382811660008181526001602052604080822080546001600160a01b0319169486169485179055517fb1d1442dba579887e297ac433e5716c847abf2dc052ee9de4869b7b1b8f6206d9190a35050565b6001600160a01b038281166000908152600160205260408120549091166101ba5760405163cb08be8160e01b815260040160405180910390fd5b6001600160a01b0383811660008181526001602052604090819020549051635620c32d60e11b8152600481019290925284831660248301529091169063ac41865a906044016020604051808303816000875af115801561021e573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906102429190610364565b9392505050565b6000546001600160a01b0316331461027457604051633057182d60e21b815260040160405180910390fd5b6001600160a01b03811661029b5760405163d92e233d60e01b815260040160405180910390fd5b600080546040516001600160a01b03808516939216917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a3600080546001600160a01b0319166001600160a01b0392909216919091179055565b6001600160a01b038116811461030b57600080fd5b50565b6000806040838503121561032157600080fd5b823561032c816102f6565b9150602083013561033c816102f6565b809150509250929050565b60006020828403121561035957600080fd5b8135610242816102f6565b60006020828403121561037657600080fd5b505191905056fea26469706673582212201dc5106fcccadffda741b4b3b5ed8547e9194847671f65a8e0ca7210b5547de464736f6c63430008190033",
+      "sourceMap": "340:1982:25:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;2158:162;;;;;;:::i;:::-;;:::i;:::-;;1679:217;;;;;;:::i;:::-;;:::i;:::-;;;1099:25:37;;;1087:2;1072:18;1679:217:25;;;;;;;;708:41;;;;;;:::i;:::-;;;;;;;;;;;;-1:-1:-1;;;;;708:41:25;;;;;;-1:-1:-1;;;;;1568:32:37;;;1550:51;;1538:2;1523:18;708:41:25;1387:220:37;478:222:35;;;;;;:::i;:::-;;:::i;128:20::-;;;;;-1:-1:-1;;;;;128:20:35;;;2158:162:25;408:5:35;;-1:-1:-1;;;;;408:5:35;417:10;408:19;404:50;;436:18;;-1:-1:-1;;;436:18:35;;;;;;;;;;;404:50;-1:-1:-1;;;;;2238:13:25;;::::1;;::::0;;;:6:::1;:13;::::0;;;;;:23;;-1:-1:-1;;;;;;2238:23:25::1;::::0;;::::1;::::0;;::::1;::::0;;2276:37;::::1;::::0;2238:13;2276:37:::1;2158:162:::0;;:::o;1679:217::-;-1:-1:-1;;;;;1773:13:25;;;1746:4;1773:13;;;:6;:13;;;;;;1746:4;;1773:13;1762:73;;1810:25;;-1:-1:-1;;;1810:25:25;;;;;;;;;;;1762:73;-1:-1:-1;;;;;1852:13:25;;;;;;;:6;:13;;;;;;;;:37;;-1:-1:-1;;;1852:37:25;;;;;2032:34:37;;;;2102:15;;;2082:18;;;2075:43;1852:13:25;;;;:22;;1967:18:37;;1852:37:25;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;1845:44;1679:217;-1:-1:-1;;;1679:217:25:o;478:222:35:-;408:5;;-1:-1:-1;;;;;408:5:35;417:10;408:19;404:50;;436:18;;-1:-1:-1;;;436:18:35;;;;;;;;;;;404:50;-1:-1:-1;;;;;564:22:35;::::1;560:55;;595:20;;-1:-1:-1::0;;;595:20:35::1;;;;;;;;;;;560:55;651:5;::::0;;630:37:::1;::::0;-1:-1:-1;;;;;630:37:35;;::::1;::::0;651:5;::::1;::::0;630:37:::1;::::0;::::1;677:5;:16:::0;;-1:-1:-1;;;;;;677:16:35::1;-1:-1:-1::0;;;;;677:16:35;;;::::1;::::0;;;::::1;::::0;;478:222::o;14:131:37:-;-1:-1:-1;;;;;89:31:37;;79:42;;69:70;;135:1;132;125:12;69:70;14:131;:::o;150:405::-;235:6;243;296:2;284:9;275:7;271:23;267:32;264:52;;;312:1;309;302:12;264:52;351:9;338:23;370:31;395:5;370:31;:::i;:::-;420:5;-1:-1:-1;477:2:37;462:18;;449:32;490:33;449:32;490:33;:::i;:::-;542:7;532:17;;;150:405;;;;;:::o;1135:247::-;1194:6;1247:2;1235:9;1226:7;1222:23;1218:32;1215:52;;;1263:1;1260;1253:12;1215:52;1302:9;1289:23;1321:31;1346:5;1321:31;:::i;2129:184::-;2199:6;2252:2;2240:9;2231:7;2227:23;2223:32;2220:52;;;2268:1;2265;2258:12;2220:52;-1:-1:-1;2291:16:37;;2129:184;-1:-1:-1;2129:184:37:o",
+      "linkReferences": {}
+  },
+  "methodIdentifiers": {
+      "admin()": "f851a440",
+      "getPrice(address,address)": "ac41865a",
+      "oracle(address)": "eb37d349",
+      "setOracle(address,address)": "5c38eb3a",
+      "transferOwnership(address)": "f2fde38b"
+  },
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.25+commit.b61c2a91\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"AdminOnly\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PriceUnavailable\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ZeroAddress\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousAdmin\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newAdmin\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"feed\",\"type\":\"address\"}],\"name\":\"UpdateOracle\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"admin\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"getPrice\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"oracle\",\"outputs\":[{\"internalType\":\"contract IOracle\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"contract IOracle\",\"name\":\"_oracle\",\"type\":\"address\"}],\"name\":\"setOracle\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newAdmin\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"title\":\"Oracle Facade\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"constructor\":{\"notice\":\"Contract Constructor\"},\"oracle(address)\":{\"notice\":\"Mapping of token to Price Oracle for the token\"}},\"notice\":\"This contract acts as a single interface for the client to fetch price of a given token in terms of eth\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/core/OracleFacade.sol\":\"OracleFacade\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/\",\":ds-test/=lib/solmate/lib/ds-test/src/\",\":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/\",\":forge-std/=lib/forge-std/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":solmate/=lib/solmate/src/\",\":v3-core/=lib/v3-core/\"]},\"sources\":{\"src/core/IOracle.sol\":{\"keccak256\":\"0xed628587755012f23285fc9dc92146a9d795df0b7c4d3c3ea58e7b901021cea6\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://46f94f6c2f272180c5050fec57f142df4af93115d239a835311a8c5a003c3b23\",\"dweb:/ipfs/QmcM8os3sj8ktTxABYQ2pBY9tZH2TwfDA7gQLf7Z9YJ8ej\"]},\"src/core/OracleFacade.sol\":{\"keccak256\":\"0x8f9fab506d3276101123d104dd8ad9a68e6f43b1fc2b66fc8b24dce29f916afc\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://68f38643967ebf1a9be4340cb1f6c77d8d3a645b406b8ee11dcb887ebeebe191\",\"dweb:/ipfs/QmeUqhpkfAiE5S8udBCwHu48TXvtxtf7GmGhN9omwQrdTU\"]},\"src/utils/Errors.sol\":{\"keccak256\":\"0x7d4d70d5611d4188eaaf14d181a5a7aa9dfc8f01c416f6796db193fb9fce844e\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://b9aafab4c25baa9bd78ec7940885d790695a48a4f59c73b6a8fd090a4306484d\",\"dweb:/ipfs/QmVTZfjB2Hx3GiqrzrdDqkZkTjkby8K1u8qb9PzFm4Bm1R\"]},\"src/utils/Ownable.sol\":{\"keccak256\":\"0x9fb09af29b3e1baf46e7b86d69275e97985ff23505d0fe8c348cce055dcde384\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://3c62eed390399e4e42e4056699d4c7ecb804a913a7a38777b090462afa70daf4\",\"dweb:/ipfs/QmeWnBm7pBWVZysZMiqB5EEE5rzNKeEjyfbm4S4yUwWLPr\"]}},\"version\":1}",
+  "metadata": {
+      "compiler": {
+          "version": "0.8.25+commit.b61c2a91"
+      },
+      "language": "Solidity",
+      "output": {
+          "abi": [
+              {
+                  "inputs": [],
+                  "stateMutability": "nonpayable",
+                  "type": "constructor"
+              },
+              {
+                  "inputs": [],
+                  "type": "error",
+                  "name": "AdminOnly"
+              },
+              {
+                  "inputs": [],
+                  "type": "error",
+                  "name": "PriceUnavailable"
+              },
+              {
+                  "inputs": [],
+                  "type": "error",
+                  "name": "ZeroAddress"
+              },
+              {
+                  "inputs": [
+                      {
+                          "internalType": "address",
+                          "name": "previousAdmin",
+                          "type": "address",
+                          "indexed": true
+                      },
+                      {
+                          "internalType": "address",
+                          "name": "newAdmin",
+                          "type": "address",
+                          "indexed": true
+                      }
+                  ],
+                  "type": "event",
+                  "name": "OwnershipTransferred",
+                  "anonymous": false
+              },
+              {
+                  "inputs": [
+                      {
+                          "internalType": "address",
+                          "name": "token",
+                          "type": "address",
+                          "indexed": true
+                      },
+                      {
+                          "internalType": "address",
+                          "name": "feed",
+                          "type": "address",
+                          "indexed": true
+                      }
+                  ],
+                  "type": "event",
+                  "name": "UpdateOracle",
+                  "anonymous": false
+              },
+              {
+                  "inputs": [],
+                  "stateMutability": "view",
+                  "type": "function",
+                  "name": "admin",
+                  "outputs": [
+                      {
+                          "internalType": "address",
+                          "name": "",
+                          "type": "address"
+                      }
+                  ]
+              },
+              {
+                  "inputs": [
+                      {
+                          "internalType": "address",
+                          "name": "token",
+                          "type": "address"
+                      },
+                      {
+                          "internalType": "address",
+                          "name": "account",
+                          "type": "address"
+                      }
+                  ],
+                  "stateMutability": "nonpayable",
+                  "type": "function",
+                  "name": "getPrice",
+                  "outputs": [
+                      {
+                          "internalType": "uint256",
+                          "name": "",
+                          "type": "uint256"
+                      }
+                  ]
+              },
+              {
+                  "inputs": [
+                      {
+                          "internalType": "address",
+                          "name": "",
+                          "type": "address"
+                      }
+                  ],
+                  "stateMutability": "view",
+                  "type": "function",
+                  "name": "oracle",
+                  "outputs": [
+                      {
+                          "internalType": "contract IOracle",
+                          "name": "",
+                          "type": "address"
+                      }
+                  ]
+              },
+              {
+                  "inputs": [
+                      {
+                          "internalType": "address",
+                          "name": "token",
+                          "type": "address"
+                      },
+                      {
+                          "internalType": "contract IOracle",
+                          "name": "_oracle",
+                          "type": "address"
+                      }
+                  ],
+                  "stateMutability": "nonpayable",
+                  "type": "function",
+                  "name": "setOracle"
+              },
+              {
+                  "inputs": [
+                      {
+                          "internalType": "address",
+                          "name": "newAdmin",
+                          "type": "address"
+                      }
+                  ],
+                  "stateMutability": "nonpayable",
+                  "type": "function",
+                  "name": "transferOwnership"
+              }
+          ],
+          "devdoc": {
+              "kind": "dev",
+              "methods": {},
+              "version": 1
+          },
+          "userdoc": {
+              "kind": "user",
+              "methods": {
+                  "constructor": {
+                      "notice": "Contract Constructor"
+                  },
+                  "oracle(address)": {
+                      "notice": "Mapping of token to Price Oracle for the token"
+                  }
+              },
+              "version": 1
+          }
+      },
+      "settings": {
+          "remappings": [
+              "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+              "ds-test/=lib/solmate/lib/ds-test/src/",
+              "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
+              "forge-std/=lib/forge-std/src/",
+              "openzeppelin-contracts/=lib/openzeppelin-contracts/",
+              "solmate/=lib/solmate/src/",
+              "v3-core/=lib/v3-core/"
+          ],
+          "optimizer": {
+              "enabled": true,
+              "runs": 200
+          },
+          "metadata": {
+              "bytecodeHash": "ipfs"
+          },
+          "compilationTarget": {
+              "src/core/OracleFacade.sol": "OracleFacade"
+          },
+          "evmVersion": "paris",
+          "libraries": {}
+      },
+      "sources": {
+          "src/core/IOracle.sol": {
+              "keccak256": "0xed628587755012f23285fc9dc92146a9d795df0b7c4d3c3ea58e7b901021cea6",
+              "urls": [
+                  "bzz-raw://46f94f6c2f272180c5050fec57f142df4af93115d239a835311a8c5a003c3b23",
+                  "dweb:/ipfs/QmcM8os3sj8ktTxABYQ2pBY9tZH2TwfDA7gQLf7Z9YJ8ej"
+              ],
+              "license": "MIT"
+          },
+          "src/core/OracleFacade.sol": {
+              "keccak256": "0x8f9fab506d3276101123d104dd8ad9a68e6f43b1fc2b66fc8b24dce29f916afc",
+              "urls": [
+                  "bzz-raw://68f38643967ebf1a9be4340cb1f6c77d8d3a645b406b8ee11dcb887ebeebe191",
+                  "dweb:/ipfs/QmeUqhpkfAiE5S8udBCwHu48TXvtxtf7GmGhN9omwQrdTU"
+              ],
+              "license": "MIT"
+          },
+          "src/utils/Errors.sol": {
+              "keccak256": "0x7d4d70d5611d4188eaaf14d181a5a7aa9dfc8f01c416f6796db193fb9fce844e",
+              "urls": [
+                  "bzz-raw://b9aafab4c25baa9bd78ec7940885d790695a48a4f59c73b6a8fd090a4306484d",
+                  "dweb:/ipfs/QmVTZfjB2Hx3GiqrzrdDqkZkTjkby8K1u8qb9PzFm4Bm1R"
+              ],
+              "license": "MIT"
+          },
+          "src/utils/Ownable.sol": {
+              "keccak256": "0x9fb09af29b3e1baf46e7b86d69275e97985ff23505d0fe8c348cce055dcde384",
+              "urls": [
+                  "bzz-raw://3c62eed390399e4e42e4056699d4c7ecb804a913a7a38777b090462afa70daf4",
+                  "dweb:/ipfs/QmeWnBm7pBWVZysZMiqB5EEE5rzNKeEjyfbm4S4yUwWLPr"
+              ],
+              "license": "MIT"
+          }
+      },
+      "version": 1
+  },
+  "id": 25
 }
