@@ -214,24 +214,24 @@ const PositionFetching = () =>
                   // price += pnl;
 
                   const row: MarketPosition = {
-                    Market: "",
+                    market: "",
                     isLong: false,
-                    Size: "",
+                    netValue: "",
                     collateral: 0,
-                    EntryPrice: "",
-                    MarketPrice: "",
-                    LiqPrice: "",
+                    entryPrice: "",
+                    indexPrice: "",
+                    liqPrice: "",
                     pnlAndRow: "",
                     actions: <div></div>, // or some default JSX
                   };
 
-                  row["Market"] = "ETH/USD";
+                  row["market"] = "ETH/USD";
                   row["isLong"] = k === 1;
-                  row["Size"] = formatUSD(netValue);
+                  row["netValue"] = formatUSD(netValue);
                   row["collateral"] = collateralPrice;
-                  row["EntryPrice"] = formatUSD(entryPrice);
-                  row["MarketPrice"] = formatUSD(indexPrice);
-                  row["LiqPrice"] = formatUSD(liquidation);
+                  row["entryPrice"] = formatUSD(entryPrice);
+                  row["indexPrice"] = formatUSD(indexPrice);
+                  row["liqPrice"] = formatUSD(liquidation);
                   row["pnlAndRow"] = formatUSD(pnl);
                   row["actions"] = (
                     <button
@@ -304,33 +304,33 @@ const PositionFetching = () =>
             // const collateralPriceInUSDC = ceilWithPrecision(collateralPrice * indexPrice);
 
             const row: MarketPosition = {
-              Market: "",
+              market: "",
               isLong: false,
-              Size: "",
+              netValue: "",
               collateral: 0,
-              EntryPrice: "",
-              MarketPrice: "",
-              LiqPrice: "",
+              entryPrice: "",
+              indexPrice: "",
+              liqPrice: "",
               pnlAndRow: "",
               actions: <div></div>, // or some default JSX
             };
-            row["Market"] = "ETH";
+            row["market"] = "ETH";
             row["isLong"] = false; // TODO: @vatsal add logic here for long / short
-            row["Size"] = formatUSD(netValue);
+            row["netValue"] = formatUSD(netValue);
             row["collateral"] = Number(collateralPrice);
             // row["entryPrice"] = (
             //   <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>
             //     -{/* {formatUSD(entryPrice)} */}
             //   </p>
             // );
-            row["EntryPrice"] = formatUSD(totalPositionSize);
-            row["MarketPrice"] = formatUSD(indexPrice);
+            row["entryPrice"] = formatUSD(totalPositionSize);
+            row["indexPrice"] = formatUSD(indexPrice);
             // row["liqPrice"] = (
             //   <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>
             //     -{/* {formatUSD(liquidation)} */}
             //   </p>
             // );
-            row["LiqPrice"] = formatUSD(netValue);
+            row["liqPrice"] = formatUSD(netValue);
             row["pnlAndRow"] = formatUSD(pnl);
             row["actions"] = (
               <button
@@ -557,14 +557,14 @@ const PositionFetching = () =>
                 key={index}
               >
                 <div>
-                  {item.Market}
+                  {item.market}
                   <p className="text-xs">{item.isLong ? "Long" : "Short"}</p>
                 </div>
-                <div>{item.Size}</div>
+                <div>{item.netValue}</div>
                 <div>{item.collateral}</div>
-                <div>{item.EntryPrice}</div>
-                <div>{item.MarketPrice}</div>
-                <div>{item.LiqPrice}</div>
+                <div>{item.entryPrice}</div>
+                <div>{item.indexPrice}</div>
+                <div>{item.liqPrice}</div>
                 <div>{item.pnlAndRow}</div>
                 <div>{item.actions}</div>
               </div>
