@@ -28,12 +28,17 @@ import Multicall from "@/app/abi/vanna/v1/out/Multicall.sol/Multicall.json";
 import { ceilWithPrecision, check0xHex } from "@/app/lib/helper";
 import axios from "axios";
 import { formatUSD } from "@/app/lib/number-format-helper";
+import Notification from "../components/notification";
 
 const PoolDetails = ({ pool }: { pool: PoolTable }) => {
   const { account, library } = useWeb3React();
   const { currentNetwork } = useNetwork();
   const [details, setDetails] = useState(poolDetailsPlaceholder);
   const [poolAddress, setPoolAddress] = useState("-");
+
+  const [notifications, setNotifications] = useState<
+    Array<{ id: number; type: NotificationType; message: string }>
+  >([]);
 
   const getPriceFromAssetsArray = async (tokenSymbol: string) => {
     const rsp = await axios.get("https://app.mux.network/api/liquidityAsset", {
@@ -2364,9 +2369,18 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
 
   const handleCopyAddress = (address: string) => {
     navigator.clipboard.writeText(address);
-    // .then(() => {
-    //   alert("Address copied to clipboard!");
-    // });
+    addNotification("success", "Address copied to clipboard!");
+  };
+
+  const addNotification = (type: NotificationType, message: string) => {
+    const id = Date.now();
+    setNotifications((prev) => [...prev, { id, type, message }]);
+  };
+
+  const removeNotification = (id: number) => {
+    setNotifications((prev) =>
+      prev.filter((notification) => notification.id !== id)
+    );
   };
 
   return (
@@ -2393,6 +2407,18 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
         <div className="font-semibold text-lg mt-1.5">
           {poolAddress == "-" ? poolAddress : getShortenedAddress(poolAddress)}
         </div>
+      </div>
+
+      <div className="fixed bottom-5 left-5 w-72">
+        {notifications.map(({ id, type, message }) => (
+          <Notification
+            key={id}
+            type={type}
+            message={message}
+            onClose={() => removeNotification(id)}
+            duration={10000}
+          />
+        ))}
       </div>
     </div>
   );

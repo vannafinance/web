@@ -23,6 +23,8 @@ import {
   BASE_NETWORK,
   OPTIMISM_NETWORK,
 } from "@/app/lib/constants";
+import axios from "axios";
+import { formatUSD } from "@/app/lib/number-format-helper";
 
 const AccountOverview: React.FC<AccountOverviewProps> = ({
   creditToken,
@@ -33,13 +35,33 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({
 
   const pools = useSelector((state: RootState) => state.pools.poolsData);
 
-  const [collateral, setCollateral] = useState(0);
-  const [accountValue, setAccountValue] = useState(0);
-  const [debt, setDebt] = useState(0);
+  const [collateral, setCollateral] = useState("0");
+  const [accountValue, setAccountValue] = useState("0");
+  const [debt, setDebt] = useState("0");
   const [healthFactor, setHealthFactor] = useState(0);
   const [borrowRate, setBorrowRate] = useState("-");
   const [liquidationPrice, setLiquidationPrice] = useState(0);
   const [leverageUseValue, setLeverageUseValue] = useState(0);
+
+  const getPriceFromAssetsArray = async (tokenSymbol: string) => {
+    const rsp = await axios.get("https://app.mux.network/api/liquidityAsset", {
+      timeout: 10 * 1000,
+    });
+
+    const assets = rsp.data.assets;
+
+    tokenSymbol =
+      tokenSymbol === "WETH" || tokenSymbol === "WBTC"
+        ? tokenSymbol.substring(1)
+        : tokenSymbol;
+
+    for (let asset of assets) {
+      if (asset.symbol === tokenSymbol) {
+        return asset.price;
+      }
+    }
+    return 1;
+  };
 
   useEffect(() => {
     const fetchValues = async () => {
@@ -70,15 +92,15 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({
         return;
       }
 
+      const currentEthPriceInDollar = await getPriceFromAssetsArray("WETH");
       let balance =
         (await riskEngineContract.callStatic.getBalance(activeAccount)) / 1e18;
-      // balance = balance * getPriceFromAssetsArray("WETH");
-      
+      balance = balance * currentEthPriceInDollar;
 
       console.log("balance", balance); // total Balance  => AccountValue
       let borrowBalance =
         (await riskEngineContract.callStatic.getBorrows(activeAccount)) / 1e18; // total Borrow Balance
-      // borrowBalance = borrowBalance * getPriceFromAssetsArray("WETH");
+      borrowBalance = borrowBalance * currentEthPriceInDollar;
 
       const healthFactor1 = balance / borrowBalance;
       console.log("healthFactor1", healthFactor1);
@@ -91,9 +113,9 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({
           (Number(balance / 1e16) - Number(borrowBalance / 1e16)) +
         1;
 
-      setAccountValue(Number(ceilWithPrecision(String(balance), 4)));
-      setCollateral(Number(ceilWithPrecision(String(collateral), 4)));
-      setDebt(Number(ceilWithPrecision(String(borrowBalance), 6)));
+      setAccountValue(formatUSD(String(balance), 4));
+      setCollateral(formatUSD(String(collateral), 4));
+      setDebt(formatUSD(String(borrowBalance), 6));
       setHealthFactor(Number(ceilWithPrecision(String(healthFactor1), 4)));
       setLiquidationPrice(Number(ceilWithPrecision(String(liqP / 1e16), 4)));
       setLeverageUseValue(Number(ceilWithPrecision(String(leverageUse))));
