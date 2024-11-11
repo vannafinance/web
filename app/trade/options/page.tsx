@@ -8,9 +8,10 @@ import FutureDropdown from "@/app/ui/future/future-dropdown";
 import PositionsSection from "@/app/ui/options/positions-section";
 import { CaretDown, Plus, PlusSquare, X } from "@phosphor-icons/react";
 import { TrendDown, TrendUp } from "@phosphor-icons/react/dist/ssr";
+import axios from "axios";
 // import { useWeb3React } from "@web3-react/core";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type OptionType = "All" | "Calls" | "Puts";
 type DateOption =
@@ -66,6 +67,9 @@ export default function Page() {
   ];
 
   const [selectedPair, setSelectedPair] = useState<Option>(pairOptions[0]);
+  const selectedPairRef = useRef(selectedPair);
+  const [marketPrice, setMarketPrice] = useState<number>(1);
+
   const [selectedOrderType, setSelectedOrderType] = useState<Option>(
     orderTypeOptions[0]
   );
@@ -132,11 +136,47 @@ export default function Page() {
   //   return () => window.removeEventListener('resize', updateLabelPosition);
   // }, [currentPrice]);
 
+  const getPriceFromAssetsArray = (
+    tokenSymbol: string,
+    assets: MuxPriceFetchingResponseObject[]
+  ) => {
+    tokenSymbol =
+      tokenSymbol === "WETH" || tokenSymbol === "WBTC"
+        ? tokenSymbol.substring(1)
+        : tokenSymbol;
+    for (const asset of assets) {
+      if (asset.symbol === tokenSymbol) {
+        return asset.price;
+      }
+    }
+    return 1;
+  };
+
+  const getAssetPrice = async (assetName = selectedPairRef.current.value) => {
+    const rsp = await axios.get("https://app.mux.network/api/liquidityAsset", {
+      timeout: 10 * 1000,
+    });
+
+    const price = getPriceFromAssetsArray(assetName, rsp.data.assets);
+    setMarketPrice(price);
+
+    return price;
+  };
+
+  useEffect(() => {
+    selectedPairRef.current = selectedPair;
+  }, [selectedPair]);
+
+  useEffect(() => {
+    const intervalId = setInterval(getAssetPrice, 1000); // Calls fetchData every second
+    return () => clearInterval(intervalId); // This is the cleanup function
+  }, []);
+
   return (
     <div className="flex flex-col lg:flex-row space-x-0 lg:space-x-5 text-base pt-8 px-3 xs:px-5 lg:px-6 custom-scrollbar text-baseBlack dark:text-baseWhite">
       <div className="w-full lg:w-[70%] mx-auto mb-6">
         <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-2 gap-4">
-          <div className="flex flex-col h-[4.5rem] border border-neutral-100 dark:border-neutral-700 rounded-xl px-2 py-2 font-semibold text-xl">
+          <div className="w-fit flex flex-col h-[4.5rem] border border-neutral-100 dark:border-neutral-700 rounded-xl px-2 py-2 font-semibold text-xl">
             <div className="text-neutral-500 text-xs font-medium mb-1">
               Select Pair
             </div>
@@ -146,8 +186,8 @@ export default function Page() {
                 defaultValue={selectedPair}
                 onChange={setSelectedPair}
               />
-              <span className="text-green-500 ml-2 font-semibold">58250.3</span>
-              <span className="text-sm text-green-500 ml-1">+1.09%</span>
+              <span className="text-green-500 ml-2 font-semibold">{marketPrice}</span>
+              {/* <span className="text-sm text-green-500 ml-1">+1.09%</span> */}
             </div>
           </div>
 

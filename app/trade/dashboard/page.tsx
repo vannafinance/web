@@ -7,7 +7,7 @@ import FutureDropdown from "@/app/ui/future/future-dropdown";
 import { CheckSquare, Square } from "@phosphor-icons/react";
 import { useNetwork } from "@/app/context/network-context";
 import { useWeb3React } from "@web3-react/core";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ARBITRUM_NETWORK,
   OPTIMISM_NETWORK,
@@ -49,149 +49,149 @@ export default function Page() {
   });
 
   const expiryOptions: Option[] = [
-    { value: "2024-09-20", label: "20 September 2024" },
-    { value: "2024-09-27", label: "27 September 2024" },
-    { value: "2024-10-04", label: "04 October 2024" },
-    { value: "2024-10-11", label: "11 October 2024" },
-    { value: "2024-10-18", label: "18 October 2024" },
+    { value: "2024-11-15", label: "15 November 2024" },
+    { value: "2024-11-22", label: "22 November 2024" },
+    { value: "2024-11-29", label: "29 November 2024" },
+    { value: "2024-12-27", label: "27 December 2024" },
+    { value: "2025-01-31", label: "31 January 2025" },
   ];
 
   const [optionPositions, setOptionPositions] = useState<OptionPosition[]>([
-    {
-      id: 1,
-      selected: true,
-      strikePrice: 44.0,
-      cp: "CE",
-      units: 16000,
-      traded: 0.5,
-      price: 0.39,
-      delta: 0.5,
-      iv: 43.5,
-    },
-    {
-      id: 2,
-      selected: false,
-      strikePrice: 50.0,
-      cp: "PE",
-      units: 16000,
-      traded: 0.2437,
-      price: 3.37,
-      delta: 0.6,
-      iv: 40.5,
-    },
-    {
-      id: 3,
-      selected: false,
-      strikePrice: 44.0,
-      cp: "CE",
-      units: 16000,
-      traded: 0.5,
-      price: 7.37,
-      delta: 0.4,
-      iv: 40.54,
-    },
-    {
-      id: 4,
-      selected: false,
-      strikePrice: 44.0,
-      cp: "CE",
-      units: 16000,
-      traded: 0.4379,
-      price: 0.58,
-      delta: 0.8,
-      iv: 85.05,
-    },
-    {
-      id: 5,
-      selected: false,
-      strikePrice: 70.0,
-      cp: "PE",
-      units: 16000,
-      traded: 0.7916,
-      price: 0.39,
-      delta: 1.0,
-      iv: 95.5,
-    },
-    {
-      id: 6,
-      selected: false,
-      strikePrice: 83.0,
-      cp: "CE",
-      units: 16000,
-      traded: 0.5,
-      price: 0.8,
-      delta: 0.2,
-      iv: 43.5,
-    },
+    // {
+    //   id: 1,
+    //   selected: true,
+    //   strikePrice: 44.0,
+    //   cp: "CE",
+    //   units: 16000,
+    //   traded: 0.5,
+    //   price: 0.39,
+    //   delta: 0.5,
+    //   iv: 43.5,
+    // },
+    // {
+    //   id: 2,
+    //   selected: false,
+    //   strikePrice: 50.0,
+    //   cp: "PE",
+    //   units: 16000,
+    //   traded: 0.2437,
+    //   price: 3.37,
+    //   delta: 0.6,
+    //   iv: 40.5,
+    // },
+    // {
+    //   id: 3,
+    //   selected: false,
+    //   strikePrice: 44.0,
+    //   cp: "CE",
+    //   units: 16000,
+    //   traded: 0.5,
+    //   price: 7.37,
+    //   delta: 0.4,
+    //   iv: 40.54,
+    // },
+    // {
+    //   id: 4,
+    //   selected: false,
+    //   strikePrice: 44.0,
+    //   cp: "CE",
+    //   units: 16000,
+    //   traded: 0.4379,
+    //   price: 0.58,
+    //   delta: 0.8,
+    //   iv: 85.05,
+    // },
+    // {
+    //   id: 5,
+    //   selected: false,
+    //   strikePrice: 70.0,
+    //   cp: "PE",
+    //   units: 16000,
+    //   traded: 0.7916,
+    //   price: 0.39,
+    //   delta: 1.0,
+    //   iv: 95.5,
+    // },
+    // {
+    //   id: 6,
+    //   selected: false,
+    //   strikePrice: 83.0,
+    //   cp: "CE",
+    //   units: 16000,
+    //   traded: 0.5,
+    //   price: 0.8,
+    //   delta: 0.2,
+    //   iv: 43.5,
+    // },
   ]);
 
   const [futuresPositions, setFuturesPositions] = useState<FuturePosition[]>([
-    {
-      id: 1,
-      selected: true,
-      marketPrice: 0.0,
-      entryPrice: 0.0,
-      size: 0.0,
-      leverage: 0.0,
-      liqPrice: 0.0,
-      delta: 0.5,
-      pnl: 0.0,
-    },
-    {
-      id: 2,
-      selected: false,
-      marketPrice: 0.0,
-      entryPrice: 0.0,
-      size: 0.0,
-      leverage: 0.0,
-      liqPrice: 0.0,
-      delta: 0.6,
-      pnl: 0.0,
-    },
-    {
-      id: 3,
-      selected: false,
-      marketPrice: 0.0,
-      entryPrice: 0.0,
-      size: 0.0,
-      leverage: 0.0,
-      liqPrice: 0.0,
-      delta: 0.4,
-      pnl: 0.0,
-    },
-    {
-      id: 4,
-      selected: false,
-      marketPrice: 0.0,
-      entryPrice: 0.0,
-      size: 0.0,
-      leverage: 0.0,
-      liqPrice: 0.0,
-      delta: 0.8,
-      pnl: 0.0,
-    },
-    {
-      id: 5,
-      selected: false,
-      marketPrice: 0.0,
-      entryPrice: 0.0,
-      size: 0.0,
-      leverage: 0.0,
-      liqPrice: 0.0,
-      delta: 1.0,
-      pnl: 0.0,
-    },
-    {
-      id: 6,
-      selected: false,
-      marketPrice: 0.0,
-      entryPrice: 0.0,
-      size: 0.0,
-      leverage: 0.0,
-      liqPrice: 0.0,
-      delta: 0.2,
-      pnl: 0.0,
-    },
+    // {
+    //   id: 1,
+    //   selected: true,
+    //   marketPrice: 0.0,
+    //   entryPrice: 0.0,
+    //   size: 0.0,
+    //   leverage: 0.0,
+    //   liqPrice: 0.0,
+    //   delta: 0.5,
+    //   pnl: 0.0,
+    // },
+    // {
+    //   id: 2,
+    //   selected: false,
+    //   marketPrice: 0.0,
+    //   entryPrice: 0.0,
+    //   size: 0.0,
+    //   leverage: 0.0,
+    //   liqPrice: 0.0,
+    //   delta: 0.6,
+    //   pnl: 0.0,
+    // },
+    // {
+    //   id: 3,
+    //   selected: false,
+    //   marketPrice: 0.0,
+    //   entryPrice: 0.0,
+    //   size: 0.0,
+    //   leverage: 0.0,
+    //   liqPrice: 0.0,
+    //   delta: 0.4,
+    //   pnl: 0.0,
+    // },
+    // {
+    //   id: 4,
+    //   selected: false,
+    //   marketPrice: 0.0,
+    //   entryPrice: 0.0,
+    //   size: 0.0,
+    //   leverage: 0.0,
+    //   liqPrice: 0.0,
+    //   delta: 0.8,
+    //   pnl: 0.0,
+    // },
+    // {
+    //   id: 5,
+    //   selected: false,
+    //   marketPrice: 0.0,
+    //   entryPrice: 0.0,
+    //   size: 0.0,
+    //   leverage: 0.0,
+    //   liqPrice: 0.0,
+    //   delta: 1.0,
+    //   pnl: 0.0,
+    // },
+    // {
+    //   id: 6,
+    //   selected: false,
+    //   marketPrice: 0.0,
+    //   entryPrice: 0.0,
+    //   size: 0.0,
+    //   leverage: 0.0,
+    //   liqPrice: 0.0,
+    //   delta: 0.2,
+    //   pnl: 0.0,
+    // },
   ]);
 
   const [portfolioSummary, setPortfolioSummary] = useState({
@@ -243,6 +243,9 @@ export default function Page() {
   };
 
   const [selectedPair, setSelectedPair] = useState<Option>(pairOptions[0]);
+  const selectedPairRef = useRef(selectedPair);
+  const [marketPrice, setMarketPrice] = useState<number>(1);
+
   const [selectedExpiry, setSelectedExpiry] = useState<Option>(
     expiryOptions[0]
   );
@@ -314,6 +317,10 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
+    selectedPairRef.current = selectedPair;
+  }, [selectedPair]);
+
+  useEffect(() => {
     const intervalId = setInterval(getAssetPrice, 1000); // Calls fetchData every second
     return () => clearInterval(intervalId); // This is the cleanup function
   }, []);
@@ -334,18 +341,13 @@ export default function Page() {
     return 1;
   };
 
-  const getAssetPrice = async (
-    assetName: string
-    // shouldSetMarketPrice = true
-  ) => {
+  const getAssetPrice = async (assetName = selectedPairRef.current.value) => {
     const rsp = await axios.get("https://app.mux.network/api/liquidityAsset", {
       timeout: 10 * 1000,
     });
-    const price = getPriceFromAssetsArray(assetName, rsp.data.assets);
 
-    // if (shouldSetMarketPrice && price) {
-    //   setMarketPrice(price);
-    // }
+    const price = getPriceFromAssetsArray(assetName, rsp.data.assets);
+    setMarketPrice(price);
 
     return price;
   };
@@ -693,10 +695,10 @@ export default function Page() {
               defaultValue={selectedPair}
               onChange={setSelectedPair}
             />
-            <span className="text-green-500 font-normal ml-2">58250.3</span>
-            <span className="text-xs xl:text-sm text-green-500 ml-1">
-              +1.09%
+            <span className="text-green-500 font-normal ml-2">
+              {marketPrice}
             </span>
+            {/* <span className="text-xs xl:text-sm text-green-500 ml-1">+1.09%</span> */}
           </div>
         </div>
 
@@ -795,89 +797,6 @@ export default function Page() {
                     className="py-2 px-3 text-left text-sm font-medium tracking-wider"
                     colSpan={8}
                   >
-                    Options-Positions
-                  </th>
-                </tr>
-                <tr>
-                  <th className="py-2 px-3 text-left text-xs font-semibold text-neutral-500 tracking-wider">
-                    #
-                  </th>
-                  <th className="py-2 px-3 text-left text-xs font-semibold text-neutral-500 tracking-wider">
-                    Strike Price
-                  </th>
-                  <th className="py-2 px-3 text-left text-xs font-semibold text-neutral-500 tracking-wider">
-                    CP
-                  </th>
-                  <th className="py-2 px-3 text-left text-xs font-semibold text-neutral-500 tracking-wider">
-                    Units
-                  </th>
-                  <th className="py-2 px-3 text-left text-xs font-semibold text-neutral-500 tracking-wider">
-                    Traded
-                  </th>
-                  <th className="py-2 px-3 text-left text-xs font-semibold text-neutral-500 tracking-wider">
-                    Price
-                  </th>
-                  <th className="py-2 px-3 text-left text-xs font-semibold text-neutral-500 tracking-wider">
-                    Delta
-                  </th>
-                  <th className="py-2 px-3 text-left text-xs font-semibold text-neutral-500 tracking-wider">
-                    IV
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {optionPositions.map((position) => (
-                  <tr
-                    key={position.id}
-                    className="hover:bg-baseComplementary dark:hover:bg-baseDarkComplementary text-sm font-normal"
-                  >
-                    <td className="pt-1 px-3 whitespace-nowrap">
-                      <button
-                        onClick={() => handleOptionPositionSelect(position.id)}
-                        className="text-purple hover:text-purpleBG"
-                      >
-                        {position.selected ? (
-                          <CheckSquare size={16} weight="fill" />
-                        ) : (
-                          <Square size={16} />
-                        )}
-                      </button>
-                    </td>
-                    <td className="pt-1 px-3 whitespace-nowrap">
-                      ${position.strikePrice.toFixed(2)}
-                    </td>
-                    <td className="pt-1 px-3 whitespace-nowrap">
-                      {position.cp}
-                    </td>
-                    <td className="pt-1 px-3 whitespace-nowrap">
-                      {position.units.toLocaleString()}
-                    </td>
-                    <td className="pt-1 px-3 whitespace-nowrap">
-                      {position.traded.toFixed(4)}
-                    </td>
-                    <td className="pt-1 px-3 whitespace-nowrap">
-                      {position.price.toFixed(2)}
-                    </td>
-                    <td className="pt-1 px-3 whitespace-nowrap">
-                      {position.delta.toFixed(1)}
-                    </td>
-                    <td className="pt-1 px-3 whitespace-nowrap">
-                      {position.iv.toFixed(2)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="overflow-x-auto border border-neutral-100 dark:border-neutral-700 rounded-xl mb-5">
-            <table className="min-w-full mb-2">
-              <thead>
-                <tr className="border-b border-neutral-100 dark:border-neutral-700">
-                  <th
-                    className="py-2 px-3 text-left text-sm font-medium tracking-wider"
-                    colSpan={8}
-                  >
                     Futures-Positions
                   </th>
                 </tr>
@@ -946,6 +865,89 @@ export default function Page() {
                     </td>
                     <td className="pt-1 px-3 whitespace-nowrap">
                       ${position.pnl.toFixed(2)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="overflow-x-auto border border-neutral-100 dark:border-neutral-700 rounded-xl mb-5">
+            <table className="min-w-full mb-2">
+              <thead>
+                <tr className="border-b border-neutral-100 dark:border-neutral-700">
+                  <th
+                    className="py-2 px-3 text-left text-sm font-medium tracking-wider"
+                    colSpan={8}
+                  >
+                    Options-Positions
+                  </th>
+                </tr>
+                <tr>
+                  <th className="py-2 px-3 text-left text-xs font-semibold text-neutral-500 tracking-wider">
+                    #
+                  </th>
+                  <th className="py-2 px-3 text-left text-xs font-semibold text-neutral-500 tracking-wider">
+                    Strike Price
+                  </th>
+                  <th className="py-2 px-3 text-left text-xs font-semibold text-neutral-500 tracking-wider">
+                    CP
+                  </th>
+                  <th className="py-2 px-3 text-left text-xs font-semibold text-neutral-500 tracking-wider">
+                    Units
+                  </th>
+                  <th className="py-2 px-3 text-left text-xs font-semibold text-neutral-500 tracking-wider">
+                    Traded
+                  </th>
+                  <th className="py-2 px-3 text-left text-xs font-semibold text-neutral-500 tracking-wider">
+                    Price
+                  </th>
+                  <th className="py-2 px-3 text-left text-xs font-semibold text-neutral-500 tracking-wider">
+                    Delta
+                  </th>
+                  <th className="py-2 px-3 text-left text-xs font-semibold text-neutral-500 tracking-wider">
+                    IV
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {optionPositions.map((position) => (
+                  <tr
+                    key={position.id}
+                    className="hover:bg-baseComplementary dark:hover:bg-baseDarkComplementary text-sm font-normal"
+                  >
+                    <td className="pt-1 px-3 whitespace-nowrap">
+                      <button
+                        onClick={() => handleOptionPositionSelect(position.id)}
+                        className="text-purple hover:text-purpleBG"
+                      >
+                        {position.selected ? (
+                          <CheckSquare size={16} weight="fill" />
+                        ) : (
+                          <Square size={16} />
+                        )}
+                      </button>
+                    </td>
+                    <td className="pt-1 px-3 whitespace-nowrap">
+                      ${position.strikePrice.toFixed(2)}
+                    </td>
+                    <td className="pt-1 px-3 whitespace-nowrap">
+                      {position.cp}
+                    </td>
+                    <td className="pt-1 px-3 whitespace-nowrap">
+                      {position.units.toLocaleString()}
+                    </td>
+                    <td className="pt-1 px-3 whitespace-nowrap">
+                      {position.traded.toFixed(4)}
+                    </td>
+                    <td className="pt-1 px-3 whitespace-nowrap">
+                      {position.price.toFixed(2)}
+                    </td>
+                    <td className="pt-1 px-3 whitespace-nowrap">
+                      {position.delta.toFixed(1)}
+                    </td>
+                    <td className="pt-1 px-3 whitespace-nowrap">
+                      {position.iv.toFixed(2)}
                     </td>
                   </tr>
                 ))}

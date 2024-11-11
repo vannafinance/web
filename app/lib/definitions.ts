@@ -4,6 +4,7 @@ interface FeatureCardProps {
   icon: string;
   title: string;
   subtitle: string;
+  isSoon: boolean;
 }
 
 interface NetworkOption {
@@ -209,13 +210,13 @@ interface MuxPriceFetchingResponseObject {
 }
 
 interface MarketPosition {
-  Market: string;
+  market: string;
   isLong: boolean;
-  Size: string;
+  netValue: string;
   collateral: number;
-  EntryPrice: string;
-  MarketPrice: string;
-  LiqPrice: string;
+  entryPrice: string;
+  indexPrice: string;
+  liqPrice: string;
   pnlAndRow: string;
   actions: JSX.Element;
 }

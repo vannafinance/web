@@ -111,7 +111,6 @@ export default function Page() {
   const getAssetPrice = async () => {
     const rsp = await axios.get("https://app.mux.network/api/liquidityAsset");
     const asset = getAssetFromAssetsArray(selectedPairRef.current.value, rsp.data.assets);
-    console.log("selectedPairRef",selectedPairRef);
     setMarketPrice(asset.price);
     const fourPercent = (asset.price * 4) / 100;
     const high = Number(asset.price) + Number(fourPercent);

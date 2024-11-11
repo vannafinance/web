@@ -61,6 +61,7 @@ export default function NavLinks() {
                       icon={subItem.icon}
                       title={subItem.title}
                       subtitle={subItem.subtitle}
+                      isSoon={subItem.title === "Options"}
                     />
                   </Link>
                 ))}

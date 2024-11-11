@@ -46,7 +46,7 @@ const FutureDropdown: React.FC<FutureDropdownProps> = ({
   return (
     <div className="relative" ref={dropdownRef}>
       <button
-        className="flex items-center space-x-2 bg-white dark:bg-baseDark rounded"
+        className="flex items-center space-x-2 bg-white dark:bg-baseDark rounded w-max"
         onClick={() => setIsOpen(!isOpen)}
       >
         {selectedOption.icon && (
