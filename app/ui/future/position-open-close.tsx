@@ -369,29 +369,33 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
           return;
 
         let accountBalance;
+        console.log("accountBalance in futre ");
         if (tokenName === "WETH") {
-          accountBalance = await library?.getBalance(activeAccount);
+          accountBalance = (await library?.getBalance(activeAccount))/1e18;
+          accountBalance += (await wethContract.balanceOf(activeAccount))/1e18;
+          accountBalance = accountBalance;
+
           // console.log(accountBalance, waccountBalance, tokenName);
           // accountBalance = Number(accountBalance) + Number(waccountBalance);
         } else if (tokenName === "WBTC") {
-          accountBalance = await usdcContract.balanceOf(activeAccount);
-        } else if (tokenName === "USDC") {
           accountBalance = await wbtcContract.balanceOf(activeAccount);
+          accountBalance = accountBalance/1e18;
+        } else if (tokenName === "USDC") {
+          accountBalance = await usdcContract.balanceOf(activeAccount);
+          accountBalance = accountBalance/1e6;
         } else if (tokenName === "USDT") {
           accountBalance = await usdtContract.balanceOf(activeAccount);
+          accountBalance = accountBalance/1e6;
         } else if (tokenName === "DAI") {
           accountBalance = await daiContract.balanceOf(activeAccount);
+          accountBalance = accountBalance/1e18;
         }
 
-        console.log(accountBalance, tokenName);
+        console.log("accountBalance", accountBalance);
         if (accountBalance) {
           setCoinBalance(
             Number(
-              ceilWithPrecision(
-                formatBignumberToUnits(tokenName, accountBalance)
-              )
-            )
-          );
+              ceilWithPrecision(String(accountBalance),5)));
         }
       }
     } catch (e) {

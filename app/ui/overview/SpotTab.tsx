@@ -227,8 +227,8 @@ const SpotTab: React.FC = () => {
           const ethAccountBalance = (await library?.getBalance(activeAccount))/1e18;
           const wethAccounBalance = (await wethContract.balanceOf(activeAccount))/1e18;
           const wbtcAccounBalance = (await wbtcContract.balanceOf(activeAccount))/1e18;
-          const usdcAccounBalance = (await usdcContract.balanceOf(activeAccount))/1e18;
-          const usdtAccounBalance = (await usdtContract.balanceOf(activeAccount))/1e18;
+          const usdcAccounBalance = (await usdcContract.balanceOf(activeAccount))/1e6;
+          const usdtAccounBalance = (await usdtContract.balanceOf(activeAccount))/1e6;
           const daiAccounBalance = (await daiContract.balanceOf(activeAccount))/1e18;
 
        
