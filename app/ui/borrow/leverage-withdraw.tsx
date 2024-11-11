@@ -290,32 +290,27 @@ const LevrageWithdraw = () => {
 
           if (currentNetwork.id === ARBITRUM_NETWORK) {
           } else if (currentNetwork.id === OPTIMISM_NETWORK) {
-            let daiContract;
-            let wethContract;
-            let usdcContract;
-            let usdtContract;
-            let wbtcContract;
-            daiContract = new Contract(
+            const daiContract = new Contract(
               arbAddressList.daiTokenAddress,
               ERC20.abi,
               signer
             );
-            usdcContract = new Contract(
+            const usdcContract = new Contract(
               arbAddressList.usdcTokenAddress,
               ERC20.abi,
               signer
             );
-            usdtContract = new Contract(
+            const usdtContract = new Contract(
               arbAddressList.usdtTokenAddress,
               ERC20.abi,
               signer
             );
-            wethContract = new Contract(
+            const wethContract = new Contract(
               arbAddressList.wethTokenAddress,
               ERC20.abi,
               signer
             );
-            wbtcContract = new Contract(
+            const wbtcContract = new Contract(
               arbAddressList.wbtcTokenAddress,
               ERC20.abi,
               signer
