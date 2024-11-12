@@ -139,10 +139,12 @@ export default function Page({ params }: { params: { id: string } }) {
 
               //  Utilization Rate
               if (pool?.name === "WETH") {
+
                 utilizationRate = String(
                   (Number(formatUnits(ethTotalBorrow)) / Number(ethSupply)) *
                     100
                 );
+                console.log("utilizationRate",utilizationRate);
                 const rate = ceilWithPrecision(utilizationRate);
                 setUtilizationRate(
                   rate + rate === "NaN" ? "" : rate === "" ? "-" : "%"
@@ -240,38 +242,61 @@ export default function Page({ params }: { params: { id: string } }) {
               calldata.push([opAddressList.vDaiContractAddress, tempData]);
 
               const res = await MCcontract.callStatic.aggregate(calldata);
+              
 
               // totalBorrow
 
-              const ethTotalBorrow = check0xHex(res.returnData[10]);
-              const wbtcTotalBorrow = check0xHex(res.returnData[11]);
-              const usdcTotalBorrow = check0xHex(res.returnData[12]);
-              const usdtTotalBorrow = check0xHex(res.returnData[13]);
-              const daiTotalBorrow = check0xHex(res.returnData[14]);
+              const ethTotalBorrow = check0xHex(res.returnData[0]);
+              const wbtcTotalBorrow = check0xHex(res.returnData[1]);
+              const usdcTotalBorrow = check0xHex(res.returnData[2]);
+              const usdtTotalBorrow = check0xHex(res.returnData[3]);
+              const daiTotalBorrow = check0xHex(res.returnData[4]);
+              
 
               //  Utilization Rate
+              let utilazation;
               if (pool?.name === "WETH") {
-                setUtilizationRate(
-                  String(
-                    parseFloat(ethTotalBorrow?.toString()) /
-                      parseFloat(String(pool?.supply))
-                  )
-                );
+                 
+                utilazation = String(
+                  parseFloat(ceilWithPrecision(formatUnits(ethTotalBorrow))) /
+                    parseFloat(String(pool?.supply))
+                )
+                utilazation = Number(utilazation) * 100;
+                setUtilizationRate(ceilWithPrecision(String(utilazation)));
                 setUniqueLP("5");
               }
-              if (pool?.name === "WBTC") {
+              else if (pool?.name === "WBTC") {
+                utilazation = String(
+                  parseFloat(ceilWithPrecision(formatUnits(wbtcTotalBorrow))) /
+                    parseFloat(String(pool?.supply))
+                )
+                utilazation = Number(utilazation) * 100;
+                setUtilizationRate(ceilWithPrecision(String(utilazation)));
               }
-              if (pool?.name === "WETH") {
-                // const poolDetails =
-                // setUtilizationRate = parseFloat(ethTotalBorrow) /parseFloat(String(pool?.supply));
+              else if (pool?.name === "USDC") {
+                utilazation = String(
+                  parseFloat(ceilWithPrecision(formatUnits(usdcTotalBorrow))) /
+                    parseFloat(String(pool?.supply))
+                )
+                utilazation = Number(utilazation) * 100;
+                setUtilizationRate(ceilWithPrecision(String(utilazation)));
               }
-              if (pool?.name === "WETH") {
-                // const poolDetails =
-                // setUtilizationRate = parseFloat(ethTotalBorrow) /parseFloat(String(pool?.supply));
+              
+              else if (pool?.name === "USDT") {
+                utilazation = String(
+                  parseFloat(ceilWithPrecision(formatUnits(usdtTotalBorrow))) /
+                    parseFloat(String(pool?.supply))
+                )
+                utilazation = Number(utilazation) * 100;
+                setUtilizationRate(ceilWithPrecision(String(utilazation)));
               }
-              if (pool?.name === "WETH") {
-                // const poolDetails =
-                // setUtilizationRate = parseFloat(ethTotalBorrow) /parseFloat(String(pool?.supply));
+              else if (pool?.name === "DAI") {
+                utilazation = String(
+                  parseFloat(ceilWithPrecision(formatUnits(daiTotalBorrow))) /
+                    parseFloat(String(pool?.supply))
+                )
+                utilazation = Number(utilazation) * 100;
+                setUtilizationRate(ceilWithPrecision(String(utilazation)));
               }
             };
             fetchValues();
@@ -429,13 +454,13 @@ export default function Page({ params }: { params: { id: string } }) {
                 <div className="text-sm font-semibold text-neutral-500">
                   Utilization rate
                 </div>
-                <div className="pt-2">{utilizationRate}</div>
+                <div className="pt-2">{utilizationRate + " " + "%"}</div>
               </div>
               <div className="py-5 px-4 pr-0">
                 <div className="text-sm font-semibold text-neutral-500">
                   Your LP Balance
                 </div>
-                <div className="pt-2">{pool.yourBalance}</div>
+                <div className="pt-2">{pool.yourBalance + " " + pool.name}</div>
               </div>
             </div>
             <PoolDetailTabMenu pool={pool} utilizationRate={utilizationRate} />
