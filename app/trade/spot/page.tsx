@@ -48,10 +48,8 @@ export default function Page() {
   const [disableBtn, setDisableBtn] = useState(true);
   const [btnValue, setBtnValue] = useState("Enter an amount");
 
-  const [payInput, setPayInput] = useState<number | undefined>(undefined);
-  const [receiveInput, setReceiveInput] = useState<number | undefined>(
-    undefined
-  );
+  const [payInput, setPayInput] = useState<string>("");
+  const [receiveInput, setReceiveInput] = useState<string>("");
   const [isOpen, setIsOpen] = useState(false);
   const [payCoin, setPayCoin] = useState(poolsPlaceholder[0]);
   const [receiveCoin, setReceiveCoin] = useState(poolsPlaceholder[2]);
@@ -275,13 +273,13 @@ export default function Page() {
   };
 
   useEffect(() => {
-    updatePayInput(payInput || 0);
+    updatePayInput(payInput);
   }, [payCoin, receiveCoin]);
 
   const updatePayInput = async (amt: string | number) => {
-    if (amt === undefined || amt === "") {
-      setPayInput(undefined);
-      setReceiveInput(undefined);
+    if (amt === "") {
+      setPayInput("");
+      setReceiveInput("");
       // setReceiveUpdated();
     } else {
       const currentPriceOfPay = await getPriceFromAssetsArray(payCoin.name);
@@ -290,8 +288,8 @@ export default function Page() {
       );
       const receive = (currentPriceOfPay * Number(amt)) / currentPriceOfReceive;
 
-      setPayInput(Number(amt));
-      setReceiveInput(receive);
+      setPayInput(String(amt));
+      setReceiveInput(String(receive));
       setPayAmountInDollar(Number(amt) * currentPriceOfPay);
       setReceiveAmountInDollar(receive * currentPriceOfReceive);
       // setReceiveUpdated(receive);
@@ -304,10 +302,15 @@ export default function Page() {
 
   useEffect(() => {
     const tokenName = payCoin.name ? payCoin.name : "";
-    if (payInput === undefined || payInput <= 0) {
+    if (payInput === "" || Number(payInput) <= 0) {
       setBtnValue("Enter an amount");
       setDisableBtn(true);
-    } else if (payBalance && payInput && payBalance * 1.0 < payInput * 1.0) {
+    } else if (
+      payBalance &&
+      payInput &&
+      payInput !== "" &&
+      payBalance * 1.0 < Number(payInput) * 1.0
+    ) {
       setBtnValue("Insufficient " + tokenName + " balance");
       setDisableBtn(true);
     } else {
@@ -317,8 +320,10 @@ export default function Page() {
   }, [payInput, payBalance, payCoin]);
 
   const spot = async () => {
+    setLoading(true);
+
     try {
-      if (!payInput || !currentNetwork) {
+      if (payInput !== "" || !currentNetwork) {
         return;
       }
       if (currentNetwork.id === ARBITRUM_NETWORK) {
@@ -327,7 +332,7 @@ export default function Page() {
         const tokenIn = arbTokensAddress[payCoin.name];
         const tokenOut = arbTokensAddress[receiveCoin.name];
         const fee = 3000;
-        const amountIn = formatStringToUnits(payCoin.name, payInput);
+        const amountIn = formatStringToUnits(payCoin.name, Number(payInput));
         const amountOut = 0;
         const sqrtPriceLimitX96 = 0;
 
@@ -470,18 +475,13 @@ export default function Page() {
             gasLimit: 2300000,
           });
         }
-
-        await sleep(3000);
-        await balanceFetch();
-        setPayInput(undefined);
-        setReceiveInput(undefined);
       } else if (currentNetwork.id === OPTIMISM_NETWORK) {
         const signer = await library?.getSigner();
         // struct Data
         const tokenIn = opTokensAddress[payCoin.name];
         const tokenOut = opTokensAddress[receiveCoin.name];
         const fee = 3000;
-        const amountIn = formatStringToUnits(payCoin.name, payInput);
+        const amountIn = formatStringToUnits(payCoin.name, Number(payInput));
         const amountOut = 0;
         const sqrtPriceLimitX96 = 0;
 
@@ -624,11 +624,6 @@ export default function Page() {
             gasLimit: 2300000,
           });
         }
-
-        await sleep(3000);
-        await balanceFetch();
-        setPayInput(undefined);
-        setReceiveInput(undefined);
         // setPayBalance(ceilWithPrecision(balList[payCoin], 6));
         // setReceiveBalance(ceilWithPrecision(balList[receiveCoin], 6));
       }
@@ -638,6 +633,12 @@ export default function Page() {
     } catch (e) {
       console.error(e);
     }
+
+    await sleep(3000);
+    await balanceFetch();
+    setPayInput("");
+    setReceiveInput("");
+    setLoading(false);
   };
 
   return (
@@ -748,7 +749,7 @@ export default function Page() {
         </button>
       )}
 
-      {payInput !== undefined && payInput > 0 && (
+      {payInput !== "" && Number(payInput) > 0 && (
         <div className="w-full lg:max-w-md mx-auto bg-white dark:bg-baseDark rounded-lg p-6">
           <div
             className="flex justify-between items-center cursor-pointer"

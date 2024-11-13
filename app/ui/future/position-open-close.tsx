@@ -90,10 +90,8 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
   const [isEnabled, setIsEnabled] = useState(false);
   const [takeProfit, setTakeProfit] = useState("");
   const [stopLoss, setStopLoss] = useState("");
-  const [collateralAmount, setCollateralAmount] = useState<number | undefined>(
-    undefined
-  );
-  const [assetAmount, setAssetAmount] = useState<number | undefined>(undefined);
+  const [collateralAmount, setCollateralAmount] = useState<string>("");
+  const [assetAmount, setAssetAmount] = useState<string>("");
 
   const [marketPrice, setMarketPrice] = useState(1);
   const [assetsPrice, setAssetsPrice] = useState([]);
@@ -228,7 +226,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
   };
 
   useEffect(() => {
-    if (collateralAmount !== undefined) {
+    if (collateralAmount !== "") {
       updateCollateralAmount(collateralAmount);
     }
   }, [leverageValue]);
@@ -371,31 +369,30 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
         let accountBalance;
         console.log("accountBalance in futre ");
         if (tokenName === "WETH") {
-          accountBalance = (await library?.getBalance(activeAccount))/1e18;
-          accountBalance += (await wethContract.balanceOf(activeAccount))/1e18;
+          accountBalance = (await library?.getBalance(activeAccount)) / 1e18;
+          accountBalance +=
+            (await wethContract.balanceOf(activeAccount)) / 1e18;
           accountBalance = accountBalance;
 
           // console.log(accountBalance, waccountBalance, tokenName);
           // accountBalance = Number(accountBalance) + Number(waccountBalance);
         } else if (tokenName === "WBTC") {
           accountBalance = await wbtcContract.balanceOf(activeAccount);
-          accountBalance = accountBalance/1e18;
+          accountBalance = accountBalance / 1e18;
         } else if (tokenName === "USDC") {
           accountBalance = await usdcContract.balanceOf(activeAccount);
-          accountBalance = accountBalance/1e6;
+          accountBalance = accountBalance / 1e6;
         } else if (tokenName === "USDT") {
           accountBalance = await usdtContract.balanceOf(activeAccount);
-          accountBalance = accountBalance/1e6;
+          accountBalance = accountBalance / 1e6;
         } else if (tokenName === "DAI") {
           accountBalance = await daiContract.balanceOf(activeAccount);
-          accountBalance = accountBalance/1e18;
+          accountBalance = accountBalance / 1e18;
         }
 
         console.log("accountBalance", accountBalance);
         if (accountBalance) {
-          setCoinBalance(
-            Number(
-              ceilWithPrecision(String(accountBalance),5)));
+          setCoinBalance(Number(ceilWithPrecision(String(accountBalance), 5)));
         }
       }
     } catch (e) {
@@ -405,21 +402,21 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
 
   useEffect(() => {
     getTokenBalance();
-    updateCollateralAmount(collateralAmount || 0);
+    updateCollateralAmount(collateralAmount);
   }, [activeAccount, coin, currentNetwork, collateralAmount]);
 
   const updateCollateralAmount = (amt: string | number) => {
-    if (amt === undefined || amt === "") {
-      setCollateralAmount(undefined);
-      setAssetAmount(undefined);
+    if (amt === "") {
+      setCollateralAmount("");
+      setAssetAmount("");
       setUseValue("0");
       setLongValue("0");
     } else {
       let price = getPriceFromAssetsArray(coin.value);
       price = price ? price : 1;
-      setCollateralAmount(Number(amt));
+      setCollateralAmount(String(amt));
       const val = (Number(amt) * leverageValue) / (marketPrice / price);
-      setAssetAmount(val);
+      setAssetAmount(String(val));
       const useVal = Number(amt) * price;
       setUseValue(ceilWithPrecision(String(useVal)));
       const longVal = val * marketPrice;
@@ -428,19 +425,21 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
   };
 
   const updateAssetAmount = (amt: string | number) => {
-    if (amt === undefined || amt === "") {
-      setAssetAmount(undefined);
-      setCollateralAmount(undefined);
+    if (amt === "") {
+      setAssetAmount("");
+      setCollateralAmount("");
     } else {
       let price = getPriceFromAssetsArray(coin.value);
       price = price ? price : 1;
-      setAssetAmount(Number(amt));
+      setAssetAmount(String(amt));
       const value = (Number(amt) * (marketPrice / price)) / leverageValue;
-      setCollateralAmount(value);
+      setCollateralAmount(String(value));
     }
   };
 
   const openPosition = async (buySell: string) => {
+    // setLoading(true);
+
     try {
       if (!currentNetwork) return;
       // order type = fixed
@@ -457,7 +456,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
         const collateralAmountForPosition = BigNumber.from(
           formatStringToUnits(
             coin.value,
-            collateralAmount ? Number(collateralAmount) : 0
+            collateralAmount !== "" ? Number(collateralAmount) : 0
           )
         );
         // let units = 18;
@@ -467,7 +466,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
         const size = BigNumber.from(
           formatStringToUnits(
             coin.value,
-            collateralAmount ? Number(collateralAmount) : 1 * leverageValue
+            collateralAmount !== "" ? Number(collateralAmount) : 1 * leverageValue
           )
         );
         // this will changes, temporary static value
@@ -512,7 +511,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
           { gasLimit: 2300000 }
         );
       } else if (currentNetwork.id === OPTIMISM_NETWORK) {
-        if (!activeAccount || !collateralAmount) return;
+        if (!activeAccount || collateralAmount === "") return;
         const signer = await library?.getSigner();
 
         const accountManagerContract = new Contract(
@@ -523,7 +522,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
         const depositAmount = BigNumber.from(
           formatStringToUnits(
             "USDC",
-            collateralAmount ? Number(collateralAmount) : 0
+            collateralAmount === "" ? Number(collateralAmount) : 0
           )
         );
 
@@ -588,10 +587,13 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
       } else if (currentNetwork.id === BASE_NETWORK) {
       }
       await sleep(3000);
-      // getTokenBalance();
+      getTokenBalance();
     } catch (e) {
       console.error(e);
     }
+
+    updateAssetAmount("");
+    // setLoading(false);
   };
 
   // const closePosition = async (

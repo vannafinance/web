@@ -680,7 +680,7 @@ export default function Page() {
 
   useEffect(() => {
     fetchFuturePositions();
-  }, [activeAccount]);
+  }, [activeAccount, currentNetwork]);
 
   return (
     <div className="pt-5 sm:pt-7 lg:pt-10 pb-5 px-2.5 md:px-5 lg:px-7 xl:px-10 text-baseBlack dark:text-baseWhite">

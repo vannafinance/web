@@ -224,18 +224,18 @@ const SpotTab: React.FC = () => {
           )
             return;
 
-          const ethAccountBalance = (await library?.getBalance(activeAccount))/1e18;
-          const wethAccounBalance = (await wethContract.balanceOf(activeAccount))/1e18;
-          const wbtcAccounBalance = (await wbtcContract.balanceOf(activeAccount))/1e18;
-          const usdcAccounBalance = (await usdcContract.balanceOf(activeAccount))/1e6;
-          const usdtAccounBalance = (await usdtContract.balanceOf(activeAccount))/1e6;
-          const daiAccounBalance = (await daiContract.balanceOf(activeAccount))/1e18;
-
-       
-
-          console.log("ethAccountBalance", ethAccountBalance);
-          console.log("wethAccounBalance", wethAccounBalance);
-          console.log("usdcAccounBalance", usdcAccounBalance);
+          const ethAccountBalance =
+            (await library?.getBalance(activeAccount)) / 1e18;
+          const wethAccounBalance =
+            (await wethContract.balanceOf(activeAccount)) / 1e18;
+          const wbtcAccounBalance =
+            (await wbtcContract.balanceOf(activeAccount)) / 1e18;
+          const usdcAccounBalance =
+            (await usdcContract.balanceOf(activeAccount)) / 1e6;
+          const usdtAccounBalance =
+            (await usdtContract.balanceOf(activeAccount)) / 1e6;
+          const daiAccounBalance =
+            (await daiContract.balanceOf(activeAccount)) / 1e18;
 
           setETH(String(ethAccountBalance));
           setWETH(String(wethAccounBalance));
@@ -250,7 +250,7 @@ const SpotTab: React.FC = () => {
     };
 
     fetchValues();
-  }, []);
+  }, [activeAccount, currentNetwork]);
 
   return (
     <div className="grid grid-cols-2 xl:grid-cols-3 gap-2 sm:gap-5">

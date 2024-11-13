@@ -56,7 +56,7 @@ const SupplyWithdraw = ({
   const [disableBtn, setDisableBtn] = useState(true);
   const [btnValue, setBtnValue] = useState("Enter an amount");
 
-  const [amount, setAmount] = useState<number | undefined>();
+  const [amount, setAmount] = useState<string | undefined>();
   const [selectedToken, setSelectedToken] = useState(pool);
   const [expected, setExpected] = useState(0);
   const [coinBalance, setCoinBalance] = useState<number | undefined>(0);
@@ -93,10 +93,10 @@ const SupplyWithdraw = ({
 
   useEffect(() => {
     const tokenName = selectedToken ? selectedToken.name : "";
-    if (amount === undefined || amount <= 0) {
+    if (amount === "" || Number(amount) <= 0) {
       setBtnValue("Enter an amount");
       setDisableBtn(true);
-    } else if (coinBalance && amount && coinBalance * 1.0 < amount * 1.0) {
+    } else if (coinBalance && amount && amount !== "" && coinBalance * 1.0 < Number(amount) * 1.0) {
       setBtnValue("Insufficient " + tokenName + " balance");
       setDisableBtn(true);
     } else {
@@ -720,7 +720,7 @@ const SupplyWithdraw = ({
   useEffect(() => {
     getTokenBalance();
     fetchParams();
-    updateAmount(0);
+    updateAmount("");
   }, [account, selectedToken, currentNetwork, isSupply]);
 
   const getPriceFromAssetsArray = async (tokenSymbol: string) => {
@@ -747,12 +747,12 @@ const SupplyWithdraw = ({
     if (amt === "") {
       setExpected(0);
       setYouGet(0);
-      setAmount(undefined);
+      setAmount('');
     } else {
       const val = await getPriceFromAssetsArray(selectedToken.name);
       setExpected(Number(amt) * Number(val));
       setYouGet(Number(amt) * Number(ethPerVeth));
-      setAmount(Number(amt));
+      setAmount(String(amt));
     }
   };
 
@@ -760,6 +760,7 @@ const SupplyWithdraw = ({
     if (!currentNetwork) return;
 
     const signer = await library?.getSigner();
+    setLoading(true);
 
     if (currentNetwork.id === ARBITRUM_NETWORK) {
       const vEtherContract = new Contract(
@@ -828,7 +829,7 @@ const SupplyWithdraw = ({
               arbAddressList.vWBTCContractAddress
             );
 
-            if (amount && allowance < amount) {
+            if (amount && amount !== "" && allowance < Number(amount)) {
               await WBTCContract.approve(
                 arbAddressList.vWBTCContractAddress,
                 parseEther(String(amount))
@@ -847,7 +848,7 @@ const SupplyWithdraw = ({
               arbAddressList.vUSDCContractAddress
             );
 
-            if (amount && allowance < amount) {
+            if (amount && amount !== "" && allowance < Number(amount)) {
               await USDCContract.approve(
                 arbAddressList.vUSDCContractAddress,
                 parseUnits(String(amount), 6)
@@ -870,7 +871,7 @@ const SupplyWithdraw = ({
               arbAddressList.vUSDTContractAddress
             );
 
-            if (amount && allowance < amount) {
+            if (amount && amount !== "" && allowance < Number(amount)) {
               await USDTContract.approve(
                 arbAddressList.vUSDTContractAddress,
                 parseUnits(String(amount), 6)
@@ -891,7 +892,7 @@ const SupplyWithdraw = ({
               arbAddressList.vDaiContractAddress
             );
 
-            if (amount && allowance < amount) {
+            if (amount && amount !== "" && allowance < Number(amount)) {
               await DAIContract.approve(
                 arbAddressList.vDaiContractAddress,
                 parseEther(String(amount))
@@ -908,7 +909,7 @@ const SupplyWithdraw = ({
               VEther.abi,
               signer
             );
-            if (amount && amount <= (await vEthcontract.balanceOf(account))) {
+            if (amount && amount !== "" && Number(amount) <= (await vEthcontract.balanceOf(account))) {
               await vEthcontract.redeemEth(parseEther(String(amount)), {
                 gasLimit: 2300000,
               });
@@ -919,7 +920,7 @@ const SupplyWithdraw = ({
               VToken.abi,
               signer
             );
-            if (amount && amount <= (await vBTCcontract.balanceOf(account))) {
+            if (amount  && amount !== "" && Number(amount) <= (await vBTCcontract.balanceOf(account))) {
               await vBTCcontract.redeem(
                 parseEther(String(amount)),
                 account,
@@ -935,7 +936,7 @@ const SupplyWithdraw = ({
               VToken.abi,
               signer
             );
-            if (amount && amount <= (await vUSDCcontract.balanceOf(account))) {
+            if (amount  && amount !== "" && Number(amount) <= (await vUSDCcontract.balanceOf(account))) {
               await vUSDCcontract.redeem(
                 parseUnits(String(amount), 6),
                 account,
@@ -951,7 +952,7 @@ const SupplyWithdraw = ({
               VToken.abi,
               signer
             );
-            if (amount && amount <= (await vUSDTcontract.balanceOf(account))) {
+            if (amount  && amount !== "" && Number(amount) <= (await vUSDTcontract.balanceOf(account))) {
               await vUSDTcontract.redeem(
                 parseUnits(String(amount), 6),
                 account,
@@ -967,7 +968,7 @@ const SupplyWithdraw = ({
               VToken.abi,
               signer
             );
-            if (amount && amount <= (await vDaicontract.balanceOf(account))) {
+            if (amount  && amount !== "" && Number(amount) <= (await vDaicontract.balanceOf(account))) {
               await vDaicontract.redeem(
                 parseEther(String(amount)),
                 account,
@@ -1056,7 +1057,7 @@ const SupplyWithdraw = ({
               opAddressList.vWBTCContractAddress
             );
 
-            if (amount && allowance < amount) {
+            if (amount && amount !== "" && allowance < Number(amount)) {
               await WBTCContract.approve(
                 opAddressList.vWBTCContractAddress,
                 parseEther(String(amount))
@@ -1075,7 +1076,7 @@ const SupplyWithdraw = ({
               opAddressList.vUSDCContractAddress
             );
 
-            if (amount && allowance < amount) {
+            if (amount && amount !== "" && allowance < Number(amount)) {
               await USDCContract.approve(
                 opAddressList.vUSDCContractAddress,
                 parseUnits(String(amount), 6)
@@ -1098,7 +1099,7 @@ const SupplyWithdraw = ({
               opAddressList.vUSDTContractAddress
             );
 
-            if (amount && allowance < amount) {
+            if (amount && amount !== "" && allowance < Number(amount)) {
               await USDTContract.approve(
                 opAddressList.vUSDTContractAddress,
                 parseUnits(String(amount), 6)
@@ -1119,7 +1120,7 @@ const SupplyWithdraw = ({
               opAddressList.vDaiContractAddress
             );
 
-            if (amount && allowance < amount) {
+            if (amount && amount !== "" && allowance < Number(amount)) {
               await DAIContract.approve(
                 opAddressList.vDaiContractAddress,
                 parseEther(String(amount))
@@ -1137,7 +1138,7 @@ const SupplyWithdraw = ({
               signer
             );
 
-            if (amount && amount <= (await vEthcontract.balanceOf(account))) {
+            if (amount  && amount !== "" && Number(amount) <= (await vEthcontract.balanceOf(account))) {
               await vEthcontract.redeemEth(parseEther(String(amount)), {
                 gasLimit: 2300000,
               });
@@ -1148,7 +1149,7 @@ const SupplyWithdraw = ({
               VToken.abi,
               signer
             );
-            if (amount && amount <= (await vBTCcontract.balanceOf(account))) {
+            if (amount && amount !== "" && Number(amount) <= (await vBTCcontract.balanceOf(account))) {
               await vBTCcontract.redeem(
                 parseEther(String(amount)),
                 account,
@@ -1164,7 +1165,7 @@ const SupplyWithdraw = ({
               VToken.abi,
               signer
             );
-            if (amount && amount <= (await vUSDCcontract.balanceOf(account))) {
+            if (amount && amount !== "" && Number(amount) <= (await vUSDCcontract.balanceOf(account))) {
               await vUSDCcontract.redeem(
                 parseUnits(String(amount), 6),
                 account,
@@ -1180,7 +1181,7 @@ const SupplyWithdraw = ({
               VToken.abi,
               signer
             );
-            if (amount && amount <= (await vUSDTcontract.balanceOf(account))) {
+            if (amount && amount !== "" && Number(amount) <= (await vUSDTcontract.balanceOf(account))) {
               await vUSDTcontract.redeem(
                 parseUnits(String(amount), 6),
                 account,
@@ -1196,7 +1197,7 @@ const SupplyWithdraw = ({
               VToken.abi,
               signer
             );
-            if (amount && amount <= (await vDaicontract.balanceOf(account))) {
+            if (amount && amount !== "" && Number(amount) <= (await vDaicontract.balanceOf(account))) {
               await vDaicontract.redeem(
                 parseEther(String(amount)),
                 account,
@@ -1285,7 +1286,7 @@ const SupplyWithdraw = ({
               baseAddressList.vWBTCContractAddress
             );
 
-            if (amount && allowance < amount) {
+            if (amount && amount !== "" && allowance < Number(amount)) {
               await WBTCContract.approve(
                 baseAddressList.vWBTCContractAddress,
                 parseEther(String(amount))
@@ -1304,7 +1305,7 @@ const SupplyWithdraw = ({
               baseAddressList.vUSDCContractAddress
             );
 
-            if (amount && allowance < amount) {
+            if (amount && amount !== "" && allowance < Number(amount)) {
               await USDCContract.approve(
                 baseAddressList.vUSDCContractAddress,
                 parseUnits(String(amount), 6)
@@ -1327,7 +1328,7 @@ const SupplyWithdraw = ({
               baseAddressList.vUSDTContractAddress
             );
 
-            if (amount && allowance < amount) {
+            if (amount && amount !== "" && allowance < Number(amount)) {
               await USDTContract.approve(
                 baseAddressList.vUSDTContractAddress,
                 parseUnits(String(amount), 6)
@@ -1348,7 +1349,7 @@ const SupplyWithdraw = ({
               baseAddressList.vDaiContractAddress
             );
 
-            if (amount && allowance < amount) {
+            if (amount && amount !== "" && allowance < Number(amount)) {
               await DAIContract.approve(
                 baseAddressList.vDaiContractAddress,
                 parseEther(String(amount))
@@ -1366,7 +1367,7 @@ const SupplyWithdraw = ({
               signer
             );
 
-            if (amount && amount <= (await vEthcontract.balanceOf(account))) {
+            if (amount && amount !== "" && Number(amount) <= (await vEthcontract.balanceOf(account))) {
               await vEthcontract.redeemEth(parseEther(String(amount)), {
                 gasLimit: 2300000,
               });
@@ -1377,7 +1378,7 @@ const SupplyWithdraw = ({
               VToken.abi,
               signer
             );
-            if (amount && amount <= (await vBTCcontract.balanceOf(account))) {
+            if (amount && amount !== "" && Number(amount) <= (await vBTCcontract.balanceOf(account))) {
               await vBTCcontract.redeem(
                 parseEther(String(amount)),
                 account,
@@ -1393,7 +1394,7 @@ const SupplyWithdraw = ({
               VToken.abi,
               signer
             );
-            if (amount && amount <= (await vUSDCcontract.balanceOf(account))) {
+            if (amount && amount !== "" && Number(amount) <= (await vUSDCcontract.balanceOf(account))) {
               await vUSDCcontract.redeem(
                 parseUnits(String(amount), 6),
                 account,
@@ -1409,7 +1410,7 @@ const SupplyWithdraw = ({
               VToken.abi,
               signer
             );
-            if (amount && amount <= (await vUSDTcontract.balanceOf(account))) {
+            if (amount && amount !== "" && Number(amount) <= (await vUSDTcontract.balanceOf(account))) {
               await vUSDTcontract.redeem(
                 parseUnits(String(amount), 6),
                 account,
@@ -1425,7 +1426,7 @@ const SupplyWithdraw = ({
               VToken.abi,
               signer
             );
-            if (amount && amount <= (await vDaicontract.balanceOf(account))) {
+            if (amount && amount !== "" && Number(amount) <= (await vDaicontract.balanceOf(account))) {
               await vDaicontract.redeem(
                 parseEther(String(amount)),
                 account,
@@ -1443,6 +1444,11 @@ const SupplyWithdraw = ({
         console.error(error);
       }
     }
+
+    getTokenBalance();
+    fetchParams();
+    updateAmount("");
+    setLoading(false);
   };
 
   return (
