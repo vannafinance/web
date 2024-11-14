@@ -388,7 +388,7 @@ export default function Page() {
 
     if (activeAccount) {
       if (currentNetwork.id === ARBITRUM_NETWORK) {
-        const renderedRows: MarketPosition[] = [];
+        const renderedRows: FuturePosition[] = [];
         const signer = await library?.getSigner();
         const liquidityPoolContract = new Contract(
           arbAddressList.muxLiquidityPoolAddress,
@@ -431,36 +431,25 @@ export default function Page() {
                 const pnl = calcPnl(indexPrice, entryPrice, size, k);
                 // price += pnl;
 
-                const row: MarketPosition = {
-                  market: "",
-                  isLong: false,
-                  netValue: "",
-                  collateral: 0,
+                const row: FuturePosition = {
+                  id: j + k,
+                  selected: false,
+                  marketPrice: "",
                   entryPrice: "",
-                  indexPrice: "",
+                  size: "",
+                  leverage: "",
                   liqPrice: "",
-                  pnlAndRow: "",
-                  actions: <div></div>, // or some default JSX
+                  delta: "",
+                  pnl: "",
                 };
 
-                row["market"] = "ETH/USD";
-                row["isLong"] = k === 1;
-                row["netValue"] = formatUSD(netValue);
-                row["collateral"] = collateralPrice;
+                row["marketPrice"] = formatUSD(indexPrice);
                 row["entryPrice"] = formatUSD(entryPrice);
-                row["indexPrice"] = formatUSD(indexPrice);
+                row["size"] = formatUSD(netValue);
+                row["leverage"] = String(netValue / collateralPrice);
                 row["liqPrice"] = formatUSD(liquidation);
-                row["pnlAndRow"] = formatUSD(pnl);
-                // row["actions"] = (
-                //   <button
-                //     className="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-                //     onClick={() => {
-                //       closePositionArb(i, j, k, result.size);
-                //     }}
-                //   >
-                //     Close
-                //   </button>
-                // );
+                row["delta"] = k === 1 ? "1" : "-1";
+                row["pnl"] = formatUSD(pnl);
 
                 if (k === 1) {
                   deltaCall += pnl;
@@ -476,7 +465,7 @@ export default function Page() {
           // }
         }
 
-        // setFuturesPositions(renderedRows);
+        setFuturesPositions(renderedRows);
 
         riskEngineContract = new Contract(
           arbAddressList.riskEngineContractAddress,
@@ -489,7 +478,7 @@ export default function Page() {
           library
         );
       } else if (currentNetwork.id === OPTIMISM_NETWORK) {
-        const renderedRows: MarketPosition[] = [];
+        const renderedRows: FuturePosition[] = [];
         const signer = await library?.getSigner();
 
         const OptimismFetchPositionContract = new Contract(
@@ -540,45 +529,27 @@ export default function Page() {
           );
           // const collateralPriceInUSDC = ceilWithPrecision(collateralPrice * indexPrice);
 
-          const row: MarketPosition = {
-            market: "",
-            isLong: false,
-            netValue: "",
-            collateral: 0,
+          const row: FuturePosition = {
+            id: 0,
+            selected: false,
+            marketPrice: "",
             entryPrice: "",
-            indexPrice: "",
+            size: "",
+            leverage: "",
             liqPrice: "",
-            pnlAndRow: "",
-            actions: <div></div>, // or some default JSX
+            delta: "",
+            pnl: "",
           };
-          row["market"] = "ETH";
-          row["isLong"] = false; // TODO: @vatsal add logic here for long / short
-          row["netValue"] = formatUSD(netValue);
-          row["collateral"] = collateralPrice;
-          // row["entryPrice"] = (
-          //   <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>
-          //     -{/* {formatUSD(entryPrice)} */}
-          //   </p>
-          // );
+
+          // row["isLong"] = false; // TODO: @vatsal add logic here for long / short
+
+          row["marketPrice"] = formatUSD(indexPrice);
           row["entryPrice"] = formatUSD(totalPositionSize);
-          row["indexPrice"] = formatUSD(indexPrice);
-          // row["liqPrice"] = (
-          //   <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>
-          //     -{/* {formatUSD(liquidation)} */}
-          //   </p>
-          // );
+          row["size"] = formatUSD(netValue);
+          row["leverage"] = String(netValue / collateralPrice);
           row["liqPrice"] = formatUSD(netValue);
-          row["pnlAndRow"] = formatUSD(pnl);
-          // row["actions"] = (
-          //   <button
-          //     className="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-          //     onClick={() => {
-          //       closePositionOp();
-          //     }}
-          //   >
-          //     Close
-          //   </button>
-          // );
+          row["delta"] = ""; // add logic here if long then 1 if short then -1
+          row["pnl"] = formatUSD(pnl);
 
           // if () { // add logic here to know if it's long / short
           //   deltaCall += pnl;
@@ -600,7 +571,7 @@ export default function Page() {
             library
           );
 
-          // setFuturesPositions(renderedRows);
+          setFuturesPositions(renderedRows);
         }
       } else if (currentNetwork.id === BASE_NETWORK) {
       }
@@ -646,6 +617,14 @@ export default function Page() {
       currentUserData["healthFactor"] = ceilWithPrecision(
         String(currhealthFactor)
       );
+      // --------------------------------
+
+      // TODO: @vatsal add code here to fetch margin usage, total pnl & borrow rate and assign it to below
+      // currentUserData["marginUsage"] = ;
+      // currentUserData["totalPnl"] = ;
+      // currentUserData["borrowRate"] = ;
+
+      // -----------------------------
       setUserData(currentUserData);
 
       // option data from below onwards
@@ -846,25 +825,25 @@ export default function Page() {
                       </button>
                     </td>
                     <td className="pt-1 px-3 whitespace-nowrap">
-                      ${position.marketPrice.toFixed(2)}
+                      ${position.marketPrice}
                     </td>
                     <td className="pt-1 px-3 whitespace-nowrap">
-                      ${position.entryPrice.toFixed(2)}
+                      ${position.entryPrice}
                     </td>
                     <td className="pt-1 px-3 whitespace-nowrap">
-                      ${position.size.toFixed(2)}
+                      ${position.size}
                     </td>
                     <td className="pt-1 px-3 whitespace-nowrap">
-                      ${position.leverage.toFixed(2)}
+                      ${position.leverage}
                     </td>
                     <td className="pt-1 px-3 whitespace-nowrap">
-                      ${position.liqPrice.toFixed(2)}
+                      ${position.liqPrice}
                     </td>
                     <td className="pt-1 px-3 whitespace-nowrap">
-                      {position.delta.toFixed(1)}
+                      {position.delta}
                     </td>
                     <td className="pt-1 px-3 whitespace-nowrap">
-                      ${position.pnl.toFixed(2)}
+                      ${position.pnl}
                     </td>
                   </tr>
                 ))}

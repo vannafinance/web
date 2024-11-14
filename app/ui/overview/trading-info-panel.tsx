@@ -41,6 +41,11 @@ const TradingInfoPanel: React.FC = () => {
             {activeTab === tab && (
               <div className="absolute -bottom-0.5 left-0 w-full h-[3px] bg-gradient-to-r from-gradient-1 to-gradient-2" />
             )}
+            {tab === "Options" && (
+              <button className="ml-1 py-0.5 px-1 bg-gradient-to-r from-gradient-1 to-gradient-2 text-xs rounded-md text-baseWhite">
+                soon
+              </button>
+            )}
           </button>
         ))}
       </div>

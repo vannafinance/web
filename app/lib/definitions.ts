@@ -137,13 +137,13 @@ interface OptionPosition {
 interface FuturePosition {
   id: number;
   selected: boolean;
-  marketPrice: number;
-  entryPrice: number;
-  size: number;
-  leverage: number;
-  liqPrice: number;
-  delta: number;
-  pnl: number;
+  marketPrice: string;
+  entryPrice: string;
+  size: string;
+  leverage: string;
+  liqPrice: string;
+  delta: string;
+  pnl: string;
 }
 
 interface PortfolioSummaryProps {

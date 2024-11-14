@@ -641,6 +641,10 @@ export default function Page() {
     setLoading(false);
   };
 
+  const handlePayBalanceClick = ()=> {
+    setPayInput(String(payBalance));
+  }
+
   return (
     <div className="w-full lg:w-[35rem] xl:w-[40rem] mx-auto text-baseBlack dark:text-baseWhite">
       <p className="text-4xl font-bold mb-6">Spot</p>
@@ -671,7 +675,13 @@ export default function Page() {
           <div className="mt-2 flex justify-between text-base">
             <div>{formatUSD(payAmountInDollar)}</div>
             <div>
-              {payBalance !== undefined ? payBalance + " " + payCoin.name : "-"}
+              {payBalance !== undefined ? (
+                <span onClick={handlePayBalanceClick}>
+                  {payBalance + " " + payCoin.name}
+                </span>
+              ) : (
+                "-"
+              )}
             </div>
           </div>
         </div>

@@ -568,7 +568,7 @@ const LevrageWithdraw = () => {
     accountCheck();
     getTokenBalance();
     calc();
-  }, [account, activeAccount, currentNetwork]);
+  }, [account, activeAccount, currentNetwork, isLeverage]);
 
   useEffect(() => {
     const val = getPriceFromAssetsArray(borrowToken.name);
