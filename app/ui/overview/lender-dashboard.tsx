@@ -622,16 +622,21 @@ const LenderDashboard: React.FC = () => {
       const ethbal = await vEtherContract.balanceOf(account);
       const ethusdcfetchBal =
         (await vEtherContract.convertToAssets(ethbal)) / 1;
-      const usdcbal = await vUsdcContract.balanceOf(account);
+      const usdcbal = await vUsdcContract.balanceOf(account)/1;
+      console.log("usdcBal",await vUsdcContract.balanceOf(account)/1)
       const UusdcfetchBal = (await vUsdcContract.convertToAssets(usdcbal)) / 1;
 
       // const ethusdcfetchBal = (await vEtherContract.convertToAssets(ethBal)/1e18);
 
       let ethPnl = (Number(ethusdcfetchBal) - Number(ethbal)) / 1e18;
       const ethPercentage = (ethPnl / Number(ethusdcfetchBal)) * 100;
-
-      const usdcPnl = (Number(UusdcfetchBal) - Number(usdcBal)) / 1e6;
+      console.log("UusdcfetchBal",(UusdcfetchBal - usdcbal)/1e6)
+      
+      
+      const usdcPnl = Number(UusdcfetchBal - usdcbal)/1e6;
       const usdcPercentage = usdcPnl / Number(usdcusdcBal);
+      console.log("usdcPnl",usdcPnl)
+      console.log("usdcPercentage",usdcPercentage)
       const ethval = Number(await getPriceFromAssetsArray("WETH"));
       ethPnl = ethPnl * ethval;
 

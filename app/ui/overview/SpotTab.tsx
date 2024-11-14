@@ -17,6 +17,7 @@ import ERC20 from "../../abi/vanna/v1/out/ERC20.sol/ERC20.json";
 import Registry from "../../abi/vanna/v1/out/Registry.sol/Registry.json";
 import VEther from "../../abi/vanna/v1/out/VEther.sol/VEther.json";
 import VToken from "../../abi/vanna/v1/out/VToken.sol/VToken.json";
+import { ceilWithPrecision } from "@/app/lib/helper";
 
 const SpotTab: React.FC = () => {
   const { account, library } = useWeb3React();
@@ -237,12 +238,12 @@ const SpotTab: React.FC = () => {
           const daiAccounBalance =
             (await daiContract.balanceOf(activeAccount)) / 1e18;
 
-          setETH(String(ethAccountBalance));
-          setWETH(String(wethAccounBalance));
-          setBTC(String(wbtcAccounBalance));
-          setUSDC(String(usdcAccounBalance));
-          setUSDT(String(usdtAccounBalance));
-          setDAI(String(daiAccounBalance));
+          setETH(ceilWithPrecision(String(ethAccountBalance)));
+          setWETH(ceilWithPrecision(String(wethAccounBalance)));
+          setBTC(ceilWithPrecision(String(wbtcAccounBalance)));
+          setUSDC(ceilWithPrecision(String(usdcAccounBalance)));
+          setUSDT(ceilWithPrecision(String(usdtAccounBalance)));
+          setDAI(ceilWithPrecision(String(daiAccounBalance)));
         }
       } catch (e) {
         console.error(e);
@@ -254,12 +255,12 @@ const SpotTab: React.FC = () => {
 
   return (
     <div className="grid grid-cols-2 xl:grid-cols-3 gap-2 sm:gap-5">
-      <InfoRow label="ETH" value={ETH} />
-      <InfoRow label="WETH" value={WETH} />
-      <InfoRow label="BTC" value={BTC} />
-      <InfoRow label="USDC" value={USDC} />
-      <InfoRow label="USDT" value={USDT} />
-      <InfoRow label="DAI" value={DAI} />
+      <InfoRow label="ETH" value={ETH +" ETH"} />
+      <InfoRow label="WETH" value={WETH +" WETH"} />
+      <InfoRow label="BTC" value={BTC +" BTC"} />
+      <InfoRow label="USDC" value={USDC +" USDC"} />
+      <InfoRow label="USDT" value={USDT +" USDT"} />
+      <InfoRow label="DAI" value={DAI+" DAI"} />
     </div>
   );
 };
