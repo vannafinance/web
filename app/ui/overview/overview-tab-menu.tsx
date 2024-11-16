@@ -431,11 +431,6 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
         const totalReturnsAmount = Number(balanceWithoutReapy) - balance;
         const totalReturnsPercentage = (totalReturnsAmount / balance) * 100;
         // add color while showing this
-        // console.log("totalbalance",totalbalance);
-        // console.log("borrowBalance",borrowBalance);
-        // console.log("balanceWithoutReapy",balanceWithoutReapy);
-        // console.log("balance",balance);
-        // console.log("totalReturnsPercentage",totalReturnsPercentage);
         const healthFactor = balance / Number(borrowBalance);
         // if healther < 1.5 the color red else green
 

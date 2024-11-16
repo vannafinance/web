@@ -171,7 +171,6 @@ const FutureTab: React.FC = () => {
   };
 
   const fetchPositions = async (account?: { toString: () => string }) => {
-    console.log("in fetchposition future tab");
     if (currentNetwork && account) {
       const row: MarketPosition = {
         market: "ETH",
@@ -314,8 +313,10 @@ const FutureTab: React.FC = () => {
       <InfoRow label="Collateral" value={collateral} />
       <InfoRow label="Entry Price" value={entryPrice} />
       <InfoRow label="Liq. Price" value={liquidationPrice} />
-      <InfoRow label="PNL" value={profitLoss} 
-      // subValue={profitLossPercentage}
+      <InfoRow
+        label="PNL"
+        value={profitLoss}
+        // subValue={profitLossPercentage}
       />
     </div>
   );

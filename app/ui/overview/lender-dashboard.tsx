@@ -42,7 +42,9 @@ const Pool: React.FC<PoolPropsLenderDashboard> = ({
     <div className="flex flex-row justify-between w-20">
       <Image src={icon} alt={name} width={24} height={24} /> {name}
     </div>
-    <div>{amount} {name}</div>
+    <div>
+      {amount} {name}
+    </div>
     <div>
       {formatUSD(profit)}{" "}
       {isLoss ? (
@@ -121,9 +123,7 @@ const LenderDashboard: React.FC = () => {
     return 1;
   };
 
-  const getAssetPrice = async (
-    assetName = market
-  ) => {
+  const getAssetPrice = async (assetName = market) => {
     const rsp = await axios.get("https://app.mux.network/api/liquidityAsset", {
       timeout: 10 * 1000,
     });
@@ -622,21 +622,16 @@ const LenderDashboard: React.FC = () => {
       const ethbal = await vEtherContract.balanceOf(account);
       const ethusdcfetchBal =
         (await vEtherContract.convertToAssets(ethbal)) / 1;
-      const usdcbal = await vUsdcContract.balanceOf(account)/1;
-      console.log("usdcBal",await vUsdcContract.balanceOf(account)/1)
+      const usdcbal = (await vUsdcContract.balanceOf(account)) / 1;
       const UusdcfetchBal = (await vUsdcContract.convertToAssets(usdcbal)) / 1;
 
       // const ethusdcfetchBal = (await vEtherContract.convertToAssets(ethBal)/1e18);
 
       let ethPnl = (Number(ethusdcfetchBal) - Number(ethbal)) / 1e18;
       const ethPercentage = (ethPnl / Number(ethusdcfetchBal)) * 100;
-      console.log("UusdcfetchBal",(UusdcfetchBal - usdcbal)/1e6)
-      
-      
-      const usdcPnl = Number(UusdcfetchBal - usdcbal)/1e6;
+
+      const usdcPnl = Number(UusdcfetchBal - usdcbal) / 1e6;
       const usdcPercentage = usdcPnl / Number(usdcusdcBal);
-      console.log("usdcPnl",usdcPnl)
-      console.log("usdcPercentage",usdcPercentage)
       const ethval = Number(await getPriceFromAssetsArray("WETH"));
       ethPnl = ethPnl * ethval;
 
@@ -1386,7 +1381,9 @@ const LenderDashboard: React.FC = () => {
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-4 text-base">
                   <div>
                     <p className="text-sm text-gray-500 mb-1">In Pool</p>
-                    <p>{ceilWithPrecision(String(pool.amount)) + ' ' + pool.name}</p>
+                    <p>
+                      {ceilWithPrecision(String(pool.amount)) + " " + pool.name}
+                    </p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500 mb-1">Profit & Loss</p>

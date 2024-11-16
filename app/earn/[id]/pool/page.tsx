@@ -139,12 +139,10 @@ export default function Page({ params }: { params: { id: string } }) {
 
               //  Utilization Rate
               if (pool?.name === "WETH") {
-
                 utilizationRate = String(
                   (Number(formatUnits(ethTotalBorrow)) / Number(ethSupply)) *
                     100
                 );
-                console.log("utilizationRate",utilizationRate);
                 const rate = ceilWithPrecision(utilizationRate);
                 setUtilizationRate(
                   rate + rate === "NaN" ? "" : rate === "" ? "-" : "%"
@@ -242,7 +240,6 @@ export default function Page({ params }: { params: { id: string } }) {
               calldata.push([opAddressList.vDaiContractAddress, tempData]);
 
               const res = await MCcontract.callStatic.aggregate(calldata);
-              
 
               // totalBorrow
 
@@ -251,50 +248,43 @@ export default function Page({ params }: { params: { id: string } }) {
               const usdcTotalBorrow = check0xHex(res.returnData[2]);
               const usdtTotalBorrow = check0xHex(res.returnData[3]);
               const daiTotalBorrow = check0xHex(res.returnData[4]);
-              
 
               //  Utilization Rate
               let utilazation;
               if (pool?.name === "WETH") {
-                 
                 utilazation = String(
                   parseFloat(ceilWithPrecision(formatUnits(ethTotalBorrow))) /
                     parseFloat(String(pool?.supply))
-                )
+                );
                 utilazation = Number(utilazation) * 100;
                 setUtilizationRate(ceilWithPrecision(String(utilazation)));
                 setUniqueLP("5");
-              }
-              else if (pool?.name === "WBTC") {
+              } else if (pool?.name === "WBTC") {
                 utilazation = String(
                   parseFloat(ceilWithPrecision(formatUnits(wbtcTotalBorrow))) /
                     parseFloat(String(pool?.supply))
-                )
+                );
                 utilazation = Number(utilazation) * 100;
                 setUtilizationRate(ceilWithPrecision(String(utilazation)));
-              }
-              else if (pool?.name === "USDC") {
+              } else if (pool?.name === "USDC") {
                 utilazation = String(
                   parseFloat(ceilWithPrecision(formatUnits(usdcTotalBorrow))) /
                     parseFloat(String(pool?.supply))
-                )
+                );
                 utilazation = Number(utilazation) * 100;
                 setUtilizationRate(ceilWithPrecision(String(utilazation)));
-              }
-              
-              else if (pool?.name === "USDT") {
+              } else if (pool?.name === "USDT") {
                 utilazation = String(
                   parseFloat(ceilWithPrecision(formatUnits(usdtTotalBorrow))) /
                     parseFloat(String(pool?.supply))
-                )
+                );
                 utilazation = Number(utilazation) * 100;
                 setUtilizationRate(ceilWithPrecision(String(utilazation)));
-              }
-              else if (pool?.name === "DAI") {
+              } else if (pool?.name === "DAI") {
                 utilazation = String(
                   parseFloat(ceilWithPrecision(formatUnits(daiTotalBorrow))) /
                     parseFloat(String(pool?.supply))
-                )
+                );
                 utilazation = Number(utilazation) * 100;
                 setUtilizationRate(ceilWithPrecision(String(utilazation)));
               }

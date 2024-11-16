@@ -367,14 +367,12 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
           return;
 
         let accountBalance;
-        console.log("accountBalance in futre ");
         if (tokenName === "WETH") {
           accountBalance = (await library?.getBalance(activeAccount)) / 1e18;
           accountBalance +=
             (await wethContract.balanceOf(activeAccount)) / 1e18;
           accountBalance = accountBalance;
 
-          // console.log(accountBalance, waccountBalance, tokenName);
           // accountBalance = Number(accountBalance) + Number(waccountBalance);
         } else if (tokenName === "WBTC") {
           accountBalance = await wbtcContract.balanceOf(activeAccount);
@@ -390,7 +388,6 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
           accountBalance = accountBalance / 1e18;
         }
 
-        console.log("accountBalance", accountBalance);
         if (accountBalance) {
           setCoinBalance(Number(ceilWithPrecision(String(accountBalance), 5)));
         }
@@ -466,7 +463,9 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
         const size = BigNumber.from(
           formatStringToUnits(
             coin.value,
-            collateralAmount !== "" ? Number(collateralAmount) : 1 * leverageValue
+            collateralAmount !== ""
+              ? Number(collateralAmount)
+              : 1 * leverageValue
           )
         );
         // this will changes, temporary static value

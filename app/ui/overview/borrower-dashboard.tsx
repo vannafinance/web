@@ -24,7 +24,7 @@ import AccountManagerop from "../../abi/vanna/v1/out/AccountManager-op.sol/Accou
 import MUX from "../../abi/vanna/v1/out/MUX.sol/MUX.json";
 import PerpVault from "../../abi/vanna/v1/out/PerpVault.sol/PerpVault.json";
 import ClearingHouse from "../../abi/vanna/v1/out/ClearingHouse.sol/ClearingHouse.json";
-import OracleFacade from "../../abi/vanna/v1/out/OracleFacade.sol/OracleFacade.json"
+import OracleFacade from "../../abi/vanna/v1/out/OracleFacade.sol/OracleFacade.json";
 import ERC20 from "../../abi/vanna/v1/out/ERC20.sol/ERC20.json";
 import Multicall from "../../abi/vanna/v1/out/Multicall.sol/Multicall.json";
 import Registry from "../../abi/vanna/v1/out/Registry.sol/Registry.json";
@@ -260,7 +260,7 @@ const BorrowerDashboard = () => {
           opAddressList.OracleFacade,
           OracleFacade.abi,
           signer
-        )
+        );
       } else if (currentNetwork.id === BASE_NETWORK) {
         // tTokenOracleContract = new Contract(
         //   opAddressList.OracleFacade,
@@ -338,12 +338,15 @@ const BorrowerDashboard = () => {
       val = Number(await getPriceFromAssetsArray("DAI"));
       balance += (accountBalance - borrowedBalance) * val;
 
-      // tToken 
-      accountBalance = (await tTokenOracleContract.callStatic.getPrice(opAddressList.tTokenAddress, activeAccount))/1e18;
+      // tToken
+      accountBalance =
+        (await tTokenOracleContract.callStatic.getPrice(
+          opAddressList.tTokenAddress,
+          activeAccount
+        )) / 1e18;
       val = accountBalance * Number(await getPriceFromAssetsArray("WETH"));
-    
-      balance +=val;
-     
+
+      balance += val;
 
       setDepositedAmount(ceilWithPrecision(String(balance), 2));
 
@@ -353,24 +356,18 @@ const BorrowerDashboard = () => {
         signer
       );
 
-      let totalbalance = (await riskEngineContract.callStatic.getBalance(
-        activeAccount
-      ))/1e18;
-      totalbalance = totalbalance * Number(await getPriceFromAssetsArray("WETH"));
-    
+      let totalbalance =
+        (await riskEngineContract.callStatic.getBalance(activeAccount)) / 1e18;
+      totalbalance =
+        totalbalance * Number(await getPriceFromAssetsArray("WETH"));
 
-      console.log("totalbalance",totalbalance);
+      let borrowBalance =
+        (await riskEngineContract.callStatic.getBorrows(activeAccount)) / 1e18;
+      borrowBalance =
+        borrowBalance * Number(await getPriceFromAssetsArray("WETH"));
 
-      let borrowBalance = (await riskEngineContract.callStatic.getBorrows(
-        activeAccount
-      ))/1e18;
-      borrowBalance = borrowBalance * Number(await getPriceFromAssetsArray("WETH"));
-      console.log("borrowBalance",borrowBalance);
-
-
-
-      // @TODO ; Vatsal : currently it's not accurate but way 
-      // balance of each token * share to assets of that 
+      // @TODO ; Vatsal : currently it's not accurate but way
+      // balance of each token * share to assets of that
       setBorrowedAmount(String(borrowBalance));
       setRepayableAmount(String(borrowBalance));
       setWithdrawableAmount(String(totalbalance - borrowBalance));

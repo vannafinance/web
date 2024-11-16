@@ -357,15 +357,12 @@ const LevrageWithdraw = () => {
             //   await vUsdcContract.callStatic.getBorrowBalance(activeAccount);
 
             // TODO: @vatsal add repay balanc in setDepositeBalance();
-            console.log("Here at reapy balance");
             let repayBalance;
             if (token?.name == "WETH") {
-              console.log("after If ");
               repayBalance =
                 (await vEtherContract.callStatic.getBorrowBalance(
                   activeAccount
                 )) / 1e18;
-              console.log("repayBalance", repayBalance);
             } else if (token?.name == "WBTC") {
               repayBalance = await vWbtcContract.callStatic.getBorrowBalance(
                 activeAccount
@@ -374,7 +371,6 @@ const LevrageWithdraw = () => {
               repayBalance = await vUsdcContract.callStatic.getBorrowBalance(
                 activeAccount
               );
-              console.log("repayBalance", repayBalance);
             } else if (token?.name == "USDT") {
               repayBalance = await vUsdtContract.callStatic.getBorrowBalance(
                 activeAccount
@@ -401,7 +397,6 @@ const LevrageWithdraw = () => {
             let usdcRepayBalance;
             let usdtRepayBalance;
             let daiRepayBalance;
-            console.log("here at withdraw balance page for 1st ");
             if (borrowToken?.name == "WETH") {
               ethRepayBalance =
                 (await vEtherContract.callStatic.getBorrowBalance(
@@ -479,9 +474,6 @@ const LevrageWithdraw = () => {
 
             if (borrowToken?.name == "WETH" && ethRepayBalance !== undefined) {
               totalBalance = wethAccounBalance - ethRepayBalance;
-              console.log("wethAccounBalance", wethAccounBalance);
-              console.log("ethAccountBalance", ethAccountBalance);
-              console.log("ethRepayBalance", ethRepayBalance);
             } else if (
               borrowToken?.name == "WBTC" &&
               btcRepayBalance !== undefined
@@ -492,9 +484,6 @@ const LevrageWithdraw = () => {
               usdcRepayBalance !== undefined
             ) {
               totalBalance = usdcAccounBalance - usdcRepayBalance;
-              console.log("usdcAccounBalance", usdcAccounBalance);
-              console.log("usdcRepayBalance", usdcRepayBalance);
-              console.log("ethRepayBalance", ethRepayBalance);
             } else if (
               borrowToken?.name == "USDT" &&
               usdtRepayBalance !== undefined
@@ -720,7 +709,6 @@ const LevrageWithdraw = () => {
       if (btnValue === "Repay") {
         await repay();
       } else if (btnValue === "Withdraw") {
-        console.log("here at withdraw");
         await withdraw();
       } else {
         await repay();

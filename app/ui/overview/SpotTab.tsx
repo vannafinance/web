@@ -255,12 +255,12 @@ const SpotTab: React.FC = () => {
 
   return (
     <div className="grid grid-cols-2 xl:grid-cols-3 gap-2 sm:gap-5">
-      <InfoRow label="ETH" value={ETH +" ETH"} />
-      <InfoRow label="WETH" value={WETH +" WETH"} />
-      <InfoRow label="BTC" value={BTC +" BTC"} />
-      <InfoRow label="USDC" value={USDC +" USDC"} />
-      <InfoRow label="USDT" value={USDT +" USDT"} />
-      <InfoRow label="DAI" value={DAI+" DAI"} />
+      <InfoRow label="ETH" value={ETH + " ETH"} />
+      <InfoRow label="WETH" value={WETH + " WETH"} />
+      <InfoRow label="BTC" value={BTC + " BTC"} />
+      <InfoRow label="USDC" value={USDC + " USDC"} />
+      <InfoRow label="USDT" value={USDT + " USDT"} />
+      <InfoRow label="DAI" value={DAI + " DAI"} />
     </div>
   );
 };

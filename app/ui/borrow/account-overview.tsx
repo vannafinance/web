@@ -67,7 +67,6 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({
     const fetchValues = async () => {
       if (!currentNetwork) return;
       const signer = library?.getSigner();
-      console.log("here");
 
       let riskEngineContract;
       if (currentNetwork.id === ARBITRUM_NETWORK) {
@@ -97,13 +96,12 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({
         (await riskEngineContract.callStatic.getBalance(activeAccount)) / 1e18;
       balance = balance * currentEthPriceInDollar;
 
-      console.log("balance", balance); // total Balance  => AccountValue
+      // console.log("balance", balance); // total Balance  => AccountValue
       let borrowBalance =
         (await riskEngineContract.callStatic.getBorrows(activeAccount)) / 1e18; // total Borrow Balance
       borrowBalance = borrowBalance * currentEthPriceInDollar;
 
       const healthFactor1 = balance / borrowBalance;
-      console.log("healthFactor1", healthFactor1);
       const liqP = (balance * 1.05) / healthFactor1;
       // TODO : @vatsal here balance & borrowBalance is in bignumber ... convert the same and then uncomment the below set statements
       const collateral = balance - borrowBalance;
