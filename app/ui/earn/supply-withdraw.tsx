@@ -41,6 +41,7 @@ import { useWeb3React } from "@web3-react/core";
 import Loader from "../components/loader";
 import { formatUSD } from "@/app/lib/number-format-helper";
 import axios from "axios";
+import Notification from "../components/notification";
 
 const SupplyWithdraw = ({
   pool,
@@ -66,6 +67,10 @@ const SupplyWithdraw = ({
   // const [points, setPoints] = useState();
   const [availableLiq, setAvailableLiq] = useState("-");
 
+  const [notifications, setNotifications] = useState<
+    Array<{ id: number; type: NotificationType; message: string }>
+  >([]);
+
   const handleToggle = (value: string) => {
     if (
       (value === "withdraw" && isSupply) ||
@@ -77,7 +82,9 @@ const SupplyWithdraw = ({
 
   const handlePercentageClick = (percentage: number) => {
     if (coinBalance) {
-      updateAmount(Number(ceilWithPrecision(String(coinBalance * (percentage / 100)))));
+      updateAmount(
+        Number(ceilWithPrecision(String(coinBalance * (percentage / 100))))
+      );
     }
   };
 
@@ -96,7 +103,12 @@ const SupplyWithdraw = ({
     if (amount === "" || Number(amount) <= 0) {
       setBtnValue("Enter an amount");
       setDisableBtn(true);
-    } else if (coinBalance && amount && amount !== "" && coinBalance * 1.0 < Number(amount) * 1.0) {
+    } else if (
+      coinBalance &&
+      amount &&
+      amount !== "" &&
+      coinBalance * 1.0 < Number(amount) * 1.0
+    ) {
       setBtnValue("Insufficient " + tokenName + " balance");
       setDisableBtn(true);
     } else {
@@ -747,13 +759,24 @@ const SupplyWithdraw = ({
     if (amt === "") {
       setExpected(0);
       setYouGet(0);
-      setAmount('');
+      setAmount("");
     } else {
       const val = await getPriceFromAssetsArray(selectedToken.name);
       setExpected(Number(amt) * Number(val));
       setYouGet(Number(amt) * Number(ethPerVeth));
       setAmount(String(amt));
     }
+  };
+
+  const addNotification = (type: NotificationType, message: string) => {
+    const id = Date.now();
+    setNotifications((prev) => [...prev, { id, type, message }]);
+  };
+
+  const removeNotification = (id: number) => {
+    setNotifications((prev) =>
+      prev.filter((notification) => notification.id !== id)
+    );
   };
 
   const deposit = async () => {
@@ -909,7 +932,11 @@ const SupplyWithdraw = ({
               VEther.abi,
               signer
             );
-            if (amount && amount !== "" && Number(amount) <= (await vEthcontract.balanceOf(account))) {
+            if (
+              amount &&
+              amount !== "" &&
+              Number(amount) <= (await vEthcontract.balanceOf(account))
+            ) {
               await vEthcontract.redeemEth(parseEther(String(amount)), {
                 gasLimit: 2300000,
               });
@@ -920,7 +947,11 @@ const SupplyWithdraw = ({
               VToken.abi,
               signer
             );
-            if (amount  && amount !== "" && Number(amount) <= (await vBTCcontract.balanceOf(account))) {
+            if (
+              amount &&
+              amount !== "" &&
+              Number(amount) <= (await vBTCcontract.balanceOf(account))
+            ) {
               await vBTCcontract.redeem(
                 parseEther(String(amount)),
                 account,
@@ -936,7 +967,11 @@ const SupplyWithdraw = ({
               VToken.abi,
               signer
             );
-            if (amount  && amount !== "" && Number(amount) <= (await vUSDCcontract.balanceOf(account))) {
+            if (
+              amount &&
+              amount !== "" &&
+              Number(amount) <= (await vUSDCcontract.balanceOf(account))
+            ) {
               await vUSDCcontract.redeem(
                 parseUnits(String(amount), 6),
                 account,
@@ -952,7 +987,11 @@ const SupplyWithdraw = ({
               VToken.abi,
               signer
             );
-            if (amount  && amount !== "" && Number(amount) <= (await vUSDTcontract.balanceOf(account))) {
+            if (
+              amount &&
+              amount !== "" &&
+              Number(amount) <= (await vUSDTcontract.balanceOf(account))
+            ) {
               await vUSDTcontract.redeem(
                 parseUnits(String(amount), 6),
                 account,
@@ -968,7 +1007,11 @@ const SupplyWithdraw = ({
               VToken.abi,
               signer
             );
-            if (amount  && amount !== "" && Number(amount) <= (await vDaicontract.balanceOf(account))) {
+            if (
+              amount &&
+              amount !== "" &&
+              Number(amount) <= (await vDaicontract.balanceOf(account))
+            ) {
               await vDaicontract.redeem(
                 parseEther(String(amount)),
                 account,
@@ -980,10 +1023,18 @@ const SupplyWithdraw = ({
             }
           } else {
             console.error("something went wrong, Please try again.");
+            addNotification("error", "something went wrong, Please try again.");
+            updateAmount("");
+            setLoading(false);
+            return;
           }
         }
+
+        await sleep(3000);
+        addNotification("success", "Transaction Successful!");
       } catch (error) {
         console.error(error);
+        addNotification("error", "something went wrong, Please try again.");
       }
     } else if (currentNetwork.id === OPTIMISM_NETWORK) {
       // value assigne is pending
@@ -1138,7 +1189,11 @@ const SupplyWithdraw = ({
               signer
             );
 
-            if (amount  && amount !== "" && Number(amount) <= (await vEthcontract.balanceOf(account))) {
+            if (
+              amount &&
+              amount !== "" &&
+              Number(amount) <= (await vEthcontract.balanceOf(account))
+            ) {
               await vEthcontract.redeemEth(parseEther(String(amount)), {
                 gasLimit: 2300000,
               });
@@ -1149,7 +1204,11 @@ const SupplyWithdraw = ({
               VToken.abi,
               signer
             );
-            if (amount && amount !== "" && Number(amount) <= (await vBTCcontract.balanceOf(account))) {
+            if (
+              amount &&
+              amount !== "" &&
+              Number(amount) <= (await vBTCcontract.balanceOf(account))
+            ) {
               await vBTCcontract.redeem(
                 parseEther(String(amount)),
                 account,
@@ -1165,7 +1224,11 @@ const SupplyWithdraw = ({
               VToken.abi,
               signer
             );
-            if (amount && amount !== "" && Number(amount) <= (await vUSDCcontract.balanceOf(account))) {
+            if (
+              amount &&
+              amount !== "" &&
+              Number(amount) <= (await vUSDCcontract.balanceOf(account))
+            ) {
               await vUSDCcontract.redeem(
                 parseUnits(String(amount), 6),
                 account,
@@ -1181,7 +1244,11 @@ const SupplyWithdraw = ({
               VToken.abi,
               signer
             );
-            if (amount && amount !== "" && Number(amount) <= (await vUSDTcontract.balanceOf(account))) {
+            if (
+              amount &&
+              amount !== "" &&
+              Number(amount) <= (await vUSDTcontract.balanceOf(account))
+            ) {
               await vUSDTcontract.redeem(
                 parseUnits(String(amount), 6),
                 account,
@@ -1197,7 +1264,11 @@ const SupplyWithdraw = ({
               VToken.abi,
               signer
             );
-            if (amount && amount !== "" && Number(amount) <= (await vDaicontract.balanceOf(account))) {
+            if (
+              amount &&
+              amount !== "" &&
+              Number(amount) <= (await vDaicontract.balanceOf(account))
+            ) {
               await vDaicontract.redeem(
                 parseEther(String(amount)),
                 account,
@@ -1209,10 +1280,18 @@ const SupplyWithdraw = ({
             }
           } else {
             console.error("something went wrong, Please try again.");
+            addNotification("error", "something went wrong, Please try again.");
+            updateAmount("");
+            setLoading(false);
+            return;
           }
         }
+
+        await sleep(3000);
+        addNotification("success", "Transaction Successful!");
       } catch (error) {
         console.error(error);
+        addNotification("error", "something went wrong, Please try again.");
       }
     } else if (currentNetwork.id === BASE_NETWORK) {
       // value assigne is pending
@@ -1367,7 +1446,11 @@ const SupplyWithdraw = ({
               signer
             );
 
-            if (amount && amount !== "" && Number(amount) <= (await vEthcontract.balanceOf(account))) {
+            if (
+              amount &&
+              amount !== "" &&
+              Number(amount) <= (await vEthcontract.balanceOf(account))
+            ) {
               await vEthcontract.redeemEth(parseEther(String(amount)), {
                 gasLimit: 2300000,
               });
@@ -1378,7 +1461,11 @@ const SupplyWithdraw = ({
               VToken.abi,
               signer
             );
-            if (amount && amount !== "" && Number(amount) <= (await vBTCcontract.balanceOf(account))) {
+            if (
+              amount &&
+              amount !== "" &&
+              Number(amount) <= (await vBTCcontract.balanceOf(account))
+            ) {
               await vBTCcontract.redeem(
                 parseEther(String(amount)),
                 account,
@@ -1394,7 +1481,11 @@ const SupplyWithdraw = ({
               VToken.abi,
               signer
             );
-            if (amount && amount !== "" && Number(amount) <= (await vUSDCcontract.balanceOf(account))) {
+            if (
+              amount &&
+              amount !== "" &&
+              Number(amount) <= (await vUSDCcontract.balanceOf(account))
+            ) {
               await vUSDCcontract.redeem(
                 parseUnits(String(amount), 6),
                 account,
@@ -1410,7 +1501,11 @@ const SupplyWithdraw = ({
               VToken.abi,
               signer
             );
-            if (amount && amount !== "" && Number(amount) <= (await vUSDTcontract.balanceOf(account))) {
+            if (
+              amount &&
+              amount !== "" &&
+              Number(amount) <= (await vUSDTcontract.balanceOf(account))
+            ) {
               await vUSDTcontract.redeem(
                 parseUnits(String(amount), 6),
                 account,
@@ -1426,7 +1521,11 @@ const SupplyWithdraw = ({
               VToken.abi,
               signer
             );
-            if (amount && amount !== "" && Number(amount) <= (await vDaicontract.balanceOf(account))) {
+            if (
+              amount &&
+              amount !== "" &&
+              Number(amount) <= (await vDaicontract.balanceOf(account))
+            ) {
               await vDaicontract.redeem(
                 parseEther(String(amount)),
                 account,
@@ -1438,10 +1537,18 @@ const SupplyWithdraw = ({
             }
           } else {
             console.error("something went wrong, Please try again.");
+            addNotification("error", "something went wrong, Please try again.");
+            updateAmount("");
+            setLoading(false);
+            return;
           }
         }
+
+        await sleep(3000);
+        addNotification("success", "Transaction Successful!");
       } catch (error) {
         console.error(error);
+        addNotification("error", "something went wrong, Please try again.");
       }
     }
 
@@ -1452,168 +1559,184 @@ const SupplyWithdraw = ({
   };
 
   return (
-    <div className="bg-baseComplementary dark:bg-baseDarkComplementary p-4 rounded-3xl w-full text-baseBlack dark:text-baseWhite">
-      <div className="flex mb-4 p-1 text-lg">
-        <div
-          className={clsx(
-            "flex-1 p-[1px] rounded-2xl",
-            isSupply ? "bg-gradient-to-r from-gradient-1 to-gradient-2" : ""
-          )}
-        >
-          <button
+    <>
+      <div className="bg-baseComplementary dark:bg-baseDarkComplementary p-4 rounded-3xl w-full text-baseBlack dark:text-baseWhite">
+        <div className="flex mb-4 p-1 text-lg">
+          <div
             className={clsx(
-              "w-full py-3 px-2 rounded-2xl",
-              isSupply ? "bg-white dark:bg-baseDark" : "bg-transparent"
-            )}
-            onClick={() => handleToggle("supply")}
-          >
-            Supply
-          </button>
-        </div>
-        <div
-          className={clsx(
-            "flex-1 p-[1px] rounded-2xl",
-            !isSupply ? "bg-gradient-to-r from-gradient-1 to-gradient-2" : ""
-          )}
-        >
-          <button
-            className={clsx(
-              "w-full py-3 px-2 rounded-2xl",
-              !isSupply ? "bg-white dark:bg-baseDark" : "bg-transparent"
-            )}
-            onClick={() => handleToggle("withdraw")}
-          >
-            Withdraw
-          </button>
-        </div>
-      </div>
-
-      <div className="bg-white dark:bg-baseDark rounded-lg p-4 mb-4">
-        <div className="flex justify-between mb-2">
-          <div className="flex flex-col">
-            <span className="font-medium text-sm mb-2">
-              {isSupply ? "Deposit" : "Withdraw"}
-            </span>
-            <input
-              type="number"
-              value={amount}
-              onChange={(e) => updateAmount(e.target.value)}
-              className="w-full dark:bg-baseDark text-2xl font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              placeholder="0"
-              min={0}
-            />
-          </div>
-          <div className="flex">
-            <TokenDropdown
-              onSelect={handleTokenSelect}
-              defaultValue={selectedToken}
-            />
-          </div>
-        </div>
-        <div className="flex justify-between mt-2">
-          <div className="text-xs text-neutral-500">{formatUSD(expected)}</div>
-          <div className="text-xs text-neutral-500">
-            {ceilWithPrecision(String(coinBalance))}{" "}
-            {coinBalance !== undefined
-              ? isSupply
-                ? selectedToken.name
-                : "v" + selectedToken.name
-              : "-"}
-          </div>
-        </div>
-      </div>
-
-      <div className="flex justify-between mb-4">
-        {percentageClickValues.map((percent) => (
-          <button
-            key={percent}
-            onClick={() => handlePercentageClick(percent)}
-            className={clsx(
-              "w-1/5 h-12 bg-purpleBG-lighter dark:bg-darkPurpleBG-lighter font-semibold text-base rounded-lg"
+              "flex-1 p-[1px] rounded-2xl",
+              isSupply ? "bg-gradient-to-r from-gradient-1 to-gradient-2" : ""
             )}
           >
-            {percent}%
-          </button>
-        ))}
-      </div>
+            <button
+              className={clsx(
+                "w-full py-3 px-2 rounded-2xl",
+                isSupply ? "bg-white dark:bg-baseDark" : "bg-transparent"
+              )}
+              onClick={() => handleToggle("supply")}
+            >
+              Supply
+            </button>
+          </div>
+          <div
+            className={clsx(
+              "flex-1 p-[1px] rounded-2xl",
+              !isSupply ? "bg-gradient-to-r from-gradient-1 to-gradient-2" : ""
+            )}
+          >
+            <button
+              className={clsx(
+                "w-full py-3 px-2 rounded-2xl",
+                !isSupply ? "bg-white dark:bg-baseDark" : "bg-transparent"
+              )}
+              onClick={() => handleToggle("withdraw")}
+            >
+              Withdraw
+            </button>
+          </div>
+        </div>
 
-      <div className="p-4 mb-4 text-sm font-medium">
-        <div className="flex justify-between items-center mb-2">
-          <div className="flex items-center">
-            <span className="mr-1">Target token</span>
-            <Tooltip content={"Target token"}>
-              <Info size={14} />
-            </Tooltip>
-          </div>
-          <div className="flex items-center">
-            <Image
-              src={selectedToken.icon}
-              alt={selectedToken.name + " token"}
-              className="w-6 h-6 mr-1 rounded-full"
-              width={16}
-              height={16}
-            />
-            <span className="font-semibold">{selectedToken.vToken}</span>
-          </div>
-        </div>
-        <div className="flex justify-between text-sm mb-1">
-          <span>You get</span>
-          <span>{ceilWithPrecision(String(youGet))}</span>
-        </div>
-        <div className="flex justify-between text-sm mb-1">
-          <span>
-            {isSupply
-              ? selectedToken.name + " per " + selectedToken.vToken
-              : selectedToken.vToken + " per " + selectedToken.name}
-          </span>
-          <span>{ceilWithPrecision(ethPerVeth)}</span>
-        </div>
-        {isSupply && (
-          <>
-            <div className="flex justify-between text-sm mb-1">
-              <span>Current APY</span>
-              <span>{currentApy}</span>
+        <div className="bg-white dark:bg-baseDark rounded-lg p-4 mb-4">
+          <div className="flex justify-between mb-2">
+            <div className="flex flex-col">
+              <span className="font-medium text-sm mb-2">
+                {isSupply ? "Deposit" : "Withdraw"}
+              </span>
+              <input
+                type="number"
+                value={amount}
+                onChange={(e) => updateAmount(e.target.value)}
+                className="w-full dark:bg-baseDark text-2xl font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                placeholder="0"
+                min={0}
+              />
             </div>
-            {/* <div className="flex justify-between text-sm">
+            <div className="flex">
+              <TokenDropdown
+                onSelect={handleTokenSelect}
+                defaultValue={selectedToken}
+              />
+            </div>
+          </div>
+          <div className="flex justify-between mt-2">
+            <div className="text-xs text-neutral-500">
+              {formatUSD(expected)}
+            </div>
+            <div className="text-xs text-neutral-500">
+              {ceilWithPrecision(String(coinBalance))}{" "}
+              {coinBalance !== undefined
+                ? isSupply
+                  ? selectedToken.name
+                  : "v" + selectedToken.name
+                : "-"}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex justify-between mb-4">
+          {percentageClickValues.map((percent) => (
+            <button
+              key={percent}
+              onClick={() => handlePercentageClick(percent)}
+              className={clsx(
+                "w-1/5 h-12 bg-purpleBG-lighter dark:bg-darkPurpleBG-lighter font-semibold text-base rounded-lg"
+              )}
+            >
+              {percent}%
+            </button>
+          ))}
+        </div>
+
+        <div className="p-4 mb-4 text-sm font-medium">
+          <div className="flex justify-between items-center mb-2">
+            <div className="flex items-center">
+              <span className="mr-1">Target token</span>
+              <Tooltip content={"Target token"}>
+                <Info size={14} />
+              </Tooltip>
+            </div>
+            <div className="flex items-center">
+              <Image
+                src={selectedToken.icon}
+                alt={selectedToken.name + " token"}
+                className="w-6 h-6 mr-1 rounded-full"
+                width={16}
+                height={16}
+              />
+              <span className="font-semibold">{selectedToken.vToken}</span>
+            </div>
+          </div>
+          <div className="flex justify-between text-sm mb-1">
+            <span>You get</span>
+            <span>{ceilWithPrecision(String(youGet))}</span>
+          </div>
+          <div className="flex justify-between text-sm mb-1">
+            <span>
+              {isSupply
+                ? selectedToken.name + " per " + selectedToken.vToken
+                : selectedToken.vToken + " per " + selectedToken.name}
+            </span>
+            <span>{ceilWithPrecision(ethPerVeth)}</span>
+          </div>
+          {isSupply && (
+            <>
+              <div className="flex justify-between text-sm mb-1">
+                <span>Current APY</span>
+                <span>{currentApy}</span>
+              </div>
+              {/* <div className="flex justify-between text-sm">
               <span>Points</span>
               <span>{points} Kpts MIle per hour</span>
             </div> */}
-          </>
+            </>
+          )}
+          {!isSupply && (
+            <>
+              <div className="flex justify-between text-sm mb-1">
+                <span>Available liquidity</span>
+                <span>{availableLiq}</span>
+              </div>
+            </>
+          )}
+        </div>
+
+        {!account && (
+          <button className="w-full bg-neutral-500 text-white py-3 rounded-2xl font-semibold text-xl mb-6">
+            Connect Wallet
+          </button>
         )}
-        {!isSupply && (
-          <>
-            <div className="flex justify-between text-sm mb-1">
-              <span>Available liquidity</span>
-              <span>{availableLiq}</span>
-            </div>
-          </>
+        {account && loading && (
+          <button className="w-full bg-purple py-3 rounded-2xl font-semibold text-xl mb-6 flex justify-center">
+            <Loader />
+          </button>
+        )}
+        {account && !loading && disableBtn && (
+          <button className="w-full bg-neutral-500 text-white py-3 rounded-2xl font-semibold text-xl mb-6">
+            {btnValue}
+          </button>
+        )}
+        {account && !loading && !disableBtn && (
+          <button
+            className="w-full bg-purple text-white py-3 rounded-2xl font-semibold text-xl mb-6"
+            onClick={deposit}
+          >
+            {btnValue}
+          </button>
         )}
       </div>
 
-      {!account && (
-        <button className="w-full bg-neutral-500 text-white py-3 rounded-2xl font-semibold text-xl mb-6">
-          Connect Wallet
-        </button>
-      )}
-      {account && loading && (
-        <button className="w-full bg-purple py-3 rounded-2xl font-semibold text-xl mb-6 flex justify-center">
-          <Loader />
-        </button>
-      )}
-      {account && !loading && disableBtn && (
-        <button className="w-full bg-neutral-500 text-white py-3 rounded-2xl font-semibold text-xl mb-6">
-          {btnValue}
-        </button>
-      )}
-      {account && !loading && !disableBtn && (
-        <button
-          className="w-full bg-purple text-white py-3 rounded-2xl font-semibold text-xl mb-6"
-          onClick={deposit}
-        >
-          {btnValue}
-        </button>
-      )}
-    </div>
+      <div className="fixed bottom-5 left-5 w-72">
+        {notifications.map(({ id, type, message }) => (
+          <Notification
+            key={id}
+            type={type}
+            message={message}
+            onClose={() => removeNotification(id)}
+            duration={10000}
+          />
+        ))}
+      </div>
+    </>
   );
 };
 
