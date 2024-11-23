@@ -45,6 +45,9 @@ import VToken from "../../abi/vanna/v1/out/VToken.sol/VToken.json";
 import { Interface, parseEther } from "ethers/lib/utils";
 import { useNetwork } from "@/app/context/network-context";
 import { formatUSD } from "@/app/lib/number-format-helper";
+import Notification from "../components/notification";
+import Loader from "../components/loader";
+import CreateSmartAccountModal from "../components/create-smart-account-model";
 
 const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
   market,
@@ -53,6 +56,11 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
 }) => {
   const { account, library } = useWeb3React();
   const { currentNetwork } = useNetwork();
+  const [notifications, setNotifications] = useState<
+    Array<{ id: number; type: NotificationType; message: string }>
+  >([]);
+  const [loading, setLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // const protocolOptions: Option[] = [
   //   { value: "MUX", label: "MUX" },
@@ -113,6 +121,17 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
 
   const toggleOptions = () => {
     setIsEnabled(!isEnabled);
+  };
+
+  const addNotification = (type: NotificationType, message: string) => {
+    const id = Date.now();
+    setNotifications((prev) => [...prev, { id, type, message }]);
+  };
+
+  const removeNotification = (id: number) => {
+    setNotifications((prev) =>
+      prev.filter((notification) => notification.id !== id)
+    );
   };
 
   // useEffect(() => {
@@ -191,6 +210,10 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
   useEffect(() => {
     accountCheck();
   }, [account, library, currentNetwork]);
+
+  useEffect(() => {
+    accountCheck();
+  }, [isModalOpen]);
 
   const getAssetPrice = async (
     assetName = marketToken.value,
@@ -409,9 +432,9 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
       setUseValue("0");
       setLongValue("0");
     } else {
+      setCollateralAmount(String(amt));
       let price = getPriceFromAssetsArray(coin.value);
       price = price ? price : 1;
-      setCollateralAmount(String(amt));
       const val = (Number(amt) * leverageValue) / (marketPrice / price);
       setAssetAmount(String(val));
       const useVal = Number(amt) * price;
@@ -426,16 +449,16 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
       setAssetAmount("");
       setCollateralAmount("");
     } else {
+      setAssetAmount(String(amt));
       let price = getPriceFromAssetsArray(coin.value);
       price = price ? price : 1;
-      setAssetAmount(String(amt));
       const value = (Number(amt) * (marketPrice / price)) / leverageValue;
       setCollateralAmount(String(value));
     }
   };
 
   const openPosition = async (buySell: string) => {
-    // setLoading(true);
+    setLoading(true);
 
     try {
       if (!currentNetwork) return;
@@ -580,160 +603,85 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
         await accountManagerContract.exec(activeAccount, target, 0, data, {
           gasLimit: 2300000,
         });
-
-        await sleep(3000);
-        // fetchPositions(activeAccount);
       } else if (currentNetwork.id === BASE_NETWORK) {
       }
-      await sleep(3000);
+
+      await sleep(5000);
+      addNotification("success", "Transaction Successful!");
       getTokenBalance();
     } catch (e) {
       console.error(e);
+      addNotification("error", "Something went wrong, Please try again.");
     }
 
     updateAssetAmount("");
-    // setLoading(false);
+    setLoading(false);
   };
 
-  // const closePosition = async (
-  //   assetCode: string,
-  //   collateralCode: string,
-  //   longShort: string | number,
-  //   size: any
-  // ) => {
-  //   try {
-  //     if (activeAccount == undefined) {
-  //       return;
-  //     }
-  //     const subAccountId =
-  //       activeAccount +
-  //       "0" +
-  //       assetCode +
-  //       "0" +
-  //       collateralCode +
-  //       "0" +
-  //       longShort +
-  //       "000000000000000000";
-
-  //     let collateralAmountForPosition = 0;
-
-  //     // this will changes, temporary static value
-  //     const flags = 96;
-
-  //     // fetch transaction -> determine long / short ? -> if long get asset code if short get colletral code
-  //     const profitTokenId = longShort == 1 ? collateralCode : 0;
-
-  //     const tsplDeadline =
-  //       Math.floor(Date.now() / 1000) + oneMonthTimestampInterval;
-
-  //     const positionOrderExtras = {
-  //       tpPrice: 0,
-  //       slPrice: 0,
-  //       tpslProfitTokenId: profitTokenId,
-  //       tpslDeadline: tsplDeadline,
-  //     };
-
-  //     let iface = new Interface(MUX.abi);
-
-  //     let encodedData = iface.encodeFunctionData("placePositionOrder3", [
-  //       subAccountId,
-  //       collateralAmountForPosition,
-  //       size,
-  //       0,
-  //       profitTokenId,
-  //       flags,
-  //       0,
-  //       referralCode,
-  //       positionOrderExtras,
-  //     ]);
-
-  //     const signer = await library?.getSigner();
-
-  //     const accountManagerContract = new Contract(
-  //       arbAddressList.accountManagerContractAddress,
-  //       AccountManager.abi,
-  //       signer
-  //     );
-
-  //     await accountManagerContract.exec(
-  //       activeAccount,
-  //       arbAddressList.muxFutureContractAddress,
-  //       collateralAmountForPosition,
-  //       encodedData,
-  //       { gasLimit: 2300000 }
-  //     );
-
-  //     await sleep(3000);
-  //     fetchPositions(activeAccount);
-  //     getTokenBalance();
-  //   } catch (e) {
-  //     console.error(e);
-  //   }
-  // };
-
   return (
-    <div className="bg-baseComplementary dark:bg-baseDarkComplementary p-2 pb-6 rounded-3xl w-full text-baseBlack dark:text-baseWhite">
-      <div className="flex mb-5 p-1 text-lg">
-        <div
-          className={clsx(
-            "flex-1 p-[1px] rounded-2xl",
-            isOpen ? "bg-gradient-to-r from-gradient-1 to-gradient-2" : ""
-          )}
-        >
-          <button
+    <>
+      <div className="bg-baseComplementary dark:bg-baseDarkComplementary p-2 pb-6 rounded-3xl w-full text-baseBlack dark:text-baseWhite">
+        <div className="flex mb-5 p-1 text-lg">
+          <div
             className={clsx(
-              "w-full py-3 px-2 rounded-2xl",
-              isOpen ? "bg-white dark:bg-baseDark" : "bg-transparent"
+              "flex-1 p-[1px] rounded-2xl",
+              isOpen ? "bg-gradient-to-r from-gradient-1 to-gradient-2" : ""
             )}
-            onClick={() => handleToggle("open")}
           >
-            Open
-          </button>
-        </div>
-        <div
-          className={clsx(
-            "flex-1 p-[1px] rounded-2xl",
-            !isOpen ? "bg-gradient-to-r from-gradient-1 to-gradient-2" : ""
-          )}
-        >
-          <button
-            className={clsx(
-              "w-full py-3 px-2 rounded-2xl",
-              !isOpen ? "bg-white dark:bg-baseDark" : "bg-transparent"
-            )}
-            onClick={() => handleToggle("close")}
-          >
-            Close
-          </button>
-        </div>
-      </div>
-
-      <div className="flex mb-5">
-        <div className="w-full text-center p-2.5 bg-white dark:bg-baseDark rounded-xl">
-          ISOLATED
-        </div>
-        {isOpen && (
-          <div className="w-fit text-center ml-2.5 p-2.5 bg-white dark:bg-baseDark rounded-xl">
-            {leverageValue}X
+            <button
+              className={clsx(
+                "w-full py-3 px-2 rounded-2xl",
+                isOpen ? "bg-white dark:bg-baseDark" : "bg-transparent"
+              )}
+              onClick={() => handleToggle("open")}
+            >
+              Open
+            </button>
           </div>
-        )}
-      </div>
+          <div
+            className={clsx(
+              "flex-1 p-[1px] rounded-2xl",
+              !isOpen ? "bg-gradient-to-r from-gradient-1 to-gradient-2" : ""
+            )}
+          >
+            <button
+              className={clsx(
+                "w-full py-3 px-2 rounded-2xl",
+                !isOpen ? "bg-white dark:bg-baseDark" : "bg-transparent"
+              )}
+              onClick={() => handleToggle("close")}
+            >
+              Close
+            </button>
+          </div>
+        </div>
 
-      <div className="flex justify-end mb-2">
-        {/* <div className="rounded-xl flex flex-col gap-2.5">
+        <div className="flex mb-5">
+          <div className="w-full text-center p-2.5 bg-white dark:bg-baseDark rounded-xl">
+            ISOLATED
+          </div>
+          {isOpen && (
+            <div className="w-fit text-center ml-2.5 p-2.5 bg-white dark:bg-baseDark rounded-xl">
+              {leverageValue}X
+            </div>
+          )}
+        </div>
+
+        <div className="flex justify-end mb-2">
+          {/* <div className="rounded-xl flex flex-col gap-2.5">
           <Calculator size={20} color="#7B44E1" />
           <span className="text-xs text-baseBlack">Avail: 0.00 USD</span>
         </div> */}
-        <div className="flex items-center text-base bg-white dark:bg-baseDark px-2 py-2.5 rounded-xl">
-          <FutureDropdown
-            options={optionType}
-            defaultValue={selectedOptionType}
-            onChange={setSelectedOptionType}
-          />
+          <div className="flex items-center text-base bg-white dark:bg-baseDark px-2 py-2.5 rounded-xl">
+            <FutureDropdown
+              options={optionType}
+              defaultValue={selectedOptionType}
+              onChange={setSelectedOptionType}
+            />
+          </div>
         </div>
-      </div>
 
-      {/* {!isOpen && (
+        {/* {!isOpen && (
         <div className="flex flex-row justify-between mb-2 rounded-xl bg-white dark:bg-baseDark py-2">
           <div className="flex self-stretch pl-2">
             <input
@@ -755,47 +703,21 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
         </div>
       )} */}
 
-      <div className="flex flex-col mb-2 rounded-xl bg-white dark:bg-baseDark py-2">
-        <div className="mb-3 flex flex-row justify-between px-2 text-xs text-neutral-500">
-          <div>Use : {formatUSD(useValue)}</div>
-          <div>
-            {coinBalance !== undefined ? coinBalance + " " + coin?.label : "-"}
-          </div>
-        </div>
-        <div className="flex flex-row justify-between">
-          <div className="flex self-stretch pl-2">
-            <input
-              type="number"
-              value={collateralAmount}
-              onChange={(e) => updateCollateralAmount(e.target.value)}
-              className="w-full dark:bg-baseDark text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              placeholder="Enter Amount"
-              min={0}
-            />
-          </div>
-          <div className="flex items-center text-base px-2 rounded-xl">
-            <FutureDropdown
-              options={tokenOptions}
-              defaultValue={coin}
-              onChange={setCoin}
-            />
-          </div>
-        </div>
-      </div>
-
-      {isOpen && (
         <div className="flex flex-col mb-2 rounded-xl bg-white dark:bg-baseDark py-2">
-          <div className="mb-3 flex flex-row justify-between px-2">
-            <div className="text-xs text-neutral-500">
-              Long : {longValue !== undefined ? longValue : "-"}
+          <div className="mb-3 flex flex-row justify-between px-2 text-xs text-neutral-500">
+            <div>Use : {formatUSD(useValue)}</div>
+            <div>
+              {coinBalance !== undefined
+                ? coinBalance + " " + coin?.label
+                : "-"}
             </div>
           </div>
           <div className="flex flex-row justify-between">
             <div className="flex self-stretch pl-2">
               <input
                 type="number"
-                value={assetAmount}
-                onChange={(e) => updateAssetAmount(e.target.value)}
+                value={collateralAmount}
+                onChange={(e) => updateCollateralAmount(e.target.value)}
                 className="w-full dark:bg-baseDark text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 placeholder="Enter Amount"
                 min={0}
@@ -803,182 +725,253 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
             </div>
             <div className="flex items-center text-base px-2 rounded-xl">
               <FutureDropdown
-                options={marketOption}
-                defaultValue={marketToken}
-                onChange={setMarketToken}
+                options={tokenOptions}
+                defaultValue={coin}
+                onChange={setCoin}
               />
             </div>
           </div>
         </div>
-      )}
 
-      {selectedOptionType.value === "Limit" && isOpen && (
-        <div className="flex flex-row justify-between mb-5 rounded-xl bg-white dark:bg-baseDark py-2">
-          <div className="flex self-stretch pl-2">
-            <input
-              type="number"
-              value={stopUsdcValue}
-              onChange={(e) => setStopUsdcValue(e.target.value)}
-              className="w-full dark:bg-baseDark text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              placeholder="Stop (USDC)"
-              min={0}
-            />
-          </div>
-          <div className="flex items-center text-base px-2 rounded-xl">
-            <FutureDropdown
-              options={markOption}
-              defaultValue={selectedMarkOption}
-              onChange={setSelectedMarkOption}
-            />
-          </div>
-        </div>
-      )}
-
-      {isOpen && (
-        <>
-          <div className="flex justify-between items-center mb-5">
-            <FutureSlider value={leverageValue} onChange={setLeverageValue} />
-          </div>
-
-          <div>
-            <div
-              className="flex items-center justify-between mb-1 cursor-pointer"
-              onClick={toggleOptions}
-            >
-              <div className="flex flex-row items-center">
-                <div
-                  className={`w-5 h-5 rounded mr-2 flex items-center justify-center ${
-                    isEnabled ? "bg-purple" : "bg-neutral-500"
-                  }`}
-                >
-                  <svg
-                    className="w-4 h-4 text-white"
-                    fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path d="M5 13l4 4L19 7"></path>
-                  </svg>
-                </div>
-                <span
-                  className={clsx(
-                    "font-normal text-xs",
-                    isEnabled
-                      ? "text-purple"
-                      : "text-baseBlack dark:text-baseWhite"
-                  )}
-                >
-                  TP/SL
-                </span>
-              </div>
-              <div>
-                <span className="font-normal text-xs text-purple">
-                  Advanced
-                </span>
+        {isOpen && (
+          <div className="flex flex-col mb-2 rounded-xl bg-white dark:bg-baseDark py-2">
+            <div className="mb-3 flex flex-row justify-between px-2">
+              <div className="text-xs text-neutral-500">
+                Long : {longValue !== undefined ? longValue : "-"}
               </div>
             </div>
+            <div className="flex flex-row justify-between">
+              <div className="flex self-stretch pl-2">
+                <input
+                  type="number"
+                  value={assetAmount}
+                  onChange={(e) => updateAssetAmount(e.target.value)}
+                  className="w-full dark:bg-baseDark text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  placeholder="Enter Amount"
+                  min={0}
+                />
+              </div>
+              <div className="flex items-center text-base px-2 rounded-xl">
+                <FutureDropdown
+                  options={marketOption}
+                  defaultValue={marketToken}
+                  onChange={setMarketToken}
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
-            {isEnabled && (
-              <div>
-                <div className="flex flex-row justify-between mb-1 rounded-xl bg-white dark:bg-baseDark py-2">
-                  <div className="flex self-stretch pl-2">
-                    <input
-                      type="number"
-                      value={takeProfit}
-                      onChange={(e) => setTakeProfit(e.target.value)}
-                      className="w-full dark:bg-baseDark text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                      placeholder="Take Profit"
-                      min={0}
-                    />
+        {selectedOptionType.value === "Limit" && isOpen && (
+          <div className="flex flex-row justify-between mb-5 rounded-xl bg-white dark:bg-baseDark py-2">
+            <div className="flex self-stretch pl-2">
+              <input
+                type="number"
+                value={stopUsdcValue}
+                onChange={(e) => setStopUsdcValue(e.target.value)}
+                className="w-full dark:bg-baseDark text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                placeholder="Stop (USDC)"
+                min={0}
+              />
+            </div>
+            <div className="flex items-center text-base px-2 rounded-xl">
+              <FutureDropdown
+                options={markOption}
+                defaultValue={selectedMarkOption}
+                onChange={setSelectedMarkOption}
+              />
+            </div>
+          </div>
+        )}
+
+        {isOpen && (
+          <>
+            <div className="flex justify-between items-center mb-5">
+              <FutureSlider value={leverageValue} onChange={setLeverageValue} />
+            </div>
+
+            <div>
+              <div
+                className="flex items-center justify-between mb-1 cursor-pointer"
+                onClick={toggleOptions}
+              >
+                <div className="flex flex-row items-center">
+                  <div
+                    className={`w-5 h-5 rounded mr-2 flex items-center justify-center ${
+                      isEnabled ? "bg-purple" : "bg-neutral-500"
+                    }`}
+                  >
+                    <svg
+                      className="w-4 h-4 text-white"
+                      fill="none"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path d="M5 13l4 4L19 7"></path>
+                    </svg>
                   </div>
-                  <div className="flex items-center text-base px-2 rounded-xl">
-                    <FutureDropdown
-                      options={markOption}
-                      defaultValue={selectedMarkOption}
-                      onChange={setSelectedMarkOption}
-                    />
-                  </div>
+                  <span
+                    className={clsx(
+                      "font-normal text-xs",
+                      isEnabled
+                        ? "text-purple"
+                        : "text-baseBlack dark:text-baseWhite"
+                    )}
+                  >
+                    TP/SL
+                  </span>
                 </div>
-                <div className="flex flex-row justify-between rounded-xl bg-white dark:bg-baseDark py-2">
-                  <div className="flex self-stretch pl-2">
-                    <input
-                      type="number"
-                      value={stopLoss}
-                      onChange={(e) => setStopLoss(e.target.value)}
-                      className="w-full dark:bg-baseDark text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                      placeholder="Stop Loss"
-                      min={0}
-                    />
-                  </div>
-                  <div className="flex items-center text-base px-2 rounded-xl">
-                    <FutureDropdown
-                      options={markOption}
-                      defaultValue={selectedMarkOption}
-                      onChange={setSelectedMarkOption}
-                    />
-                  </div>
+                <div>
+                  <span className="font-normal text-xs text-purple">
+                    Advanced
+                  </span>
                 </div>
               </div>
-            )}
-          </div>
-        </>
-      )}
 
-      <div>
-        <div className="grid grid-cols-2 gap-x-3 gap-y-1 mt-5 mb-4 font-normal text-xs">
-          <div className="flex flex-row justify-between items-center">
-            <p className="text-neutral-500">Max Open</p>
-            <p>{maxOpen != undefined ? maxOpen : "-"}</p>
-          </div>
-          <div className="flex flex-row justify-between items-center">
-            <p className="text-neutral-500">Max Open</p>
-            <p>{maxOpen != undefined ? maxOpen : "-"}</p>
-          </div>
-          <div className="flex flex-row justify-between items-center">
-            <p className="text-neutral-500">Cost</p>
-            <p>{cost != undefined ? cost : "-"}</p>
-          </div>
-          <div className="flex flex-row justify-between items-center">
-            <p className="text-neutral-500">Cost</p>
-            <p>{cost != undefined ? cost : "-"}</p>
-          </div>
-          <div className="flex flex-row justify-between items-center">
-            <p className="text-neutral-500">Margin</p>
-            <p>{margin != undefined ? margin : "-"}</p>
-          </div>
-          <div className="flex flex-row justify-between items-center">
-            <p className="text-neutral-500">Margin</p>
-            <p>{margin != undefined ? margin : "-"}</p>
-          </div>
-          <div className="flex flex-row justify-between items-center">
-            <p className="text-neutral-500">Est.Liq.Price</p>
-            <p>{estLiqPrice != undefined ? estLiqPrice : "-"}</p>
-          </div>
-          <div className="flex flex-row justify-between items-center">
-            <p className="text-neutral-500">Est.Liq.Price</p>
-            <p>{estLiqPrice != undefined ? estLiqPrice : "-"}</p>
+              {isEnabled && (
+                <div>
+                  <div className="flex flex-row justify-between mb-1 rounded-xl bg-white dark:bg-baseDark py-2">
+                    <div className="flex self-stretch pl-2">
+                      <input
+                        type="number"
+                        value={takeProfit}
+                        onChange={(e) => setTakeProfit(e.target.value)}
+                        className="w-full dark:bg-baseDark text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        placeholder="Take Profit"
+                        min={0}
+                      />
+                    </div>
+                    <div className="flex items-center text-base px-2 rounded-xl">
+                      <FutureDropdown
+                        options={markOption}
+                        defaultValue={selectedMarkOption}
+                        onChange={setSelectedMarkOption}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex flex-row justify-between rounded-xl bg-white dark:bg-baseDark py-2">
+                    <div className="flex self-stretch pl-2">
+                      <input
+                        type="number"
+                        value={stopLoss}
+                        onChange={(e) => setStopLoss(e.target.value)}
+                        className="w-full dark:bg-baseDark text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        placeholder="Stop Loss"
+                        min={0}
+                      />
+                    </div>
+                    <div className="flex items-center text-base px-2 rounded-xl">
+                      <FutureDropdown
+                        options={markOption}
+                        defaultValue={selectedMarkOption}
+                        onChange={setSelectedMarkOption}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        <div>
+          <div className="grid grid-cols-2 gap-x-3 gap-y-1 mt-5 mb-4 font-normal text-xs">
+            <div className="flex flex-row justify-between items-center">
+              <p className="text-neutral-500">Max Open</p>
+              <p>{maxOpen != undefined ? maxOpen : "-"}</p>
+            </div>
+            <div className="flex flex-row justify-between items-center">
+              <p className="text-neutral-500">Max Open</p>
+              <p>{maxOpen != undefined ? maxOpen : "-"}</p>
+            </div>
+            <div className="flex flex-row justify-between items-center">
+              <p className="text-neutral-500">Cost</p>
+              <p>{cost != undefined ? cost : "-"}</p>
+            </div>
+            <div className="flex flex-row justify-between items-center">
+              <p className="text-neutral-500">Cost</p>
+              <p>{cost != undefined ? cost : "-"}</p>
+            </div>
+            <div className="flex flex-row justify-between items-center">
+              <p className="text-neutral-500">Margin</p>
+              <p>{margin != undefined ? margin : "-"}</p>
+            </div>
+            <div className="flex flex-row justify-between items-center">
+              <p className="text-neutral-500">Margin</p>
+              <p>{margin != undefined ? margin : "-"}</p>
+            </div>
+            <div className="flex flex-row justify-between items-center">
+              <p className="text-neutral-500">Est.Liq.Price</p>
+              <p>{estLiqPrice != undefined ? estLiqPrice : "-"}</p>
+            </div>
+            <div className="flex flex-row justify-between items-center">
+              <p className="text-neutral-500">Est.Liq.Price</p>
+              <p>{estLiqPrice != undefined ? estLiqPrice : "-"}</p>
+            </div>
           </div>
         </div>
+
+        {!account && (
+          <button className="w-full bg-neutral-500 text-white py-3 rounded-2xl font-semibold text-xl mb-6">
+            Connect Wallet
+          </button>
+        )}
+        {account && activeAccount === undefined && !loading && (
+          <button
+            className="w-full bg-neutral-500 text-white py-3 rounded-2xl font-semibold text-xl mb-6"
+            onClick={() => setIsModalOpen(true)}
+          >
+            Create your Margin Account
+          </button>
+        )}
+        {account && loading && (
+          <div className="flex justify-between gap-4">
+            <button className="flex-1 bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition-colors flex justify-center">
+              <Loader />
+            </button>
+            <button className="flex-1 bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition-colors flex justify-center">
+              <Loader />
+            </button>
+          </div>
+        )}
+        {account && activeAccount !== undefined && !loading && (
+          <div className="flex justify-between gap-4">
+            <button
+              className="flex-1 bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition-colors"
+              onClick={() => openPosition("buy")}
+            >
+              Open Long {<br />} (Buy)
+            </button>
+            <button
+              className="flex-1 bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition-colors"
+              onClick={() => openPosition("sell")}
+            >
+              Open Short {<br />} (Sell)
+            </button>
+          </div>
+        )}
       </div>
 
-      <div className="flex justify-between gap-4">
-        <button
-          className="flex-1 bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition-colors"
-          onClick={() => openPosition("buy")}
-        >
-          Open Long {<br />} (Buy)
-        </button>
-        <button
-          className="flex-1 bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition-colors"
-          onClick={() => openPosition("sell")}
-        >
-          Open Short {<br />} (Sell)
-        </button>
+      <CreateSmartAccountModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
+
+      <div className="fixed bottom-5 left-5 w-72">
+        {notifications.map(({ id, type, message }) => (
+          <Notification
+            key={id}
+            type={type}
+            message={message}
+            onClose={() => removeNotification(id)}
+            duration={3000}
+          />
+        ))}
       </div>
-    </div>
+    </>
   );
 };
 

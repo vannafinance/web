@@ -13,7 +13,7 @@ import {
   baseAddressList,
   opAddressList,
 } from "@/app/lib/web3-constants";
-import Loader from "../components/loader";
+import Loader from "./loader";
 import {
   ARBITRUM_NETWORK,
   BASE_NETWORK,

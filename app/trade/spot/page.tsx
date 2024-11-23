@@ -39,14 +39,20 @@ import {
 import { useNetwork } from "@/app/context/network-context";
 import axios from "axios";
 import { formatUSD } from "@/app/lib/number-format-helper";
+import CreateSmartAccountModal from "@/app/ui/components/create-smart-account-model";
+import Notification from "@/app/ui/components/notification";
 
 export default function Page() {
   const { account, library } = useWeb3React();
   const [activeAccount, setActiveAccount] = useState();
   const { currentNetwork } = useNetwork();
+  const [notifications, setNotifications] = useState<
+    Array<{ id: number; type: NotificationType; message: string }>
+  >([]);
   const [loading, setLoading] = useState(false);
   const [disableBtn, setDisableBtn] = useState(true);
   const [btnValue, setBtnValue] = useState("Enter an amount");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [payInput, setPayInput] = useState<string>("");
   const [receiveInput, setReceiveInput] = useState<string>("");
@@ -76,6 +82,17 @@ export default function Page() {
   const handleToSelect = (token: PoolTable) => {
     setReceiveCoin(token);
     if (balList) setReceiveBalance(Number(balList[token?.name]));
+  };
+
+  const addNotification = (type: NotificationType, message: string) => {
+    const id = Date.now();
+    setNotifications((prev) => [...prev, { id, type, message }]);
+  };
+
+  const removeNotification = (id: number) => {
+    setNotifications((prev) =>
+      prev.filter((notification) => notification.id !== id)
+    );
   };
 
   const accountCheck = async () => {
@@ -134,6 +151,10 @@ export default function Page() {
   useEffect(() => {
     accountCheck();
   }, [account, library, currentNetwork]);
+
+  useEffect(() => {
+    accountCheck();
+  }, [isModalOpen]);
 
   const balanceFetch = async () => {
     try {
@@ -282,13 +303,14 @@ export default function Page() {
       setReceiveInput("");
       // setReceiveUpdated();
     } else {
+      setPayInput(String(amt));
+
       const currentPriceOfPay = await getPriceFromAssetsArray(payCoin.name);
       const currentPriceOfReceive = await getPriceFromAssetsArray(
         receiveCoin.name
       );
       const receive = (currentPriceOfPay * Number(amt)) / currentPriceOfReceive;
 
-      setPayInput(String(amt));
       setReceiveInput(String(receive));
       setPayAmountInDollar(Number(amt) * currentPriceOfPay);
       setReceiveAmountInDollar(receive * currentPriceOfReceive);
@@ -323,7 +345,7 @@ export default function Page() {
     setLoading(true);
 
     try {
-      if (payInput !== "" || !currentNetwork) {
+      if (payInput === "" || !currentNetwork) {
         return;
       }
       if (currentNetwork.id === ARBITRUM_NETWORK) {
@@ -630,20 +652,23 @@ export default function Page() {
 
       // setPayBalance(ceilWithPrecision(balList[payCoin], 6));
       // setReceiveBalance(ceilWithPrecision(balList[receiveCoin], 6);
+
+      await sleep(5000);
+      addNotification("success", "Transaction Successful!");
     } catch (e) {
       console.error(e);
+      addNotification("error", "Something went wrong, Please try again.");
     }
 
-    await sleep(3000);
-    await balanceFetch();
     setPayInput("");
     setReceiveInput("");
     setLoading(false);
+    await balanceFetch();
   };
 
-  const handlePayBalanceClick = ()=> {
+  const handlePayBalanceClick = () => {
     setPayInput(String(payBalance));
-  }
+  };
 
   return (
     <div className="w-full lg:w-[35rem] xl:w-[40rem] mx-auto text-baseBlack dark:text-baseWhite">
@@ -740,7 +765,7 @@ export default function Page() {
       {account && activeAccount === undefined && !loading && (
         <button
           className="w-full bg-purple text-white py-3 rounded-2xl font-semibold text-xl mb-6"
-          // onClick={() => setIsModalOpen(true)}
+          onClick={() => setIsModalOpen(true)}
         >
           Create your Margin Account
         </button>
@@ -801,6 +826,23 @@ export default function Page() {
           )}
         </div>
       )}
+
+      <CreateSmartAccountModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
+
+      <div className="fixed bottom-5 left-5 w-72">
+        {notifications.map(({ id, type, message }) => (
+          <Notification
+            key={id}
+            type={type}
+            message={message}
+            onClose={() => removeNotification(id)}
+            duration={3000}
+          />
+        ))}
+      </div>
     </div>
   );
 }

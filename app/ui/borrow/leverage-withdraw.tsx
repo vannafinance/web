@@ -31,7 +31,7 @@ import {
   sleep,
 } from "@/app/lib/helper";
 import AccountOverview from "./account-overview";
-import CreateSmartAccountModal from "./create-smart-account-model";
+import CreateSmartAccountModal from "../components/create-smart-account-model";
 import Loader from "../components/loader";
 import {
   ARBITRUM_NETWORK,
@@ -43,10 +43,14 @@ import { useNetwork } from "@/app/context/network-context";
 import { poolsPlaceholder } from "@/app/lib/static-values";
 import axios from "axios";
 import { formatUSD } from "@/app/lib/number-format-helper";
+import Notification from "../components/notification";
 
 const LevrageWithdraw = () => {
   const { account, library } = useWeb3React();
   const { currentNetwork } = useNetwork();
+  const [notifications, setNotifications] = useState<
+    Array<{ id: number; type: NotificationType; message: string }>
+  >([]);
 
   const [market, setMarket] = useState("ETH");
   const [marketPrice, setMarketPrice] = useState(0.0);
@@ -128,6 +132,17 @@ const LevrageWithdraw = () => {
 
     setBorrowAmount(ceilWithPrecision(String(val)));
     setLeverageValue(num);
+  };
+
+  const addNotification = (type: NotificationType, message: string) => {
+    const id = Date.now();
+    setNotifications((prev) => [...prev, { id, type, message }]);
+  };
+
+  const removeNotification = (id: number) => {
+    setNotifications((prev) =>
+      prev.filter((notification) => notification.id !== id)
+    );
   };
 
   useEffect(() => {
@@ -696,24 +711,32 @@ const LevrageWithdraw = () => {
   const process = async () => {
     setLoading(true);
 
-    if (isLeverage) {
-      if (btnValue === "Deposit") {
-        await deposit();
-      } else if (btnValue === "Borrow") {
-        await borrow();
+    try {
+      if (isLeverage) {
+        if (btnValue === "Deposit") {
+          await deposit();
+        } else if (btnValue === "Borrow") {
+          await borrow();
+        } else {
+          await deposit();
+          await borrow();
+        }
       } else {
-        await deposit();
-        await borrow();
+        if (btnValue === "Repay") {
+          await repay();
+        } else if (btnValue === "Withdraw") {
+          await withdraw();
+        } else {
+          await repay();
+          await withdraw();
+        }
       }
-    } else {
-      if (btnValue === "Repay") {
-        await repay();
-      } else if (btnValue === "Withdraw") {
-        await withdraw();
-      } else {
-        await repay();
-        await withdraw();
-      }
+
+      await sleep(5000);
+      addNotification("success", "Transaction Successful!");
+    } catch (error) {
+      console.error(error);
+      addNotification("error", "Something went wrong, Please try again.");
     }
 
     getTokenBalance();
@@ -1402,6 +1425,18 @@ const LevrageWithdraw = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
       />
+
+      <div className="fixed bottom-5 left-5 w-72">
+        {notifications.map(({ id, type, message }) => (
+          <Notification
+            key={id}
+            type={type}
+            message={message}
+            onClose={() => removeNotification(id)}
+            duration={3000}
+          />
+        ))}
+      </div>
     </div>
   );
 };

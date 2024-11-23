@@ -757,14 +757,14 @@ const SupplyWithdraw = ({
 
   const updateAmount = async (amt: string | number) => {
     if (amt === "") {
-      setExpected(0);
-      setYouGet(0);
       setAmount("");
+      setYouGet(0);
+      setExpected(0);
     } else {
+      setAmount(String(amt));
+      setYouGet(Number(amt) * Number(ethPerVeth));
       const val = await getPriceFromAssetsArray(selectedToken.name);
       setExpected(Number(amt) * Number(val));
-      setYouGet(Number(amt) * Number(ethPerVeth));
-      setAmount(String(amt));
     }
   };
 
@@ -1022,19 +1022,19 @@ const SupplyWithdraw = ({
               );
             }
           } else {
-            console.error("something went wrong, Please try again.");
-            addNotification("error", "something went wrong, Please try again.");
+            console.error("Something went wrong, Please try again.");
+            addNotification("error", "Something went wrong, Please try again.");
             updateAmount("");
             setLoading(false);
             return;
           }
         }
 
-        await sleep(3000);
+        await sleep(5000);
         addNotification("success", "Transaction Successful!");
       } catch (error) {
         console.error(error);
-        addNotification("error", "something went wrong, Please try again.");
+        addNotification("error", "Something went wrong, Please try again.");
       }
     } else if (currentNetwork.id === OPTIMISM_NETWORK) {
       // value assigne is pending
@@ -1279,19 +1279,19 @@ const SupplyWithdraw = ({
               );
             }
           } else {
-            console.error("something went wrong, Please try again.");
-            addNotification("error", "something went wrong, Please try again.");
+            console.error("Something went wrong, Please try again.");
+            addNotification("error", "Something went wrong, Please try again.");
             updateAmount("");
             setLoading(false);
             return;
           }
         }
 
-        await sleep(3000);
+        await sleep(5000);
         addNotification("success", "Transaction Successful!");
       } catch (error) {
         console.error(error);
-        addNotification("error", "something went wrong, Please try again.");
+        addNotification("error", "Something went wrong, Please try again.");
       }
     } else if (currentNetwork.id === BASE_NETWORK) {
       // value assigne is pending
@@ -1536,19 +1536,19 @@ const SupplyWithdraw = ({
               );
             }
           } else {
-            console.error("something went wrong, Please try again.");
-            addNotification("error", "something went wrong, Please try again.");
+            console.error("Something went wrong, Please try again.");
+            addNotification("error", "Something went wrong, Please try again.");
             updateAmount("");
             setLoading(false);
             return;
           }
         }
 
-        await sleep(3000);
+        await sleep(5000);
         addNotification("success", "Transaction Successful!");
       } catch (error) {
         console.error(error);
-        addNotification("error", "something went wrong, Please try again.");
+        addNotification("error", "Something went wrong, Please try again.");
       }
     }
 
@@ -1732,7 +1732,7 @@ const SupplyWithdraw = ({
             type={type}
             message={message}
             onClose={() => removeNotification(id)}
-            duration={10000}
+            duration={3000}
           />
         ))}
       </div>

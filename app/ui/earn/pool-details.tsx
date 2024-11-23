@@ -2369,7 +2369,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
 
   const handleCopyAddress = (address: string) => {
     navigator.clipboard.writeText(address);
-    addNotification("success", "Address copied to clipboard!");
+    addNotification("info", "Address copied to clipboard!");
   };
 
   const addNotification = (type: NotificationType, message: string) => {
