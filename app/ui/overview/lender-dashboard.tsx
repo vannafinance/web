@@ -525,10 +525,6 @@ const LenderDashboard: React.FC = () => {
         library
       );
 
-      // let bal = (await vEtherContract.balanceOf(account))
-      // console.log("actual ETH balance",(await vEtherContract.balanceOf(account))/1);
-      // console.log("convert shares to assets", (await vEtherContract.convertToAssets(bal)/1));
-
       //ETH
       tempData = utils.arrayify(
         iFaceEth.encodeFunctionData("balanceOf", [account])

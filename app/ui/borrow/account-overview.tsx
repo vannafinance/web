@@ -96,7 +96,6 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({
         (await riskEngineContract.callStatic.getBalance(activeAccount)) / 1e18;
       balance = balance * currentEthPriceInDollar;
 
-      // console.log("balance", balance); // total Balance  => AccountValue
       let borrowBalance =
         (await riskEngineContract.callStatic.getBorrows(activeAccount)) / 1e18; // total Borrow Balance
       borrowBalance = borrowBalance * currentEthPriceInDollar;

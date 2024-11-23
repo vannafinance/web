@@ -46,7 +46,7 @@ export const NetworkDropdown = () => {
             ],
           });
         } catch (chainAddError) {
-          console.error("Error adding arb Test Network:", chainAddError);
+          console.error("Error adding network:", chainAddError);
         }
       } else {
         console.error("Error switching networks:", networkSwitchError);
@@ -90,7 +90,7 @@ export const NetworkDropdown = () => {
       if (account && library) {
         switchNetwork(network);
       } else {
-        console.error("Please connect wallet first");
+        console.error("Please connect wallet first!");
       }
     }
     setIsOpen(false);

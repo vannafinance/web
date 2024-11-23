@@ -396,8 +396,6 @@ const LevrageWithdraw = () => {
               );
             }
             // @meet: need to get the precesion data, also deal with 1e18 and 1e6
-            // console.log("with numer ", repayBalance/1e6);
-            // console.log("Number(ceilWithPrecision(String(repayBalance/1e18),8))",Number(ceilWithPrecision(String(repayBalance/1e18),8)));
             setDepositBalance(
               Number(ceilWithPrecision(String(repayBalance), 8))
             );
