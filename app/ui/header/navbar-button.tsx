@@ -10,6 +10,7 @@ import { injected, getShortenedAddress, allowedChainIds } from "@/app/lib/web3-c
 import { useCallback, useEffect, useState } from "react";
 import { sleep } from "@/app/lib/helper";
 import Notification from "../components/notification";
+import { useAccount, useBalance, useConnect, useDisconnect } from "wagmi";
 
 export default function NavbarButtons() {
   const { toggleDarkMode } = useDarkMode();
@@ -17,6 +18,39 @@ export default function NavbarButtons() {
 
   const [buttonText, setButtonText] = useState("");
   const { account, activate, deactivate, chainId, library } = useWeb3React();
+
+  // ---------- wagmi code ----------------
+
+  const { address, isConnected, isConnecting, isDisconnected } = useAccount();
+  const { data: usdcBalance } = useBalance({
+    address,
+    token: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC address on Base
+  });
+
+  console.log(address, usdcBalance);
+
+  const { connect, connectors } = useConnect();
+  const { disconnect } = useDisconnect();
+
+  function connectToSmartWallet() {
+    console.log("coonec");
+    const coinbaseWalletConnector = connectors.find(
+      (connector) => connector.id === "coinbaseWalletSDK"
+    );
+
+    if (coinbaseWalletConnector) {
+      connect({ connector: coinbaseWalletConnector });
+    }
+  }
+
+  // Effect to save user address after successful connection
+  useEffect(() => {
+    if (isConnected && address) {
+      // do something
+    }
+  }, [isConnected, address]);
+
+  // ---------- wagmi code ends ----------------
 
   const walletConnect = useCallback(async () => {
     try {
@@ -161,7 +195,7 @@ export default function NavbarButtons() {
         <button
           className="bg-gradient-to-r from-gradient-1 to-gradient-2 w-40 h-11 text-baseWhite rounded-lg text-base font-semibold"
           onClick={() => {
-            walletConnect();
+            connectToSmartWallet();
           }}
         >
           Connect Wallet
@@ -171,7 +205,7 @@ export default function NavbarButtons() {
         <button
           className="bg-gradient-to-r from-gradient-1 to-gradient-2 w-40 h-11 text-baseWhite rounded-lg text-base font-semibold"
           onClick={() => {
-            walletButtonClick();
+            disconnect();
           }}
         >
           {buttonText}
