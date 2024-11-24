@@ -544,7 +544,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
         const depositAmount = BigNumber.from(
           formatStringToUnits(
             "USDC",
-            collateralAmount === "" ? Number(collateralAmount) : 0
+            collateralAmount === "" ? 0 : Number(collateralAmount)
           )
         );
 

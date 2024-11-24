@@ -291,35 +291,35 @@ const PoolsTable = () => {
             const ethBorrowAPY = res1.returnData[0];
             const ethBorrowApy =
               ethTotalBorrow != 0
-                ? parseFloat(formatUnits(ethBorrowAPY)) * SECS_PER_YEAR * 1e3
+                ? parseFloat(formatUnits(ethBorrowAPY)) * SECS_PER_YEAR * 1e2
                 : 0;
             const ethSupplyApy = ethBorrowApy - ethBorrowApy * FEES;
 
             const btcBorrowAPY = res1.returnData[1];
             const wbtcBorrowApy =
               wbtcTotalBorrow != 0
-                ? parseFloat(formatUnits(btcBorrowAPY)) * SECS_PER_YEAR * 1e3
+                ? parseFloat(formatUnits(btcBorrowAPY)) * SECS_PER_YEAR * 1e2
                 : 0;
             const wbtcSupplyApy = wbtcBorrowApy - wbtcBorrowApy * FEES;
 
             const usdcBorrowAPY = res1.returnData[2];
             const usdcBorrowApy =
               usdcTotalBorrow != 0
-                ? parseFloat(formatUnits(usdcBorrowAPY)) * SECS_PER_YEAR * 1e3
+                ? parseFloat(formatUnits(usdcBorrowAPY)) * SECS_PER_YEAR * 1e2
                 : 0;
             const usdcSupplyApy = usdcBorrowApy - usdcBorrowApy * FEES;
 
             const usdtBorrowAPY = res1.returnData[3];
             const usdtBorrowApy =
               usdtTotalBorrow != 0
-                ? parseFloat(formatUnits(usdtBorrowAPY)) * SECS_PER_YEAR * 1e3
+                ? parseFloat(formatUnits(usdtBorrowAPY)) * SECS_PER_YEAR * 1e2
                 : 0;
             const usdtSupplyApy = usdtBorrowAPY - usdtBorrowAPY * FEES;
 
             const daiBorrowAPY = res1.returnData[4];
             const daiBorrowApy =
               daiTotalBorrow != 0
-                ? parseFloat(formatUnits(daiBorrowAPY)) * SECS_PER_YEAR * 1e3
+                ? parseFloat(formatUnits(daiBorrowAPY)) * SECS_PER_YEAR * 1e2
                 : 0;
             const daiSupplyApy = daiBorrowApy - daiBorrowApy * FEES;
 
@@ -604,35 +604,35 @@ const PoolsTable = () => {
             const ethBorrowAPY = res1.returnData[0];
             const ethBorrowApy =
               ethTotalBorrow != 0
-                ? parseFloat(formatUnits(ethBorrowAPY)) * SECS_PER_YEAR * 1e3
+                ? parseFloat(formatUnits(ethBorrowAPY)) * SECS_PER_YEAR * 1e2
                 : 0;
             const ethSupplyApy = ethBorrowApy - ethBorrowApy * FEES;
 
             const btcBorrowAPY = res1.returnData[1];
             const wbtcBorrowApy =
               wbtcTotalBorrow != 0
-                ? parseFloat(formatUnits(btcBorrowAPY)) * SECS_PER_YEAR * 1e3
+                ? parseFloat(formatUnits(btcBorrowAPY)) * SECS_PER_YEAR * 1e2
                 : 0;
             const wbtcSupplyApy = wbtcBorrowApy - wbtcBorrowApy * FEES;
 
             const usdcBorrowAPY = res1.returnData[2];
             const usdcBorrowApy =
               usdcTotalBorrow != 0
-                ? parseFloat(formatUnits(usdcBorrowAPY)) * SECS_PER_YEAR * 1e3
+                ? parseFloat(formatUnits(usdcBorrowAPY)) * SECS_PER_YEAR * 1e2
                 : 0;
             const usdcSupplyApy = usdcBorrowApy - usdcBorrowApy * FEES;
 
             const usdtBorrowAPY = res1.returnData[3];
             const usdtBorrowApy =
               usdtTotalBorrow != 0
-                ? parseFloat(formatUnits(usdtBorrowAPY)) * SECS_PER_YEAR * 1e3
+                ? parseFloat(formatUnits(usdtBorrowAPY)) * SECS_PER_YEAR * 1e2
                 : 0;
             const usdtSupplyApy = usdtBorrowAPY - usdtBorrowAPY * FEES;
 
             const daiBorrowAPY = res1.returnData[4];
             const daiBorrowApy =
               daiTotalBorrow != 0
-                ? parseFloat(formatUnits(daiBorrowAPY)) * SECS_PER_YEAR * 1e3
+                ? parseFloat(formatUnits(daiBorrowAPY)) * SECS_PER_YEAR * 1e2
                 : 0;
             const daiSupplyApy = daiBorrowApy - daiBorrowApy * FEES;
 
@@ -935,35 +935,35 @@ const PoolsTable = () => {
             const ethBorrowAPY = res1.returnData[0];
             const ethBorrowApy =
               ethTotalBorrow != 0
-                ? parseFloat(formatUnits(ethBorrowAPY)) * SECS_PER_YEAR * 1e3
+                ? parseFloat(formatUnits(ethBorrowAPY)) * SECS_PER_YEAR * 1e2
                 : 0;
             const ethSupplyApy = ethBorrowApy - ethBorrowApy * FEES;
 
             const btcBorrowAPY = res1.returnData[1];
             const wbtcBorrowApy =
               wbtcTotalBorrow != 0
-                ? parseFloat(formatUnits(btcBorrowAPY)) * SECS_PER_YEAR * 1e3
+                ? parseFloat(formatUnits(btcBorrowAPY)) * SECS_PER_YEAR * 1e2
                 : 0;
             const wbtcSupplyApy = wbtcBorrowApy - wbtcBorrowApy * FEES;
 
             const usdcBorrowAPY = res1.returnData[2];
             const usdcBorrowApy =
               usdcTotalBorrow != 0
-                ? parseFloat(formatUnits(usdcBorrowAPY)) * SECS_PER_YEAR * 1e3
+                ? parseFloat(formatUnits(usdcBorrowAPY)) * SECS_PER_YEAR * 1e2
                 : 0;
             const usdcSupplyApy = usdcBorrowApy - usdcBorrowApy * FEES;
 
             const usdtBorrowAPY = res1.returnData[3];
             const usdtBorrowApy =
               usdtTotalBorrow != 0
-                ? parseFloat(formatUnits(usdtBorrowAPY)) * SECS_PER_YEAR * 1e3
+                ? parseFloat(formatUnits(usdtBorrowAPY)) * SECS_PER_YEAR * 1e2
                 : 0;
             const usdtSupplyApy = usdtBorrowAPY - usdtBorrowAPY * FEES;
 
             const daiBorrowAPY = res1.returnData[4];
             const daiBorrowApy =
               daiTotalBorrow != 0
-                ? parseFloat(formatUnits(daiBorrowAPY)) * SECS_PER_YEAR * 1e3
+                ? parseFloat(formatUnits(daiBorrowAPY)) * SECS_PER_YEAR * 1e2
                 : 0;
             const daiSupplyApy = daiBorrowApy - daiBorrowApy * FEES;
 
