@@ -44,7 +44,7 @@ import Notification from "@/app/ui/components/notification";
 
 export default function Page() {
   const { account, library } = useWeb3React();
-  const [activeAccount, setActiveAccount] = useState();
+  const [activeAccount, setActiveAccount] = useState<string | undefined>();
   const { currentNetwork } = useNetwork();
   const [notifications, setNotifications] = useState<
     Array<{ id: number; type: NotificationType; message: string }>

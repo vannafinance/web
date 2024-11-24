@@ -27,10 +27,17 @@ import {
   arbTokensAddress,
   baseAddressList,
   baseTokensAddress,
+  codeToAsset,
   CollateralAssetCode,
   opAddressList,
   opTokensAddress,
 } from "@/app/lib/web3-constants";
+import { Interface, parseEther } from "ethers/lib/utils";
+import { useNetwork } from "@/app/context/network-context";
+import { formatUSD } from "@/app/lib/number-format-helper";
+import Notification from "../components/notification";
+import Loader from "../components/loader";
+import CreateSmartAccountModal from "../components/create-smart-account-model";
 import AccountManager from "../../abi/vanna/v1/out/AccountManager.sol/AccountManager.json";
 import AccountManagerop from "../../abi/vanna/v1/out/AccountManager-op.sol/AccountManager-op.json";
 import MUX from "../../abi/vanna/v1/out/MUX.sol/MUX.json";
@@ -42,12 +49,9 @@ import Multicall from "../../abi/vanna/v1/out/Multicall.sol/Multicall.json";
 import RiskEngine from "../../abi/vanna/v1/out/RiskEngine.sol/RiskEngine.json";
 import VEther from "../../abi/vanna/v1/out/VEther.sol/VEther.json";
 import VToken from "../../abi/vanna/v1/out/VToken.sol/VToken.json";
-import { Interface, parseEther } from "ethers/lib/utils";
-import { useNetwork } from "@/app/context/network-context";
-import { formatUSD } from "@/app/lib/number-format-helper";
-import Notification from "../components/notification";
-import Loader from "../components/loader";
-import CreateSmartAccountModal from "../components/create-smart-account-model";
+import LiquidityPool from "../../abi/vanna/v1/out/LiquidityPool.sol/LiquidityPool.json";
+import OptimismFetchPosition from "../../abi/vanna/v1/out/OptimismFetchPosition.sol/OptimismFetchPosition.json";
+import AccountManager_op from "../../abi/vanna/v1/out/AccountManager-op.sol/AccountManager-op.json";
 
 const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
   market,
@@ -73,13 +77,15 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
     { value: "Limit", label: "Limit" },
   ];
   const markOption: Option[] = [{ value: "Mark", label: "Mark" }];
-  const tokenOptions: Option[] = [
+
+  const defaultTokenOptions = [
     { value: "WETH", label: "WETH", icon: "/eth-icon.svg" },
     { value: "WBTC", label: "WBTC", icon: "/btc-icon.svg" },
     { value: "USDC", label: "USDC", icon: "/usdc-icon.svg" },
     { value: "USDT", label: "USDT", icon: "/usdt-icon.svg" },
     { value: "DAI", label: "DAI", icon: "/dai-icon.svg" },
   ];
+  const [tokenOptions, setTokenOptions] = useState(defaultTokenOptions);
 
   const [isOpen, setIsOpen] = useState(true);
   // const [selectedProtocol, setSelectedProtocol] = useState<Option>(
@@ -103,7 +109,9 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
 
   const [marketPrice, setMarketPrice] = useState(1);
   const [assetsPrice, setAssetsPrice] = useState([]);
-  const [activeAccount, setActiveAccount] = useState();
+  const [activeAccount, setActiveAccount] = useState<string | undefined>(
+    undefined
+  );
   const [coinBalance, setCoinBalance] = useState(0);
   const [useValue, setUseValue] = useState("0");
   const [longValue, setLongValue] = useState("0");
@@ -151,6 +159,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
   // }, [market]);
 
   const accountCheck = async () => {
+    setLoading(true);
     if (
       localStorage.getItem("isWalletConnected") === "true" &&
       account &&
@@ -197,6 +206,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
     } else {
       setActiveAccount(undefined);
     }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -206,6 +216,15 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
     const intervalId = setInterval(getAssetPrice, 1000); // Calls fetchData every second
     return () => clearInterval(intervalId); // This is the cleanup function
   }, []);
+
+  useEffect(() => {
+    const options =
+      currentNetwork && currentNetwork.id === OPTIMISM_NETWORK
+        ? [{ value: "USDC", label: "USDC", icon: "/usdc-icon.svg" }]
+        : defaultTokenOptions;
+    setTokenOptions(options);
+    setCoin(options[0]);
+  }, [currentNetwork]);
 
   useEffect(() => {
     accountCheck();
@@ -256,163 +275,225 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
 
   const getTokenBalance = async (tokenName = coin.value) => {
     try {
+      setCoinBalance(0);
+
       if (activeAccount && currentNetwork) {
         const signer = await library?.getSigner();
 
-        let daiContract;
-        let wethContract;
-        let usdcContract;
-        let usdtContract;
-        let wbtcContract;
-        let vEtherContract;
-        let vDaiContract;
-        let vUsdcContract;
-        let vUsdtContract;
-        let vWbtcContract;
+        if (isOpen) {
+          let daiContract;
+          let wethContract;
+          let usdcContract;
+          let usdtContract;
+          let wbtcContract;
+          let vEtherContract;
+          let vDaiContract;
+          let vUsdcContract;
+          let vUsdtContract;
+          let vWbtcContract;
 
-        if (currentNetwork.id === ARBITRUM_NETWORK) {
-          daiContract = new Contract(
-            arbAddressList.daiTokenAddress,
-            ERC20.abi,
-            signer
-          );
-          usdcContract = new Contract(
-            arbAddressList.usdcTokenAddress,
-            ERC20.abi,
-            signer
-          );
-          usdtContract = new Contract(
-            arbAddressList.usdtTokenAddress,
-            ERC20.abi,
-            signer
-          );
-          wethContract = new Contract(
-            arbAddressList.wethTokenAddress,
-            ERC20.abi,
-            signer
-          );
-          wbtcContract = new Contract(
-            arbAddressList.wbtcTokenAddress,
-            ERC20.abi,
-            signer
-          );
-          vEtherContract = new Contract(
-            arbAddressList.vEtherContractAddress,
-            VEther.abi,
-            signer
-          );
-          vDaiContract = new Contract(
-            arbAddressList.vDaiContractAddress,
-            VToken.abi,
-            signer
-          );
-          vUsdcContract = new Contract(
-            arbAddressList.vUSDCContractAddress,
-            VToken.abi,
-            signer
-          );
-          vUsdtContract = new Contract(
-            arbAddressList.vUSDTContractAddress,
-            VToken.abi,
-            signer
-          );
-          vWbtcContract = new Contract(
-            arbAddressList.vWBTCContractAddress,
-            VToken.abi,
-            signer
-          );
-        } else if (currentNetwork.id === OPTIMISM_NETWORK) {
-          daiContract = new Contract(
-            opAddressList.daiTokenAddress,
-            ERC20.abi,
-            signer
-          );
-          usdcContract = new Contract(
-            opAddressList.usdcTokenAddress,
-            ERC20.abi,
-            signer
-          );
-          usdtContract = new Contract(
-            opAddressList.usdtTokenAddress,
-            ERC20.abi,
-            signer
-          );
-          wethContract = new Contract(
-            opAddressList.wethTokenAddress,
-            ERC20.abi,
-            signer
-          );
-          wbtcContract = new Contract(
-            opAddressList.wbtcTokenAddress,
-            ERC20.abi,
-            signer
-          );
-          vEtherContract = new Contract(
-            opAddressList.vEtherContractAddress,
-            VEther.abi,
-            signer
-          );
-          vDaiContract = new Contract(
-            opAddressList.vDaiContractAddress,
-            VToken.abi,
-            signer
-          );
-          vUsdcContract = new Contract(
-            opAddressList.vUSDCContractAddress,
-            VToken.abi,
-            signer
-          );
-          vUsdtContract = new Contract(
-            opAddressList.vUSDTContractAddress,
-            VToken.abi,
-            signer
-          );
-          vWbtcContract = new Contract(
-            opAddressList.vWBTCContractAddress,
-            VToken.abi,
-            signer
-          );
-        } else if (currentNetwork.id === BASE_NETWORK) {
-        }
+          if (currentNetwork.id === ARBITRUM_NETWORK) {
+            daiContract = new Contract(
+              arbAddressList.daiTokenAddress,
+              ERC20.abi,
+              signer
+            );
+            usdcContract = new Contract(
+              arbAddressList.usdcTokenAddress,
+              ERC20.abi,
+              signer
+            );
+            usdtContract = new Contract(
+              arbAddressList.usdtTokenAddress,
+              ERC20.abi,
+              signer
+            );
+            wethContract = new Contract(
+              arbAddressList.wethTokenAddress,
+              ERC20.abi,
+              signer
+            );
+            wbtcContract = new Contract(
+              arbAddressList.wbtcTokenAddress,
+              ERC20.abi,
+              signer
+            );
+            vEtherContract = new Contract(
+              arbAddressList.vEtherContractAddress,
+              VEther.abi,
+              signer
+            );
+            vDaiContract = new Contract(
+              arbAddressList.vDaiContractAddress,
+              VToken.abi,
+              signer
+            );
+            vUsdcContract = new Contract(
+              arbAddressList.vUSDCContractAddress,
+              VToken.abi,
+              signer
+            );
+            vUsdtContract = new Contract(
+              arbAddressList.vUSDTContractAddress,
+              VToken.abi,
+              signer
+            );
+            vWbtcContract = new Contract(
+              arbAddressList.vWBTCContractAddress,
+              VToken.abi,
+              signer
+            );
+          } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+            daiContract = new Contract(
+              opAddressList.daiTokenAddress,
+              ERC20.abi,
+              signer
+            );
+            usdcContract = new Contract(
+              opAddressList.usdcTokenAddress,
+              ERC20.abi,
+              signer
+            );
+            usdtContract = new Contract(
+              opAddressList.usdtTokenAddress,
+              ERC20.abi,
+              signer
+            );
+            wethContract = new Contract(
+              opAddressList.wethTokenAddress,
+              ERC20.abi,
+              signer
+            );
+            wbtcContract = new Contract(
+              opAddressList.wbtcTokenAddress,
+              ERC20.abi,
+              signer
+            );
+            vEtherContract = new Contract(
+              opAddressList.vEtherContractAddress,
+              VEther.abi,
+              signer
+            );
+            vDaiContract = new Contract(
+              opAddressList.vDaiContractAddress,
+              VToken.abi,
+              signer
+            );
+            vUsdcContract = new Contract(
+              opAddressList.vUSDCContractAddress,
+              VToken.abi,
+              signer
+            );
+            vUsdtContract = new Contract(
+              opAddressList.vUSDTContractAddress,
+              VToken.abi,
+              signer
+            );
+            vWbtcContract = new Contract(
+              opAddressList.vWBTCContractAddress,
+              VToken.abi,
+              signer
+            );
+          } else if (currentNetwork.id === BASE_NETWORK) {
+          }
 
-        if (
-          !daiContract ||
-          !wethContract ||
-          !usdcContract ||
-          !usdtContract ||
-          !wbtcContract ||
-          !vEtherContract ||
-          !vDaiContract ||
-          !vUsdcContract ||
-          !vUsdtContract ||
-          !vWbtcContract
-        )
-          return;
+          if (
+            !daiContract ||
+            !wethContract ||
+            !usdcContract ||
+            !usdtContract ||
+            !wbtcContract ||
+            !vEtherContract ||
+            !vDaiContract ||
+            !vUsdcContract ||
+            !vUsdtContract ||
+            !vWbtcContract
+          )
+            return;
 
-        let accountBalance;
-        if (tokenName === "WETH") {
-          accountBalance = (await library?.getBalance(activeAccount)) / 1e18;
-          accountBalance +=
-            (await wethContract.balanceOf(activeAccount)) / 1e18;
-          accountBalance = accountBalance;
+          let accountBalance;
+          if (tokenName === "WETH") {
+            accountBalance = (await library?.getBalance(activeAccount)) / 1e18;
+            accountBalance +=
+              (await wethContract.balanceOf(activeAccount)) / 1e18;
+            accountBalance = accountBalance;
 
-          // accountBalance = Number(accountBalance) + Number(waccountBalance);
-        } else if (tokenName === "WBTC") {
-          accountBalance = await wbtcContract.balanceOf(activeAccount);
-          accountBalance = accountBalance / 1e18;
-        } else if (tokenName === "USDC") {
-          accountBalance = await usdcContract.balanceOf(activeAccount);
-          accountBalance = accountBalance / 1e6;
-        } else if (tokenName === "USDT") {
-          accountBalance = await usdtContract.balanceOf(activeAccount);
-          accountBalance = accountBalance / 1e6;
-        } else if (tokenName === "DAI") {
-          accountBalance = await daiContract.balanceOf(activeAccount);
-          accountBalance = accountBalance / 1e18;
-        }
+            // accountBalance = Number(accountBalance) + Number(waccountBalance);
+          } else if (tokenName === "WBTC") {
+            accountBalance = await wbtcContract.balanceOf(activeAccount);
+            accountBalance = accountBalance / 1e18;
+          } else if (tokenName === "USDC") {
+            accountBalance = await usdcContract.balanceOf(activeAccount);
+            accountBalance = accountBalance / 1e6;
+          } else if (tokenName === "USDT") {
+            accountBalance = await usdtContract.balanceOf(activeAccount);
+            accountBalance = accountBalance / 1e6;
+          } else if (tokenName === "DAI") {
+            accountBalance = await daiContract.balanceOf(activeAccount);
+            accountBalance = accountBalance / 1e18;
+          }
 
-        if (accountBalance) {
-          setCoinBalance(Number(ceilWithPrecision(String(accountBalance), 5)));
+          if (accountBalance) {
+            setCoinBalance(
+              Number(ceilWithPrecision(String(accountBalance), 5))
+            );
+          }
+        } else {
+          if (currentNetwork.id === ARBITRUM_NETWORK) {
+            const liquidityPoolContract = new Contract(
+              arbAddressList.muxLiquidityPoolAddress,
+              LiquidityPool.abi,
+              signer
+            );
+
+            let subAccountId;
+
+            // for (let i = 0; i < 5; i++) {
+            const i = 3;
+            for (let j = 3; j < 5; j++) {
+              for (let k = 0; k < 2; k++) {
+                subAccountId =
+                  activeAccount.toString() +
+                  "0" +
+                  i +
+                  "0" +
+                  j +
+                  "0" +
+                  k +
+                  "000000000000000000";
+                const result = await liquidityPoolContract.getSubAccount(
+                  subAccountId
+                );
+                const size = result.size / 1e18;
+
+                if (size != 0) {
+                  const indexPrice = await getAssetPrice(codeToAsset["0" + j]);
+
+                  if (indexPrice) {
+                    const netValue = indexPrice * size;
+                    setCoinBalance(netValue);
+                  }
+                }
+              }
+              // }
+            }
+          } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+            const OptimismFetchPositionContract = new Contract(
+              opAddressList.optimismFetchPositionContractAddress,
+              OptimismFetchPosition.abi,
+              signer
+            );
+
+            const getNetVal =
+              await OptimismFetchPositionContract.getTotalPositionValue(
+                activeAccount,
+                opAddressList.vETH
+              );
+            const netValue = getNetVal / 1e18;
+
+            setCoinBalance(netValue);
+          } else if (currentNetwork.id === BASE_NETWORK) {
+          }
         }
       }
     } catch (e) {
@@ -423,7 +504,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
   useEffect(() => {
     getTokenBalance();
     updateCollateralAmount(collateralAmount);
-  }, [activeAccount, coin, currentNetwork, collateralAmount]);
+  }, [activeAccount, coin, currentNetwork, collateralAmount, isOpen]);
 
   const updateCollateralAmount = (amt: string | number) => {
     if (amt === "") {
@@ -615,6 +696,33 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
     }
 
     updateAssetAmount("");
+    setLoading(false);
+  };
+
+  const closePosition = async (buySell: string) => {
+    setLoading(true);
+
+    try {
+      if (!currentNetwork) return;
+
+      const isLong = buySell === "buy";
+
+      if (currentNetwork.id === ARBITRUM_NETWORK) {
+        // add code here according to close a long position / short
+      } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+        // add code here according to close a long position / short
+      } else if (currentNetwork.id === BASE_NETWORK) {
+        // add code here according to close a long position / short
+      }
+
+      await sleep(5000);
+      addNotification("success", "Transaction Successful!");
+      getTokenBalance();
+    } catch (e) {
+      console.error(e);
+      addNotification("error", "Something went wrong, Please try again.");
+    }
+
     setLoading(false);
   };
 
@@ -937,7 +1045,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
             </button>
           </div>
         )}
-        {account && activeAccount !== undefined && !loading && (
+        {account && activeAccount !== undefined && !loading && isOpen && (
           <div className="flex justify-between gap-4">
             <button
               className="flex-1 bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition-colors"
@@ -950,6 +1058,22 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
               onClick={() => openPosition("sell")}
             >
               Open Short {<br />} (Sell)
+            </button>
+          </div>
+        )}
+        {account && activeAccount !== undefined && !loading && !isOpen && (
+          <div className="flex justify-between gap-4">
+            <button
+              className="flex-1 bg-green-500 text-white py-5 px-4 rounded-md hover:bg-green-600 transition-colors"
+              onClick={() => closePosition("buy")}
+            >
+              Close Long
+            </button>
+            <button
+              className="flex-1 bg-red-500 text-white py-5 px-4 rounded-md hover:bg-red-600 transition-colors"
+              onClick={() => closePosition("sell")}
+            >
+              Close Short
             </button>
           </div>
         )}
