@@ -172,7 +172,10 @@ const LevrageWithdraw = () => {
     } else {
       setBtnValue(
         isLeverage
-          ? depositAmount !== "" && borrowAmount !== ""
+          ? depositAmount !== "" &&
+            borrowAmount !== "" &&
+            Number(borrowAmount) > 0 &&
+            Number(depositAmount) > 0
             ? tokenName === "WETH"
               ? "Deposit & Borrow"
               : "Approve - Deposit & Borrow"
@@ -196,6 +199,7 @@ const LevrageWithdraw = () => {
     borrowAmount,
     depositToken,
     borrowToken,
+    leverageValue,
   ]);
 
   const accountCheck = async () => {
@@ -695,10 +699,10 @@ const LevrageWithdraw = () => {
       const depositAmountInDollar = getPriceFromAssetsArray(depositToken.name);
       const borrowAmountInDollar = getPriceFromAssetsArray(borrowToken.name);
       const val =
-        (Number(depositAmount) * depositAmountInDollar * 10) /
+        (Number(depositAmount) * depositAmountInDollar * 9) /
         borrowAmountInDollar;
       setBorrowBalance(val);
-      setBorrowAmount(String(val / 10));
+      setBorrowAmount(String(val / 9));
     } else {
       setBorrowBalance(0);
       setBorrowAmount("");

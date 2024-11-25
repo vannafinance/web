@@ -74,7 +74,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
   // ];
   const optionType: Option[] = [
     { value: "Market", label: "Market" },
-    { value: "Limit", label: "Limit" },
+    // { value: "Limit", label: "Limit" },
   ];
   const markOption: Option[] = [{ value: "Mark", label: "Mark" }];
 

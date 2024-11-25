@@ -245,7 +245,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "TOTAL BORROWED") {
                   return {
                     ...detail,
-                    value: ceilWithPrecision(formatUnits(ethTotalBorrow)),
+                    value: ceilWithPrecision(formatUnits(ethTotalBorrow), 4),
                   };
                 }
 
@@ -253,7 +253,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                   return {
                     ...detail,
                     value:
-                      ceilWithPrecision(formatUnits(avaibaleETH)) +
+                      ceilWithPrecision(formatUnits(avaibaleETH), 4) +
                       " " +
                       pool.name,
                   };
@@ -311,7 +311,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "TOTAL BORROWED") {
                   return {
                     ...detail,
-                    value: ceilWithPrecision(formatUnits(wbtcTotalBorrow)),
+                    value: ceilWithPrecision(formatUnits(wbtcTotalBorrow), 4),
                   };
                 }
 
@@ -319,7 +319,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                   return {
                     ...detail,
                     value:
-                      ceilWithPrecision(formatUnits(avaibaleBTC)) +
+                      ceilWithPrecision(formatUnits(avaibaleBTC), 4) +
                       " " +
                       pool.name,
                   };
@@ -385,7 +385,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                   return {
                     ...detail,
                     value:
-                      ceilWithPrecision(formatUnits(avaibaleUSDC)) +
+                      ceilWithPrecision(formatUnits(avaibaleUSDC, 6)) +
                       " " +
                       pool.name,
                   };
@@ -451,7 +451,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                   return {
                     ...detail,
                     value:
-                      ceilWithPrecision(formatUnits(avaibaleUSDT)) +
+                      ceilWithPrecision(formatUnits(avaibaleUSDT, 6)) +
                       " " +
                       pool.name,
                   };
@@ -1012,7 +1012,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "TOTAL BORROWED") {
                   return {
                     ...detail,
-                    value: ceilWithPrecision(formatUnits(ethTotalBorrow)),
+                    value: ceilWithPrecision(formatUnits(ethTotalBorrow), 4),
                   };
                 }
 
@@ -1020,7 +1020,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                   return {
                     ...detail,
                     value:
-                      ceilWithPrecision(formatUnits(avaibaleETH)) +
+                      ceilWithPrecision(formatUnits(avaibaleETH), 4) +
                       " " +
                       pool.name,
                   };
@@ -1078,7 +1078,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "TOTAL BORROWED") {
                   return {
                     ...detail,
-                    value: ceilWithPrecision(formatUnits(wbtcTotalBorrow)),
+                    value: ceilWithPrecision(formatUnits(wbtcTotalBorrow), 4),
                   };
                 }
 
@@ -1086,7 +1086,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                   return {
                     ...detail,
                     value:
-                      ceilWithPrecision(formatUnits(avaibaleBTC)) +
+                      ceilWithPrecision(formatUnits(avaibaleBTC), 4) +
                       " " +
                       pool.name,
                   };
@@ -1152,7 +1152,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                   return {
                     ...detail,
                     value:
-                      ceilWithPrecision(formatUnits(avaibaleUSDC)) +
+                      ceilWithPrecision(formatUnits(avaibaleUSDC, 6)) +
                       " " +
                       pool.name,
                   };
@@ -1218,7 +1218,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                   return {
                     ...detail,
                     value:
-                      ceilWithPrecision(formatUnits(avaibaleUSDT)) +
+                      ceilWithPrecision(formatUnits(avaibaleUSDT, 6)) +
                       " " +
                       pool.name,
                   };

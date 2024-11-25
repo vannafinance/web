@@ -60,44 +60,43 @@ export default function Page() {
     useState<string>("");
   const [volume, setVolume] = useState<string>("-");
 
+  const fetchValues = async () => {
+    if (!currentNetwork) return;
+    const signer = await library?.getSigner();
+
+    let indexPriceContract;
+    let markPriceContract;
+    if (currentNetwork.id === ARBITRUM_NETWORK) {
+    } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+      indexPriceContract = new Contract(
+        opAddressList.indexPriceContractAddress,
+        OpIndexPrice.abi,
+        signer
+      );
+      markPriceContract = new Contract(
+        opAddressList.markPriceContractAddress,
+        OpMarkPrice.abi,
+        signer
+      );
+    } else if (currentNetwork.id === BASE_NETWORK) {
+    }
+
+    if (!indexPriceContract || !markPriceContract) {
+      return;
+    }
+
+    const indexPrice = await indexPriceContract.getIndexPrice();
+    const markPrice = await markPriceContract.getMarkPrice();
+    const fundingRate =
+      ((markPrice / 1e18 - indexPrice / 1e8) / (indexPrice / 1e8) / 3) * 100;
+    setIndexPrice(ceilWithPrecision(String(Number(indexPrice)), 2));
+    setMarkPrice(ceilWithPrecision(String(Number(markPrice)), 2));
+    setFundingRate(ceilWithPrecision(String(fundingRate), 3) + "%");
+    setVolume("80,005.6");
+  };
+
   useEffect(() => {
-    const fetchValues = async () => {
-      if (!currentNetwork) return;
-      const signer = await library?.getSigner();
-
-      let indexPriceContract;
-      let markPriceContract;
-      if (currentNetwork.id === ARBITRUM_NETWORK) {
-      } else if (currentNetwork.id === OPTIMISM_NETWORK) {
-        indexPriceContract = new Contract(
-          opAddressList.indexPriceContractAddress,
-          OpIndexPrice.abi,
-          signer
-        );
-        markPriceContract = new Contract(
-          opAddressList.markPriceContractAddress,
-          OpMarkPrice.abi,
-          signer
-        );
-      } else if (currentNetwork.id === BASE_NETWORK) {
-      }
-
-      if (!indexPriceContract || !markPriceContract) {
-        return;
-      }
-
-      const indexPrice = await indexPriceContract.getIndexPrice();
-      const markPrice = await markPriceContract.getMarkPrice();
-      const fundingRate =
-        ((markPrice / 1e18 - indexPrice / 1e8) / (indexPrice / 1e8) / 3) * 100;
-      setIndexPrice(ceilWithPrecision(String(indexPrice / 1e8), 2));
-      setMarkPrice(ceilWithPrecision(String(markPrice / 1e18), 2));
-      setFundingRate(ceilWithPrecision(String(fundingRate), 3) + "%");
-    };
-
     fetchValues();
-
-    setVolume("58,289.70");
   }, [library, currentNetwork]);
 
   useEffect(() => {
@@ -110,7 +109,10 @@ export default function Page() {
 
   const getAssetPrice = async () => {
     const rsp = await axios.get("https://app.mux.network/api/liquidityAsset");
-    const asset = getAssetFromAssetsArray(selectedPairRef.current.value, rsp.data.assets);
+    const asset = getAssetFromAssetsArray(
+      selectedPairRef.current.value,
+      rsp.data.assets
+    );
     setMarketPrice(asset.price);
     const fourPercent = (asset.price * 4) / 100;
     const high = Number(asset.price) + Number(fourPercent);
@@ -159,8 +161,13 @@ export default function Page() {
 
   useEffect(() => {
     getAssetPrice();
+    fetchValues();
     const intervalId = setInterval(getAssetPrice, 1000); // Calls fetchData every second
-    return () => clearInterval(intervalId); // This is the cleanup function
+    const fetchValueIntervalId = setInterval(fetchValues, 3000);
+    return () => {
+      clearInterval(intervalId);
+      clearInterval(fetchValueIntervalId);
+    }; // This is the cleanup function
   }, []);
 
   return (
