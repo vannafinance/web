@@ -57,6 +57,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
   market,
   setMarket,
   marketOption,
+  setDataFetching,
 }) => {
   const { account, library } = useWeb3React();
   const { currentNetwork } = useNetwork();
@@ -65,6 +66,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
   >([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [fetching, setFetching] = useState(false);
 
   // const protocolOptions: Option[] = [
   //   { value: "MUX", label: "MUX" },
@@ -690,6 +692,8 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
       await sleep(5000);
       addNotification("success", "Transaction Successful!");
       getTokenBalance();
+      setFetching(!fetching);
+      setDataFetching(!fetching);
     } catch (e) {
       console.error(e);
       addNotification("error", "Something went wrong, Please try again.");
@@ -718,6 +722,8 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
       await sleep(5000);
       addNotification("success", "Transaction Successful!");
       getTokenBalance();
+      setFetching(!fetching);
+      setDataFetching(!fetching);
     } catch (e) {
       console.error(e);
       addNotification("error", "Something went wrong, Please try again.");

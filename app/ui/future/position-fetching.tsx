@@ -32,8 +32,9 @@ import {
   formatStringToUnits,
   sleep,
 } from "@/app/lib/helper";
+import Loader from "../components/loader";
 
-const PositionFetching = () =>
+const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
   // closePosition: (arg0: number, arg1: number, arg2: number, arg3: any) => void
   {
     const { account, library } = useWeb3React();
@@ -44,7 +45,7 @@ const PositionFetching = () =>
     const [assetsPrice, setAssetsPrice] = useState([]);
 
     const [activeAccount, setActiveAccount] = useState<string | undefined>();
-    // const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const [rows, setRows] = useState<MarketPosition[]>([]);
 
@@ -109,7 +110,7 @@ const PositionFetching = () =>
     useEffect(() => {
       // getTokenBalance();
       fetchPositions(activeAccount);
-    }, [activeAccount]);
+    }, [activeAccount, dataFetching]);
 
     useEffect(() => {
       const intervalId = setInterval(getAssetPrice, 1000); // Calls fetchData every second
@@ -168,6 +169,7 @@ const PositionFetching = () =>
     const fetchPositions = async (account?: { toString: () => string }) => {
       if (!currentNetwork) return;
 
+      setLoading(true);
       if (account) {
         if (currentNetwork.id === ARBITRUM_NETWORK) {
           const renderedRows: MarketPosition[] = [];
@@ -350,6 +352,7 @@ const PositionFetching = () =>
         } else if (currentNetwork.id === BASE_NETWORK) {
         }
       }
+      setLoading(false);
     };
 
     const closePositionArb = async (
@@ -550,26 +553,33 @@ const PositionFetching = () =>
           </div>
 
           {/* Body */}
-          <div className="bg-white dark:bg-baseDark text-center pt-6 text-base font-medium">
-            {rows.map((item, index) => (
-              <div
-                className="grid grid-cols-8 px-3 py-1.5 md:py-4 whitespace-nowrap transition-all duration-200 ease-in-out rounded-xl items-center"
-                key={index}
-              >
-                <div>
-                  {item.market}
-                  <p className="text-xs">{item.isLong ? "Long" : "Short"}</p>
+          {loading && (
+            <div className="flex justify-center mt-2">
+              <Loader />
+            </div>
+          )}
+          {!loading && (
+            <div className="bg-white dark:bg-baseDark text-center pt-6 text-base font-medium">
+              {rows.map((item, index) => (
+                <div
+                  className="grid grid-cols-8 px-3 py-1.5 md:py-4 whitespace-nowrap transition-all duration-200 ease-in-out rounded-xl items-center"
+                  key={index}
+                >
+                  <div>
+                    {item.market}
+                    <p className="text-xs">{item.isLong ? "Long" : "Short"}</p>
+                  </div>
+                  <div>{item.netValue}</div>
+                  <div>{item.collateral}</div>
+                  <div>{item.entryPrice}</div>
+                  <div>{item.indexPrice}</div>
+                  <div>{item.liqPrice}</div>
+                  <div>{item.pnlAndRow}</div>
+                  <div>{item.actions}</div>
                 </div>
-                <div>{item.netValue}</div>
-                <div>{item.collateral}</div>
-                <div>{item.entryPrice}</div>
-                <div>{item.indexPrice}</div>
-                <div>{item.liqPrice}</div>
-                <div>{item.pnlAndRow}</div>
-                <div>{item.actions}</div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     );

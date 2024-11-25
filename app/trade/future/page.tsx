@@ -34,6 +34,7 @@ export default function Page() {
     [OPTIMISM_NETWORK]: [{ value: "perp", label: "Perp" }],
   };
 
+  const [dataFetching, setDataFetching] = useState(false);
   const [selectedPair, setSelectedPair] = useState<Option>(pairOptions[0]);
   const selectedPairRef = useRef(selectedPair);
   const [protocolOptions, setProtocolOptions] = useState<Option[]>([
@@ -246,7 +247,7 @@ export default function Page() {
         </div>
 
         <div>
-          <PositionsSection />
+          <PositionsSection dataFetching={dataFetching} />
         </div>
       </div>
 
@@ -255,6 +256,7 @@ export default function Page() {
           market={selectedPair}
           setMarket={setSelectedPair}
           marketOption={pairOptions}
+          setDataFetching={setDataFetching}
         />
       </div>
     </div>

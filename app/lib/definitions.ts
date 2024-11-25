@@ -112,6 +112,7 @@ interface PositionOpenCloseProps {
   market: Option;
   setMarket: React.Dispatch<React.SetStateAction<Option>>;
   marketOption: Option[];
+  setDataFetching: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 interface UserData {
@@ -219,4 +220,15 @@ interface MarketPosition {
   liqPrice: string;
   pnlAndRow: string;
   actions: JSX.Element;
+}
+
+interface NavItem {
+  name: string;
+  count: number | null;
+  component: React.ComponentType<any>; // Accepts any component
+  props?: Record<string, any>; // Optional props
+};
+
+interface PositionSectionProps {
+  dataFetching: boolean;
 }

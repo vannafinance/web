@@ -580,9 +580,7 @@ const LevrageWithdraw = () => {
   useEffect(() => {
     const val = getPriceFromAssetsArray(borrowToken.name);
     if (borrowAmount !== "" && Number(borrowAmount) > 0) {
-      setLeverageAmount(
-        Number(borrowAmount) * (leverageValue < 2 ? 1 : leverageValue) * val
-      );
+      setLeverageAmount(Number(borrowAmount) * val);
     } else {
       setLeverageAmount(0);
     }

@@ -11,11 +11,16 @@ const TransactionHistoryComponent = () => (
 );
 const PositionHistoryComponent = () => <div>Position History Component</div>;
 
-const PositionsSection = () => {
+const PositionsSection: React.FC<PositionSectionProps> = ({ dataFetching }) => {
   const [activeTab, setActiveTab] = useState("Positions");
 
-  const navItems = [
-    { name: "Positions", count: 0, component: PositionFetching },
+  const navItems: NavItem[] = [
+    {
+      name: "Positions",
+      count: 0,
+      component: PositionFetching,
+      props: { dataFetching },
+    },
     { name: "Open Orders", count: 0, component: OpenOrdersComponent },
     { name: "Order History", count: null, component: OrderHistoryComponent },
     { name: "Trade History", count: null, component: TradeHistoryComponent },
@@ -31,8 +36,8 @@ const PositionsSection = () => {
     },
   ];
 
-  const ActiveComponent =
-    navItems.find((item) => item.name === activeTab)?.component || (() => null);
+  const activeItem = navItems.find((item) => item.name === activeTab);
+const ActiveComponent = activeItem?.component || (() => null);
 
   return (
     <div className="border border-neutral-100 dark:border-neutral-700 rounded-xl p-1 text-baseBlack dark:text-baseWhite">
@@ -57,7 +62,9 @@ const PositionsSection = () => {
           ))}
         </ul>
       </nav>
-      <div className="pt-5"><ActiveComponent /></div>
+      <div className="pt-5">
+        <ActiveComponent {...(activeItem?.props || {})} />
+      </div>
     </div>
   );
 };

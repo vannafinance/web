@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import InfoRow from "./InfoRowProps";
+import Loader from "../components/loader";
 
 const OptionTab: React.FC = () => {
+  const [loading, setLoading] = useState(false);
   const [position, setPosition] = useState("");
   const [size, setSize] = useState("");
   const [entryPrice, setEntryPrice] = useState("");
@@ -21,12 +23,24 @@ const OptionTab: React.FC = () => {
 
   return (
     <div className="grid grid-cols-2 xl:grid-cols-3 gap-2 sm:gap-5">
-      <InfoRow label="Position" value={position} />
-      <InfoRow label="Size" value={size} />
-      <InfoRow label="Entry Price" value={entryPrice} />
-      <InfoRow label="Current Price" value={currentPrice} />
-      <InfoRow label="Unrealized P&L" value={unrealizedPnl} />
-      <InfoRow label="Triggers" value={triggers} />
+      {loading ? <Loader /> : <InfoRow label="Position" value={position} />}
+      {loading ? <Loader /> : <InfoRow label="Size" value={size} />}
+      {loading ? (
+        <Loader />
+      ) : (
+        <InfoRow label="Entry Price" value={entryPrice} />
+      )}
+      {loading ? (
+        <Loader />
+      ) : (
+        <InfoRow label="Current Price" value={currentPrice} />
+      )}
+      {loading ? (
+        <Loader />
+      ) : (
+        <InfoRow label="Unrealized P&L" value={unrealizedPnl} />
+      )}
+      {loading ? <Loader /> : <InfoRow label="Triggers" value={triggers} />}
     </div>
   );
 };

@@ -18,11 +18,13 @@ import Registry from "../../abi/vanna/v1/out/Registry.sol/Registry.json";
 import VEther from "../../abi/vanna/v1/out/VEther.sol/VEther.json";
 import VToken from "../../abi/vanna/v1/out/VToken.sol/VToken.json";
 import { ceilWithPrecision } from "@/app/lib/helper";
+import Loader from "../components/loader";
 
 const SpotTab: React.FC = () => {
   const { account, library } = useWeb3React();
   const { currentNetwork } = useNetwork();
   const [activeAccount, setActiveAccount] = useState<string | undefined>();
+  const [loading, setLoading] = useState(false);
 
   const [ETH, setETH] = useState("");
   const [WETH, setWETH] = useState("");
@@ -91,6 +93,8 @@ const SpotTab: React.FC = () => {
     // TODO: @vatsal this is page for spot in borrow dashboard in overview page. Add code here for balance fetching
 
     const fetchValues = async () => {
+      setLoading(true);
+
       try {
         if (activeAccount && currentNetwork) {
           const signer = await library?.getSigner();
@@ -248,6 +252,8 @@ const SpotTab: React.FC = () => {
       } catch (e) {
         console.error(e);
       }
+
+      setLoading(false);
     };
 
     fetchValues();
@@ -255,12 +261,12 @@ const SpotTab: React.FC = () => {
 
   return (
     <div className="grid grid-cols-2 xl:grid-cols-3 gap-2 sm:gap-5">
-      <InfoRow label="ETH" value={ETH + " ETH"} />
-      <InfoRow label="WETH" value={WETH + " WETH"} />
-      <InfoRow label="BTC" value={BTC + " BTC"} />
-      <InfoRow label="USDC" value={USDC + " USDC"} />
-      <InfoRow label="USDT" value={USDT + " USDT"} />
-      <InfoRow label="DAI" value={DAI + " DAI"} />
+      {loading ? <Loader /> : <InfoRow label="ETH" value={ETH + " ETH"} />}
+      {loading ? <Loader /> : <InfoRow label="WETH" value={WETH + " WETH"} />}
+      {loading ? <Loader /> : <InfoRow label="BTC" value={BTC + " BTC"} />}
+      {loading ? <Loader /> : <InfoRow label="USDC" value={USDC + " USDC"} />}
+      {loading ? <Loader /> : <InfoRow label="USDT" value={USDT + " USDT"} />}
+      {loading ? <Loader /> : <InfoRow label="DAI" value={DAI + " DAI"} />}
     </div>
   );
 };

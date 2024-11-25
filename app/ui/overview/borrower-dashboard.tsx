@@ -18,15 +18,9 @@ import {
   baseAddressList,
 } from "@/app/lib/web3-constants";
 
-import { ceilWithPrecision, check0xHex } from "@/app/lib/helper";
-import AccountManager from "../../abi/vanna/v1/out/AccountManager.sol/AccountManager.json";
-import AccountManagerop from "../../abi/vanna/v1/out/AccountManager-op.sol/AccountManager-op.json";
-import MUX from "../../abi/vanna/v1/out/MUX.sol/MUX.json";
-import PerpVault from "../../abi/vanna/v1/out/PerpVault.sol/PerpVault.json";
-import ClearingHouse from "../../abi/vanna/v1/out/ClearingHouse.sol/ClearingHouse.json";
+import { ceilWithPrecision } from "@/app/lib/helper";
 import OracleFacade from "../../abi/vanna/v1/out/OracleFacade.sol/OracleFacade.json";
 import ERC20 from "../../abi/vanna/v1/out/ERC20.sol/ERC20.json";
-import Multicall from "../../abi/vanna/v1/out/Multicall.sol/Multicall.json";
 import Registry from "../../abi/vanna/v1/out/Registry.sol/Registry.json";
 import RiskEngine from "../../abi/vanna/v1/out/RiskEngine.sol/RiskEngine.json";
 import VEther from "../../abi/vanna/v1/out/VEther.sol/VEther.json";
@@ -34,12 +28,14 @@ import VToken from "../../abi/vanna/v1/out/VToken.sol/VToken.json";
 import axios from "axios";
 import { formatUSD } from "@/app/lib/number-format-helper";
 import Link from "next/link";
+import Loader from "../components/loader";
 
 const BorrowerDashboard = () => {
   const { account, library } = useWeb3React();
   const { currentNetwork } = useNetwork();
 
   const [activeAccount, setActiveAccount] = useState<string | undefined>();
+  const [loading, setLoading] = useState(false);
 
   const [depositedAmount, setDepositedAmount] = useState<string | undefined>();
   const [repayableAmount, setRepayableAmount] = useState<string | undefined>();
@@ -135,246 +131,256 @@ const BorrowerDashboard = () => {
     const fetchValues = async () => {
       if (!currentNetwork || !activeAccount) return;
 
-      const signer = await library?.getSigner();
+      setLoading(true);
 
-      let daiContract;
-      let wethContract;
-      let usdcContract;
-      let usdtContract;
-      let wbtcContract;
-      let vEtherContract;
-      let vDaiContract;
-      let vUsdcContract;
-      let vUsdtContract;
-      let vWbtcContract;
-      let tTokenOracleContract;
+      try {
+        const signer = await library?.getSigner();
 
-      if (currentNetwork.id === ARBITRUM_NETWORK) {
-        daiContract = new Contract(
-          arbAddressList.daiTokenAddress,
-          ERC20.abi,
-          signer
-        );
-        usdcContract = new Contract(
-          arbAddressList.usdcTokenAddress,
-          ERC20.abi,
-          signer
-        );
-        usdtContract = new Contract(
-          arbAddressList.usdtTokenAddress,
-          ERC20.abi,
-          signer
-        );
-        wethContract = new Contract(
-          arbAddressList.wethTokenAddress,
-          ERC20.abi,
-          signer
-        );
-        wbtcContract = new Contract(
-          arbAddressList.wbtcTokenAddress,
-          ERC20.abi,
-          signer
-        );
-        vEtherContract = new Contract(
-          arbAddressList.vEtherContractAddress,
-          VEther.abi,
-          signer
-        );
-        vDaiContract = new Contract(
-          arbAddressList.vDaiContractAddress,
-          VToken.abi,
-          signer
-        );
-        vUsdcContract = new Contract(
-          arbAddressList.vUSDCContractAddress,
-          VToken.abi,
-          signer
-        );
-        vUsdtContract = new Contract(
-          arbAddressList.vUSDTContractAddress,
-          VToken.abi,
-          signer
-        );
-        vWbtcContract = new Contract(
-          arbAddressList.vWBTCContractAddress,
-          VToken.abi,
-          signer
-        );
-        // tTokenOracleContract = new Contract(
-        //   opAddressList.OracleFacade,
-        //   OracleFacade.abi,
-        //   signer
-        // )
-      } else if (currentNetwork.id === OPTIMISM_NETWORK) {
-        daiContract = new Contract(
-          opAddressList.daiTokenAddress,
-          ERC20.abi,
-          signer
-        );
-        usdcContract = new Contract(
-          opAddressList.usdcTokenAddress,
-          ERC20.abi,
-          signer
-        );
-        usdtContract = new Contract(
-          opAddressList.usdtTokenAddress,
-          ERC20.abi,
-          signer
-        );
-        wethContract = new Contract(
-          opAddressList.wethTokenAddress,
-          ERC20.abi,
-          signer
-        );
-        wbtcContract = new Contract(
-          opAddressList.wbtcTokenAddress,
-          ERC20.abi,
-          signer
-        );
-        vEtherContract = new Contract(
-          opAddressList.vEtherContractAddress,
-          VEther.abi,
-          signer
-        );
-        vDaiContract = new Contract(
-          opAddressList.vDaiContractAddress,
-          VToken.abi,
-          signer
-        );
-        vUsdcContract = new Contract(
-          opAddressList.vUSDCContractAddress,
-          VToken.abi,
-          signer
-        );
-        vUsdtContract = new Contract(
-          opAddressList.vUSDTContractAddress,
-          VToken.abi,
-          signer
-        );
-        vWbtcContract = new Contract(
-          opAddressList.vWBTCContractAddress,
-          VToken.abi,
-          signer
-        );
-        tTokenOracleContract = new Contract(
-          opAddressList.OracleFacade,
-          OracleFacade.abi,
-          signer
-        );
-      } else if (currentNetwork.id === BASE_NETWORK) {
-        // tTokenOracleContract = new Contract(
-        //   opAddressList.OracleFacade,
-        //   OracleFacade.abi,
-        //   signer
-        // )
-      }
+        let daiContract;
+        let wethContract;
+        let usdcContract;
+        let usdtContract;
+        let wbtcContract;
+        let vEtherContract;
+        let vDaiContract;
+        let vUsdcContract;
+        let vUsdtContract;
+        let vWbtcContract;
+        let tTokenOracleContract;
 
-      if (
-        !daiContract ||
-        !wethContract ||
-        !usdcContract ||
-        !usdtContract ||
-        !wbtcContract ||
-        !vEtherContract ||
-        !vDaiContract ||
-        !vUsdcContract ||
-        !vUsdtContract ||
-        !vWbtcContract ||
-        !tTokenOracleContract
-      )
-        return;
-      // ETH
-      let accountBalance = await library?.getBalance(activeAccount);
+        if (currentNetwork.id === ARBITRUM_NETWORK) {
+          daiContract = new Contract(
+            arbAddressList.daiTokenAddress,
+            ERC20.abi,
+            signer
+          );
+          usdcContract = new Contract(
+            arbAddressList.usdcTokenAddress,
+            ERC20.abi,
+            signer
+          );
+          usdtContract = new Contract(
+            arbAddressList.usdtTokenAddress,
+            ERC20.abi,
+            signer
+          );
+          wethContract = new Contract(
+            arbAddressList.wethTokenAddress,
+            ERC20.abi,
+            signer
+          );
+          wbtcContract = new Contract(
+            arbAddressList.wbtcTokenAddress,
+            ERC20.abi,
+            signer
+          );
+          vEtherContract = new Contract(
+            arbAddressList.vEtherContractAddress,
+            VEther.abi,
+            signer
+          );
+          vDaiContract = new Contract(
+            arbAddressList.vDaiContractAddress,
+            VToken.abi,
+            signer
+          );
+          vUsdcContract = new Contract(
+            arbAddressList.vUSDCContractAddress,
+            VToken.abi,
+            signer
+          );
+          vUsdtContract = new Contract(
+            arbAddressList.vUSDTContractAddress,
+            VToken.abi,
+            signer
+          );
+          vWbtcContract = new Contract(
+            arbAddressList.vWBTCContractAddress,
+            VToken.abi,
+            signer
+          );
+          // tTokenOracleContract = new Contract(
+          //   opAddressList.OracleFacade,
+          //   OracleFacade.abi,
+          //   signer
+          // )
+        } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+          daiContract = new Contract(
+            opAddressList.daiTokenAddress,
+            ERC20.abi,
+            signer
+          );
+          usdcContract = new Contract(
+            opAddressList.usdcTokenAddress,
+            ERC20.abi,
+            signer
+          );
+          usdtContract = new Contract(
+            opAddressList.usdtTokenAddress,
+            ERC20.abi,
+            signer
+          );
+          wethContract = new Contract(
+            opAddressList.wethTokenAddress,
+            ERC20.abi,
+            signer
+          );
+          wbtcContract = new Contract(
+            opAddressList.wbtcTokenAddress,
+            ERC20.abi,
+            signer
+          );
+          vEtherContract = new Contract(
+            opAddressList.vEtherContractAddress,
+            VEther.abi,
+            signer
+          );
+          vDaiContract = new Contract(
+            opAddressList.vDaiContractAddress,
+            VToken.abi,
+            signer
+          );
+          vUsdcContract = new Contract(
+            opAddressList.vUSDCContractAddress,
+            VToken.abi,
+            signer
+          );
+          vUsdtContract = new Contract(
+            opAddressList.vUSDTContractAddress,
+            VToken.abi,
+            signer
+          );
+          vWbtcContract = new Contract(
+            opAddressList.vWBTCContractAddress,
+            VToken.abi,
+            signer
+          );
+          tTokenOracleContract = new Contract(
+            opAddressList.OracleFacade,
+            OracleFacade.abi,
+            signer
+          );
+        } else if (currentNetwork.id === BASE_NETWORK) {
+          // tTokenOracleContract = new Contract(
+          //   opAddressList.OracleFacade,
+          //   OracleFacade.abi,
+          //   signer
+          // )
+        }
 
-      const waccountBalance = await wethContract.balanceOf(activeAccount);
+        if (
+          !daiContract ||
+          !wethContract ||
+          !usdcContract ||
+          !usdtContract ||
+          !wbtcContract ||
+          !vEtherContract ||
+          !vDaiContract ||
+          !vUsdcContract ||
+          !vUsdtContract ||
+          !vWbtcContract ||
+          !tTokenOracleContract
+        )
+          return;
+        // ETH
+        let accountBalance = await library?.getBalance(activeAccount);
 
-      accountBalance = Number(accountBalance) + Number(waccountBalance);
+        const waccountBalance = await wethContract.balanceOf(activeAccount);
 
-      let borrowedBalance = await vEtherContract.callStatic.getBorrowBalance(
-        activeAccount
-      );
+        accountBalance = Number(accountBalance) + Number(waccountBalance);
 
-      borrowedBalance = Number(borrowedBalance);
-
-      let val = Number(await getPriceFromAssetsArray("ETH"));
-
-      let balance = Number(
-        (Number(accountBalance - borrowedBalance) / 1e18) * val
-      );
-
-      // USDC
-      accountBalance = await usdcContract.balanceOf(activeAccount);
-
-      borrowedBalance = await vUsdcContract.callStatic.getBorrowBalance(
-        activeAccount
-      );
-
-      val = Number(await getPriceFromAssetsArray("USDC"));
-      balance += (Number(accountBalance - borrowedBalance) / 1e6) * val;
-
-      // WBTC
-      accountBalance = await wbtcContract.balanceOf(activeAccount);
-
-      borrowedBalance = await vWbtcContract.callStatic.getBorrowBalance(
-        activeAccount
-      );
-
-      val = Number(await getPriceFromAssetsArray("BTC"));
-      balance += (accountBalance - borrowedBalance) * val;
-
-      //USDT
-      accountBalance = await usdtContract.balanceOf(activeAccount);
-      borrowedBalance = await vUsdtContract.callStatic.getBorrowBalance(
-        activeAccount
-      );
-      val = Number(await getPriceFromAssetsArray("USDT"));
-      balance += (accountBalance - borrowedBalance) * val;
-
-      // DAI
-      accountBalance = await daiContract.balanceOf(activeAccount);
-      borrowedBalance = await vDaiContract.callStatic.getBorrowBalance(
-        activeAccount
-      );
-      val = Number(await getPriceFromAssetsArray("DAI"));
-      balance += (accountBalance - borrowedBalance) * val;
-
-      // tToken
-      accountBalance =
-        (await tTokenOracleContract.callStatic.getPrice(
-          opAddressList.tTokenAddress,
+        let borrowedBalance = await vEtherContract.callStatic.getBorrowBalance(
           activeAccount
-        )) / 1e18;
-      val = accountBalance * Number(await getPriceFromAssetsArray("WETH"));
+        );
 
-      balance += val;
+        borrowedBalance = Number(borrowedBalance);
 
-      setDepositedAmount(ceilWithPrecision(String(balance), 2));
+        let val = Number(await getPriceFromAssetsArray("ETH"));
 
-      const riskEngineContract = new Contract(
-        opAddressList.riskEngineContractAddress,
-        RiskEngine.abi,
-        signer
-      );
+        let balance = Number(
+          (Number(accountBalance - borrowedBalance) / 1e18) * val
+        );
 
-      let totalbalance =
-        (await riskEngineContract.callStatic.getBalance(activeAccount)) / 1e18;
-      totalbalance =
-        totalbalance * Number(await getPriceFromAssetsArray("WETH"));
+        // USDC
+        accountBalance = await usdcContract.balanceOf(activeAccount);
 
-      let borrowBalance =
-        (await riskEngineContract.callStatic.getBorrows(activeAccount)) / 1e18;
-      borrowBalance =
-        borrowBalance * Number(await getPriceFromAssetsArray("WETH"));
+        borrowedBalance = await vUsdcContract.callStatic.getBorrowBalance(
+          activeAccount
+        );
 
-      // @TODO ; Vatsal : currently it's not accurate but way
-      // balance of each token * share to assets of that
-      setBorrowedAmount(String(borrowBalance));
-      setRepayableAmount(String(borrowBalance));
-      setWithdrawableAmount(String(totalbalance - borrowBalance));
+        val = Number(await getPriceFromAssetsArray("USDC"));
+        balance += (Number(accountBalance - borrowedBalance) / 1e6) * val;
+
+        // WBTC
+        accountBalance = await wbtcContract.balanceOf(activeAccount);
+
+        borrowedBalance = await vWbtcContract.callStatic.getBorrowBalance(
+          activeAccount
+        );
+
+        val = Number(await getPriceFromAssetsArray("BTC"));
+        balance += (accountBalance - borrowedBalance) * val;
+
+        //USDT
+        accountBalance = await usdtContract.balanceOf(activeAccount);
+        borrowedBalance = await vUsdtContract.callStatic.getBorrowBalance(
+          activeAccount
+        );
+        val = Number(await getPriceFromAssetsArray("USDT"));
+        balance += (accountBalance - borrowedBalance) * val;
+
+        // DAI
+        accountBalance = await daiContract.balanceOf(activeAccount);
+        borrowedBalance = await vDaiContract.callStatic.getBorrowBalance(
+          activeAccount
+        );
+        val = Number(await getPriceFromAssetsArray("DAI"));
+        balance += (accountBalance - borrowedBalance) * val;
+
+        // tToken
+        accountBalance =
+          (await tTokenOracleContract.callStatic.getPrice(
+            opAddressList.tTokenAddress,
+            activeAccount
+          )) / 1e18;
+        val = accountBalance * Number(await getPriceFromAssetsArray("WETH"));
+
+        balance += val;
+
+        setDepositedAmount(ceilWithPrecision(String(balance), 2));
+
+        const riskEngineContract = new Contract(
+          opAddressList.riskEngineContractAddress,
+          RiskEngine.abi,
+          signer
+        );
+
+        let totalbalance =
+          (await riskEngineContract.callStatic.getBalance(activeAccount)) /
+          1e18;
+        totalbalance =
+          totalbalance * Number(await getPriceFromAssetsArray("WETH"));
+
+        let borrowBalance =
+          (await riskEngineContract.callStatic.getBorrows(activeAccount)) /
+          1e18;
+        borrowBalance =
+          borrowBalance * Number(await getPriceFromAssetsArray("WETH"));
+
+        // @TODO ; Vatsal : currently it's not accurate but way
+        // balance of each token * share to assets of that
+        setBorrowedAmount(String(borrowBalance));
+        setRepayableAmount(String(borrowBalance));
+        setWithdrawableAmount(String(totalbalance - borrowBalance));
+      } catch (e) {
+        console.error(e);
+      }
+      setLoading(false);
     };
 
     fetchValues();
   }, [activeAccount]);
+  console.log(loading);
 
   return (
     <div>
@@ -387,7 +393,13 @@ const BorrowerDashboard = () => {
             </Link>
           </div>
           <p className="text-2xl lg:text-3xl font-semibold mb-2">
-            {depositedAmount ? formatUSD(depositedAmount) : "-"}
+            {loading ? (
+              <Loader />
+            ) : depositedAmount ? (
+              formatUSD(depositedAmount)
+            ) : (
+              "-"
+            )}
           </p>
         </div>
 
@@ -399,8 +411,14 @@ const BorrowerDashboard = () => {
             </Link>
           </div>
           <p className="text-2xl lg:text-3xl font-semibold mb-2">
-            {repayableAmount ? formatUSD(repayableAmount) : "-"}{" "}
-            {repayablePercentage && (
+            {loading ? (
+              <Loader />
+            ) : repayableAmount ? (
+              formatUSD(repayableAmount)
+            ) : (
+              "-"
+            )}{" "}
+            {!loading && repayablePercentage && (
               <span className="text-baseSuccess-300 text-base font-medium">
                 {repayablePercentage}
               </span>
@@ -416,8 +434,14 @@ const BorrowerDashboard = () => {
             </Link>
           </div>
           <p className="text-2xl lg:text-3xl font-semibold mb-2">
-            {borrowedAmount ? formatUSD(borrowedAmount) : "-"}{" "}
-            {borrowedLeverage && (
+            {loading ? (
+              <Loader />
+            ) : borrowedAmount ? (
+              formatUSD(borrowedAmount)
+            ) : (
+              "-"
+            )}{" "}
+            {!loading && borrowedLeverage && (
               <span className="px-2 inline-flex text-xs leading-4 font-medium rounded-md bg-purpleBG-lighter text-purple">
                 {borrowedLeverage}x Leverage
               </span>
@@ -433,7 +457,13 @@ const BorrowerDashboard = () => {
             </Link>
           </div>
           <p className="text-2xl lg:text-3xl font-semibold mb-2">
-            {withdrawableAmount ? formatUSD(withdrawableAmount) : "-"}
+            {loading ? (
+              <Loader />
+            ) : withdrawableAmount ? (
+              formatUSD(withdrawableAmount)
+            ) : (
+              "-"
+            )}
           </p>
         </div>
       </div>

@@ -21,10 +21,12 @@ import LiquidityPool from "../../abi/vanna/v1/out/LiquidityPool.sol/LiquidityPoo
 import OptimismFetchPosition from "../../abi/vanna/v1/out/OptimismFetchPosition.sol/OptimismFetchPosition.json";
 import Registry from "../../abi/vanna/v1/out/Registry.sol/Registry.json";
 import axios from "axios";
+import Loader from "../components/loader";
 
 const FutureTab: React.FC = () => {
   const { account, library } = useWeb3React();
   const { currentNetwork } = useNetwork();
+  const [loading, setLoading] = useState(false);
 
   const [assetsPrice, setAssetsPrice] = useState([]);
   const [activeAccount, setActiveAccount] = useState<string | undefined>();
@@ -171,6 +173,8 @@ const FutureTab: React.FC = () => {
   };
 
   const fetchPositions = async (account?: { toString: () => string }) => {
+    setLoading(true);
+
     if (currentNetwork && account) {
       const row: MarketPosition = {
         market: "ETH",
@@ -304,20 +308,34 @@ const FutureTab: React.FC = () => {
       setLiquidationPrice("-");
       setProfitLoss("-");
     }
+
+    setLoading(false);
   };
 
   return (
     <div className="grid grid-cols-2 xl:grid-cols-3 gap-2 sm:gap-5">
-      <InfoRow label="Market" value={market} />
-      <InfoRow label="Size" value={size} />
-      <InfoRow label="Collateral" value={collateral} />
-      <InfoRow label="Entry Price" value={entryPrice} />
-      <InfoRow label="Liq. Price" value={liquidationPrice} />
-      <InfoRow
-        label="PNL"
-        value={profitLoss}
-        // subValue={profitLossPercentage}
-      />
+      {loading ? <Loader /> : <InfoRow label="Market" value={market} />}
+      {loading ? <Loader /> : <InfoRow label="Size" value={size} />}
+      {loading ? <Loader /> : <InfoRow label="Collateral" value={collateral} />}
+      {loading ? (
+        <Loader />
+      ) : (
+        <InfoRow label="Entry Price" value={entryPrice} />
+      )}
+      {loading ? (
+        <Loader />
+      ) : (
+        <InfoRow label="Liq. Price" value={liquidationPrice} />
+      )}
+      {loading ? (
+        <Loader />
+      ) : (
+        <InfoRow
+          label="PNL"
+          value={profitLoss}
+          // subValue={profitLossPercentage}
+        />
+      )}
     </div>
   );
 };
