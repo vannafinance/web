@@ -14,7 +14,7 @@ const Slider: React.FC<SliderProps> = ({ value, onChange }) => {
     onChange(Number(e.target.value));
   };
 
-  const percentage = (value * 96.5) / 10; // Convert value to percentage
+  const percentage = 10.833 * (value - 1); // Convert value to percentage
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
@@ -27,9 +27,9 @@ const Slider: React.FC<SliderProps> = ({ value, onChange }) => {
 
   const handleInputBlur = () => {
     const numValue = Number(inputValue);
-    if (isNaN(numValue) || numValue < 0) {
-      setInputValue("0");
-      onChange(0);
+    if (isNaN(numValue) || numValue < 1) {
+      setInputValue("1");
+      onChange(1);
     } else if (numValue > 10) {
       setInputValue("10");
       onChange(10);
@@ -47,7 +47,7 @@ const Slider: React.FC<SliderProps> = ({ value, onChange }) => {
         <div className="flex items-center mr-5">
           <input
             type="number"
-            min="0"
+            min="1"
             max="10"
             value={inputValue}
             onChange={handleInputChange}
@@ -99,7 +99,7 @@ const Slider: React.FC<SliderProps> = ({ value, onChange }) => {
           {/* Range input for functionality */}
           <input
             type="range"
-            min="0"
+            min="1"
             max="10"
             step="1"
             value={value}
@@ -108,8 +108,8 @@ const Slider: React.FC<SliderProps> = ({ value, onChange }) => {
           />
 
           {/* Tick marks */}
-          <div className="absolute w-full flex justify-between mt-7">
-            {[0, 2, 4, 6, 8, 10].map((i) => (
+          <div className="absolute w-full flex justify-between mt-7 ml-0.5">
+            {[1, 4, 7, 10].map((i) => (
               <span key={i}>{i}</span>
             ))}
           </div>

@@ -127,7 +127,7 @@ const LevrageWithdraw = () => {
     const depositAmountInDollar = getPriceFromAssetsArray(depositToken.name);
     const borrowAmountInDollar = getPriceFromAssetsArray(borrowToken.name);
     const val =
-      (Number(depositAmount) * depositAmountInDollar * num) /
+      (Number(depositAmount) * depositAmountInDollar * (num - 1)) /
       borrowAmountInDollar;
 
     setBorrowAmount(ceilWithPrecision(String(val)));
@@ -307,6 +307,7 @@ const LevrageWithdraw = () => {
           // setBorrowBalance(
           //   Number(ceilWithPrecision(String(borrowBalanceInNumber)))
           // );
+          setBorrowBalance(0);
         } else {
           if (!currentNetwork) return;
 
@@ -702,7 +703,7 @@ const LevrageWithdraw = () => {
         (Number(depositAmount) * depositAmountInDollar * 9) /
         borrowAmountInDollar;
       setBorrowBalance(val);
-      setBorrowAmount(String(val / 9));
+      setBorrowAmount(ceilWithPrecision(String(0)));
     } else {
       setBorrowBalance(0);
       setBorrowAmount("");
