@@ -3,7 +3,8 @@ import InfoRow from "./InfoRowProps";
 import Loader from "../components/loader";
 
 const OptionTab: React.FC = () => {
-  const [loading, setLoading] = useState(false);
+  const loading = false;
+  // const [loading, setLoading] = useState(false);
   const [position, setPosition] = useState("");
   const [size, setSize] = useState("");
   const [entryPrice, setEntryPrice] = useState("");

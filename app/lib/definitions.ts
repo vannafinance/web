@@ -222,12 +222,14 @@ interface MarketPosition {
   actions: JSX.Element;
 }
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 interface NavItem {
   name: string;
   count: number | null;
   component: React.ComponentType<any>; // Accepts any component
   props?: Record<string, any>; // Optional props
 };
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 interface PositionSectionProps {
   dataFetching: boolean;
