@@ -18,6 +18,7 @@ import { opAddressList } from "@/app/lib/web3-constants";
 import OpMarkPrice from "../../abi/vanna/v1/out/OpMarkPrice.sol/OpMarkPrice.json";
 import OpIndexPrice from "../../abi/vanna/v1/out/OpIndexPrice.sol/OpIndexPrice.json";
 import { ceilWithPrecision } from "@/app/lib/helper";
+import { formatUnits } from "ethers/lib/utils";
 
 export default function Page() {
   const { library } = useWeb3React();
@@ -90,8 +91,8 @@ export default function Page() {
     const markPrice = await markPriceContract.getMarkPrice();
     const fundingRate =
       ((markPrice / 1e18 - indexPrice / 1e8) / (indexPrice / 1e8) / 3) * 100;
-    setIndexPrice(ceilWithPrecision(String(Number(indexPrice)), 2));
-    setMarkPrice(ceilWithPrecision(String(Number(markPrice)), 2));
+    setIndexPrice(ceilWithPrecision(String(Number(formatUnits(indexPrice,8))), 2));
+    setMarkPrice(ceilWithPrecision(String(Number(formatUnits(markPrice))), 2));
     setFundingRate(ceilWithPrecision(String(fundingRate), 3) + "%");
     setVolume("80,005.6");
   };
@@ -232,8 +233,8 @@ export default function Page() {
               Open Interest {openInterestInPercentage}
             </p>
             <div className="flex items-center space-x-1">
-              <p className="text-green-500 text-sm">{openInterestPositive}</p>
-              <p className="text-red-500 text-sm">{openInterestNegative}</p>
+              <p className="text-green-500 text-sm">{openInterestPositive} {"K"} {"|"}</p>
+              <p className="text-red-500 text-sm">{openInterestNegative} {"K"}</p>
             </div>
           </div>
           <div>
