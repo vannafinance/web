@@ -161,660 +161,673 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
   }, [isDarkMode]);
 
   useEffect(() => {
+    setTotalHolding(undefined);
+    setTotalReturnsAmount(undefined);
+    setTotalReturnsPercentage(undefined);
+    setHealthFactor(undefined);
+
     if (!currentNetwork) return;
 
     setLoading(true);
-    if (activeTab === "Trader") {
-      const fetchValues = async () => {
-        if (!activeAccount) return;
 
-        const signer = await library?.getSigner();
+    try {
+      if (activeTab === "Trader") {
+        const fetchValues = async () => {
+          if (!activeAccount) return;
 
-        let daiContract;
-        let wethContract;
-        let usdcContract;
-        let usdtContract;
-        let wbtcContract;
-        let vEtherContract;
-        let vDaiContract;
-        let vUsdcContract;
-        let vUsdtContract;
-        let vWbtcContract;
-        let tTokenOracleContract;
+          const signer = await library?.getSigner();
 
-        if (currentNetwork.id === ARBITRUM_NETWORK) {
-          daiContract = new Contract(
-            arbAddressList.daiTokenAddress,
-            ERC20.abi,
-            signer
-          );
-          usdcContract = new Contract(
-            arbAddressList.usdcTokenAddress,
-            ERC20.abi,
-            signer
-          );
-          usdtContract = new Contract(
-            arbAddressList.usdtTokenAddress,
-            ERC20.abi,
-            signer
-          );
-          wethContract = new Contract(
-            arbAddressList.wethTokenAddress,
-            ERC20.abi,
-            signer
-          );
-          wbtcContract = new Contract(
-            arbAddressList.wbtcTokenAddress,
-            ERC20.abi,
-            signer
-          );
-          vEtherContract = new Contract(
-            arbAddressList.vEtherContractAddress,
-            VEther.abi,
-            signer
-          );
-          vDaiContract = new Contract(
-            arbAddressList.vDaiContractAddress,
-            VToken.abi,
-            signer
-          );
-          vUsdcContract = new Contract(
-            arbAddressList.vUSDCContractAddress,
-            VToken.abi,
-            signer
-          );
-          vUsdtContract = new Contract(
-            arbAddressList.vUSDTContractAddress,
-            VToken.abi,
-            signer
-          );
-          vWbtcContract = new Contract(
-            arbAddressList.vWBTCContractAddress,
-            VToken.abi,
-            signer
-          );
-        } else if (currentNetwork.id === OPTIMISM_NETWORK) {
-          daiContract = new Contract(
-            opAddressList.daiTokenAddress,
-            ERC20.abi,
-            signer
-          );
-          usdcContract = new Contract(
-            opAddressList.usdcTokenAddress,
-            ERC20.abi,
-            signer
-          );
-          usdtContract = new Contract(
-            opAddressList.usdtTokenAddress,
-            ERC20.abi,
-            signer
-          );
-          wethContract = new Contract(
-            opAddressList.wethTokenAddress,
-            ERC20.abi,
-            signer
-          );
-          wbtcContract = new Contract(
-            opAddressList.wbtcTokenAddress,
-            ERC20.abi,
-            signer
-          );
-          vEtherContract = new Contract(
-            opAddressList.vEtherContractAddress,
-            VEther.abi,
-            signer
-          );
-          vDaiContract = new Contract(
-            opAddressList.vDaiContractAddress,
-            VToken.abi,
-            signer
-          );
-          vUsdcContract = new Contract(
-            opAddressList.vUSDCContractAddress,
-            VToken.abi,
-            signer
-          );
-          vUsdtContract = new Contract(
-            opAddressList.vUSDTContractAddress,
-            VToken.abi,
-            signer
-          );
-          vWbtcContract = new Contract(
-            opAddressList.vWBTCContractAddress,
-            VToken.abi,
-            signer
-          );
-          tTokenOracleContract = new Contract(
-            opAddressList.OracleFacade,
-            OracleFacade.abi,
-            signer
-          );
-        } else if (currentNetwork.id === BASE_NETWORK) {
-          daiContract = new Contract(
-            baseAddressList.daiTokenAddress,
-            ERC20.abi,
-            signer
-          );
-          usdcContract = new Contract(
-            baseAddressList.usdcTokenAddress,
-            ERC20.abi,
-            signer
-          );
-          usdtContract = new Contract(
-            baseAddressList.usdtTokenAddress,
-            ERC20.abi,
-            signer
-          );
-          wethContract = new Contract(
-            baseAddressList.wethTokenAddress,
-            ERC20.abi,
-            signer
-          );
-          wbtcContract = new Contract(
-            baseAddressList.wbtcTokenAddress,
-            ERC20.abi,
-            signer
-          );
-          vEtherContract = new Contract(
-            baseAddressList.vEtherContractAddress,
-            VEther.abi,
-            signer
-          );
-          vDaiContract = new Contract(
-            baseAddressList.vDaiContractAddress,
-            VToken.abi,
-            signer
-          );
-          vUsdcContract = new Contract(
-            baseAddressList.vUSDCContractAddress,
-            VToken.abi,
-            signer
-          );
-          vUsdtContract = new Contract(
-            baseAddressList.vUSDTContractAddress,
-            VToken.abi,
-            signer
-          );
-          vWbtcContract = new Contract(
-            baseAddressList.vWBTCContractAddress,
-            VToken.abi,
-            signer
-          );
-        } else {
-          return;
-        }
+          let daiContract;
+          let wethContract;
+          let usdcContract;
+          let usdtContract;
+          let wbtcContract;
+          let vEtherContract;
+          let vDaiContract;
+          let vUsdcContract;
+          let vUsdtContract;
+          let vWbtcContract;
+          let tTokenOracleContract;
 
-        // ETH
-        let accountBalance = await library?.getBalance(activeAccount);
-        const waccountBalance = await wethContract.balanceOf(activeAccount);
+          if (currentNetwork.id === ARBITRUM_NETWORK) {
+            daiContract = new Contract(
+              arbAddressList.daiTokenAddress,
+              ERC20.abi,
+              signer
+            );
+            usdcContract = new Contract(
+              arbAddressList.usdcTokenAddress,
+              ERC20.abi,
+              signer
+            );
+            usdtContract = new Contract(
+              arbAddressList.usdtTokenAddress,
+              ERC20.abi,
+              signer
+            );
+            wethContract = new Contract(
+              arbAddressList.wethTokenAddress,
+              ERC20.abi,
+              signer
+            );
+            wbtcContract = new Contract(
+              arbAddressList.wbtcTokenAddress,
+              ERC20.abi,
+              signer
+            );
+            vEtherContract = new Contract(
+              arbAddressList.vEtherContractAddress,
+              VEther.abi,
+              signer
+            );
+            vDaiContract = new Contract(
+              arbAddressList.vDaiContractAddress,
+              VToken.abi,
+              signer
+            );
+            vUsdcContract = new Contract(
+              arbAddressList.vUSDCContractAddress,
+              VToken.abi,
+              signer
+            );
+            vUsdtContract = new Contract(
+              arbAddressList.vUSDTContractAddress,
+              VToken.abi,
+              signer
+            );
+            vWbtcContract = new Contract(
+              arbAddressList.vWBTCContractAddress,
+              VToken.abi,
+              signer
+            );
+          } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+            daiContract = new Contract(
+              opAddressList.daiTokenAddress,
+              ERC20.abi,
+              signer
+            );
+            usdcContract = new Contract(
+              opAddressList.usdcTokenAddress,
+              ERC20.abi,
+              signer
+            );
+            usdtContract = new Contract(
+              opAddressList.usdtTokenAddress,
+              ERC20.abi,
+              signer
+            );
+            wethContract = new Contract(
+              opAddressList.wethTokenAddress,
+              ERC20.abi,
+              signer
+            );
+            wbtcContract = new Contract(
+              opAddressList.wbtcTokenAddress,
+              ERC20.abi,
+              signer
+            );
+            vEtherContract = new Contract(
+              opAddressList.vEtherContractAddress,
+              VEther.abi,
+              signer
+            );
+            vDaiContract = new Contract(
+              opAddressList.vDaiContractAddress,
+              VToken.abi,
+              signer
+            );
+            vUsdcContract = new Contract(
+              opAddressList.vUSDCContractAddress,
+              VToken.abi,
+              signer
+            );
+            vUsdtContract = new Contract(
+              opAddressList.vUSDTContractAddress,
+              VToken.abi,
+              signer
+            );
+            vWbtcContract = new Contract(
+              opAddressList.vWBTCContractAddress,
+              VToken.abi,
+              signer
+            );
+            tTokenOracleContract = new Contract(
+              opAddressList.OracleFacade,
+              OracleFacade.abi,
+              signer
+            );
+          } else if (currentNetwork.id === BASE_NETWORK) {
+            daiContract = new Contract(
+              baseAddressList.daiTokenAddress,
+              ERC20.abi,
+              signer
+            );
+            usdcContract = new Contract(
+              baseAddressList.usdcTokenAddress,
+              ERC20.abi,
+              signer
+            );
+            usdtContract = new Contract(
+              baseAddressList.usdtTokenAddress,
+              ERC20.abi,
+              signer
+            );
+            wethContract = new Contract(
+              baseAddressList.wethTokenAddress,
+              ERC20.abi,
+              signer
+            );
+            wbtcContract = new Contract(
+              baseAddressList.wbtcTokenAddress,
+              ERC20.abi,
+              signer
+            );
+            vEtherContract = new Contract(
+              baseAddressList.vEtherContractAddress,
+              VEther.abi,
+              signer
+            );
+            vDaiContract = new Contract(
+              baseAddressList.vDaiContractAddress,
+              VToken.abi,
+              signer
+            );
+            vUsdcContract = new Contract(
+              baseAddressList.vUSDCContractAddress,
+              VToken.abi,
+              signer
+            );
+            vUsdtContract = new Contract(
+              baseAddressList.vUSDTContractAddress,
+              VToken.abi,
+              signer
+            );
+            vWbtcContract = new Contract(
+              baseAddressList.vWBTCContractAddress,
+              VToken.abi,
+              signer
+            );
+          } else {
+            return;
+          }
 
-        accountBalance = Number(accountBalance) + Number(waccountBalance);
+          // ETH
+          let accountBalance = await library?.getBalance(activeAccount);
+          const waccountBalance = await wethContract.balanceOf(activeAccount);
 
-        let borrowedBalance = await vEtherContract.callStatic.getBorrowBalance(
-          activeAccount
-        );
-        borrowedBalance = Number(borrowedBalance);
+          accountBalance = Number(accountBalance) + Number(waccountBalance);
 
-        let val = Number(getPriceFromAssetsArray("ETH"));
-
-        let balance = Number(
-          (Number(accountBalance - borrowedBalance) / 1e18) * val
-        );
-
-        // USDC
-        accountBalance = await usdcContract.balanceOf(activeAccount);
-
-        borrowedBalance = await vUsdcContract.callStatic.getBorrowBalance(
-          activeAccount
-        );
-
-        val = Number(getPriceFromAssetsArray("USDC"));
-        balance += (Number(accountBalance - borrowedBalance) / 1e6) * val;
-
-        // WBTC
-        accountBalance = await wbtcContract.balanceOf(activeAccount);
-
-        borrowedBalance = await vWbtcContract.callStatic.getBorrowBalance(
-          activeAccount
-        );
-
-        val = Number(getPriceFromAssetsArray("BTC"));
-        balance += (accountBalance - borrowedBalance) * val;
-
-        //USDT
-        accountBalance = await usdtContract.balanceOf(activeAccount);
-        borrowedBalance = await vUsdtContract.callStatic.getBorrowBalance(
-          activeAccount
-        );
-        val = Number(getPriceFromAssetsArray("USDT"));
-        balance += (accountBalance - borrowedBalance) * val;
-
-        // DAI
-        accountBalance = await daiContract.balanceOf(activeAccount);
-        borrowedBalance = await vDaiContract.callStatic.getBorrowBalance(
-          activeAccount
-        );
-        val = Number(getPriceFromAssetsArray("DAI"));
-        balance += (accountBalance - borrowedBalance) * val;
-
-        //@TODO: currently we are fetchign the currnt balance with PNL
-        // need to subtract the PNL
-        // tToken
-        if (tTokenOracleContract !== undefined) {
-          accountBalance =
-            (await tTokenOracleContract.callStatic.getPrice(
-              opAddressList.tTokenAddress,
-              activeAccount
-            )) / 1e18;
-          val = accountBalance * Number(await getPriceFromAssetsArray("WETH"));
-        }
-
-        balance += val;
-        // totalHoldings = balance;
-
-        const riskEngineContract = new Contract(
-          opAddressList.riskEngineContractAddress,
-          RiskEngine.abi,
-          signer
-        );
-        //TODO: vatsal rework on this getBalance varibale till the assigne you have to rework for fetching the data
-        let totalbalance =
-          (await riskEngineContract.callStatic.getBalance(activeAccount)) /
-          1e18;
-
-        totalbalance = totalbalance * Number(getPriceFromAssetsArray("WETH"));
-
-        let borrowBalance =
-          (await riskEngineContract.callStatic.getBorrows(activeAccount)) /
-          1e18;
-
-        borrowBalance = borrowBalance * Number(getPriceFromAssetsArray("WETH"));
-
-        const balanceWithoutReapy = totalbalance - borrowBalance;
-
-        const totalReturnsAmount = Number(balanceWithoutReapy) - balance;
-        const totalReturnsPercentage = (totalReturnsAmount / balance) * 100;
-        // add color while showing this
-        const healthFactor = balance / Number(borrowBalance);
-        // if healther < 1.5 the color red else green
-
-        setTotalHolding(balance);
-        setTotalReturnsAmount(totalReturnsAmount / 1e1);
-        setTotalReturnsPercentage(totalReturnsPercentage / 1e1);
-        setHealthFactor(healthFactor);
-      };
-
-      fetchValues();
-    } else {
-      if (!account) return;
-      const fetchValues = async () => {
-        const iFaceEth = new utils.Interface(VEther.abi);
-        const iFaceToken = new utils.Interface(VToken.abi);
-        let calldata = [];
-        let tempData;
-        //User assets balance
-
-        if (currentNetwork.id === ARBITRUM_NETWORK) {
-          const MCcontract = new Contract(
-            arbAddressList.multicallAddress,
-            Multicall.abi,
-            library
-          );
-          calldata = [];
-          tempData = null;
-
-          //ETH
-          tempData = utils.arrayify(
-            iFaceEth.encodeFunctionData("balanceOf", [account])
-          );
-          calldata.push([arbAddressList.vEtherContractAddress, tempData]);
-
-          //WBTC
-          tempData = utils.arrayify(
-            iFaceToken.encodeFunctionData("balanceOf", [account])
-          );
-          calldata.push([arbAddressList.vWBTCContractAddress, tempData]);
-
-          //USDC
-          tempData = utils.arrayify(
-            iFaceToken.encodeFunctionData("balanceOf", [account])
-          );
-          calldata.push([arbAddressList.vUSDCContractAddress, tempData]);
-
-          //USDT
-          tempData = utils.arrayify(
-            iFaceToken.encodeFunctionData("balanceOf", [account])
-          );
-          calldata.push([arbAddressList.vUSDTContractAddress, tempData]);
-
-          //DAI
-          tempData = utils.arrayify(
-            iFaceToken.encodeFunctionData("balanceOf", [account])
-          );
-          calldata.push([arbAddressList.vDaiContractAddress, tempData]);
-
-          const res = await MCcontract.callStatic.aggregate(calldata);
-
-          //User v token Asset balance
-          const ethBal = formatUnits(check0xHex(res.returnData[0]), 18);
-          const wbtcBal = formatUnits(check0xHex(res.returnData[1]), 18);
-          const usdcBal = formatUnits(check0xHex(res.returnData[2]), 6);
-          const usdtBal = formatUnits(check0xHex(res.returnData[3]), 6);
-          const daiBal = formatUnits(check0xHex(res.returnData[4]), 18);
-
-          // convertSharesToAssets
-
-          calldata = [];
-          //ETH
-          tempData = utils.arrayify(
-            iFaceEth.encodeFunctionData("convertToAssets", [ethBal])
-          );
-          calldata.push([arbAddressList.vEtherContractAddress, tempData]);
-
-          // WBTC
-          tempData = utils.arrayify(
-            iFaceToken.encodeFunctionData("convertToAssets", [wbtcBal])
-          );
-          calldata.push([arbAddressList.vWBTCContractAddress, tempData]);
-
-          //USDC
-          tempData = utils.arrayify(
-            iFaceToken.encodeFunctionData("convertToAssets", [usdcBal])
-          );
-          calldata.push([arbAddressList.vUSDCContractAddress, tempData]);
-
-          // USDT
-          tempData = utils.arrayify(
-            iFaceToken.encodeFunctionData("convertToAssets", [usdtBal])
-          );
-          calldata.push([arbAddressList.vUSDTContractAddress, tempData]);
-
-          // DAI
-          tempData = utils.arrayify(
-            iFaceToken.encodeFunctionData("convertToAssets", [daiBal])
-          );
-          calldata.push([arbAddressList.vDaiContractAddress, tempData]);
-
-          const res1 = await MCcontract.callStatic.aggregate(calldata);
-
-          //User actual Asset balance
-          const ethusdcBal = formatUnits(check0xHex(res1.returnData[0]), 18);
-          const wbtcusdcBal = formatUnits(check0xHex(res1.returnData[1]), 18);
-          const usdcusdcBal = formatUnits(check0xHex(res1.returnData[2]), 6);
-          const usdtusdcBal = formatUnits(check0xHex(res1.returnData[3]), 6);
-          const daiusdcBal = formatUnits(check0xHex(res1.returnData[4]), 18);
+          let borrowedBalance =
+            await vEtherContract.callStatic.getBorrowBalance(activeAccount);
+          borrowedBalance = Number(borrowedBalance);
 
           let val = Number(getPriceFromAssetsArray("ETH"));
-          let totalHoldings = Number(ethusdcBal) * val;
-          let initialLending = Number(ethBal) * val;
 
-          val = Number(getPriceFromAssetsArray("BTC"));
-          totalHoldings += Number(wbtcusdcBal) * val;
-          initialLending += Number(wbtcBal) * val;
+          let balance = Number(
+            (Number(accountBalance - borrowedBalance) / 1e18) * val
+          );
+
+          // USDC
+          accountBalance = await usdcContract.balanceOf(activeAccount);
+
+          borrowedBalance = await vUsdcContract.callStatic.getBorrowBalance(
+            activeAccount
+          );
 
           val = Number(getPriceFromAssetsArray("USDC"));
-          totalHoldings += Number(usdcusdcBal) * val;
-          initialLending += Number(usdcBal) * val;
-
-          val = Number(getPriceFromAssetsArray("USDT"));
-          totalHoldings += Number(usdtusdcBal) * val;
-          initialLending += Number(usdtBal) * val;
-
-          val = Number(getPriceFromAssetsArray("DAI"));
-          totalHoldings += Number(daiusdcBal) * val;
-          initialLending += Number(daiBal) * val;
-
-          const totalReturnsAmount = totalHoldings - initialLending;
-          const percentageGainLoss =
-            (totalReturnsAmount / initialLending) * 100;
-
-          setTotalHolding(totalHoldings);
-          setTotalReturnsAmount(totalReturnsAmount);
-          setTotalReturnsPercentage(percentageGainLoss);
-        } else if (currentNetwork.id === OPTIMISM_NETWORK) {
-          const MCcontract = new Contract(
-            opAddressList.multicallAddress,
-            Multicall.abi,
-            library
-          );
-          calldata = [];
-          tempData = null;
-          //ETH
-          tempData = utils.arrayify(
-            iFaceEth.encodeFunctionData("balanceOf", [account])
-          );
-          calldata.push([opAddressList.vEtherContractAddress, tempData]);
-
-          //WBTC
-          tempData = utils.arrayify(
-            iFaceToken.encodeFunctionData("balanceOf", [account])
-          );
-          calldata.push([opAddressList.vWBTCContractAddress, tempData]);
-
-          //USDC
-          tempData = utils.arrayify(
-            iFaceToken.encodeFunctionData("balanceOf", [account])
-          );
-          calldata.push([opAddressList.vUSDCContractAddress, tempData]);
-
-          //USDT
-          tempData = utils.arrayify(
-            iFaceToken.encodeFunctionData("balanceOf", [account])
-          );
-          calldata.push([opAddressList.vUSDTContractAddress, tempData]);
-
-          //DAI
-          tempData = utils.arrayify(
-            iFaceToken.encodeFunctionData("balanceOf", [account])
-          );
-          calldata.push([opAddressList.vDaiContractAddress, tempData]);
-
-          const res = await MCcontract.callStatic.aggregate(calldata);
-
-          //User v token Asset balance
-          const ethBal = formatUnits(check0xHex(res.returnData[0]), 18);
-          const wbtcBal = formatUnits(check0xHex(res.returnData[1]), 18);
-          const usdcBal = formatUnits(check0xHex(res.returnData[2]), 6);
-          const usdtBal = formatUnits(check0xHex(res.returnData[3]), 6);
-          const daiBal = formatUnits(check0xHex(res.returnData[4]), 18);
-
-          // convertSharesToAssets
-
-          calldata = [];
-          //ETH
-          tempData = utils.arrayify(
-            iFaceEth.encodeFunctionData("convertToAssets", [res.returnData[0]])
-          );
-          calldata.push([opAddressList.vEtherContractAddress, tempData]);
-          // WBTC
-          tempData = utils.arrayify(
-            iFaceToken.encodeFunctionData("convertToAssets", [
-              res.returnData[1],
-            ])
-          );
-          calldata.push([opAddressList.vWBTCContractAddress, tempData]);
-
-          //USDC
-          tempData = utils.arrayify(
-            iFaceToken.encodeFunctionData("convertToAssets", [
-              res.returnData[2],
-            ])
-          );
-          calldata.push([opAddressList.vUSDCContractAddress, tempData]);
-
-          // USDT
-          tempData = utils.arrayify(
-            iFaceToken.encodeFunctionData("convertToAssets", [
-              res.returnData[3],
-            ])
-          );
-          calldata.push([opAddressList.vUSDTContractAddress, tempData]);
-
-          // DAI
-          tempData = utils.arrayify(
-            iFaceToken.encodeFunctionData("convertToAssets", [
-              res.returnData[4],
-            ])
-          );
-          calldata.push([opAddressList.vDaiContractAddress, tempData]);
-
-          const res1 = await MCcontract.callStatic.aggregate(calldata);
-
-          //User actual Asset balance
-          const ethusdcBal = formatUnits(check0xHex(res1.returnData[0]), 18);
-          const wbtcusdcBal = formatUnits(check0xHex(res1.returnData[1]), 18);
-          const usdcusdcBal = formatUnits(check0xHex(res1.returnData[2]), 6);
-          const usdtusdcBal = formatUnits(check0xHex(res1.returnData[3]), 6);
-          const daiusdcBal = formatUnits(check0xHex(res1.returnData[4]), 18);
-
-          let val = Number(getPriceFromAssetsArray("ETH"));
-          let totalHoldings = Number(ethusdcBal) * val;
-          let initialLending = Number(ethBal) * val;
-
-          val = Number(getPriceFromAssetsArray("BTC"));
-          totalHoldings += Number(wbtcusdcBal) * val;
-          initialLending += Number(wbtcBal) * val;
-
-          val = Number(getPriceFromAssetsArray("USDC"));
-          totalHoldings += Number(usdcusdcBal) * val;
-          initialLending += Number(usdcBal) * val;
-
-          val = Number(getPriceFromAssetsArray("USDT"));
-          totalHoldings += Number(usdtusdcBal) * val;
-          initialLending += Number(usdtBal) * val;
-
-          val = Number(getPriceFromAssetsArray("DAI"));
-          totalHoldings += Number(daiusdcBal) * val;
-          initialLending += Number(daiBal) * val;
-
-          const totalReturnsAmount = totalHoldings - initialLending;
-          const percentageGainLoss =
-            (totalReturnsAmount / initialLending) * 100;
-
-          setTotalHolding(totalHoldings);
-          setTotalReturnsAmount(totalReturnsAmount);
-          setTotalReturnsPercentage(percentageGainLoss);
-        } else if (currentNetwork.id === BASE_NETWORK) {
-          const MCcontract = new Contract(
-            baseAddressList.multicallAddress,
-            Multicall.abi,
-            library
-          );
-          calldata = [];
-          tempData = null;
-
-          //ETH
-          tempData = utils.arrayify(
-            iFaceEth.encodeFunctionData("balanceOf", [account])
-          );
-          calldata.push([baseAddressList.vEtherContractAddress, tempData]);
-
-          //WBTC
-          tempData = utils.arrayify(
-            iFaceToken.encodeFunctionData("balanceOf", [account])
-          );
-          calldata.push([baseAddressList.vWBTCContractAddress, tempData]);
-
-          //USDC
-          tempData = utils.arrayify(
-            iFaceToken.encodeFunctionData("balanceOf", [account])
-          );
-          calldata.push([baseAddressList.vUSDCContractAddress, tempData]);
-
-          //USDT
-          tempData = utils.arrayify(
-            iFaceToken.encodeFunctionData("balanceOf", [account])
-          );
-          calldata.push([baseAddressList.vUSDTContractAddress, tempData]);
-
-          //DAI
-          tempData = utils.arrayify(
-            iFaceToken.encodeFunctionData("balanceOf", [account])
-          );
-          calldata.push([baseAddressList.vDaiContractAddress, tempData]);
-
-          const res = await MCcontract.callStatic.aggregate(calldata);
-
-          //User v token Asset balance
-          const ethBal = formatUnits(check0xHex(res.returnData[0]), 18);
-          const wbtcBal = formatUnits(check0xHex(res.returnData[1]), 18);
-          const usdcBal = formatUnits(check0xHex(res.returnData[2]), 6);
-          const usdtBal = formatUnits(check0xHex(res.returnData[3]), 6);
-          const daiBal = formatUnits(check0xHex(res.returnData[4]), 18);
-
-          // convertSharesToAssets
-          calldata = [];
-
-          //ETH
-          tempData = utils.arrayify(
-            iFaceEth.encodeFunctionData("convertToAssets", [ethBal])
-          );
-          calldata.push([baseAddressList.vEtherContractAddress, tempData]);
+          balance += (Number(accountBalance - borrowedBalance) / 1e6) * val;
 
           // WBTC
-          tempData = utils.arrayify(
-            iFaceToken.encodeFunctionData("convertToAssets", [wbtcBal])
+          accountBalance = await wbtcContract.balanceOf(activeAccount);
+
+          borrowedBalance = await vWbtcContract.callStatic.getBorrowBalance(
+            activeAccount
           );
-          calldata.push([baseAddressList.vWBTCContractAddress, tempData]);
-
-          //USDC
-          tempData = utils.arrayify(
-            iFaceToken.encodeFunctionData("convertToAssets", [usdcBal])
-          );
-          calldata.push([baseAddressList.vUSDCContractAddress, tempData]);
-
-          // USDT
-          tempData = utils.arrayify(
-            iFaceToken.encodeFunctionData("convertToAssets", [usdtBal])
-          );
-          calldata.push([baseAddressList.vUSDTContractAddress, tempData]);
-
-          // DAI
-          tempData = utils.arrayify(
-            iFaceToken.encodeFunctionData("convertToAssets", [daiBal])
-          );
-          calldata.push([baseAddressList.vDaiContractAddress, tempData]);
-
-          const res1 = await MCcontract.callStatic.aggregate(calldata);
-
-          //User actual Asset balance
-          const ethusdcBal = formatUnits(check0xHex(res1.returnData[0]), 18);
-          const wbtcusdcBal = formatUnits(check0xHex(res1.returnData[1]), 18);
-          const usdcusdcBal = formatUnits(check0xHex(res1.returnData[2]), 6);
-          const usdtusdcBal = formatUnits(check0xHex(res1.returnData[3]), 6);
-          const daiusdcBal = formatUnits(check0xHex(res1.returnData[4]), 18);
-
-          let val = Number(getPriceFromAssetsArray("ETH"));
-          let totalHoldings = Number(ethusdcBal) * val;
-          let initialLending = Number(ethBal) * val;
 
           val = Number(getPriceFromAssetsArray("BTC"));
-          totalHoldings += Number(wbtcusdcBal) * val;
-          initialLending += Number(wbtcBal) * val;
+          balance += (accountBalance - borrowedBalance) * val;
 
-          val = Number(getPriceFromAssetsArray("USDC"));
-          totalHoldings += Number(usdcusdcBal) * val;
-          initialLending += Number(usdcBal) * val;
-
+          //USDT
+          accountBalance = await usdtContract.balanceOf(activeAccount);
+          borrowedBalance = await vUsdtContract.callStatic.getBorrowBalance(
+            activeAccount
+          );
           val = Number(getPriceFromAssetsArray("USDT"));
-          totalHoldings += Number(usdtusdcBal) * val;
-          initialLending += Number(usdtBal) * val;
+          balance += (accountBalance - borrowedBalance) * val;
 
+          // DAI
+          accountBalance = await daiContract.balanceOf(activeAccount);
+          borrowedBalance = await vDaiContract.callStatic.getBorrowBalance(
+            activeAccount
+          );
           val = Number(getPriceFromAssetsArray("DAI"));
-          totalHoldings += Number(daiusdcBal) * val;
-          initialLending += Number(daiBal) * val;
+          balance += (accountBalance - borrowedBalance) * val;
 
-          const totalReturnsAmount = totalHoldings - initialLending;
-          const percentageGainLoss =
-            (totalReturnsAmount / initialLending) * 100;
+          //@TODO: currently we are fetchign the currnt balance with PNL
+          // need to subtract the PNL
+          // tToken
+          if (tTokenOracleContract !== undefined) {
+            accountBalance =
+              (await tTokenOracleContract.callStatic.getPrice(
+                opAddressList.tTokenAddress,
+                activeAccount
+              )) / 1e18;
+            val =
+              accountBalance * Number(await getPriceFromAssetsArray("WETH"));
+          }
 
-          setTotalHolding(totalHoldings);
-          setTotalReturnsAmount(totalReturnsAmount);
-          setTotalReturnsPercentage(percentageGainLoss);
-        }
-      };
+          balance += val;
+          // totalHoldings = balance;
 
-      fetchValues();
+          const riskEngineContract = new Contract(
+            opAddressList.riskEngineContractAddress,
+            RiskEngine.abi,
+            signer
+          );
+          //TODO: vatsal rework on this getBalance varibale till the assigne you have to rework for fetching the data
+          let totalbalance =
+            (await riskEngineContract.callStatic.getBalance(activeAccount)) /
+            1e18;
+
+          totalbalance = totalbalance * Number(getPriceFromAssetsArray("WETH"));
+
+          let borrowBalance =
+            (await riskEngineContract.callStatic.getBorrows(activeAccount)) /
+            1e18;
+
+          borrowBalance =
+            borrowBalance * Number(getPriceFromAssetsArray("WETH"));
+
+          const balanceWithoutReapy = totalbalance - borrowBalance;
+
+          const totalReturnsAmount = Number(balanceWithoutReapy) - balance;
+          const totalReturnsPercentage = (totalReturnsAmount / balance) * 100;
+          // add color while showing this
+          const healthFactor = balance / Number(borrowBalance);
+          // if healther < 1.5 the color red else green
+
+          setTotalHolding(balance);
+          setTotalReturnsAmount(totalReturnsAmount / 1e1);
+          setTotalReturnsPercentage(totalReturnsPercentage / 1e1);
+          setHealthFactor(healthFactor);
+        };
+
+        fetchValues();
+      } else {
+        if (!account) return;
+        const fetchValues = async () => {
+          const iFaceEth = new utils.Interface(VEther.abi);
+          const iFaceToken = new utils.Interface(VToken.abi);
+          let calldata = [];
+          let tempData;
+          //User assets balance
+
+          if (currentNetwork.id === ARBITRUM_NETWORK) {
+            const MCcontract = new Contract(
+              arbAddressList.multicallAddress,
+              Multicall.abi,
+              library
+            );
+            calldata = [];
+            tempData = null;
+
+            //ETH
+            tempData = utils.arrayify(
+              iFaceEth.encodeFunctionData("balanceOf", [account])
+            );
+            calldata.push([arbAddressList.vEtherContractAddress, tempData]);
+
+            //WBTC
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("balanceOf", [account])
+            );
+            calldata.push([arbAddressList.vWBTCContractAddress, tempData]);
+
+            //USDC
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("balanceOf", [account])
+            );
+            calldata.push([arbAddressList.vUSDCContractAddress, tempData]);
+
+            //USDT
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("balanceOf", [account])
+            );
+            calldata.push([arbAddressList.vUSDTContractAddress, tempData]);
+
+            //DAI
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("balanceOf", [account])
+            );
+            calldata.push([arbAddressList.vDaiContractAddress, tempData]);
+
+            const res = await MCcontract.callStatic.aggregate(calldata);
+
+            //User v token Asset balance
+            const ethBal = formatUnits(check0xHex(res.returnData[0]), 18);
+            const wbtcBal = formatUnits(check0xHex(res.returnData[1]), 18);
+            const usdcBal = formatUnits(check0xHex(res.returnData[2]), 6);
+            const usdtBal = formatUnits(check0xHex(res.returnData[3]), 6);
+            const daiBal = formatUnits(check0xHex(res.returnData[4]), 18);
+
+            // convertSharesToAssets
+
+            calldata = [];
+            //ETH
+            tempData = utils.arrayify(
+              iFaceEth.encodeFunctionData("convertToAssets", [ethBal])
+            );
+            calldata.push([arbAddressList.vEtherContractAddress, tempData]);
+
+            // WBTC
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("convertToAssets", [wbtcBal])
+            );
+            calldata.push([arbAddressList.vWBTCContractAddress, tempData]);
+
+            //USDC
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("convertToAssets", [usdcBal])
+            );
+            calldata.push([arbAddressList.vUSDCContractAddress, tempData]);
+
+            // USDT
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("convertToAssets", [usdtBal])
+            );
+            calldata.push([arbAddressList.vUSDTContractAddress, tempData]);
+
+            // DAI
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("convertToAssets", [daiBal])
+            );
+            calldata.push([arbAddressList.vDaiContractAddress, tempData]);
+
+            const res1 = await MCcontract.callStatic.aggregate(calldata);
+
+            //User actual Asset balance
+            const ethusdcBal = formatUnits(check0xHex(res1.returnData[0]), 18);
+            const wbtcusdcBal = formatUnits(check0xHex(res1.returnData[1]), 18);
+            const usdcusdcBal = formatUnits(check0xHex(res1.returnData[2]), 6);
+            const usdtusdcBal = formatUnits(check0xHex(res1.returnData[3]), 6);
+            const daiusdcBal = formatUnits(check0xHex(res1.returnData[4]), 18);
+
+            let val = Number(getPriceFromAssetsArray("ETH"));
+            let totalHoldings = Number(ethusdcBal) * val;
+            let initialLending = Number(ethBal) * val;
+
+            val = Number(getPriceFromAssetsArray("BTC"));
+            totalHoldings += Number(wbtcusdcBal) * val;
+            initialLending += Number(wbtcBal) * val;
+
+            val = Number(getPriceFromAssetsArray("USDC"));
+            totalHoldings += Number(usdcusdcBal) * val;
+            initialLending += Number(usdcBal) * val;
+
+            val = Number(getPriceFromAssetsArray("USDT"));
+            totalHoldings += Number(usdtusdcBal) * val;
+            initialLending += Number(usdtBal) * val;
+
+            val = Number(getPriceFromAssetsArray("DAI"));
+            totalHoldings += Number(daiusdcBal) * val;
+            initialLending += Number(daiBal) * val;
+
+            const totalReturnsAmount = totalHoldings - initialLending;
+            const percentageGainLoss =
+              (totalReturnsAmount / initialLending) * 100;
+
+            setTotalHolding(totalHoldings);
+            setTotalReturnsAmount(totalReturnsAmount);
+            setTotalReturnsPercentage(percentageGainLoss);
+          } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+            const MCcontract = new Contract(
+              opAddressList.multicallAddress,
+              Multicall.abi,
+              library
+            );
+            calldata = [];
+            tempData = null;
+            //ETH
+            tempData = utils.arrayify(
+              iFaceEth.encodeFunctionData("balanceOf", [account])
+            );
+            calldata.push([opAddressList.vEtherContractAddress, tempData]);
+
+            //WBTC
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("balanceOf", [account])
+            );
+            calldata.push([opAddressList.vWBTCContractAddress, tempData]);
+
+            //USDC
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("balanceOf", [account])
+            );
+            calldata.push([opAddressList.vUSDCContractAddress, tempData]);
+
+            //USDT
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("balanceOf", [account])
+            );
+            calldata.push([opAddressList.vUSDTContractAddress, tempData]);
+
+            //DAI
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("balanceOf", [account])
+            );
+            calldata.push([opAddressList.vDaiContractAddress, tempData]);
+
+            const res = await MCcontract.callStatic.aggregate(calldata);
+
+            //User v token Asset balance
+            const ethBal = formatUnits(check0xHex(res.returnData[0]), 18);
+            const wbtcBal = formatUnits(check0xHex(res.returnData[1]), 18);
+            const usdcBal = formatUnits(check0xHex(res.returnData[2]), 6);
+            const usdtBal = formatUnits(check0xHex(res.returnData[3]), 6);
+            const daiBal = formatUnits(check0xHex(res.returnData[4]), 18);
+
+            // convertSharesToAssets
+
+            calldata = [];
+            //ETH
+            tempData = utils.arrayify(
+              iFaceEth.encodeFunctionData("convertToAssets", [
+                res.returnData[0],
+              ])
+            );
+            calldata.push([opAddressList.vEtherContractAddress, tempData]);
+            // WBTC
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("convertToAssets", [
+                res.returnData[1],
+              ])
+            );
+            calldata.push([opAddressList.vWBTCContractAddress, tempData]);
+
+            //USDC
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("convertToAssets", [
+                res.returnData[2],
+              ])
+            );
+            calldata.push([opAddressList.vUSDCContractAddress, tempData]);
+
+            // USDT
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("convertToAssets", [
+                res.returnData[3],
+              ])
+            );
+            calldata.push([opAddressList.vUSDTContractAddress, tempData]);
+
+            // DAI
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("convertToAssets", [
+                res.returnData[4],
+              ])
+            );
+            calldata.push([opAddressList.vDaiContractAddress, tempData]);
+
+            const res1 = await MCcontract.callStatic.aggregate(calldata);
+
+            //User actual Asset balance
+            const ethusdcBal = formatUnits(check0xHex(res1.returnData[0]), 18);
+            const wbtcusdcBal = formatUnits(check0xHex(res1.returnData[1]), 18);
+            const usdcusdcBal = formatUnits(check0xHex(res1.returnData[2]), 6);
+            const usdtusdcBal = formatUnits(check0xHex(res1.returnData[3]), 6);
+            const daiusdcBal = formatUnits(check0xHex(res1.returnData[4]), 18);
+
+            let val = Number(getPriceFromAssetsArray("ETH"));
+            let totalHoldings = Number(ethusdcBal) * val;
+            let initialLending = Number(ethBal) * val;
+
+            val = Number(getPriceFromAssetsArray("BTC"));
+            totalHoldings += Number(wbtcusdcBal) * val;
+            initialLending += Number(wbtcBal) * val;
+
+            val = Number(getPriceFromAssetsArray("USDC"));
+            totalHoldings += Number(usdcusdcBal) * val;
+            initialLending += Number(usdcBal) * val;
+
+            val = Number(getPriceFromAssetsArray("USDT"));
+            totalHoldings += Number(usdtusdcBal) * val;
+            initialLending += Number(usdtBal) * val;
+
+            val = Number(getPriceFromAssetsArray("DAI"));
+            totalHoldings += Number(daiusdcBal) * val;
+            initialLending += Number(daiBal) * val;
+
+            const totalReturnsAmount = totalHoldings - initialLending;
+            const percentageGainLoss =
+              (totalReturnsAmount / initialLending) * 100;
+
+            setTotalHolding(totalHoldings);
+            setTotalReturnsAmount(totalReturnsAmount);
+            setTotalReturnsPercentage(percentageGainLoss);
+          } else if (currentNetwork.id === BASE_NETWORK) {
+            const MCcontract = new Contract(
+              baseAddressList.multicallAddress,
+              Multicall.abi,
+              library
+            );
+            calldata = [];
+            tempData = null;
+
+            //ETH
+            tempData = utils.arrayify(
+              iFaceEth.encodeFunctionData("balanceOf", [account])
+            );
+            calldata.push([baseAddressList.vEtherContractAddress, tempData]);
+
+            //WBTC
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("balanceOf", [account])
+            );
+            calldata.push([baseAddressList.vWBTCContractAddress, tempData]);
+
+            //USDC
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("balanceOf", [account])
+            );
+            calldata.push([baseAddressList.vUSDCContractAddress, tempData]);
+
+            //USDT
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("balanceOf", [account])
+            );
+            calldata.push([baseAddressList.vUSDTContractAddress, tempData]);
+
+            //DAI
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("balanceOf", [account])
+            );
+            calldata.push([baseAddressList.vDaiContractAddress, tempData]);
+
+            const res = await MCcontract.callStatic.aggregate(calldata);
+
+            //User v token Asset balance
+            const ethBal = formatUnits(check0xHex(res.returnData[0]), 18);
+            const wbtcBal = formatUnits(check0xHex(res.returnData[1]), 18);
+            const usdcBal = formatUnits(check0xHex(res.returnData[2]), 6);
+            const usdtBal = formatUnits(check0xHex(res.returnData[3]), 6);
+            const daiBal = formatUnits(check0xHex(res.returnData[4]), 18);
+
+            // convertSharesToAssets
+            calldata = [];
+
+            //ETH
+            tempData = utils.arrayify(
+              iFaceEth.encodeFunctionData("convertToAssets", [ethBal])
+            );
+            calldata.push([baseAddressList.vEtherContractAddress, tempData]);
+
+            // WBTC
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("convertToAssets", [wbtcBal])
+            );
+            calldata.push([baseAddressList.vWBTCContractAddress, tempData]);
+
+            //USDC
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("convertToAssets", [usdcBal])
+            );
+            calldata.push([baseAddressList.vUSDCContractAddress, tempData]);
+
+            // USDT
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("convertToAssets", [usdtBal])
+            );
+            calldata.push([baseAddressList.vUSDTContractAddress, tempData]);
+
+            // DAI
+            tempData = utils.arrayify(
+              iFaceToken.encodeFunctionData("convertToAssets", [daiBal])
+            );
+            calldata.push([baseAddressList.vDaiContractAddress, tempData]);
+
+            const res1 = await MCcontract.callStatic.aggregate(calldata);
+
+            //User actual Asset balance
+            const ethusdcBal = formatUnits(check0xHex(res1.returnData[0]), 18);
+            const wbtcusdcBal = formatUnits(check0xHex(res1.returnData[1]), 18);
+            const usdcusdcBal = formatUnits(check0xHex(res1.returnData[2]), 6);
+            const usdtusdcBal = formatUnits(check0xHex(res1.returnData[3]), 6);
+            const daiusdcBal = formatUnits(check0xHex(res1.returnData[4]), 18);
+
+            let val = Number(getPriceFromAssetsArray("ETH"));
+            let totalHoldings = Number(ethusdcBal) * val;
+            let initialLending = Number(ethBal) * val;
+
+            val = Number(getPriceFromAssetsArray("BTC"));
+            totalHoldings += Number(wbtcusdcBal) * val;
+            initialLending += Number(wbtcBal) * val;
+
+            val = Number(getPriceFromAssetsArray("USDC"));
+            totalHoldings += Number(usdcusdcBal) * val;
+            initialLending += Number(usdcBal) * val;
+
+            val = Number(getPriceFromAssetsArray("USDT"));
+            totalHoldings += Number(usdtusdcBal) * val;
+            initialLending += Number(usdtBal) * val;
+
+            val = Number(getPriceFromAssetsArray("DAI"));
+            totalHoldings += Number(daiusdcBal) * val;
+            initialLending += Number(daiBal) * val;
+
+            const totalReturnsAmount = totalHoldings - initialLending;
+            const percentageGainLoss =
+              (totalReturnsAmount / initialLending) * 100;
+
+            setTotalHolding(totalHoldings);
+            setTotalReturnsAmount(totalReturnsAmount);
+            setTotalReturnsPercentage(percentageGainLoss);
+          }
+        };
+
+        fetchValues();
+      }
+    } catch (e) {
+      console.error(e);
     }
 
     setLoading(false);
