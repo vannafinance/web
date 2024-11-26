@@ -489,11 +489,13 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
           activeAccount
         );
 
-        oppositeAmountBound = withdrawAmount / 1e6;
+        oppositeAmountBound = ((withdrawAmount / 1e6));
 
         oppositeAmountBound = Number(
           formatStringToUnits("USDC", oppositeAmountBound.toString())
         );
+
+        oppositeAmountBound = oppositeAmountBound - 100;
 
         const iface1 = new Interface(PerpVault.abi);
 
