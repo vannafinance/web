@@ -247,7 +247,7 @@ export default function Page() {
   const [marketPrice, setMarketPrice] = useState<number>(1);
 
   const [selectedExpiry, setSelectedExpiry] = useState<Option>(
-    expiryOptions[0]
+    expiryOptions[4]
   );
 
   const today = new Date().toLocaleDateString("en-GB", {
@@ -446,7 +446,7 @@ export default function Page() {
                 row["marketPrice"] = formatUSD(indexPrice);
                 row["entryPrice"] = formatUSD(entryPrice);
                 row["size"] = formatUSD(netValue);
-                row["leverage"] = String(netValue / collateralPrice);
+                row["leverage"] = ceilWithPrecision(String(netValue / collateralPrice));
                 row["liqPrice"] = formatUSD(liquidation);
                 row["delta"] = k === 1 ? "1" : "-1";
                 row["pnl"] = formatUSD(pnl);
@@ -506,15 +506,13 @@ export default function Page() {
               activeAccount,
               opAddressList.vETH
             );
-          const totalPositionSize = ceilWithPrecision(
-            String(getTotalPositionSize / 1e18)
-          );
+          const totalPositionSize = String(getTotalPositionSize / 1e18);
 
           const getPnlResult =
             await OptimismFetchPositionContract.getPnlAndPendingFee(
               activeAccount
             );
-          const pnl = ceilWithPrecision(String(getPnlResult[1] / 1e18));
+          const pnl = String(getPnlResult[1] / 1e18);
 
           const ClearingHouseContract = new Contract(
             opAddressList.ClearingHouse,
@@ -524,9 +522,7 @@ export default function Page() {
           const getCollateral = await ClearingHouseContract.getAccountValue(
             activeAccount
           );
-          const collateralPrice = Number(
-            ceilWithPrecision(String(getCollateral / 1e18))
-          );
+          const collateralPrice = Number(getCollateral / 1e18);
           // const collateralPriceInUSDC = ceilWithPrecision(collateralPrice * indexPrice);
 
           const row: FuturePosition = {
@@ -546,7 +542,7 @@ export default function Page() {
           row["marketPrice"] = formatUSD(indexPrice);
           row["entryPrice"] = formatUSD(totalPositionSize);
           row["size"] = formatUSD(netValue);
-          row["leverage"] = String(netValue / collateralPrice);
+          row["leverage"] = ceilWithPrecision(String(netValue / collateralPrice));
           row["liqPrice"] = formatUSD(netValue);
           row["delta"] = ""; // add logic here if long then 1 if short then -1
           row["pnl"] = formatUSD(pnl);
@@ -825,25 +821,25 @@ export default function Page() {
                       </button>
                     </td>
                     <td className="pt-1 px-3 whitespace-nowrap">
-                      ${position.marketPrice}
+                      {position.marketPrice}
                     </td>
                     <td className="pt-1 px-3 whitespace-nowrap">
-                      ${position.entryPrice}
+                      {position.entryPrice}
                     </td>
                     <td className="pt-1 px-3 whitespace-nowrap">
-                      ${position.size}
+                      {position.size}
                     </td>
                     <td className="pt-1 px-3 whitespace-nowrap">
-                      ${position.leverage}
+                      {position.leverage}
                     </td>
                     <td className="pt-1 px-3 whitespace-nowrap">
-                      ${position.liqPrice}
+                      {position.liqPrice}
                     </td>
                     <td className="pt-1 px-3 whitespace-nowrap">
                       {position.delta}
                     </td>
                     <td className="pt-1 px-3 whitespace-nowrap">
-                      ${position.pnl}
+                      {position.pnl}
                     </td>
                   </tr>
                 ))}

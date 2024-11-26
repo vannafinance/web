@@ -25,6 +25,7 @@ import {
 } from "@/app/lib/constants";
 import axios from "axios";
 import { formatUSD } from "@/app/lib/number-format-helper";
+import Loader from "../components/loader";
 
 const AccountOverview: React.FC<AccountOverviewProps> = ({
   creditToken,
@@ -35,6 +36,7 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({
 
   const pools = useSelector((state: RootState) => state.pools.poolsData);
 
+  const [loading, setLoading] = useState(false);
   const [collateral, setCollateral] = useState("0");
   const [accountValue, setAccountValue] = useState("0");
   const [debt, setDebt] = useState("0");
@@ -65,57 +67,66 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({
 
   useEffect(() => {
     const fetchValues = async () => {
+      setLoading(true);
       if (!currentNetwork) return;
-      const signer = library?.getSigner();
 
-      let riskEngineContract;
-      if (currentNetwork.id === ARBITRUM_NETWORK) {
-        riskEngineContract = new Contract(
-          arbAddressList.riskEngineContractAddress,
-          RiskEngine.abi,
-          signer
-        );
-      } else if (currentNetwork.id === OPTIMISM_NETWORK) {
-        riskEngineContract = new Contract(
-          opAddressList.riskEngineContractAddress,
-          RiskEngine.abi,
-          signer
-        );
-      } else if (currentNetwork.id === BASE_NETWORK) {
-        riskEngineContract = new Contract(
-          baseAddressList.riskEngineContractAddress,
-          RiskEngine.abi,
-          signer
-        );
-      } else {
-        return;
+      try {
+        const signer = library?.getSigner();
+
+        let riskEngineContract;
+        if (currentNetwork.id === ARBITRUM_NETWORK) {
+          riskEngineContract = new Contract(
+            arbAddressList.riskEngineContractAddress,
+            RiskEngine.abi,
+            signer
+          );
+        } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+          riskEngineContract = new Contract(
+            opAddressList.riskEngineContractAddress,
+            RiskEngine.abi,
+            signer
+          );
+        } else if (currentNetwork.id === BASE_NETWORK) {
+          riskEngineContract = new Contract(
+            baseAddressList.riskEngineContractAddress,
+            RiskEngine.abi,
+            signer
+          );
+        } else {
+          return;
+        }
+
+        const currentEthPriceInDollar = await getPriceFromAssetsArray("WETH");
+        let balance =
+          (await riskEngineContract.callStatic.getBalance(activeAccount)) /
+          1e18;
+        balance = balance * currentEthPriceInDollar;
+
+        let borrowBalance =
+          (await riskEngineContract.callStatic.getBorrows(activeAccount)) /
+          1e18; // total Borrow Balance
+        borrowBalance = borrowBalance * currentEthPriceInDollar;
+
+        const healthFactor1 = balance / borrowBalance;
+        const liqP = (balance * 1.05) / healthFactor1;
+        // TODO : @vatsal here balance & borrowBalance is in bignumber ... convert the same and then uncomment the below set statements
+        const collateral = balance - borrowBalance;
+
+        const leverageUse =
+          Number(borrowBalance / 1e16) /
+            (Number(balance / 1e16) - Number(borrowBalance / 1e16)) +
+          1;
+
+        setAccountValue(formatUSD(String(balance), 4));
+        setCollateral(formatUSD(String(collateral), 4));
+        setDebt(formatUSD(String(borrowBalance), 6));
+        setHealthFactor(Number(ceilWithPrecision(String(healthFactor1), 4)));
+        setLiquidationPrice(Number(ceilWithPrecision(String(liqP / 1e16), 4)));
+        setLeverageUseValue(Number(ceilWithPrecision(String(leverageUse))));
+      } catch (e) {
+        console.error(e);
       }
-
-      const currentEthPriceInDollar = await getPriceFromAssetsArray("WETH");
-      let balance =
-        (await riskEngineContract.callStatic.getBalance(activeAccount)) / 1e18;
-      balance = balance * currentEthPriceInDollar;
-
-      let borrowBalance =
-        (await riskEngineContract.callStatic.getBorrows(activeAccount)) / 1e18; // total Borrow Balance
-      borrowBalance = borrowBalance * currentEthPriceInDollar;
-
-      const healthFactor1 = balance / borrowBalance;
-      const liqP = (balance * 1.05) / healthFactor1;
-      // TODO : @vatsal here balance & borrowBalance is in bignumber ... convert the same and then uncomment the below set statements
-      const collateral = balance - borrowBalance;
-
-      const leverageUse =
-        Number(borrowBalance / 1e16) /
-          (Number(balance / 1e16) - Number(borrowBalance / 1e16)) +
-        1;
-
-      setAccountValue(formatUSD(String(balance), 4));
-      setCollateral(formatUSD(String(collateral), 4));
-      setDebt(formatUSD(String(borrowBalance), 6));
-      setHealthFactor(Number(ceilWithPrecision(String(healthFactor1), 4)));
-      setLiquidationPrice(Number(ceilWithPrecision(String(liqP / 1e16), 4)));
-      setLeverageUseValue(Number(ceilWithPrecision(String(leverageUse))));
+      setLoading(false);
     };
 
     fetchValues();
@@ -138,7 +149,7 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({
         <div className="flex flex-col">
           <span className="text-2xl font-semibold">Margin Account</span>
           <span className="text-base font-medium gradient-text">
-            {activeAccount
+            {loading ? <Loader /> : activeAccount
               ? getShortenedAddress(activeAccount, 8, 6)
               : "Create your margin account"}
           </span>

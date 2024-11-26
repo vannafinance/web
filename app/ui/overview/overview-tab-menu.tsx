@@ -31,6 +31,7 @@ import { useWeb3React } from "@web3-react/core";
 import { formatUnits } from "ethers/lib/utils";
 import axios from "axios";
 import { formatUSD } from "@/app/lib/number-format-helper";
+import Loader from "../components/loader";
 
 const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
   const { isDarkMode } = useDarkMode();
@@ -40,6 +41,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
   const market = "ETH";
   // const [marketPrice, setMarketPrice] = useState(0.0);
   const [assetsPrice, setAssetsPrice] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const [activeAccount, setActiveAccount] = useState<string | undefined>();
 
@@ -160,6 +162,8 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
 
   useEffect(() => {
     if (!currentNetwork) return;
+
+    setLoading(true);
     if (activeTab === "Trader") {
       const fetchValues = async () => {
         if (!activeAccount) return;
@@ -812,6 +816,8 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
 
       fetchValues();
     }
+
+    setLoading(false);
   }, [activeTab, currentNetwork, activeAccount, account, assetsPrice, library]);
 
   return (
@@ -822,9 +828,13 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
             {activeTab === "Trader" ? "Initial Margin" : "Total Holdings"}
           </h2>
           <p className="text-3xl font-semibold mb-2">
-            {totalHoldings
-              ? formatUSD(ceilWithPrecision(String(totalHoldings), 2))
-              : "-"}
+            {loading ? (
+              <Loader />
+            ) : totalHoldings ? (
+              formatUSD(ceilWithPrecision(String(totalHoldings), 2))
+            ) : (
+              "-"
+            )}
           </p>
         </div>
         <Image src={vannaLogoWithTextSrc} width="92" height="28" alt="Vanna" />
@@ -846,10 +856,14 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
                 : "text-baseBlack dark:text-baseWhite"
             )}
           >
-            {totalReturnsAmount
-              ? formatUSD(ceilWithPrecision(String(totalReturnsAmount), 2))
-              : "-"}
-            {totalReturnsPercentage && (
+            {loading ? (
+              <Loader />
+            ) : totalReturnsAmount ? (
+              formatUSD(ceilWithPrecision(String(totalReturnsAmount), 2))
+            ) : (
+              "-"
+            )}
+            {!loading && totalReturnsPercentage && (
               <span className="text-sm font-medium">
                 ({ceilWithPrecision(String(totalReturnsPercentage), 2)}%)
               </span>
@@ -867,7 +881,13 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
                   : "text-baseSuccess-300"
               )}
             >
-              {healthFactor ? ceilWithPrecision(String(healthFactor), 2) : "-"}
+              {loading ? (
+                <Loader />
+              ) : healthFactor ? (
+                ceilWithPrecision(String(healthFactor), 2)
+              ) : (
+                "-"
+              )}
             </p>
             <p className="text-sm text-gray-500">Health Factor</p>
           </div>

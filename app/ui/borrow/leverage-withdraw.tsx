@@ -179,16 +179,19 @@ const LevrageWithdraw = () => {
             ? tokenName === "WETH"
               ? "Deposit & Borrow"
               : "Approve - Deposit & Borrow"
-            : borrowAmount !== "" || Number(borrowAmount) <= 0
-            ? tokenName === "WETH"
-              ? "Deposit"
-              : "Approve - Deposit"
-            : "Borrow"
-          : depositAmount !== "" && borrowAmount !== ""
+            : borrowAmount !== "" && Number(borrowAmount) > 0
+            ? "Borrow"
+            : tokenName === "WETH"
+            ? "Deposit"
+            : "Approve - Deposit"
+          : depositAmount !== "" &&
+            borrowAmount !== "" &&
+            Number(borrowAmount) > 0 &&
+            Number(depositAmount) > 0
           ? "Repay & Withdraw"
-          : borrowAmount !== "" || Number(borrowAmount) <= 0
-          ? "Repay"
-          : "Withdraw"
+          : borrowAmount !== "" && Number(borrowAmount) > 0
+          ? "Withdraw"
+          : "Repay"
       );
       setDisableBtn(false);
     }
@@ -720,6 +723,11 @@ const LevrageWithdraw = () => {
           await borrow();
         } else {
           await deposit();
+          addNotification(
+            "info",
+            "Please wait until transaction is processing!"
+          );
+          await sleep(5000);
           await borrow();
         }
       } else {
@@ -729,6 +737,11 @@ const LevrageWithdraw = () => {
           await withdraw();
         } else {
           await repay();
+          addNotification(
+            "info",
+            "Please wait until transaction is processing!"
+          );
+          await sleep(5000);
           await withdraw();
         }
       }
