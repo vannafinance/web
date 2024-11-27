@@ -180,6 +180,7 @@ const FutureTab: React.FC = () => {
         market: "ETH",
         isLong: false,
         netValue: "0",
+        leverage: "",
         collateral: 0,
         entryPrice: "0",
         indexPrice: "0",

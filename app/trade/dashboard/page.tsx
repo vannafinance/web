@@ -129,7 +129,7 @@ export default function Page() {
     // {
     //   id: 1,
     //   selected: true,
-    //   marketPrice: 0.0,
+    //   market: "ETH",
     //   entryPrice: 0.0,
     //   size: 0.0,
     //   leverage: 0.0,
@@ -140,7 +140,7 @@ export default function Page() {
     // {
     //   id: 2,
     //   selected: false,
-    //   marketPrice: 0.0,
+    //   market: "ETH",
     //   entryPrice: 0.0,
     //   size: 0.0,
     //   leverage: 0.0,
@@ -151,7 +151,7 @@ export default function Page() {
     // {
     //   id: 3,
     //   selected: false,
-    //   marketPrice: 0.0,
+    //   market: "ETH",
     //   entryPrice: 0.0,
     //   size: 0.0,
     //   leverage: 0.0,
@@ -162,7 +162,7 @@ export default function Page() {
     // {
     //   id: 4,
     //   selected: false,
-    //   marketPrice: 0.0,
+    //   market: "ETH",
     //   entryPrice: 0.0,
     //   size: 0.0,
     //   leverage: 0.0,
@@ -173,7 +173,7 @@ export default function Page() {
     // {
     //   id: 5,
     //   selected: false,
-    //   marketPrice: 0.0,
+    //   market: "ETH",
     //   entryPrice: 0.0,
     //   size: 0.0,
     //   leverage: 0.0,
@@ -184,7 +184,7 @@ export default function Page() {
     // {
     //   id: 6,
     //   selected: false,
-    //   marketPrice: 0.0,
+    //   market: "ETH",
     //   entryPrice: 0.0,
     //   size: 0.0,
     //   leverage: 0.0,
@@ -434,7 +434,7 @@ export default function Page() {
                 const row: FuturePosition = {
                   id: j + k,
                   selected: false,
-                  marketPrice: "",
+                  market: "",
                   entryPrice: "",
                   size: "",
                   leverage: "",
@@ -443,10 +443,13 @@ export default function Page() {
                   pnl: "",
                 };
 
-                row["marketPrice"] = formatUSD(indexPrice);
+                row["market"] = "ETH/USD";
+                // row["marketPrice"] = formatUSD(indexPrice);
                 row["entryPrice"] = formatUSD(entryPrice);
                 row["size"] = formatUSD(netValue);
-                row["leverage"] = ceilWithPrecision(String(netValue / collateralPrice));
+                row["leverage"] = ceilWithPrecision(
+                  String(netValue / collateralPrice)
+                );
                 row["liqPrice"] = formatUSD(liquidation);
                 row["delta"] = k === 1 ? "1" : "-1";
                 row["pnl"] = formatUSD(pnl);
@@ -506,13 +509,15 @@ export default function Page() {
               activeAccount,
               opAddressList.vETH
             );
-          const totalPositionValue = ceilWithPrecision(String(getTotalPositionValue / 1e18));
+          const totalPositionValue = ceilWithPrecision(
+            String(getTotalPositionValue / 1e18)
+          );
 
           const getPnlResult =
             await OptimismFetchPositionContract.getPnlAndPendingFee(
               activeAccount
             );
-          const pnl = String(getPnlResult[1] / 1e18);
+          const pnl = getPnlResult[1] / 1e18;
 
           const ClearingHouseContract = new Contract(
             opAddressList.ClearingHouse,
@@ -522,13 +527,15 @@ export default function Page() {
           const getCollateral = await ClearingHouseContract.getAccountValue(
             activeAccount
           );
-          const collateralPrice = ceilWithPrecision(String(getCollateral / 1e18));
+          const collateralPrice = ceilWithPrecision(
+            String(getCollateral / 1e18)
+          );
           // const collateralPriceInUSDC = ceilWithPrecision(collateralPrice * indexPrice);
-          const leverage = Number(totalPositionValue)/ Number(collateralPrice);
+          const leverage = Number(totalPositionValue) / Number(collateralPrice);
           const row: FuturePosition = {
             id: 0,
             selected: false,
-            marketPrice: "",
+            market: "",
             entryPrice: "",
             size: "",
             leverage: "",
@@ -536,30 +543,25 @@ export default function Page() {
             delta: "",
             pnl: "",
           };
-          let isLong;
-          if(netValue > 0 ) {
-            isLong = 1;
-          }
-          else {
-            isLong = -1;
-          }
-          const entryPrice =  indexPrice - (Number(pnl)/netValue);
-          const liquidation = ((netValue * entryPrice) - Number(collateralPrice))/ netValue;
-          // row["isLong"] = false; // TODO: @vatsal add logic here for long / short
 
-          row["marketPrice"] = formatUSD(indexPrice);
+          const entryPrice = indexPrice - pnl / netValue;
+          const liquidation =
+            (netValue * entryPrice - Number(collateralPrice)) / netValue;
+
+          row["market"] = "ETH";
+          // row["marketPrice"] = formatUSD(indexPrice);
           row["entryPrice"] = formatUSD(entryPrice);
-          row["size"] = ceilWithPrecision(String(netValue),5);
+          row["size"] = ceilWithPrecision(String(netValue), 5);
           row["leverage"] = ceilWithPrecision(String(leverage));
           row["liqPrice"] = formatUSD(liquidation);
-          row["delta"] = ceilWithPrecision(String(isLong)); // add logic here if long then 1 if short then -1
+          row["delta"] = netValue > 0 ? "1" : "-1";
           row["pnl"] = formatUSD(pnl);
 
-          // if () { // add logic here to know if it's long / short
-          //   deltaCall += pnl;
-          // } else {
-          //   deltaPut += pnl;
-          // }
+          if (netValue > 0) {
+            deltaCall += pnl;
+          } else {
+            deltaPut += pnl;
+          }
           collateralSum += Number(collateralPrice);
 
           renderedRows.push(row);
@@ -788,7 +790,7 @@ export default function Page() {
                     #
                   </th>
                   <th className="py-2 px-3 text-left text-xs font-semibold text-neutral-500 tracking-wider">
-                    Market Price
+                    Market
                   </th>
                   <th className="py-2 px-3 text-left text-xs font-semibold text-neutral-500 tracking-wider">
                     Entry Price
@@ -829,7 +831,7 @@ export default function Page() {
                       </button>
                     </td>
                     <td className="pt-1 px-3 whitespace-nowrap">
-                      {position.marketPrice}
+                      {position.market}
                     </td>
                     <td className="pt-1 px-3 whitespace-nowrap">
                       {position.entryPrice}

@@ -138,7 +138,7 @@ interface OptionPosition {
 interface FuturePosition {
   id: number;
   selected: boolean;
-  marketPrice: string;
+  market: string;
   entryPrice: string;
   size: string;
   leverage: string;
@@ -214,6 +214,7 @@ interface MarketPosition {
   market: string;
   isLong: boolean;
   netValue: string;
+  leverage: string;
   collateral: number;
   entryPrice: string;
   indexPrice: string;

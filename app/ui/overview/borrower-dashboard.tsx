@@ -380,7 +380,6 @@ const BorrowerDashboard = () => {
 
     fetchValues();
   }, [activeAccount]);
-  console.log(loading);
 
   return (
     <div>

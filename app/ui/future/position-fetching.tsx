@@ -41,7 +41,7 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
     const { currentNetwork } = useNetwork();
 
     const [market] = useState("ETH");
-    // const [marketPrice, setMarketPrice] = useState(0.0);
+    const [marketPrice, setMarketPrice] = useState(0);
     const [assetsPrice, setAssetsPrice] = useState([]);
 
     const [activeAccount, setActiveAccount] = useState<string | undefined>();
@@ -117,6 +117,10 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
       return () => clearInterval(intervalId); // This is the cleanup function
     }, []);
 
+    useEffect(() => {
+      setMarketPrice(getPriceFromAssetsArray(market));
+    }, [assetsPrice]);
+
     const getPriceFromAssetsArray = (
       tokenSymbol: string,
       assets: MuxPriceFetchingResponseObject[] = assetsPrice
@@ -133,22 +137,12 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
       return 1;
     };
 
-    const getAssetPrice = async (
-      assetName = market
-      // shouldSetMarketPrice = true
-    ) => {
+    const getAssetPrice = async () => {
       const rsp = await axios.get(
         "https://app.mux.network/api/liquidityAsset",
         { timeout: 10 * 1000 }
       );
-      const price = getPriceFromAssetsArray(assetName, rsp.data.assets);
       setAssetsPrice(rsp.data.assets);
-
-      // if (shouldSetMarketPrice && price) {
-      //   setMarketPrice(price);
-      // }
-
-      return price;
     };
 
     const calcPnl = (
@@ -202,9 +196,8 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
               const size = result.size / 1e18;
 
               if (size != 0) {
-                const indexPrice = await getAssetPrice(
+                const indexPrice = getPriceFromAssetsArray(
                   codeToAsset["0" + j]
-                  // false
                 );
                 if (indexPrice) {
                   const netValue = indexPrice * size;
@@ -219,16 +212,21 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
                     market: "",
                     isLong: false,
                     netValue: "",
+                    leverage: "",
                     collateral: 0,
                     entryPrice: "",
                     indexPrice: "",
                     liqPrice: "",
                     pnlAndRow: "",
-                    actions: <div></div>, // or some default JSX
+                    actions: <></>, // or some default JSX
                   };
 
                   row["market"] = "ETH/USD";
                   row["isLong"] = k === 1;
+                  row["leverage"] = ceilWithPrecision(
+                    String(netValue / collateralPrice),
+                    0
+                  );
                   row["netValue"] = formatUSD(netValue);
                   row["collateral"] = collateralPrice;
                   row["entryPrice"] = formatUSD(entryPrice);
@@ -304,37 +302,32 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
               String(getCollateral / 1e18)
             );
             // const collateralPriceInUSDC = ceilWithPrecision(collateralPrice * indexPrice);
-            let isLong;
-            if(netValue > 0 ) {
-              isLong = true;
-            }
-            else {
-              isLong = false;
-            }
 
-            const leverage = Number(totalPositionValue)/ Number(collateralPrice);
-            console.log("collateralPrice",collateralPrice);
- 
+            const leverage =
+              Number(totalPositionValue) / Number(collateralPrice);
+
             // entryPrice = curret price - (pnl/size)
 
-            const entryPrice =  indexPrice - (Number(pnl)/netValue);
-            const liquidation = ((netValue * entryPrice) - Number(collateralPrice))/ netValue;
+            const entryPrice = indexPrice - Number(pnl) / netValue;
+            const liquidation =
+              (netValue * entryPrice - Number(collateralPrice)) / netValue;
 
             const row: MarketPosition = {
               market: "",
               isLong: true,
               netValue: "",
+              leverage: "",
               collateral: 0,
               entryPrice: "",
               indexPrice: "",
               liqPrice: "",
               pnlAndRow: "",
-              actions: <div></div>, // or some default JSX
+              actions: <></>,
             };
             row["market"] = "ETH";
-            row["isLong"] = isLong; // TODO: @vatsal add logic here for long / short
-            row["netValue"] = ceilWithPrecision(String(netValue),5);
-
+            row["isLong"] = netValue > 0;
+            row["netValue"] = ceilWithPrecision(String(netValue), 5);
+            row["leverage"] = String(leverage);
             row["collateral"] = Number(collateralPrice);
             // row["entryPrice"] = (
             //   <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>
@@ -505,7 +498,7 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
           activeAccount
         );
 
-        oppositeAmountBound = ((withdrawAmount / 1e6));
+        oppositeAmountBound = withdrawAmount / 1e6;
 
         oppositeAmountBound = Number(
           formatStringToUnits("USDC", oppositeAmountBound.toString())
@@ -585,10 +578,24 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
                 >
                   <div>
                     {item.market}
-                    <p className="text-xs">{item.isLong ? "Long" : "Short"}</p>
+                    <p className="text-xs">
+                      {item.isLong ? "Long" : "Short"}{" "}
+                      {item.leverage &&
+                        item.leverage !== "" &&
+                        "(" + item.leverage + "x)"}
+                    </p>
                   </div>
-                  <div>{item.netValue}{" ETH"}</div>
-                  <div>{"$"}{item.collateral}</div>
+                  <div>
+                    {item.netValue}
+                    {" ETH"}
+                    <p className="text-xs">
+                      {formatUSD(marketPrice * Number(item.netValue))}
+                    </p>
+                  </div>
+                  <div>
+                    {"$"}
+                    {item.collateral}
+                  </div>
                   <div>{item.entryPrice}</div>
                   <div>{item.indexPrice}</div>
                   <div>{item.liqPrice}</div>

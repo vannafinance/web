@@ -170,9 +170,9 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
 
     setLoading(true);
 
-    try {
-      if (activeTab === "Trader") {
-        const fetchValues = async () => {
+    const fetchValues = async () => {
+      try {
+        if (activeTab === "Trader") {
           if (!activeAccount) return;
 
           const signer = await library?.getSigner();
@@ -450,12 +450,8 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
           setTotalReturnsAmount(totalReturnsAmount / 1e1);
           setTotalReturnsPercentage(totalReturnsPercentage / 1e1);
           setHealthFactor(healthFactor);
-        };
-
-        fetchValues();
-      } else {
-        if (!account) return;
-        const fetchValues = async () => {
+        } else {
+          if (!account) return;
           const iFaceEth = new utils.Interface(VEther.abi);
           const iFaceToken = new utils.Interface(VToken.abi);
           let calldata = [];
@@ -822,13 +818,12 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
             setTotalReturnsAmount(totalReturnsAmount);
             setTotalReturnsPercentage(percentageGainLoss);
           }
-        };
-
-        fetchValues();
+        }
+      } catch (e) {
+        console.error(e);
       }
-    } catch (e) {
-      console.error(e);
-    }
+    };
+    fetchValues();
 
     setLoading(false);
   }, [activeTab, currentNetwork, activeAccount, account, assetsPrice, library]);
