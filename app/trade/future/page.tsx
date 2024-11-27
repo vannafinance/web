@@ -135,7 +135,7 @@ export default function Page() {
       (asset.availableForShort / asset.price) * 100
     );
     setOpenInterestInPercentage(
-      "(" + String(longPercent) + "%/" + String(shortPercent) + "%)"
+      "(" + String(shortPercent) + "%/" + String(longPercent) + "%)"
     );
 
     return asset.price;
@@ -233,8 +233,8 @@ export default function Page() {
               Open Interest {openInterestInPercentage}
             </p>
             <div className="flex items-center space-x-1">
-              <p className="text-green-500 text-sm">{openInterestPositive} {"K"} {"|"}</p>
-              <p className="text-red-500 text-sm">{openInterestNegative} {"K"}</p>
+              <p className="text-green-500 text-sm"> {"$"} {openInterestNegative} {"K"} {"/"}</p>
+              <p className="text-red-500 text-sm">{"$"} {openInterestPositive} {"K"}</p>
             </div>
           </div>
           <div>

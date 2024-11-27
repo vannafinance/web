@@ -488,7 +488,7 @@ export default function Page() {
         );
 
         const getNetVal =
-          await OptimismFetchPositionContract.getTotalPositionValue(
+          await OptimismFetchPositionContract.getTotalPositionSize(
             activeAccount,
             opAddressList.vETH
           );
@@ -501,12 +501,12 @@ export default function Page() {
             );
           const indexPrice = getETHMarketPrice / 1e18;
 
-          const getTotalPositionSize =
-            await OptimismFetchPositionContract.getTotalPositionSize(
+          const getTotalPositionValue =
+            await OptimismFetchPositionContract.getTotalPositionValue(
               activeAccount,
               opAddressList.vETH
             );
-          const totalPositionSize = String(getTotalPositionSize / 1e18);
+          const totalPositionValue = ceilWithPrecision(String(getTotalPositionValue / 1e18));
 
           const getPnlResult =
             await OptimismFetchPositionContract.getPnlAndPendingFee(
@@ -522,9 +522,9 @@ export default function Page() {
           const getCollateral = await ClearingHouseContract.getAccountValue(
             activeAccount
           );
-          const collateralPrice = Number(getCollateral / 1e18);
+          const collateralPrice = ceilWithPrecision(String(getCollateral / 1e18));
           // const collateralPriceInUSDC = ceilWithPrecision(collateralPrice * indexPrice);
-
+          const leverage = Number(totalPositionValue)/ Number(collateralPrice);
           const row: FuturePosition = {
             id: 0,
             selected: false,
@@ -536,15 +536,23 @@ export default function Page() {
             delta: "",
             pnl: "",
           };
-
+          let isLong;
+          if(netValue > 0 ) {
+            isLong = 1;
+          }
+          else {
+            isLong = -1;
+          }
+          const entryPrice =  indexPrice - (Number(pnl)/netValue);
+          const liquidation = ((netValue * entryPrice) - Number(collateralPrice))/ netValue;
           // row["isLong"] = false; // TODO: @vatsal add logic here for long / short
 
           row["marketPrice"] = formatUSD(indexPrice);
-          row["entryPrice"] = formatUSD(totalPositionSize);
-          row["size"] = formatUSD(netValue);
-          row["leverage"] = ceilWithPrecision(String(netValue / collateralPrice));
-          row["liqPrice"] = formatUSD(netValue);
-          row["delta"] = ""; // add logic here if long then 1 if short then -1
+          row["entryPrice"] = formatUSD(entryPrice);
+          row["size"] = ceilWithPrecision(String(netValue),5);
+          row["leverage"] = ceilWithPrecision(String(leverage));
+          row["liqPrice"] = formatUSD(liquidation);
+          row["delta"] = ceilWithPrecision(String(isLong)); // add logic here if long then 1 if short then -1
           row["pnl"] = formatUSD(pnl);
 
           // if () { // add logic here to know if it's long / short
@@ -552,7 +560,7 @@ export default function Page() {
           // } else {
           //   deltaPut += pnl;
           // }
-          collateralSum += collateralPrice;
+          collateralSum += Number(collateralPrice);
 
           renderedRows.push(row);
 
@@ -827,7 +835,7 @@ export default function Page() {
                       {position.entryPrice}
                     </td>
                     <td className="pt-1 px-3 whitespace-nowrap">
-                      {position.size}
+                      {position.size} {" ETH"}
                     </td>
                     <td className="pt-1 px-3 whitespace-nowrap">
                       {position.leverage}

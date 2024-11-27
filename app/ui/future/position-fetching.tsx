@@ -266,7 +266,7 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
           );
 
           const getNetVal =
-            await OptimismFetchPositionContract.getTotalPositionValue(
+            await OptimismFetchPositionContract.getTotalPositionSize(
               account,
               opAddressList.vETH
             );
@@ -279,13 +279,13 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
               );
             const indexPrice = getETHMarketPrice / 1e18;
 
-            const getTotalPositionSize =
-              await OptimismFetchPositionContract.getTotalPositionSize(
+            const getTotalPositionValue =
+              await OptimismFetchPositionContract.getTotalPositionValue(
                 account,
                 opAddressList.vETH
               );
-            const totalPositionSize = ceilWithPrecision(
-              String(getTotalPositionSize / 1e18)
+            const totalPositionValue = ceilWithPrecision(
+              String(getTotalPositionValue / 1e18)
             );
 
             const getPnlResult =
@@ -304,10 +304,25 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
               String(getCollateral / 1e18)
             );
             // const collateralPriceInUSDC = ceilWithPrecision(collateralPrice * indexPrice);
+            let isLong;
+            if(netValue > 0 ) {
+              isLong = true;
+            }
+            else {
+              isLong = false;
+            }
+
+            const leverage = Number(totalPositionValue)/ Number(collateralPrice);
+            console.log("collateralPrice",collateralPrice);
+ 
+            // entryPrice = curret price - (pnl/size)
+
+            const entryPrice =  indexPrice - (Number(pnl)/netValue);
+            const liquidation = ((netValue * entryPrice) - Number(collateralPrice))/ netValue;
 
             const row: MarketPosition = {
               market: "",
-              isLong: false,
+              isLong: true,
               netValue: "",
               collateral: 0,
               entryPrice: "",
@@ -317,22 +332,23 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
               actions: <div></div>, // or some default JSX
             };
             row["market"] = "ETH";
-            row["isLong"] = false; // TODO: @vatsal add logic here for long / short
-            row["netValue"] = formatUSD(netValue);
+            row["isLong"] = isLong; // TODO: @vatsal add logic here for long / short
+            row["netValue"] = ceilWithPrecision(String(netValue),5);
+
             row["collateral"] = Number(collateralPrice);
             // row["entryPrice"] = (
             //   <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>
             //     -{/* {formatUSD(entryPrice)} */}
             //   </p>
             // );
-            row["entryPrice"] = formatUSD(totalPositionSize);
+            row["entryPrice"] = formatUSD(entryPrice);
             row["indexPrice"] = formatUSD(indexPrice);
             // row["liqPrice"] = (
             //   <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>
             //     -{/* {formatUSD(liquidation)} */}
             //   </p>
             // );
-            row["liqPrice"] = formatUSD(netValue);
+            row["liqPrice"] = formatUSD(liquidation);
             row["pnlAndRow"] = formatUSD(pnl);
             row["actions"] = (
               <button
@@ -571,8 +587,8 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
                     {item.market}
                     <p className="text-xs">{item.isLong ? "Long" : "Short"}</p>
                   </div>
-                  <div>{item.netValue}</div>
-                  <div>{item.collateral}</div>
+                  <div>{item.netValue}{" ETH"}</div>
+                  <div>{"$"}{item.collateral}</div>
                   <div>{item.entryPrice}</div>
                   <div>{item.indexPrice}</div>
                   <div>{item.liqPrice}</div>
