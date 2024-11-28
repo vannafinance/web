@@ -2,12 +2,14 @@
 "use client";
 
 import { capitalizeFirstLetter } from "@/app/lib/helper";
+import Loader from "../components/loader";
 
 export const SimpleTableComponent: React.FC<{
   title: string;
   data: any;
   headers: string[];
-}> = ({ title, data, headers }) => (
+  loading: boolean;
+}> = ({ title, data, headers, loading }) => (
   <div className="flex-1 w-full max-w-full mx-auto font-sans mb-6 overflow-auto">
     <h2 className="text-xl font-semibold mb-1 ml-2">{title}</h2>
     <div className="bg-baseComplementary dark:bg-baseDarkComplementary rounded-lg overflow-hidden py-2">
@@ -21,7 +23,7 @@ export const SimpleTableComponent: React.FC<{
                   index !== headers.length - 1
                     ? "border-r border-neutral-300 dark:border-neutral-700"
                     : ""
-                } ${ index === 0 ? "text-left" : ""}`}
+                } ${index === 0 ? "text-left" : ""}`}
               >
                 {capitalizeFirstLetter(header)}
               </th>
@@ -29,25 +31,29 @@ export const SimpleTableComponent: React.FC<{
           </tr>
         </thead>
         <tbody>
-          {Object.entries(data).map(([asset, values], rowIndex) => (
-            <tr key={rowIndex}>
-              <td className="py-1 px-2 text-xs font-semibold border-r border-neutral-300 dark:border-neutral-700">
-                {capitalizeFirstLetter(asset)}
-              </td>
-              {headers.slice(1).map((header, colIndex) => (
-                <td
-                  key={`${asset}-${header}`}
-                  className={`py-1 px-2 text-xs font-normal text-center ${
-                    colIndex !== headers.length - 2
-                      ? "border-r border-neutral-300 dark:border-neutral-700"
-                      : ""
-                  }`}
-                >
-                  {(values as Record<string, any>)[header] || ""}
+          {loading ? (
+            <Loader />
+          ) : (
+            Object.entries(data).map(([asset, values], rowIndex) => (
+              <tr key={rowIndex}>
+                <td className="py-1 px-2 text-xs font-semibold border-r border-neutral-300 dark:border-neutral-700">
+                  {capitalizeFirstLetter(asset)}
                 </td>
-              ))}
-            </tr>
-          ))}
+                {headers.slice(1).map((header, colIndex) => (
+                  <td
+                    key={`${asset}-${header}`}
+                    className={`py-1 px-2 text-xs font-normal text-center ${
+                      colIndex !== headers.length - 2
+                        ? "border-r border-neutral-300 dark:border-neutral-700"
+                        : ""
+                    }`}
+                  >
+                    {(values as Record<string, any>)[header] || ""}
+                  </td>
+                ))}
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>

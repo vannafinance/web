@@ -33,12 +33,14 @@ import {
   sleep,
 } from "@/app/lib/helper";
 import Loader from "../components/loader";
+import Notification from "../components/notification";
 
 const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
   // closePosition: (arg0: number, arg1: number, arg2: number, arg3: any) => void
   {
     const { account, library } = useWeb3React();
     const { currentNetwork } = useNetwork();
+    const [notifications, setNotifications] = useState<Array<{ id: number; type: NotificationType; message: string }>>([]);
 
     const [market] = useState("ETH");
     const [marketPrice, setMarketPrice] = useState(0);
@@ -120,6 +122,15 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
     useEffect(() => {
       setMarketPrice(getPriceFromAssetsArray(market));
     }, [assetsPrice]);
+
+    const addNotification = (type: NotificationType, message: string) => {
+      const id = Date.now();
+      setNotifications(prev => [...prev, { id, type, message }]);
+    };
+    
+    const removeNotification = (id: number) => {
+      setNotifications(prev => prev.filter(notification => notification.id !== id));
+    };
 
     const getPriceFromAssetsArray = (
       tokenSymbol: string,
@@ -327,7 +338,7 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
             row["market"] = "ETH";
             row["isLong"] = netValue > 0;
             row["netValue"] = ceilWithPrecision(String(netValue), 5);
-            row["leverage"] = String(leverage);
+            row["leverage"] = ceilWithPrecision(String(leverage), 1);
             row["collateral"] = Number(collateralPrice);
             // row["entryPrice"] = (
             //   <p style={{ color: "white", fontWeight: "400", fontSize: "14px" }}>
@@ -371,7 +382,7 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       size: any
     ) => {
-      // setLoading(true);
+      setLoading(true);
       try {
         if (!activeAccount) return;
 
@@ -441,11 +452,11 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
       } catch (e) {
         console.error(e);
       }
-      // setLoading(false);
+      setLoading(false);
     };
 
     const closePositionOp = async () => {
-      // setLoading(true);
+      setLoading(true);
       try {
         const signer = await library?.getSigner();
 
@@ -492,6 +503,8 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
           data,
           { gasLimit: 2300000 }
         );
+        addNotification("info", "Please wait until transaction is processing!");
+        await sleep(10000);
         await x.wait();
 
         const withdrawAmount = await PerpVaultContract.getSettlementTokenValue(
@@ -527,7 +540,7 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
       } catch (e) {
         console.error(e);
       }
-      // setLoading(false);
+      setLoading(false);
     };
 
     // const rows: MarketPosition[] = [
@@ -605,6 +618,18 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
               ))}
             </div>
           )}
+        </div>
+
+        <div className="fixed bottom-5 left-5 w-72">
+          {notifications.map(({ id, type, message }) => (
+            <Notification
+              key={id}
+              type={type}
+              message={message}
+              onClose={() => removeNotification(id)}
+              duration={10000}
+            />
+          ))}
         </div>
       </div>
     );

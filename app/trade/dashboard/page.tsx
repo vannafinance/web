@@ -72,74 +72,74 @@ export default function Page() {
     {
       id: 1,
       selected: false,
-      strikePrice: 44.0,
+      strikePrice: 0,
       cp: "CE",
-      units: 16000,
-      traded: 0.5,
-      price: 0.39,
-      delta: 0.5,
-      iv: 43.5,
+      units: 0,
+      traded: 0,
+      price: 0,
+      delta: 0,
+      iv: 0,
     },
     {
       id: 2,
       selected: false,
-      strikePrice: 50.0,
-      cp: "PE",
-      units: 16000,
-      traded: 0.2437,
-      price: 3.37,
-      delta: 0.6,
-      iv: 40.5,
+      strikePrice: 0,
+      cp: "CE",
+      units: 0,
+      traded: 0,
+      price: 0,
+      delta: 0,
+      iv: 0,
     },
     {
       id: 3,
       selected: false,
-      strikePrice: 44.0,
+      strikePrice: 0,
       cp: "CE",
-      units: 16000,
-      traded: 0.5,
-      price: 7.37,
-      delta: 0.4,
-      iv: 40.54,
+      units: 0,
+      traded: 0,
+      price: 0,
+      delta: 0,
+      iv: 0,
     },
     {
       id: 4,
       selected: false,
-      strikePrice: 44.0,
+      strikePrice: 0,
       cp: "CE",
-      units: 16000,
-      traded: 0.4379,
-      price: 0.58,
-      delta: 0.8,
-      iv: 85.05,
+      units: 0,
+      traded: 0,
+      price: 0,
+      delta: 0,
+      iv: 0,
     },
     {
       id: 5,
       selected: false,
-      strikePrice: 70.0,
-      cp: "PE",
-      units: 16000,
-      traded: 0.7916,
-      price: 0.39,
-      delta: 1.0,
-      iv: 95.5,
+      strikePrice: 0,
+      cp: "CE",
+      units: 0,
+      traded: 0,
+      price: 0,
+      delta: 0,
+      iv: 0,
     },
     {
       id: 6,
       selected: false,
-      strikePrice: 83.0,
+      strikePrice: 0,
       cp: "CE",
-      units: 16000,
-      traded: 0.5,
-      price: 0.8,
-      delta: 0.2,
-      iv: 43.5,
+      units: 0,
+      traded: 0,
+      price: 0,
+      delta: 0,
+      iv: 0,
     },
   ]);
 
-  const [futuresPositions, setFuturesPositions] = useState<FuturePosition[]>([
+  const defaultFuturePositions = [
     // {
-    //   id: 1,
+    //   id: 0,
     //   selected: false,
     //   market: "ETH",
     //   entryPrice: 0.0,
@@ -149,62 +149,76 @@ export default function Page() {
     //   delta: 0.5,
     //   pnl: 0.0,
     // },
-    // {
-    //   id: 2,
-    //   selected: false,
-    //   market: "ETH",
-    //   entryPrice: 0.0,
-    //   size: 0.0,
-    //   leverage: 0.0,
-    //   liqPrice: 0.0,
-    //   delta: 0.6,
-    //   pnl: 0.0,
-    // },
-    // {
-    //   id: 3,
-    //   selected: false,
-    //   market: "ETH",
-    //   entryPrice: 0.0,
-    //   size: 0.0,
-    //   leverage: 0.0,
-    //   liqPrice: 0.0,
-    //   delta: 0.4,
-    //   pnl: 0.0,
-    // },
-    // {
-    //   id: 4,
-    //   selected: false,
-    //   market: "ETH",
-    //   entryPrice: 0.0,
-    //   size: 0.0,
-    //   leverage: 0.0,
-    //   liqPrice: 0.0,
-    //   delta: 0.8,
-    //   pnl: 0.0,
-    // },
-    // {
-    //   id: 5,
-    //   selected: false,
-    //   market: "ETH",
-    //   entryPrice: 0.0,
-    //   size: 0.0,
-    //   leverage: 0.0,
-    //   liqPrice: 0.0,
-    //   delta: 1.0,
-    //   pnl: 0.0,
-    // },
-    // {
-    //   id: 6,
-    //   selected: false,
-    //   market: "ETH",
-    //   entryPrice: 0.0,
-    //   size: 0.0,
-    //   leverage: 0.0,
-    //   liqPrice: 0.0,
-    //   delta: 0.2,
-    //   pnl: 0.0,
-    // },
-  ]);
+    {
+      id: 1,
+      selected: false,
+      market: "0",
+      entryPrice: "0.00",
+      size: "0.00000",
+      leverage: "0.000",
+      liqPrice: "0.00",
+      delta: "0",
+      pnl: "0.0000",
+    },
+    {
+      id: 2,
+      selected: false,
+      market: "0",
+      entryPrice: "0.00",
+      size: "0.00000",
+      leverage: "0.000",
+      liqPrice: "0.00",
+      delta: "0",
+      pnl: "0.0000",
+    },
+    {
+      id: 3,
+      selected: false,
+      market: "0",
+      entryPrice: "0.00",
+      size: "0.00000",
+      leverage: "0.000",
+      liqPrice: "0.00",
+      delta: "0",
+      pnl: "0.0000",
+    },
+    {
+      id: 4,
+      selected: false,
+      market: "0",
+      entryPrice: "0.00",
+      size: "0.00000",
+      leverage: "0.000",
+      liqPrice: "0.00",
+      delta: "0",
+      pnl: "0.0000",
+    },
+    {
+      id: 5,
+      selected: false,
+      market: "0",
+      entryPrice: "0.00",
+      size: "0.00000",
+      leverage: "0.000",
+      liqPrice: "0.00",
+      delta: "0",
+      pnl: "0.0000",
+    },
+    {
+      id: 6,
+      selected: false,
+      market: "0",
+      entryPrice: "0.00",
+      size: "0.00000",
+      leverage: "0.000",
+      liqPrice: "0.00",
+      delta: "0",
+      pnl: "0.0000",
+    },
+  ];
+  const [futuresPositions, setFuturesPositions] = useState<FuturePosition[]>(
+    defaultFuturePositions
+  );
 
   const [portfolioSummary, setPortfolioSummary] = useState({
     future: "-",
@@ -380,6 +394,8 @@ export default function Page() {
   };
 
   const fetchFuturePositions = async () => {
+    setLoading(true);
+    setFuturesPositions(defaultFuturePositions);
     try {
       if (!currentNetwork) return;
 
@@ -589,6 +605,21 @@ export default function Page() {
             VToken.abi,
             signer
           );
+          riskEngineContract = new Contract(
+            opAddressList.riskEngineContractAddress,
+            RiskEngine.abi,
+            signer
+          );
+          WETHContract = new Contract(
+            opAddressList.wethTokenAddress,
+            ERC20.abi,
+            library
+          );
+          tTokenOracleContract = new Contract(
+            opAddressList.OracleFacade,
+            OracleFacade.abi,
+            signer
+          );
 
           const getNetVal =
             await OptimismFetchPositionContract.getTotalPositionSize(
@@ -666,22 +697,6 @@ export default function Page() {
             collateralSum += Number(collateralPrice);
 
             renderedRows.push(row);
-
-            riskEngineContract = new Contract(
-              opAddressList.riskEngineContractAddress,
-              RiskEngine.abi,
-              signer
-            );
-            WETHContract = new Contract(
-              opAddressList.wethTokenAddress,
-              ERC20.abi,
-              library
-            );
-            tTokenOracleContract = new Contract(
-              opAddressList.OracleFacade,
-              OracleFacade.abi,
-              signer
-            );
 
             renderedRows.push({
               id: 11,
@@ -1103,12 +1118,11 @@ export default function Page() {
     } catch (e) {
       console.error(e);
     }
+    setLoading(false);
   };
 
   useEffect(() => {
-    setLoading(true);
     fetchFuturePositions();
-    setLoading(false);
   }, [activeAccount, currentNetwork]);
 
   return (
@@ -1181,11 +1195,13 @@ export default function Page() {
               title="Options"
               data={options}
               headers={["Assets", "call", "put", "total"]}
+              loading={loading}
             />
             <SimpleTableComponent
               title="Futures"
               data={futures}
               headers={["Assets", "equity", "future", "average"]}
+              loading={loading}
             />
           </div>
         </div>
@@ -1386,7 +1402,7 @@ export default function Page() {
                         {position.cp}
                       </td>
                       <td className="pt-1 px-3 whitespace-nowrap">
-                        {position.units.toLocaleString()}
+                        {position.units.toString()}
                       </td>
                       <td className="pt-1 px-3 whitespace-nowrap">
                         {position.traded.toFixed(4)}
@@ -1412,35 +1428,35 @@ export default function Page() {
       <div className="w-full grid grid-cols-4 sm:grid-cols-8 gap-2.5 lg:gap-5 justify-between px-2.5 lg:px-5 py-5 border border-neutral-100 dark:border-neutral-700 rounded-xl font-semibold mb-2.5 text-xs">
         <div>
           <p className="text-neutral-500 font-normal">FUTURE</p>
-          <p>{portfolioSummary.future}</p>
+          <p>{loading ? <Loader /> : portfolioSummary.future}</p>
         </div>
         <div>
           <p className="text-neutral-500 font-normal">PREMIUM</p>
-          <p>{portfolioSummary.premium}</p>
+          <p>{loading ? <Loader /> : portfolioSummary.premium}</p>
         </div>
         <div>
           <p className="text-neutral-500 font-normal">OPTION</p>
-          <p>{portfolioSummary.option}</p>
+          <p>{loading ? <Loader /> : portfolioSummary.option}</p>
         </div>
         <div>
           <p className="text-neutral-500 font-normal">GROSS PNL</p>
-          <p>{portfolioSummary.grossPnl}</p>
+          <p>{loading ? <Loader /> : portfolioSummary.grossPnl}</p>
         </div>
         <div>
           <p className="text-neutral-500 font-normal">NET BAL</p>
-          <p>{portfolioSummary.netBal}</p>
+          <p>{loading ? <Loader /> : portfolioSummary.netBal}</p>
         </div>
         <div>
           <p className="text-neutral-500 font-normal">THETA</p>
-          <p>{portfolioSummary.theta}</p>
+          <p>{loading ? <Loader /> : portfolioSummary.theta}</p>
         </div>
         <div>
           <p className="text-neutral-500 font-normal">VEGA</p>
-          <p>{portfolioSummary.vega}</p>
+          <p>{loading ? <Loader /> : portfolioSummary.vega}</p>
         </div>
         <div>
           <p className="text-neutral-500 font-normal">GAMMA</p>
-          <p>{portfolioSummary.gamma}</p>
+          <p>{loading ? <Loader /> : portfolioSummary.gamma}</p>
         </div>
       </div>
     </div>

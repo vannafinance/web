@@ -111,6 +111,9 @@ const LevrageWithdraw = () => {
 
   const handleBorrowTokenSelect = (token: PoolTable) => {
     setBorrowToken(token);
+    getTokenBalance();
+    setDepositAmount("");
+    setBorrowAmount("");
   };
 
   const handleMaxClick = () => {
@@ -256,19 +259,16 @@ const LevrageWithdraw = () => {
 
   const getTokenBalance = async (token = depositToken) => {
     try {
-      if (token?.name === undefined) return;
-
+      setDepositBalance(0);
+      setBorrowBalance(0);
       if (account && currentNetwork) {
         const signer = await library?.getSigner();
         let depositBalance;
-        // let borrowBalance;
 
         if (isLeverage) {
+          if (token?.name === undefined) return;
           if (token?.name == "WETH") {
             depositBalance = await library?.getBalance(account);
-            // if (activeAccount) {
-            //   borrowBalance = await library?.getBalance(activeAccount);
-            // }
           } else {
             let contract;
             if (currentNetwork.id === ARBITRUM_NETWORK) {
@@ -293,9 +293,6 @@ const LevrageWithdraw = () => {
 
             if (contract) {
               depositBalance = await contract.balanceOf(account);
-              // if (activeAccount) {
-              //   borrowBalance = await contract.balanceOf(activeAccount);
-              // }
             }
           }
 
@@ -303,227 +300,207 @@ const LevrageWithdraw = () => {
             token?.name,
             depositBalance
           );
-          // const borrowBalanceInNumber = Number(depositBalanceInNumber) * 10;
           setDepositBalance(
             Number(ceilWithPrecision(String(depositBalanceInNumber)))
           );
-          // setBorrowBalance(
-          //   Number(ceilWithPrecision(String(borrowBalanceInNumber)))
-          // );
           setBorrowBalance(0);
         } else {
-          if (!currentNetwork) return;
-
-          if (currentNetwork.id === ARBITRUM_NETWORK) {
-          } else if (currentNetwork.id === OPTIMISM_NETWORK) {
-            const daiContract = new Contract(
-              opAddressList.daiTokenAddress,
-              ERC20.abi,
-              signer
-            );
-            const usdcContract = new Contract(
-              opAddressList.usdcTokenAddress,
-              ERC20.abi,
-              signer
-            );
-            const usdtContract = new Contract(
-              opAddressList.usdtTokenAddress,
-              ERC20.abi,
-              signer
-            );
-            const wethContract = new Contract(
-              opAddressList.wethTokenAddress,
-              ERC20.abi,
-              signer
-            );
-            const wbtcContract = new Contract(
-              opAddressList.wbtcTokenAddress,
-              ERC20.abi,
-              signer
-            );
-            const vEtherContract = new Contract(
-              opAddressList.vEtherContractAddress,
-              VEther.abi,
-              signer
-            );
-            const vDaiContract = new Contract(
-              opAddressList.vDaiContractAddress,
-              VToken.abi,
-              signer
-            );
-            const vUsdcContract = new Contract(
-              opAddressList.vUSDCContractAddress,
-              VToken.abi,
-              signer
-            );
-            const vUsdtContract = new Contract(
-              opAddressList.vUSDTContractAddress,
-              VToken.abi,
-              signer
-            );
-            const vWbtcContract = new Contract(
-              opAddressList.vWBTCContractAddress,
-              VToken.abi,
-              signer
-            );
-
-            // @Withdraw balance code
-            let accountBalance = await library?.getBalance(account); // here account is active Account
-            accountBalance = accountBalance / 1e18;
-            let borrowedBalance =
-              await vEtherContract.callStatic.getBorrowBalance(activeAccount);
-            borrowedBalance = borrowedBalance / 1e18;
-            // debt1 = accountBalance - borrowedBalance;
-            // USDC
-            // accountBalance = erc20conatract(USDC).balanceOf(account);
-            // borrowedBalance =
-            //   await vUsdcContract.callStatic.getBorrowBalance(activeAccount);
-
-            // TODO: @vatsal add repay balanc in setDepositeBalance();
-            let repayBalance;
-            if (token?.name == "WETH") {
-              repayBalance =
-                (await vEtherContract.callStatic.getBorrowBalance(
-                  activeAccount
-                )) / 1e18;
-            } else if (token?.name == "WBTC") {
-              repayBalance = await vWbtcContract.callStatic.getBorrowBalance(
-                activeAccount
-              );
-            } else if (token?.name == "USDC") {
-              repayBalance = await vUsdcContract.callStatic.getBorrowBalance(
-                activeAccount
-              );
-            } else if (token?.name == "USDT") {
-              repayBalance = await vUsdtContract.callStatic.getBorrowBalance(
-                activeAccount
-              );
-            } else if (token?.name == "DAI") {
-              repayBalance = await vDaiContract.callStatic.getBorrowBalance(
-                activeAccount
-              );
-            }
-            // @meet: need to get the precesion data, also deal with 1e18 and 1e6
-            setDepositBalance(
-              Number(ceilWithPrecision(String(repayBalance), 8))
-            );
-
-            // TODO @vatsal: add withdraw balance in setBorrowBalance();
-            // task: find the total balance of the account and then subtract the borrowed balance
-
-            //@MEET : neeed to look at here
-            // fetching the total Balance
-            let ethRepayBalance;
-            let btcRepayBalance;
-            let usdcRepayBalance;
-            let usdtRepayBalance;
-            let daiRepayBalance;
-            if (borrowToken?.name == "WETH") {
-              ethRepayBalance =
-                (await vEtherContract.callStatic.getBorrowBalance(
-                  activeAccount
-                )) / 1e18;
-            } else if (borrowToken?.name == "WBTC") {
-              btcRepayBalance =
-                (await vWbtcContract.callStatic.getBorrowBalance(
-                  activeAccount
-                )) / 1e18;
-            } else if (borrowToken?.name == "USDC") {
-              usdcRepayBalance =
-                (await vUsdcContract.callStatic.getBorrowBalance(
-                  activeAccount
-                )) / 1e18;
-            } else if (borrowToken?.name == "USDT") {
-              usdtRepayBalance =
-                (await vUsdtContract.callStatic.getBorrowBalance(
-                  activeAccount
-                )) / 1e18;
-            } else if (borrowToken?.name == "DAI") {
-              daiRepayBalance =
-                (await vDaiContract.callStatic.getBorrowBalance(
-                  activeAccount
-                )) / 1e18;
-            }
-            let totalBalance;
-            // also including the WETH balance
-            // let daiContract;
-            // let wethContract;
-            // let usdcContract;
-            // let usdtContract;
-            // let wbtcContract;
-            // wethContract = new Contract(
-            //   opTokensAddress["WETH"],
-            //   ERC20.abi,
-            //   signer
-            // );
-            // wbtcContract = new Contract(
-            //   opTokensAddress["WBTC"],
-            //   ERC20.abi,
-            //   signer
-            // );
-            // usdcContract = new Contract(
-            //   opTokensAddress["USDC"],
-            //   ERC20.abi,
-            //   signer
-            // );
-            // usdtContract = new Contract(
-            //   opTokensAddress["USDT"],
-            //   ERC20.abi,
-            //   signer
-            // );
-            // daiContract = new Contract(
-            //   opTokensAddress["DAI"],
-            //   ERC20.abi,
-            //   signer
-            // );
-
-            const ethAccountBalance =
-              (await library?.getBalance(activeAccount)) / 1e18;
-
-            const wethAccounBalance =
-              ethAccountBalance +
-              Number((await wethContract.balanceOf(activeAccount)) / 1e18);
-
-            const wbtcAccounBalance =
-              (await wbtcContract.balanceOf(activeAccount)) / 1e18;
-            const usdcAccounBalance =
-              (await usdcContract.balanceOf(activeAccount)) / 1e6;
-            const usdtAccounBalance =
-              (await usdtContract.balanceOf(activeAccount)) / 1e6;
-            const daiAccounBalance =
-              (await daiContract.balanceOf(activeAccount)) / 1e18;
-
-            if (borrowToken?.name == "WETH" && ethRepayBalance !== undefined) {
-              totalBalance = wethAccounBalance - ethRepayBalance;
-            } else if (
-              borrowToken?.name == "WBTC" &&
-              btcRepayBalance !== undefined
-            ) {
-              totalBalance = wbtcAccounBalance - btcRepayBalance;
-            } else if (
-              borrowToken?.name == "USDC" &&
-              usdcRepayBalance !== undefined
-            ) {
-              totalBalance = usdcAccounBalance - usdcRepayBalance;
-            } else if (
-              borrowToken?.name == "USDT" &&
-              usdtRepayBalance !== undefined
-            ) {
-              totalBalance = usdtAccounBalance - usdtRepayBalance;
-            } else if (
-              borrowToken?.name == "DAI" &&
-              daiRepayBalance !== undefined
-            ) {
-              totalBalance = daiAccounBalance - daiRepayBalance;
-            }
-
-            setBorrowBalance(totalBalance);
-          } else if (currentNetwork.id === BASE_NETWORK) {
-          }
+          fetchRepayBalance();
+          fetchWithdrawBalance();
         }
       }
     } catch (e) {
       console.error(e);
+    }
+  };
+
+  const fetchRepayBalance = async () => {
+    if (!currentNetwork) return;
+
+    const signer = await library?.getSigner();
+    if (currentNetwork.id === ARBITRUM_NETWORK) {
+    } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+      const vEtherContract = new Contract(
+        opAddressList.vEtherContractAddress,
+        VEther.abi,
+        signer
+      );
+      const vDaiContract = new Contract(
+        opAddressList.vDaiContractAddress,
+        VToken.abi,
+        signer
+      );
+      const vUsdcContract = new Contract(
+        opAddressList.vUSDCContractAddress,
+        VToken.abi,
+        signer
+      );
+      const vUsdtContract = new Contract(
+        opAddressList.vUSDTContractAddress,
+        VToken.abi,
+        signer
+      );
+      const vWbtcContract = new Contract(
+        opAddressList.vWBTCContractAddress,
+        VToken.abi,
+        signer
+      );
+
+      let accountBalance = await library?.getBalance(activeAccount);
+      accountBalance = accountBalance / 1e18;
+      let borrowedBalance = await vEtherContract.callStatic.getBorrowBalance(
+        activeAccount
+      );
+      borrowedBalance = borrowedBalance / 1e18;
+
+      let repayBalance;
+      if (depositToken?.name == "WETH") {
+        repayBalance =
+          (await vEtherContract.callStatic.getBorrowBalance(activeAccount)) /
+          1e18;
+      } else if (depositToken?.name == "WBTC") {
+        repayBalance = await vWbtcContract.callStatic.getBorrowBalance(
+          activeAccount
+        );
+      } else if (depositToken?.name == "USDC") {
+        repayBalance = await vUsdcContract.callStatic.getBorrowBalance(
+          activeAccount
+        );
+      } else if (depositToken?.name == "USDT") {
+        repayBalance = await vUsdtContract.callStatic.getBorrowBalance(
+          activeAccount
+        );
+      } else if (depositToken?.name == "DAI") {
+        repayBalance = await vDaiContract.callStatic.getBorrowBalance(
+          activeAccount
+        );
+      }
+      setDepositBalance(Number(ceilWithPrecision(String(repayBalance), 8)));
+    } else if (currentNetwork.id === BASE_NETWORK) {
+    }
+  };
+
+  const fetchWithdrawBalance = async () => {
+    if (!currentNetwork) return;
+
+    const signer = await library?.getSigner();
+    if (currentNetwork.id === ARBITRUM_NETWORK) {
+    } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+      const daiContract = new Contract(
+        opAddressList.daiTokenAddress,
+        ERC20.abi,
+        signer
+      );
+      const usdcContract = new Contract(
+        opAddressList.usdcTokenAddress,
+        ERC20.abi,
+        signer
+      );
+      const usdtContract = new Contract(
+        opAddressList.usdtTokenAddress,
+        ERC20.abi,
+        signer
+      );
+      const wethContract = new Contract(
+        opAddressList.wethTokenAddress,
+        ERC20.abi,
+        signer
+      );
+      const wbtcContract = new Contract(
+        opAddressList.wbtcTokenAddress,
+        ERC20.abi,
+        signer
+      );
+      const vEtherContract = new Contract(
+        opAddressList.vEtherContractAddress,
+        VEther.abi,
+        signer
+      );
+      const vDaiContract = new Contract(
+        opAddressList.vDaiContractAddress,
+        VToken.abi,
+        signer
+      );
+      const vUsdcContract = new Contract(
+        opAddressList.vUSDCContractAddress,
+        VToken.abi,
+        signer
+      );
+      const vUsdtContract = new Contract(
+        opAddressList.vUSDTContractAddress,
+        VToken.abi,
+        signer
+      );
+      const vWbtcContract = new Contract(
+        opAddressList.vWBTCContractAddress,
+        VToken.abi,
+        signer
+      );
+
+      let ethRepayBalance;
+      let btcRepayBalance;
+      let usdcRepayBalance;
+      let usdtRepayBalance;
+      let daiRepayBalance;
+      if (borrowToken?.name == "WETH") {
+        ethRepayBalance =
+          (await vEtherContract.callStatic.getBorrowBalance(activeAccount)) /
+          1e18;
+      } else if (borrowToken?.name == "WBTC") {
+        btcRepayBalance =
+          (await vWbtcContract.callStatic.getBorrowBalance(activeAccount)) /
+          1e18;
+      } else if (borrowToken?.name == "USDC") {
+        usdcRepayBalance =
+          (await vUsdcContract.callStatic.getBorrowBalance(activeAccount)) /
+          1e18;
+      } else if (borrowToken?.name == "USDT") {
+        usdtRepayBalance =
+          (await vUsdtContract.callStatic.getBorrowBalance(activeAccount)) /
+          1e18;
+      } else if (borrowToken?.name == "DAI") {
+        daiRepayBalance =
+          (await vDaiContract.callStatic.getBorrowBalance(activeAccount)) /
+          1e18;
+      }
+      let totalBalance;
+
+      const ethAccountBalance =
+        (await library?.getBalance(activeAccount)) / 1e18;
+
+      const wethAccounBalance =
+        ethAccountBalance +
+        Number((await wethContract.balanceOf(activeAccount)) / 1e18);
+
+      const wbtcAccounBalance =
+        (await wbtcContract.balanceOf(activeAccount)) / 1e18;
+      const usdcAccounBalance =
+        (await usdcContract.balanceOf(activeAccount)) / 1e6;
+      const usdtAccounBalance =
+        (await usdtContract.balanceOf(activeAccount)) / 1e6;
+      const daiAccounBalance =
+        (await daiContract.balanceOf(activeAccount)) / 1e18;
+
+      if (borrowToken?.name == "WETH" && ethRepayBalance !== undefined) {
+        totalBalance = wethAccounBalance - ethRepayBalance;
+      } else if (borrowToken?.name == "WBTC" && btcRepayBalance !== undefined) {
+        totalBalance = wbtcAccounBalance - btcRepayBalance;
+      } else if (
+        borrowToken?.name == "USDC" &&
+        usdcRepayBalance !== undefined
+      ) {
+        totalBalance = usdcAccounBalance - usdcRepayBalance;
+      } else if (
+        borrowToken?.name == "USDT" &&
+        usdtRepayBalance !== undefined
+      ) {
+        totalBalance = usdtAccounBalance - usdtRepayBalance;
+      } else if (borrowToken?.name == "DAI" && daiRepayBalance !== undefined) {
+        totalBalance = daiAccounBalance - daiRepayBalance;
+      }
+
+      setBorrowBalance(totalBalance);
+    } else if (currentNetwork.id === BASE_NETWORK) {
     }
   };
 

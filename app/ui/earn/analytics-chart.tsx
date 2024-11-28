@@ -104,12 +104,23 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
 const AnalyticsChart = ({ pool }: { pool: PoolTable }) => {
   const [timeFrame, setTimeFrame] = useState("1D");
   const [selectedOption, setSelectedOption] = useState("Deposit APY");
-  const options = ["Deposit APY", "Withdrawal APY", "Transfer APY"];
+  const options = ["Deposit APY", "Borrow APY"];
+  const [apyValue, setApyValue] = useState("0%");
 
   useEffect(() => {
     if (pool) {}
     // fetch data here
   }, [pool]);
+
+  useEffect(() => {
+    if (selectedOption === "Deposit APY") {
+      setApyValue(pool.supplyAPY);
+    } else if (selectedOption === "Borrow APY") {
+      setApyValue(pool.borrowAPY);
+    } else {
+      setApyValue("0%");
+    }
+  }, [selectedOption]);
 
   return (
     <div className="bg-baseComplementary dark:bg-baseDarkComplementary py-6 px-4 sm:px-10 rounded-2xl text-baseBlack dark:text-baseWhite font-bold">
@@ -144,7 +155,7 @@ const AnalyticsChart = ({ pool }: { pool: PoolTable }) => {
       </div>
       <div className="flex flex-col mb-2">
         <span className="text-xl">
-          {sampleData[sampleData.length - 1].value.toFixed(2)}%
+          {apyValue}
         </span>
         <span className="text-sm">
           {new Date().toLocaleString("en-US", {
