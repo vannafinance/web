@@ -2,7 +2,11 @@
 
 import OptionPayoffChart from "@/app/ui/dashboard/option-payoff-chart";
 import { SimpleTableComponent } from "@/app/ui/dashboard/simple-table";
-import { calculateRemainingTime, ceilWithPrecision } from "@/app/lib/helper";
+import {
+  calculateRemainingTime,
+  ceilWithPrecision,
+  check0xHex,
+} from "@/app/lib/helper";
 import FutureDropdown from "@/app/ui/future/future-dropdown";
 import { CheckSquare, Square } from "@phosphor-icons/react";
 import { useNetwork } from "@/app/context/network-context";
@@ -12,6 +16,7 @@ import {
   ARBITRUM_NETWORK,
   OPTIMISM_NETWORK,
   BASE_NETWORK,
+  SECS_PER_YEAR,
 } from "@/app/lib/constants";
 import { formatUSD } from "@/app/lib/number-format-helper";
 import {
@@ -20,8 +25,9 @@ import {
   baseAddressList,
   codeToAsset,
 } from "@/app/lib/web3-constants";
+import OracleFacade from "../../abi/vanna/v1/out/OracleFacade.sol/OracleFacade.json";
 import axios from "axios";
-import { Contract } from "ethers";
+import { Contract, utils } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
 import ClearingHouse from "../../abi/vanna/v1/out/ClearingHouse.sol/ClearingHouse.json";
 import ERC20 from "../../abi/vanna/v1/out/ERC20.sol/ERC20.json";
@@ -29,11 +35,17 @@ import LiquidityPool from "../../abi/vanna/v1/out/LiquidityPool.sol/LiquidityPoo
 import OptimismFetchPosition from "../../abi/vanna/v1/out/OptimismFetchPosition.sol/OptimismFetchPosition.json";
 import Registry from "../../abi/vanna/v1/out/Registry.sol/Registry.json";
 import RiskEngine from "../../abi/vanna/v1/out/RiskEngine.sol/RiskEngine.json";
+import VEther from "../../abi/vanna/v1/out/VEther.sol/VEther.json";
+import VToken from "../../abi/vanna/v1/out/VToken.sol/VToken.json";
+import Multicall from "@/app/abi/vanna/v1/out/Multicall.sol/Multicall.json";
+import DefaultRateModel from "@/app/abi/vanna/v1/out/DefaultRateModel.sol/DefaultRateModel.json";
+import Loader from "@/app/ui/components/loader";
 
 export default function Page() {
   const { account, library } = useWeb3React();
   const { currentNetwork } = useNetwork();
   const [activeAccount, setActiveAccount] = useState<string | undefined>();
+  const [loading, setLoading] = useState(false);
 
   const pairOptions: Option[] = [
     { value: "ETH", label: "ETH/USD", icon: "/eth-icon.svg" },
@@ -57,78 +69,78 @@ export default function Page() {
   ];
 
   const [optionPositions, setOptionPositions] = useState<OptionPosition[]>([
-    // {
-    //   id: 1,
-    //   selected: true,
-    //   strikePrice: 44.0,
-    //   cp: "CE",
-    //   units: 16000,
-    //   traded: 0.5,
-    //   price: 0.39,
-    //   delta: 0.5,
-    //   iv: 43.5,
-    // },
-    // {
-    //   id: 2,
-    //   selected: false,
-    //   strikePrice: 50.0,
-    //   cp: "PE",
-    //   units: 16000,
-    //   traded: 0.2437,
-    //   price: 3.37,
-    //   delta: 0.6,
-    //   iv: 40.5,
-    // },
-    // {
-    //   id: 3,
-    //   selected: false,
-    //   strikePrice: 44.0,
-    //   cp: "CE",
-    //   units: 16000,
-    //   traded: 0.5,
-    //   price: 7.37,
-    //   delta: 0.4,
-    //   iv: 40.54,
-    // },
-    // {
-    //   id: 4,
-    //   selected: false,
-    //   strikePrice: 44.0,
-    //   cp: "CE",
-    //   units: 16000,
-    //   traded: 0.4379,
-    //   price: 0.58,
-    //   delta: 0.8,
-    //   iv: 85.05,
-    // },
-    // {
-    //   id: 5,
-    //   selected: false,
-    //   strikePrice: 70.0,
-    //   cp: "PE",
-    //   units: 16000,
-    //   traded: 0.7916,
-    //   price: 0.39,
-    //   delta: 1.0,
-    //   iv: 95.5,
-    // },
-    // {
-    //   id: 6,
-    //   selected: false,
-    //   strikePrice: 83.0,
-    //   cp: "CE",
-    //   units: 16000,
-    //   traded: 0.5,
-    //   price: 0.8,
-    //   delta: 0.2,
-    //   iv: 43.5,
-    // },
+    {
+      id: 1,
+      selected: false,
+      strikePrice: 44.0,
+      cp: "CE",
+      units: 16000,
+      traded: 0.5,
+      price: 0.39,
+      delta: 0.5,
+      iv: 43.5,
+    },
+    {
+      id: 2,
+      selected: false,
+      strikePrice: 50.0,
+      cp: "PE",
+      units: 16000,
+      traded: 0.2437,
+      price: 3.37,
+      delta: 0.6,
+      iv: 40.5,
+    },
+    {
+      id: 3,
+      selected: false,
+      strikePrice: 44.0,
+      cp: "CE",
+      units: 16000,
+      traded: 0.5,
+      price: 7.37,
+      delta: 0.4,
+      iv: 40.54,
+    },
+    {
+      id: 4,
+      selected: false,
+      strikePrice: 44.0,
+      cp: "CE",
+      units: 16000,
+      traded: 0.4379,
+      price: 0.58,
+      delta: 0.8,
+      iv: 85.05,
+    },
+    {
+      id: 5,
+      selected: false,
+      strikePrice: 70.0,
+      cp: "PE",
+      units: 16000,
+      traded: 0.7916,
+      price: 0.39,
+      delta: 1.0,
+      iv: 95.5,
+    },
+    {
+      id: 6,
+      selected: false,
+      strikePrice: 83.0,
+      cp: "CE",
+      units: 16000,
+      traded: 0.5,
+      price: 0.8,
+      delta: 0.2,
+      iv: 43.5,
+    },
   ]);
 
   const [futuresPositions, setFuturesPositions] = useState<FuturePosition[]>([
     // {
     //   id: 1,
-    //   selected: true,
+    //   selected: false,
     //   market: "ETH",
     //   entryPrice: 0.0,
     //   size: 0.0,
@@ -368,303 +380,735 @@ export default function Page() {
   };
 
   const fetchFuturePositions = async () => {
-    if (!currentNetwork) return;
+    try {
+      if (!currentNetwork) return;
 
-    let deltaCall = 0;
-    let deltaPut = 0;
-    let collateralSum = 0;
+      let deltaCall = 0;
+      let deltaPut = 0;
+      let collateralSum = 0;
 
-    // let collateralSumString;
-    let deltaCallString;
-    let deltaPutString;
-    let deltaTotalString;
-    let netBalanceString;
-    let availaleBalanceString;
-    let todayAverageString;
-    let currhealthFactor;
+      // let collateralSumString;
+      let deltaCallString;
+      let deltaPutString;
+      let deltaTotalString;
+      let netBalanceString;
+      let availaleBalanceString;
+      let todayAverageString;
+      let currhealthFactor;
 
-    let riskEngineContract;
-    let WETHContract;
+      let riskEngineContract;
+      let WETHContract;
+      let vEtherContract;
+      let vDaiContract;
+      let vUsdcContract;
+      let vUsdtContract;
+      let vWbtcContract;
+      let tTokenOracleContract;
 
-    if (activeAccount) {
-      if (currentNetwork.id === ARBITRUM_NETWORK) {
-        const renderedRows: FuturePosition[] = [];
-        const signer = await library?.getSigner();
-        const liquidityPoolContract = new Contract(
-          arbAddressList.muxLiquidityPoolAddress,
-          LiquidityPool.abi,
-          signer
-        );
-
-        // let price = 0;
-        let subAccountId;
-
-        // for (let i = 0; i < 5; i++) {
-        const i = 3;
-        for (let j = 3; j < 5; j++) {
-          for (let k = 0; k < 2; k++) {
-            subAccountId =
-              activeAccount.toString() +
-              "0" +
-              i +
-              "0" +
-              j +
-              "0" +
-              k +
-              "000000000000000000";
-            const result = await liquidityPoolContract.getSubAccount(
-              subAccountId
-            );
-            const size = result.size / 1e18;
-
-            if (size != 0) {
-              const indexPrice = await getAssetPrice(
-                codeToAsset["0" + j]
-                // false
-              );
-              if (indexPrice) {
-                const netValue = indexPrice * size;
-                const collateralPrice = result.collateral / 1e18;
-                const entryPrice = result.entryPrice / 1e18;
-                const liquidation =
-                  entryPrice - (collateralPrice * entryPrice) / size;
-                const pnl = calcPnl(indexPrice, entryPrice, size, k);
-                // price += pnl;
-
-                const row: FuturePosition = {
-                  id: j + k,
-                  selected: false,
-                  market: "",
-                  entryPrice: "",
-                  size: "",
-                  leverage: "",
-                  liqPrice: "",
-                  delta: "",
-                  pnl: "",
-                };
-
-                row["market"] = "ETH/USD";
-                // row["marketPrice"] = formatUSD(indexPrice);
-                row["entryPrice"] = formatUSD(entryPrice);
-                row["size"] = formatUSD(netValue);
-                row["leverage"] = ceilWithPrecision(
-                  String(netValue / collateralPrice)
-                );
-                row["liqPrice"] = formatUSD(liquidation);
-                row["delta"] = k === 1 ? "1" : "-1";
-                row["pnl"] = formatUSD(pnl);
-
-                if (k === 1) {
-                  deltaCall += pnl;
-                } else {
-                  deltaPut += pnl;
-                }
-                collateralSum += collateralPrice;
-
-                renderedRows.push(row);
-              }
-            }
-          }
-          // }
-        }
-
-        setFuturesPositions(renderedRows);
-
-        riskEngineContract = new Contract(
-          arbAddressList.riskEngineContractAddress,
-          RiskEngine.abi,
-          signer
-        );
-        WETHContract = new Contract(
-          arbAddressList.wethTokenAddress,
-          ERC20.abi,
-          library
-        );
-      } else if (currentNetwork.id === OPTIMISM_NETWORK) {
-        const renderedRows: FuturePosition[] = [];
-        const signer = await library?.getSigner();
-
-        const OptimismFetchPositionContract = new Contract(
-          opAddressList.optimismFetchPositionContractAddress,
-          OptimismFetchPosition.abi,
-          signer
-        );
-
-        const getNetVal =
-          await OptimismFetchPositionContract.getTotalPositionSize(
-            activeAccount,
-            opAddressList.vETH
-          );
-        const netValue = getNetVal / 1e18;
-
-        if (netValue != 0) {
-          const getETHMarketPrice =
-            await OptimismFetchPositionContract.getMarkPrice(
-              opAddressList.vETH
-            );
-          const indexPrice = getETHMarketPrice / 1e18;
-
-          const getTotalPositionValue =
-            await OptimismFetchPositionContract.getTotalPositionValue(
-              activeAccount,
-              opAddressList.vETH
-            );
-          const totalPositionValue = ceilWithPrecision(
-            String(getTotalPositionValue / 1e18)
-          );
-
-          const getPnlResult =
-            await OptimismFetchPositionContract.getPnlAndPendingFee(
-              activeAccount
-            );
-          const pnl = getPnlResult[1] / 1e18;
-
-          const ClearingHouseContract = new Contract(
-            opAddressList.ClearingHouse,
-            ClearingHouse.abi,
+      if (activeAccount) {
+        if (currentNetwork.id === ARBITRUM_NETWORK) {
+          const renderedRows: FuturePosition[] = [];
+          const signer = await library?.getSigner();
+          const liquidityPoolContract = new Contract(
+            arbAddressList.muxLiquidityPoolAddress,
+            LiquidityPool.abi,
             signer
           );
-          const getCollateral = await ClearingHouseContract.getAccountValue(
-            activeAccount
-          );
-          const collateralPrice = ceilWithPrecision(
-            String(getCollateral / 1e18)
-          );
-          // const collateralPriceInUSDC = ceilWithPrecision(collateralPrice * indexPrice);
-          const leverage = Number(totalPositionValue) / Number(collateralPrice);
-          const row: FuturePosition = {
-            id: 0,
-            selected: false,
-            market: "",
-            entryPrice: "",
-            size: "",
-            leverage: "",
-            liqPrice: "",
-            delta: "",
-            pnl: "",
-          };
 
-          const entryPrice = indexPrice - pnl / netValue;
-          const liquidation =
-            (netValue * entryPrice - Number(collateralPrice)) / netValue;
+          // let price = 0;
+          let subAccountId;
 
-          row["market"] = "ETH";
-          // row["marketPrice"] = formatUSD(indexPrice);
-          row["entryPrice"] = formatUSD(entryPrice);
-          row["size"] = ceilWithPrecision(String(netValue), 5);
-          row["leverage"] = ceilWithPrecision(String(leverage));
-          row["liqPrice"] = formatUSD(liquidation);
-          row["delta"] = netValue > 0 ? "1" : "-1";
-          row["pnl"] = formatUSD(pnl);
+          // for (let i = 0; i < 5; i++) {
+          const i = 3;
+          for (let j = 3; j < 5; j++) {
+            for (let k = 0; k < 2; k++) {
+              subAccountId =
+                activeAccount.toString() +
+                "0" +
+                i +
+                "0" +
+                j +
+                "0" +
+                k +
+                "000000000000000000";
+              const result = await liquidityPoolContract.getSubAccount(
+                subAccountId
+              );
+              const size = result.size / 1e18;
 
-          if (netValue > 0) {
-            deltaCall += pnl;
-          } else {
-            deltaPut += pnl;
+              if (size != 0) {
+                const indexPrice = await getAssetPrice(
+                  codeToAsset["0" + j]
+                  // false
+                );
+                if (indexPrice) {
+                  const netValue = indexPrice * size;
+                  const collateralPrice = result.collateral / 1e18;
+                  const entryPrice = result.entryPrice / 1e18;
+                  const liquidation =
+                    entryPrice - (collateralPrice * entryPrice) / size;
+                  const pnl = calcPnl(indexPrice, entryPrice, size, k);
+                  // price += pnl;
+
+                  const row: FuturePosition = {
+                    id: j + k,
+                    selected: false,
+                    market: "",
+                    entryPrice: "",
+                    size: "",
+                    leverage: "",
+                    liqPrice: "",
+                    delta: "",
+                    pnl: "",
+                  };
+
+                  row["market"] = "ETH/USD";
+                  // row["marketPrice"] = formatUSD(indexPrice);
+                  row["entryPrice"] = formatUSD(entryPrice);
+                  row["size"] = formatUSD(netValue);
+                  row["leverage"] = ceilWithPrecision(
+                    String(netValue / collateralPrice)
+                  );
+                  row["liqPrice"] = formatUSD(liquidation);
+                  row["delta"] = k === 1 ? "1" : "-1";
+                  row["pnl"] = formatUSD(pnl);
+
+                  if (k === 1) {
+                    deltaCall += pnl;
+                  } else {
+                    deltaPut += pnl;
+                  }
+                  collateralSum += collateralPrice;
+
+                  renderedRows.push(row);
+                }
+              }
+            }
+            // }
           }
-          collateralSum += Number(collateralPrice);
 
-          renderedRows.push(row);
+          renderedRows.push({
+            id: 11,
+            selected: false,
+            market: "0",
+            entryPrice: "0.00",
+            size: "0.00000",
+            leverage: "0.000",
+            liqPrice: "0.00",
+            delta: "0",
+            pnl: "0.0000",
+          });
+          renderedRows.push({
+            id: 12,
+            selected: false,
+            market: "0",
+            entryPrice: "0.00",
+            size: "0.00000",
+            leverage: "0.000",
+            liqPrice: "0.00",
+            delta: "0",
+            pnl: "0.0000",
+          });
+          renderedRows.push({
+            id: 13,
+            selected: false,
+            market: "0",
+            entryPrice: "0.00",
+            size: "0.00000",
+            leverage: "0.000",
+            liqPrice: "0.00",
+            delta: "0",
+            pnl: "0.0000",
+          });
+          renderedRows.push({
+            id: 14,
+            selected: false,
+            market: "0",
+            entryPrice: "0.00",
+            size: "0.00000",
+            leverage: "0.000",
+            liqPrice: "0.00",
+            delta: "0",
+            pnl: "0.0000",
+          });
+          renderedRows.push({
+            id: 15,
+            selected: false,
+            market: "0",
+            entryPrice: "0.00",
+            size: "0.00000",
+            leverage: "0.000",
+            liqPrice: "0.00",
+            delta: "0",
+            pnl: "0.0000",
+          });
+          setFuturesPositions(renderedRows);
 
           riskEngineContract = new Contract(
-            opAddressList.riskEngineContractAddress,
+            arbAddressList.riskEngineContractAddress,
             RiskEngine.abi,
             signer
           );
           WETHContract = new Contract(
-            opAddressList.wethTokenAddress,
+            arbAddressList.wethTokenAddress,
             ERC20.abi,
             library
           );
+        } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+          const renderedRows: FuturePosition[] = [];
+          const signer = await library?.getSigner();
 
-          setFuturesPositions(renderedRows);
+          const OptimismFetchPositionContract = new Contract(
+            opAddressList.optimismFetchPositionContractAddress,
+            OptimismFetchPosition.abi,
+            signer
+          );
+
+          vEtherContract = new Contract(
+            opAddressList.vEtherContractAddress,
+            VEther.abi,
+            signer
+          );
+          vDaiContract = new Contract(
+            opAddressList.vDaiContractAddress,
+            VToken.abi,
+            signer
+          );
+          vUsdcContract = new Contract(
+            opAddressList.vUSDCContractAddress,
+            VToken.abi,
+            signer
+          );
+          vUsdtContract = new Contract(
+            opAddressList.vUSDTContractAddress,
+            VToken.abi,
+            signer
+          );
+          vWbtcContract = new Contract(
+            opAddressList.vWBTCContractAddress,
+            VToken.abi,
+            signer
+          );
+
+          const getNetVal =
+            await OptimismFetchPositionContract.getTotalPositionSize(
+              activeAccount,
+              opAddressList.vETH
+            );
+          const netValue = getNetVal / 1e18;
+
+          if (netValue != 0) {
+            const getETHMarketPrice =
+              await OptimismFetchPositionContract.getMarkPrice(
+                opAddressList.vETH
+              );
+            const indexPrice = getETHMarketPrice / 1e18;
+
+            const getTotalPositionValue =
+              await OptimismFetchPositionContract.getTotalPositionValue(
+                activeAccount,
+                opAddressList.vETH
+              );
+            const totalPositionValue = ceilWithPrecision(
+              String(getTotalPositionValue / 1e18)
+            );
+
+            const getPnlResult =
+              await OptimismFetchPositionContract.getPnlAndPendingFee(
+                activeAccount
+              );
+            const pnl = getPnlResult[1] / 1e18;
+
+            const ClearingHouseContract = new Contract(
+              opAddressList.ClearingHouse,
+              ClearingHouse.abi,
+              signer
+            );
+            const getCollateral = await ClearingHouseContract.getAccountValue(
+              activeAccount
+            );
+            const collateralPrice = ceilWithPrecision(
+              String(getCollateral / 1e18)
+            );
+            // const collateralPriceInUSDC = ceilWithPrecision(collateralPrice * indexPrice);
+            const leverage =
+              Number(totalPositionValue) / Number(collateralPrice);
+            const row: FuturePosition = {
+              id: 0,
+              selected: false,
+              market: "",
+              entryPrice: "",
+              size: "",
+              leverage: "",
+              liqPrice: "",
+              delta: "",
+              pnl: "",
+            };
+
+            const entryPrice = indexPrice - pnl / netValue;
+            const liquidation =
+              (netValue * entryPrice - Number(collateralPrice)) / netValue;
+
+            row["market"] = "ETH";
+            // row["marketPrice"] = formatUSD(indexPrice);
+            row["entryPrice"] = formatUSD(entryPrice);
+            row["size"] = ceilWithPrecision(String(netValue), 5);
+            row["leverage"] = ceilWithPrecision(String(leverage));
+            row["liqPrice"] = formatUSD(liquidation);
+            row["delta"] = netValue > 0 ? "1" : "-1";
+            row["pnl"] = formatUSD(pnl);
+
+            if (netValue > 0) {
+              deltaCall += pnl;
+            } else {
+              deltaPut += pnl;
+            }
+            collateralSum += Number(collateralPrice);
+
+            renderedRows.push(row);
+
+            riskEngineContract = new Contract(
+              opAddressList.riskEngineContractAddress,
+              RiskEngine.abi,
+              signer
+            );
+            WETHContract = new Contract(
+              opAddressList.wethTokenAddress,
+              ERC20.abi,
+              library
+            );
+            tTokenOracleContract = new Contract(
+              opAddressList.OracleFacade,
+              OracleFacade.abi,
+              signer
+            );
+
+            renderedRows.push({
+              id: 11,
+              selected: false,
+              market: "0",
+              entryPrice: "0.00",
+              size: "0.00000",
+              leverage: "0.000",
+              liqPrice: "0.00",
+              delta: "0",
+              pnl: "0.0000",
+            });
+            renderedRows.push({
+              id: 12,
+              selected: false,
+              market: "0",
+              entryPrice: "0.00",
+              size: "0.00000",
+              leverage: "0.000",
+              liqPrice: "0.00",
+              delta: "0",
+              pnl: "0.0000",
+            });
+            renderedRows.push({
+              id: 13,
+              selected: false,
+              market: "0",
+              entryPrice: "0.00",
+              size: "0.00000",
+              leverage: "0.000",
+              liqPrice: "0.00",
+              delta: "0",
+              pnl: "0.0000",
+            });
+            renderedRows.push({
+              id: 14,
+              selected: false,
+              market: "0",
+              entryPrice: "0.00",
+              size: "0.00000",
+              leverage: "0.000",
+              liqPrice: "0.00",
+              delta: "0",
+              pnl: "0.0000",
+            });
+            renderedRows.push({
+              id: 15,
+              selected: false,
+              market: "0",
+              entryPrice: "0.00",
+              size: "0.00000",
+              leverage: "0.000",
+              liqPrice: "0.00",
+              delta: "0",
+              pnl: "0.0000",
+            });
+            setFuturesPositions(renderedRows);
+          }
+        } else if (currentNetwork.id === BASE_NETWORK) {
         }
-      } else if (currentNetwork.id === BASE_NETWORK) {
+        if (
+          !vEtherContract ||
+          !vDaiContract ||
+          !vUsdcContract ||
+          !vUsdtContract ||
+          !vWbtcContract ||
+          !tTokenOracleContract
+        )
+          return;
+
+        if (
+          riskEngineContract === undefined ||
+          WETHContract === undefined ||
+          tTokenOracleContract === undefined
+        )
+          return;
+
+        let balance = await riskEngineContract.callStatic.getBalance(
+          activeAccount
+        );
+        balance = balance / 1e18;
+        let borrowBalance = await riskEngineContract.callStatic.getBorrows(
+          activeAccount
+        );
+        borrowBalance = borrowBalance / 1e18;
+        currhealthFactor = balance / borrowBalance;
+
+        const currentEthPrice = await getAssetPrice("ETH");
+
+        // const bal = formatUnits(await WETHContract.balanceOf(activeAccount));
+        const avail =
+          (await riskEngineContract.callStatic.getBalance(activeAccount)) /
+          1e18;
+        // tToken
+
+        const marginUsed =
+          ((await tTokenOracleContract.callStatic.getPrice(
+            opAddressList.tTokenAddress,
+            activeAccount
+          )) /
+            1e18) *
+          currentEthPrice;
+        const availaleBalance = Number(avail) * currentEthPrice - marginUsed;
+        // borrow balance of the individual
+
+        let borrowedBalance = await vEtherContract.callStatic.getBorrowBalance(
+          activeAccount
+        );
+
+        borrowedBalance =
+          Number(formatUnits(Number(borrowedBalance))) * currentEthPrice;
+        console.log("borrowedBalance ", borrowedBalance);
+
+        borrowedBalance +=
+          Number(
+            formatUnits(
+              await vWbtcContract.callStatic.getBorrowBalance(activeAccount)
+            )
+          ) * (await getAssetPrice("WBTC"));
+
+        borrowedBalance +=
+          Number(
+            formatUnits(
+              await vUsdcContract.callStatic.getBorrowBalance(activeAccount)
+            )
+          ) * (await getAssetPrice("USDC"));
+        console.log("borrowedBalance at usdc ", borrowedBalance);
+
+        borrowedBalance +=
+          Number(
+            formatUnits(
+              await vUsdtContract.callStatic.getBorrowBalance(activeAccount)
+            )
+          ) * (await getAssetPrice("USDT"));
+
+        borrowedBalance +=
+          Number(
+            formatUnits(
+              await vDaiContract.callStatic.getBorrowBalance(activeAccount)
+            )
+          ) * (await getAssetPrice("DAI"));
+
+        const totalPnl = avail * currentEthPrice - borrowedBalance - marginUsed;
+
+        const deltaTotal = deltaCall + deltaPut;
+        const netBalance = deltaTotal + availaleBalance;
+
+        const collateralLoss = deltaTotal / currentEthPrice;
+        const finalCollateral = collateralSum - collateralLoss;
+        const todayAverage =
+          (currentEthPrice * finalCollateral) / collateralSum;
+
+        // collateralSumString = ceilWithPrecision(String(collateralSum), 6);
+        deltaCallString = ceilWithPrecision(String(deltaCall));
+        deltaPutString = ceilWithPrecision(String(deltaPut));
+        deltaTotalString = ceilWithPrecision(String(deltaTotal));
+        netBalanceString = ceilWithPrecision(String(netBalance));
+        availaleBalanceString = ceilWithPrecision(String(availaleBalance));
+        todayAverageString = isNaN(todayAverage)
+          ? 0
+          : ceilWithPrecision(String(todayAverage));
+
+        // header params
+        // collateralSumString // we were fetching this earlier, do we need ?
+        const currentUserData = userData;
+        currentUserData["availableBalance"] = formatUSD(availaleBalanceString); // check if this is correct value we are assigning, same we are assigning below as well. Check all instances ?
+        currentUserData["healthFactor"] = ceilWithPrecision(
+          String(currhealthFactor)
+        );
+        // --------------------------------
+
+        // TODO: @vatsal add code here to fetch margin usage, total pnl & borrow rate and assign it to below
+        currentUserData["marginUsage"] = formatUSD(marginUsed);
+        currentUserData["totalPnl"] = formatUSD(totalPnl);
+        // borrow rate
+
+        const iFaceEth = new utils.Interface(VEther.abi);
+        const iFaceToken = new utils.Interface(VToken.abi);
+
+        const MCcontract = new Contract(
+          opAddressList.multicallAddress,
+          Multicall.abi,
+          library
+        );
+
+        const calldata = [];
+        let tempData;
+        // totalBorrow
+        //ETH
+        tempData = utils.arrayify(
+          iFaceEth.encodeFunctionData("getBorrows", [])
+        );
+        calldata.push([opAddressList.vEtherContractAddress, tempData]);
+
+        //WBTC
+        tempData = utils.arrayify(
+          iFaceToken.encodeFunctionData("getBorrows", [])
+        );
+        calldata.push([opAddressList.vWBTCContractAddress, tempData]);
+
+        //USDC
+        tempData = utils.arrayify(
+          iFaceToken.encodeFunctionData("getBorrows", [])
+        );
+        calldata.push([opAddressList.vUSDCContractAddress, tempData]);
+
+        //USDT
+        tempData = utils.arrayify(
+          iFaceToken.encodeFunctionData("getBorrows", [])
+        );
+        calldata.push([opAddressList.vUSDTContractAddress, tempData]);
+
+        //DAI
+        tempData = utils.arrayify(
+          iFaceToken.encodeFunctionData("getBorrows", [])
+        );
+        calldata.push([opAddressList.vDaiContractAddress, tempData]);
+
+        //ETH
+        tempData = utils.arrayify(
+          iFaceEth.encodeFunctionData("balanceOf", [
+            opAddressList.vEtherContractAddress,
+          ])
+        );
+        calldata.push([opAddressList.wethTokenAddress, tempData]);
+
+        //BTC
+        tempData = utils.arrayify(
+          iFaceToken.encodeFunctionData("balanceOf", [
+            opAddressList.vWBTCContractAddress,
+          ])
+        );
+        calldata.push([opAddressList.wbtcTokenAddress, tempData]);
+
+        // USDC
+        tempData = utils.arrayify(
+          iFaceToken.encodeFunctionData("balanceOf", [
+            opAddressList.vUSDCContractAddress,
+          ])
+        );
+        calldata.push([opAddressList.usdcTokenAddress, tempData]);
+
+        // USDT
+        tempData = utils.arrayify(
+          iFaceToken.encodeFunctionData("balanceOf", [
+            opAddressList.vUSDTContractAddress,
+          ])
+        );
+        calldata.push([opAddressList.usdtTokenAddress, tempData]);
+
+        // DAI
+        tempData = utils.arrayify(
+          iFaceToken.encodeFunctionData("balanceOf", [
+            opAddressList.vDaiContractAddress,
+          ])
+        );
+        calldata.push([opAddressList.daiTokenAddress, tempData]);
+        const res = await MCcontract.callStatic.aggregate(calldata);
+
+        // totalBorrow
+
+        const ethTotalBorrow = check0xHex(res.returnData[0]);
+        const wbtcTotalBorrow = check0xHex(res.returnData[1]);
+        const usdcTotalBorrow = check0xHex(res.returnData[2]);
+        const usdtTotalBorrow = check0xHex(res.returnData[3]);
+        const daiTotalBorrow = check0xHex(res.returnData[4]);
+
+        //avaibaleAssetsInContract
+
+        const avaibaleETH = check0xHex(res.returnData[5]);
+        const avaibaleBTC = check0xHex(res.returnData[6]);
+        const avaibaleUSDC = check0xHex(res.returnData[7]);
+        const avaibaleUSDT = check0xHex(res.returnData[8]);
+        const avaibaleDai = check0xHex(res.returnData[9]);
+
+        // Dependent varibale data fetching
+        const calldata1 = [];
+        let tempData1;
+        const iFaceRateModel = new utils.Interface(DefaultRateModel.abi);
+
+        //BorrowAPY
+        //ETH
+        tempData1 = utils.arrayify(
+          iFaceRateModel.encodeFunctionData("getBorrowRatePerSecond", [
+            avaibaleETH,
+            ethTotalBorrow,
+          ])
+        );
+
+        calldata1.push([opAddressList.rateModelContractAddress, tempData1]);
+
+        //BTC
+        tempData1 = utils.arrayify(
+          iFaceRateModel.encodeFunctionData("getBorrowRatePerSecond", [
+            avaibaleBTC,
+            wbtcTotalBorrow,
+          ])
+        );
+        calldata1.push([opAddressList.rateModelContractAddress, tempData1]);
+
+        //USDC
+        tempData1 = utils.arrayify(
+          iFaceRateModel.encodeFunctionData("getBorrowRatePerSecond", [
+            avaibaleUSDC,
+            usdcTotalBorrow,
+          ])
+        );
+        calldata1.push([opAddressList.rateModelContractAddress, tempData1]);
+
+        //USDT
+        tempData1 = utils.arrayify(
+          iFaceRateModel.encodeFunctionData("getBorrowRatePerSecond", [
+            avaibaleUSDT,
+            usdtTotalBorrow,
+          ])
+        );
+        calldata1.push([opAddressList.rateModelContractAddress, tempData1]);
+
+        //DAI
+        tempData1 = utils.arrayify(
+          iFaceRateModel.encodeFunctionData("getBorrowRatePerSecond", [
+            avaibaleDai,
+            daiTotalBorrow,
+          ])
+        );
+        calldata1.push([opAddressList.rateModelContractAddress, tempData1]);
+
+        const res1 = await MCcontract.callStatic.aggregate(calldata1);
+
+        const ethBorrowAPY = res1.returnData[0];
+        const ethBorrowApy =
+          ethTotalBorrow != 0
+            ? parseFloat(formatUnits(ethBorrowAPY)) * SECS_PER_YEAR * 1e2
+            : 0;
+
+        const btcBorrowAPY = res1.returnData[1];
+        const wbtcBorrowApy =
+          wbtcTotalBorrow != 0
+            ? parseFloat(formatUnits(btcBorrowAPY)) * SECS_PER_YEAR * 1e2
+            : 0;
+
+        const usdcBorrowAPY = res1.returnData[2];
+        const usdcBorrowApy =
+          usdcTotalBorrow != 0
+            ? parseFloat(formatUnits(usdcBorrowAPY)) * SECS_PER_YEAR * 1e2
+            : 0;
+
+        const usdtBorrowAPY = res1.returnData[3];
+        const usdtBorrowApy =
+          usdtTotalBorrow != 0
+            ? parseFloat(formatUnits(usdtBorrowAPY)) * SECS_PER_YEAR * 1e2
+            : 0;
+
+        const daiBorrowAPY = res1.returnData[4];
+        const daiBorrowApy =
+          daiTotalBorrow != 0
+            ? parseFloat(formatUnits(daiBorrowAPY)) * SECS_PER_YEAR * 1e2
+            : 0;
+
+        let totalborrowRate =
+          ethBorrowApy +
+          wbtcBorrowApy +
+          usdcBorrowApy +
+          usdtBorrowApy +
+          daiBorrowApy;
+        let count = 0;
+        if (ethBorrowApy > 0) {
+          count++;
+        } else if (wbtcBorrowApy > 0) {
+          count++;
+        } else if (usdcBorrowApy > 0) {
+          count++;
+        } else if (usdtBorrowApy > 0) {
+          count++;
+        } else if (daiBorrowApy > 0) {
+          count++;
+        }
+
+        console.log("totalborrowRate", totalborrowRate);
+
+        totalborrowRate = Number(totalborrowRate) / count;
+
+        currentUserData["borrowRate"] = ceilWithPrecision(
+          String(totalborrowRate),
+          4
+        );
+
+        // -----------------------------
+        setUserData(currentUserData);
+
+        // option data from below onwards
+        const currentOptions = options;
+        currentOptions["delta"]["call"] = formatUSD(deltaCallString);
+        currentOptions["delta"]["put"] = formatUSD(deltaPutString);
+        currentOptions["delta"]["total"] = formatUSD(deltaTotalString);
+        currentOptions["long"]["call"] = formatUSD(deltaCallString);
+        currentOptions["long"]["total"] = formatUSD(deltaCallString);
+        currentOptions["short"]["put"] = formatUSD(deltaPutString);
+        currentOptions["short"]["total"] = formatUSD(deltaPutString);
+        currentOptions["net"]["call"] = formatUSD(deltaCallString);
+        currentOptions["net"]["put"] = formatUSD(deltaPutString);
+        currentOptions["net"]["total"] = formatUSD(deltaTotalString);
+        setOptions(currentOptions);
+
+        // future data from below onwards
+        const currentFutures = futures;
+        currentFutures["todays"]["equity"] = formatUSD(availaleBalanceString);
+        currentFutures["todays"]["future"] = formatUSD(deltaTotalString);
+        currentFutures["todays"]["average"] = formatUSD(todayAverageString);
+        setFutures(currentFutures);
+
+        // portfolio summary data from below onwards
+        const currentPorfolioSummary = portfolioSummary;
+        currentPorfolioSummary["future"] = formatUSD(deltaTotalString);
+        currentPorfolioSummary["grossPnl"] = formatUSD(availaleBalanceString);
+        currentPorfolioSummary["netBal"] = formatUSD(netBalanceString);
+        setPortfolioSummary(currentPorfolioSummary);
       }
-
-      if (riskEngineContract === undefined || WETHContract === undefined)
-        return;
-
-      let balance = await riskEngineContract.callStatic.getBalance(
-        activeAccount
-      );
-      balance = balance / 1e18;
-      let borrowBalance = await riskEngineContract.callStatic.getBorrows(
-        activeAccount
-      );
-      borrowBalance = borrowBalance / 1e18;
-      currhealthFactor = balance / borrowBalance;
-
-      const currentEthPrice = await getAssetPrice("ETH");
-      const bal = formatUnits(await WETHContract.balanceOf(activeAccount));
-      const availaleBalance = Number(bal) * currentEthPrice;
-
-      const deltaTotal = deltaCall + deltaPut;
-      const netBalance = deltaTotal + availaleBalance;
-
-      const collateralLoss = deltaTotal / currentEthPrice;
-      const finalCollateral = collateralSum - collateralLoss;
-      const todayAverage = (currentEthPrice * finalCollateral) / collateralSum;
-
-      // collateralSumString = ceilWithPrecision(String(collateralSum), 6);
-      deltaCallString = ceilWithPrecision(String(deltaCall));
-      deltaPutString = ceilWithPrecision(String(deltaPut));
-      deltaTotalString = ceilWithPrecision(String(deltaTotal));
-      netBalanceString = ceilWithPrecision(String(netBalance));
-      availaleBalanceString = ceilWithPrecision(String(availaleBalance));
-      todayAverageString = isNaN(todayAverage)
-        ? 0
-        : ceilWithPrecision(String(todayAverage));
-
-      // header params
-      // collateralSumString // we were fetching this earlier, do we need ?
-      const currentUserData = userData;
-      currentUserData["availableBalance"] = formatUSD(availaleBalanceString); // check if this is correct value we are assigning, same we are assigning below as well. Check all instances ?
-      currentUserData["healthFactor"] = ceilWithPrecision(
-        String(currhealthFactor)
-      );
-      // --------------------------------
-
-      // TODO: @vatsal add code here to fetch margin usage, total pnl & borrow rate and assign it to below
-      // currentUserData["marginUsage"] = ;
-      // currentUserData["totalPnl"] = ;
-      // currentUserData["borrowRate"] = ;
-
-      // -----------------------------
-      setUserData(currentUserData);
-
-      // option data from below onwards
-      const currentOptions = options;
-      currentOptions["delta"]["call"] = formatUSD(deltaCallString);
-      currentOptions["delta"]["put"] = formatUSD(deltaPutString);
-      currentOptions["delta"]["total"] = formatUSD(deltaTotalString);
-      currentOptions["long"]["call"] = formatUSD(deltaCallString);
-      currentOptions["long"]["total"] = formatUSD(deltaCallString);
-      currentOptions["short"]["put"] = formatUSD(deltaPutString);
-      currentOptions["short"]["total"] = formatUSD(deltaPutString);
-      currentOptions["net"]["call"] = formatUSD(deltaCallString);
-      currentOptions["net"]["put"] = formatUSD(deltaPutString);
-      currentOptions["net"]["total"] = formatUSD(deltaTotalString);
-      setOptions(currentOptions);
-
-      // future data from below onwards
-      const currentFutures = futures;
-      currentFutures["todays"]["equity"] = formatUSD(availaleBalanceString);
-      currentFutures["todays"]["future"] = formatUSD(deltaTotalString);
-      currentFutures["todays"]["average"] = formatUSD(todayAverageString);
-      setFutures(currentFutures);
-
-      // portfolio summary data from below onwards
-      const currentPorfolioSummary = portfolioSummary;
-      currentPorfolioSummary["future"] = formatUSD(deltaTotalString);
-      currentPorfolioSummary["grossPnl"] = formatUSD(availaleBalanceString);
-      currentPorfolioSummary["netBal"] = formatUSD(netBalanceString);
-      setPortfolioSummary(currentPorfolioSummary);
+    } catch (e) {
+      console.error(e);
     }
   };
 
   useEffect(() => {
+    setLoading(true);
     fetchFuturePositions();
+    setLoading(false);
   }, [activeAccount, currentNetwork]);
 
   return (
@@ -692,25 +1136,36 @@ export default function Page() {
             <p className="text-neutral-500 font-normal text-xs">
               Available Balance
             </p>
-            <p className="text-xs xl:text-sm">{userData.availableBalance}</p>
+            <p className="text-xs xl:text-sm">
+              {loading ? <Loader /> : userData.availableBalance}
+            </p>
           </div>
           <div>
             <p className="text-neutral-500 font-normal text-xs">Margin Usage</p>
-            <p className="text-xs xl:text-sm">{userData.marginUsage}</p>
+            <p className="text-xs xl:text-sm">
+              {loading ? <Loader /> : userData.marginUsage}
+            </p>
           </div>
           <div>
             <p className="text-neutral-500 font-normal text-xs">Total P&L</p>
-            <p className="text-xs xl:text-sm">{userData.totalPnl}</p>
+            <p className="text-xs xl:text-sm">
+              {loading ? <Loader /> : userData.totalPnl}
+            </p>
           </div>
           <div>
             <p className="text-neutral-500 font-normal text-xs">
               Health Factor
             </p>
-            <p className="text-xs xl:text-sm">{userData.healthFactor}</p>
+            <p className="text-xs xl:text-sm">
+              {loading ? <Loader /> : userData.healthFactor}
+            </p>
           </div>
           <div>
             <p className="text-neutral-500 font-normal text-xs">Borrow Rate</p>
-            <p className="text-xs xl:text-sm">{userData.borrowRate}</p>
+            <p className="text-xs xl:text-sm">
+              {loading ? <Loader /> : userData.borrowRate}{" "}
+              {userData.borrowRate !== "-" && "%"}
+            </p>
           </div>
         </div>
       </div>
@@ -795,7 +1250,7 @@ export default function Page() {
                   <th className="py-2 px-3 text-left text-xs font-semibold text-neutral-500 tracking-wider">
                     Entry Price
                   </th>
-                  <th className="py-2 px-3 text-left text-xs font-semibold text-neutral-500 tracking-wider">
+                  <th className="py-2 px-3 text-center text-xs font-semibold text-neutral-500 tracking-wider">
                     Size
                   </th>
                   <th className="py-2 px-3 text-left text-xs font-semibold text-neutral-500 tracking-wider">
@@ -807,52 +1262,58 @@ export default function Page() {
                   <th className="py-2 px-3 text-left text-xs font-semibold text-neutral-500 tracking-wider">
                     Delta
                   </th>
-                  <th className="py-2 px-3 text-left text-xs font-semibold text-neutral-500 tracking-wider">
+                  <th className="py-2 px-3 text-center text-xs font-semibold text-neutral-500 tracking-wider">
                     P/L
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {futuresPositions.map((position) => (
-                  <tr
-                    key={position.id}
-                    className="hover:bg-baseComplementary dark:hover:bg-baseDarkComplementary text-sm font-normal"
-                  >
-                    <td className="pt-1 px-3 whitespace-nowrap">
-                      <button
-                        onClick={() => handleFuturePositionSelect(position.id)}
-                        className="text-purple hover:text-purpleBG"
-                      >
-                        {position.selected ? (
-                          <CheckSquare size={16} weight="fill" />
-                        ) : (
-                          <Square size={16} />
-                        )}
-                      </button>
-                    </td>
-                    <td className="pt-1 px-3 whitespace-nowrap">
-                      {position.market}
-                    </td>
-                    <td className="pt-1 px-3 whitespace-nowrap">
-                      {position.entryPrice}
-                    </td>
-                    <td className="pt-1 px-3 whitespace-nowrap">
-                      {position.size} {" ETH"}
-                    </td>
-                    <td className="pt-1 px-3 whitespace-nowrap">
-                      {position.leverage}
-                    </td>
-                    <td className="pt-1 px-3 whitespace-nowrap">
-                      {position.liqPrice}
-                    </td>
-                    <td className="pt-1 px-3 whitespace-nowrap">
-                      {position.delta}
-                    </td>
-                    <td className="pt-1 px-3 whitespace-nowrap">
-                      {position.pnl}
-                    </td>
-                  </tr>
-                ))}
+                {loading ? (
+                  <Loader />
+                ) : (
+                  futuresPositions.map((position) => (
+                    <tr
+                      key={position.id}
+                      className="hover:bg-baseComplementary dark:hover:bg-baseDarkComplementary text-sm font-normal"
+                    >
+                      <td className="pt-1 px-3 whitespace-nowrap">
+                        <button
+                          onClick={() =>
+                            handleFuturePositionSelect(position.id)
+                          }
+                          className="text-purple hover:text-purpleBG"
+                        >
+                          {position.selected ? (
+                            <CheckSquare size={16} weight="fill" />
+                          ) : (
+                            <Square size={16} />
+                          )}
+                        </button>
+                      </td>
+                      <td className="pt-1 px-3 whitespace-nowrap">
+                        {position.market}
+                      </td>
+                      <td className="pt-1 px-3 whitespace-nowrap">
+                        {position.entryPrice}
+                      </td>
+                      <td className="pt-1 px-3 whitespace-nowrap">
+                        {position.size} {position.size !== "0.00000" && " ETH"}
+                      </td>
+                      <td className="pt-1 px-3 whitespace-nowrap">
+                        {position.leverage}
+                      </td>
+                      <td className="pt-1 px-3 whitespace-nowrap">
+                        {position.liqPrice}
+                      </td>
+                      <td className="pt-1 px-3 whitespace-nowrap">
+                        {position.delta}
+                      </td>
+                      <td className="pt-1 px-3 whitespace-nowrap">
+                        {position.pnl}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -896,46 +1357,52 @@ export default function Page() {
                 </tr>
               </thead>
               <tbody>
-                {optionPositions.map((position) => (
-                  <tr
-                    key={position.id}
-                    className="hover:bg-baseComplementary dark:hover:bg-baseDarkComplementary text-sm font-normal"
-                  >
-                    <td className="pt-1 px-3 whitespace-nowrap">
-                      <button
-                        onClick={() => handleOptionPositionSelect(position.id)}
-                        className="text-purple hover:text-purpleBG"
-                      >
-                        {position.selected ? (
-                          <CheckSquare size={16} weight="fill" />
-                        ) : (
-                          <Square size={16} />
-                        )}
-                      </button>
-                    </td>
-                    <td className="pt-1 px-3 whitespace-nowrap">
-                      ${position.strikePrice.toFixed(2)}
-                    </td>
-                    <td className="pt-1 px-3 whitespace-nowrap">
-                      {position.cp}
-                    </td>
-                    <td className="pt-1 px-3 whitespace-nowrap">
-                      {position.units.toLocaleString()}
-                    </td>
-                    <td className="pt-1 px-3 whitespace-nowrap">
-                      {position.traded.toFixed(4)}
-                    </td>
-                    <td className="pt-1 px-3 whitespace-nowrap">
-                      {position.price.toFixed(2)}
-                    </td>
-                    <td className="pt-1 px-3 whitespace-nowrap">
-                      {position.delta.toFixed(1)}
-                    </td>
-                    <td className="pt-1 px-3 whitespace-nowrap">
-                      {position.iv.toFixed(2)}
-                    </td>
-                  </tr>
-                ))}
+                {loading ? (
+                  <Loader />
+                ) : (
+                  optionPositions.map((position) => (
+                    <tr
+                      key={position.id}
+                      className="hover:bg-baseComplementary dark:hover:bg-baseDarkComplementary text-sm font-normal"
+                    >
+                      <td className="pt-1 px-3 whitespace-nowrap">
+                        <button
+                          onClick={() =>
+                            handleOptionPositionSelect(position.id)
+                          }
+                          className="text-purple hover:text-purpleBG"
+                        >
+                          {position.selected ? (
+                            <CheckSquare size={16} weight="fill" />
+                          ) : (
+                            <Square size={16} />
+                          )}
+                        </button>
+                      </td>
+                      <td className="pt-1 px-3 whitespace-nowrap">
+                        ${position.strikePrice.toFixed(2)}
+                      </td>
+                      <td className="pt-1 px-3 whitespace-nowrap">
+                        {position.cp}
+                      </td>
+                      <td className="pt-1 px-3 whitespace-nowrap">
+                        {position.units.toLocaleString()}
+                      </td>
+                      <td className="pt-1 px-3 whitespace-nowrap">
+                        {position.traded.toFixed(4)}
+                      </td>
+                      <td className="pt-1 px-3 whitespace-nowrap">
+                        {position.price.toFixed(2)}
+                      </td>
+                      <td className="pt-1 px-3 whitespace-nowrap">
+                        {position.delta.toFixed(1)}
+                      </td>
+                      <td className="pt-1 px-3 whitespace-nowrap">
+                        {position.iv.toFixed(2)}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
