@@ -261,12 +261,36 @@ const SpotTab: React.FC = () => {
 
   return (
     <div className="grid grid-cols-2 xl:grid-cols-3 gap-2 sm:gap-5">
-      {loading ? <Loader /> : <InfoRow label="ETH" value={ETH + " ETH"} />}
-      {loading ? <Loader /> : <InfoRow label="WETH" value={WETH + " WETH"} />}
-      {loading ? <Loader /> : <InfoRow label="BTC" value={BTC + " BTC"} />}
-      {loading ? <Loader /> : <InfoRow label="USDC" value={USDC + " USDC"} />}
-      {loading ? <Loader /> : <InfoRow label="USDT" value={USDT + " USDT"} />}
-      {loading ? <Loader /> : <InfoRow label="DAI" value={DAI + " DAI"} />}
+      {loading ? (
+        <Loader />
+      ) : (
+        <InfoRow label="ETH" value={ETH ? ETH + " ETH" : ""} />
+      )}
+      {loading ? (
+        <Loader />
+      ) : (
+        <InfoRow label="WETH" value={WETH ? WETH + " WETH" : ""} />
+      )}
+      {loading ? (
+        <Loader />
+      ) : (
+        <InfoRow label="BTC" value={BTC ? BTC + " BTC" : ""} />
+      )}
+      {loading ? (
+        <Loader />
+      ) : (
+        <InfoRow label="USDC" value={USDC ? USDC + " USDC" : ""} />
+      )}
+      {loading ? (
+        <Loader />
+      ) : (
+        <InfoRow label="USDT" value={USDT ? USDT + " USDT" : ""} />
+      )}
+      {loading ? (
+        <Loader />
+      ) : (
+        <InfoRow label="DAI" value={DAI ? DAI + " DAI" : ""} />
+      )}
     </div>
   );
 };

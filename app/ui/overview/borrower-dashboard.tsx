@@ -280,8 +280,10 @@ const BorrowerDashboard = () => {
           !vUsdtContract ||
           !vWbtcContract ||
           !tTokenOracleContract
-        )
+        ) {
+          setLoading(false);
           return;
+        }
         // ETH
         let accountBalance = await library?.getBalance(activeAccount);
 
@@ -397,7 +399,7 @@ const BorrowerDashboard = () => {
             ) : depositedAmount ? (
               formatUSD(depositedAmount)
             ) : (
-              "-"
+              "0"
             )}
           </p>
         </div>
@@ -415,7 +417,7 @@ const BorrowerDashboard = () => {
             ) : repayableAmount ? (
               formatUSD(repayableAmount)
             ) : (
-              "-"
+              "0"
             )}{" "}
             {!loading && repayablePercentage && (
               <span className="text-baseSuccess-300 text-base font-medium">
@@ -438,7 +440,7 @@ const BorrowerDashboard = () => {
             ) : borrowedAmount ? (
               formatUSD(borrowedAmount)
             ) : (
-              "-"
+              "0"
             )}{" "}
             {!loading && borrowedLeverage && (
               <span className="px-2 inline-flex text-xs leading-4 font-medium rounded-md bg-purpleBG-lighter text-purple">
@@ -461,7 +463,7 @@ const BorrowerDashboard = () => {
             ) : withdrawableAmount ? (
               formatUSD(withdrawableAmount)
             ) : (
-              "-"
+              "0"
             )}
           </p>
         </div>

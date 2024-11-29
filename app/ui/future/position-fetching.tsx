@@ -444,7 +444,7 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
           { gasLimit: 2300000 }
         );
 
-        await sleep(5000);
+        await sleep(15000);
         fetchPositions(activeAccount);
         // getTokenBalance();
         // setMessage("Transaction successfull.");
@@ -533,6 +533,7 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
         await accountManagerOpContract.exec(activeAccount, target1, 0, data1, {
           gasLimit: 2300000,
         });
+        await sleep(15000);
         fetchPositions(activeAccount);
         // getTokenBalance();
         // postMessage("Transaction successfull.");

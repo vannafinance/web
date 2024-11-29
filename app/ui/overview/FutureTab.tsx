@@ -302,12 +302,12 @@ const FutureTab: React.FC = () => {
       valuesRef.current = row;
     } else {
       valuesRef.current = undefined;
-      setMarket("-");
-      setSize("-");
-      setCollateral("-");
-      setEntryPrice("-");
-      setLiquidationPrice("-");
-      setProfitLoss("-");
+      setMarket("");
+      setSize("");
+      setCollateral("");
+      setEntryPrice("");
+      setLiquidationPrice("");
+      setProfitLoss("");
     }
 
     setLoading(false);

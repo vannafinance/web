@@ -87,6 +87,7 @@ const CreateSmartAccountModal: React.FC<CreateSmartAccountModalProps> = ({
     } catch (e) {
       console.error(e);
     }
+    await sleep(10000);
     setLoading(false);
     onClose();
   };

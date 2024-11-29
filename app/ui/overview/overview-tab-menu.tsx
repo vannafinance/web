@@ -841,7 +841,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
             ) : totalHoldings ? (
               formatUSD(ceilWithPrecision(String(totalHoldings), 2))
             ) : (
-              "-"
+              "0"
             )}
           </p>
         </div>
@@ -869,13 +869,13 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
             ) : totalReturnsAmount ? (
               formatUSD(ceilWithPrecision(String(totalReturnsAmount), 2))
             ) : (
-              "-"
+              "0"
             )}
-            {!loading && totalReturnsPercentage && (
+            {!loading && totalReturnsAmount && totalReturnsAmount > 0 && totalReturnsPercentage ? (
               <span className="text-sm font-medium">
                 ({ceilWithPrecision(String(totalReturnsPercentage), 2)}%)
               </span>
-            )}
+            ) : ""}
           </p>
           <p className="text-sm text-gray-500">Total Returns</p>
         </div>
@@ -894,7 +894,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
               ) : healthFactor ? (
                 ceilWithPrecision(String(healthFactor), 2)
               ) : (
-                "-"
+                "0"
               )}
             </p>
             <p className="text-sm text-gray-500">Health Factor</p>

@@ -13,7 +13,7 @@ const InfoRow: React.FC<InfoRowProps> = ({ label, value, subValue }) => (
       <Info size={16} />
     </div>
     <div className="font-semibold text-2xl">
-      {value ? value : "-"}{" "}
+      {value ? value : "0"}{" "}
       {subValue && (
         <span className="text-baseSuccess-300 text-base font-medium ml-1">
           ({subValue})
