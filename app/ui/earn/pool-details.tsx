@@ -232,7 +232,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "TOTAL LIQUIDITY") {
                   return {
                     ...detail,
-                    value: pool.supply + " " + pool.name,
+                    value: Number(pool.supply) * Number(ceilWithPrecision(formatUnits(ethToVeth)))+ " " + pool.name,
                   };
                 }
                 if (detail.label === "LQ. IN DOLLAR") {
@@ -298,7 +298,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "TOTAL LIQUIDITY") {
                   return {
                     ...detail,
-                    value: pool.supply + " " + pool.name,
+                    value: Number(pool.supply) * Number(ceilWithPrecision(formatUnits(btcToVbtc))) + " " + pool.name,
                   };
                 }
                 if (detail.label === "LQ. IN DOLLAR") {
@@ -364,7 +364,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "TOTAL LIQUIDITY") {
                   return {
                     ...detail,
-                    value: pool.supply + " " + pool.name,
+                    value: Number(pool.supply) * Number(ceilWithPrecision(formatUnits(usdcToVusdc))) + " " + pool.name,
                   };
                 }
                 if (detail.label === "LQ. IN DOLLAR") {
@@ -430,7 +430,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "TOTAL LIQUIDITY") {
                   return {
                     ...detail,
-                    value: pool.supply + " " + pool.name,
+                    value: Number(pool.supply) * Number(ceilWithPrecision(formatUnits(usdtToVusdt))) + " " + pool.name,
                   };
                 }
                 if (detail.label === "LQ. IN DOLLAR") {
@@ -496,7 +496,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "TOTAL LIQUIDITY") {
                   return {
                     ...detail,
-                    value: pool.supply + " " + pool.name,
+                    value: Number(pool.supply) * Number(ceilWithPrecision(formatUnits(daiToVdai))) + " " + pool.name,
                   };
                 }
                 if (detail.label === "LQ. IN DOLLAR") {
@@ -999,7 +999,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "TOTAL LIQUIDITY") {
                   return {
                     ...detail,
-                    value: pool.supply + " " + pool.name,
+                    value: Number(pool.supply) * Number(ceilWithPrecision(formatUnits(ethToVeth))) + " " + pool.name,
                   };
                 }
                 if (detail.label === "LQ. IN DOLLAR") {
@@ -1065,7 +1065,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "TOTAL LIQUIDITY") {
                   return {
                     ...detail,
-                    value: pool.supply + " " + pool.name,
+                    value: Number(pool.supply) * Number(ceilWithPrecision(formatUnits(btcToVbtc))) + " " + pool.name,
                   };
                 }
                 if (detail.label === "LQ. IN DOLLAR") {
@@ -1131,7 +1131,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "TOTAL LIQUIDITY") {
                   return {
                     ...detail,
-                    value: pool.supply + " " + pool.name,
+                    value: Number(pool.supply) * Number(ceilWithPrecision(formatUnits(usdcToVusdc))) + " " + pool.name,
                   };
                 }
                 if (detail.label === "LQ. IN DOLLAR") {
@@ -1197,7 +1197,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "TOTAL LIQUIDITY") {
                   return {
                     ...detail,
-                    value: pool.supply + " " + pool.name,
+                    value: Number(pool.supply) * Number(ceilWithPrecision(formatUnits(usdcToVusdc))) + " " + pool.name,
                   };
                 }
                 if (detail.label === "LQ. IN DOLLAR") {
@@ -1263,7 +1263,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
                 if (detail.label === "TOTAL LIQUIDITY") {
                   return {
                     ...detail,
-                    value: pool.supply + " " + pool.name,
+                    value: Number(pool.supply) * Number(ceilWithPrecision(formatUnits(daiToVdai))) + " " + pool.name,
                   };
                 }
                 if (detail.label === "LQ. IN DOLLAR") {
@@ -1767,7 +1767,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //             if (detail.label === "TOTAL LIQUIDITY") {
     //               return {
     //                 ...detail,
-    //                 value: pool.supply + " " + pool.name,
+    //                 value: Number(pool.supply) * Number(ceilWithPrecision(formatUnits(ethToVeth))) + " " + pool.name,
     //               };
     //             }
     //             if (detail.label === "LIQUIDITY IN DOLLAR") {
@@ -1833,7 +1833,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //             if (detail.label === "TOTAL LIQUIDITY") {
     //               return {
     //                 ...detail,
-    //                 value: pool.supply + " " + pool.name,
+    //                 value: Number(pool.supply) * Number(ceilWithPrecision(formatUnits(ethToVeth)))+ " " + pool.name,
     //               };
     //             }
     //             if (detail.label === "LIQUIDITY IN DOLLAR") {
@@ -1899,7 +1899,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //             if (detail.label === "TOTAL LIQUIDITY") {
     //               return {
     //                 ...detail,
-    //                 value: pool.supply + " " + pool.name,
+    //                 value: Number(pool.supply) * Number(ceilWithPrecision(formatUnits(ethToVeth))) + " " + pool.name,
     //               };
     //             }
     //             if (detail.label === "LIQUIDITY IN DOLLAR") {
@@ -1965,7 +1965,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //             if (detail.label === "TOTAL LIQUIDITY") {
     //               return {
     //                 ...detail,
-    //                 value: pool.supply + " " + pool.name,
+    //                 value: Number(pool.supply) * Number(ceilWithPrecision(formatUnits(ethToVeth))) + " " + pool.name,
     //               };
     //             }
     //             if (detail.label === "LIQUIDITY IN DOLLAR") {
@@ -2031,7 +2031,7 @@ const PoolDetails = ({ pool }: { pool: PoolTable }) => {
     //             if (detail.label === "TOTAL LIQUIDITY") {
     //               return {
     //                 ...detail,
-    //                 value: pool.supply + " " + pool.name,
+    //                 value: Number(pool.supply) * Number(ceilWithPrecision(formatUnits(ethToVeth))) + " " + pool.name,
     //               };
     //             }
     //             if (detail.label === "LIQUIDITY IN DOLLAR") {

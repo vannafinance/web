@@ -22,7 +22,7 @@ import { poolsPlaceholder } from "@/app/lib/static-values";
 import { CaretDown, CaretUp, Lightning } from "@phosphor-icons/react";
 import { useWeb3React } from "@web3-react/core";
 import { Contract } from "ethers";
-import { Interface } from "ethers/lib/utils";
+import { formatUnits, Interface } from "ethers/lib/utils";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
@@ -164,8 +164,14 @@ export default function Page() {
         let usdcContract;
         let usdtContract;
         let wbtcContract;
+        let wethContract;
 
         if (currentNetwork.id === ARBITRUM_NETWORK) {
+          wethContract = new Contract(
+            arbAddressList.wethTokenAddress,
+            ERC20.abi,
+            signer
+          );
           daiContract = new Contract(
             arbAddressList.daiTokenAddress,
             ERC20.abi,
@@ -187,6 +193,11 @@ export default function Page() {
             signer
           );
         } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+          wethContract = new Contract(
+            opAddressList.wethTokenAddress,
+            ERC20.abi,
+            signer
+          );
           daiContract = new Contract(
             opAddressList.daiTokenAddress,
             ERC20.abi,
@@ -208,6 +219,11 @@ export default function Page() {
             signer
           );
         } else if (currentNetwork.id === BASE_NETWORK) {
+          wethContract = new Contract(
+            baseAddressList.wethTokenAddress,
+            ERC20.abi,
+            signer
+          );
           daiContract = new Contract(
             baseAddressList.daiTokenAddress,
             ERC20.abi,
@@ -230,7 +246,9 @@ export default function Page() {
           );
         }
 
-        const ethBalOfSA = await library?.getBalance(activeAccount);
+        let ethBalOfSA = formatUnits(await library?.getBalance(activeAccount));
+        ethBalOfSA += wethContract ? formatUnits(await wethContract.balanceOf(activeAccount)) : 0;
+        
         const daiBalOfSA = daiContract
           ? await daiContract.balanceOf(activeAccount)
           : 0;
@@ -246,12 +264,10 @@ export default function Page() {
 
         const listOfBalance: { [key: string]: string } = {};
 
-        listOfBalance["WETH"] = ceilWithPrecision(
-          formatBignumberToUnits("WETH", ethBalOfSA),
-          3
-        );
+        listOfBalance["WETH"] = ethBalOfSA;
         listOfBalance["WBTC"] = ceilWithPrecision(
-          formatBignumberToUnits("WBTC", daiBalOfSA)
+          formatBignumberToUnits("WBTC", daiBalOfSA),
+          4
         );
         listOfBalance["USDC"] = ceilWithPrecision(
           formatBignumberToUnits("USDC", usdcBalOfSA)
