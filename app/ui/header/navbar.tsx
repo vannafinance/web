@@ -46,7 +46,7 @@ export default function Navbar() {
           <NavLinks />
         </div>
       </div>
-      <div className="hidden lg:flex lg:flex-none self-center w-72 py-1">
+      <div className="hidden lg:flex lg:flex-none self-center py-1">
         <NavbarButtons />
       </div>
       {isBurgerMenuOpen && <BurgerMenu onClose={toggleBurgerMenu} />}

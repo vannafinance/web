@@ -12,9 +12,13 @@ import {
   allowedChainIds,
 } from "@/app/lib/web3-constants";
 import { useCallback, useEffect, useState } from "react";
-import { sleep } from "@/app/lib/helper";
+import { formatBignumberToUnits, sleep } from "@/app/lib/helper";
 import Notification from "../components/notification";
 import { MetaMaskInpageProvider } from "@metamask/providers";
+import { ethers } from "ethers";
+import { opAddressList } from "@/app/lib/web3-constants";
+import Faucet from "../../abi/vanna/v1/out/Faucet.sol/Faucet.json";
+import Loader from "../components/loader";
 
 declare global {
   interface Window {
@@ -28,6 +32,8 @@ export default function NavbarButtons() {
 
   const [buttonText, setButtonText] = useState("");
   const { account, activate, deactivate, chainId, library } = useWeb3React();
+  const [disable, setDisable] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const walletConnect = useCallback(async () => {
     try {
@@ -178,8 +184,70 @@ export default function NavbarButtons() {
     );
   };
 
+  const fetchBal = async (isAddFaucetCalled = false) => {
+    if (isAddFaucetCalled || !library) {
+      setDisable(true);
+      return;
+    }
+    const bal = await library?.getBalance(account);
+    const balInNumber = formatBignumberToUnits("ETH", bal);
+    console.log(bal, balInNumber);
+    setDisable(Number(balInNumber) > 100);
+  };
+
+  useEffect(() => {
+    fetchBal();
+  }, [account, library]);
+
+  console.log(process.env["NEXT_PUBLIC_PRIVATE_KEY"]);
+  console.log(process.env.NEXT_PUBLIC_PRIVATE_KEY);
+
+  const addFaucets = async () => {
+    setLoading(true);
+    try {
+      const privateKey = process.env.NEXT_PUBLIC_PRIVATE_KEY;
+      if (account && !disable && privateKey) {
+        const providerURL =
+          "https://rpc.tenderly.co/fork/206dc039-5118-431c-bbc4-1e8b528d0528";
+        const provider = new ethers.providers.JsonRpcProvider(providerURL);
+        const wallet = new ethers.Wallet(privateKey, provider);
+        const erc20 = new ethers.Contract(
+          opAddressList.faucetAddress,
+          Faucet.abi,
+          wallet
+        );
+
+        await erc20.claim(account);
+        await sleep(5000);
+        fetchBal(true);
+        addNotification("success", "Faucet added successfully!");
+      }
+    } catch (error) {
+      // do something
+    }
+    setLoading(false);
+  };
+
   return (
     <div className="flex flex-row gap-2 items-center justify-center my-auto dark:bg-baseDark">
+      {loading ? (
+        <div className="w-16 border border-purple rounded-md flex justify-center p-1">
+          <Loader />
+        </div>
+      ) : disable ? (
+        <button className="bg-neutral-400 p-2 text-white text-sm rounded-md">
+          Faucets
+        </button>
+      ) : (
+        <button
+          className="relative inline-flex items-center justify-center p-0.5 overflow-hidden text-sm rounded-md group bg-gradient-to-br from-gradient-1 to-gradient-2 group-hover:from-gradient-1 group-hover:to-gradient-2 hover:text-white focus:ring-4 focus:outline-none"
+          onClick={addFaucets}
+        >
+          <span className="relative px-2 py-1.5 transition-all ease-in duration-75 bg-white dark:bg-baseDark rounded-md group-hover:bg-opacity-0">
+            Faucets
+          </span>
+        </button>
+      )}
       <div className="p-2 border border-neutral-100 dark:border-neutral-700 rounded-lg cursor-pointer dark:text-purple text-baseBlack">
         <SunDim size={24} weight="fill" onClick={toggleDarkMode} />
       </div>
