@@ -489,13 +489,13 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
             );
 
             const getNetVal =
-              await OptimismFetchPositionContract.getTotalPositionValue(
+              await OptimismFetchPositionContract.getTotalPositionSize(
                 activeAccount,
                 opAddressList.vETH
               );
             const netValue = getNetVal / 1e18;
 
-            setCoinBalance(netValue);
+            setCoinBalance(Number(ceilWithPrecision(String(netValue), 5)));
           } else if (currentNetwork.id === BASE_NETWORK) {
           }
         }
@@ -691,7 +691,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
       } else if (currentNetwork.id === BASE_NETWORK) {
       }
 
-      await sleep(5000);
+      await sleep(15000);
       addNotification("success", "Transaction Successful!");
       getTokenBalance();
       setFetching(!fetching);
@@ -701,7 +701,6 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
       addNotification("error", "Something went wrong, Please try again.");
     }
 
-    await sleep(10000);
     updateAssetAmount("");
     setLoading(false);
   };
@@ -717,12 +716,86 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
       if (currentNetwork.id === ARBITRUM_NETWORK) {
         // add code here according to close a long position / short
       } else if (currentNetwork.id === OPTIMISM_NETWORK) {
-        // add code here according to close a long position / short
+        const signer = await library?.getSigner();
+
+        const accountManagerOpContract = new Contract(
+          opAddressList.accountManagerContractAddress,
+          AccountManager_op.abi,
+          signer
+        );
+        const ClearingHouseContract = new Contract(
+          opAddressList.ClearingHouse,
+          ClearingHouse.abi,
+          signer
+        );
+        const PerpVaultContract = new Contract(
+          opAddressList.vault,
+          PerpVault.abi,
+          signer
+        );
+        let oppositeAmountBound = Number(
+          formatStringToUnits("ETH", Number(collateralAmount))
+        );
+
+        const parmas = {
+          baseToken: "0x8C835DFaA34e2AE61775e80EE29E2c724c6AE2BB",
+          sqrtPriceLimitX96: 0,
+          oppositeAmountBound: oppositeAmountBound,
+          deadline:
+            "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+          referralCode:
+            "0x0000000000000000000000000000000000000000000000000000000000000000",
+        };
+
+        const data = [];
+        const target = [];
+        const data1 = [];
+        const target1 = [];
+        const iface = new Interface(ClearingHouse.abi);
+        target.push(opAddressList.ClearingHouse);
+        data.push(iface.encodeFunctionData("closePosition", [parmas]));
+        const x = await accountManagerOpContract.exec(
+          activeAccount,
+          target,
+          0,
+          data,
+          { gasLimit: 2300000 }
+        );
+        addNotification("info", "Please wait until transaction is processing!");
+        await sleep(10000);
+        await x.wait();
+
+        const withdrawAmount = await PerpVaultContract.getSettlementTokenValue(
+          activeAccount
+        );
+
+        oppositeAmountBound = withdrawAmount / 1e6;
+
+        oppositeAmountBound = Number(
+          formatStringToUnits("USDC", oppositeAmountBound)
+        );
+
+        oppositeAmountBound = oppositeAmountBound - 100;
+
+        const iface1 = new Interface(PerpVault.abi);
+
+        target1.push(opAddressList.vault);
+        data1.push(
+          iface1.encodeFunctionData("withdraw", [
+            opAddressList.usdcTokenAddress,
+            oppositeAmountBound,
+          ])
+        );
+
+        // data.push()
+        await accountManagerOpContract.exec(activeAccount, target1, 0, data1, {
+          gasLimit: 2300000,
+        });
       } else if (currentNetwork.id === BASE_NETWORK) {
         // add code here according to close a long position / short
       }
 
-      await sleep(5000);
+      await sleep(15000);
       addNotification("success", "Transaction Successful!");
       getTokenBalance();
       setFetching(!fetching);
@@ -732,6 +805,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
       addNotification("error", "Something went wrong, Please try again.");
     }
 
+    updateAssetAmount("");
     setLoading(false);
   };
 
