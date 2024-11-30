@@ -67,8 +67,8 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({
 
   useEffect(() => {
     const fetchValues = async () => {
-      setLoading(true);
       if (!currentNetwork) return;
+      setLoading(true);
 
       try {
         const signer = library?.getSigner();
@@ -93,6 +93,7 @@ const AccountOverview: React.FC<AccountOverviewProps> = ({
             signer
           );
         } else {
+          setLoading(false);
           return;
         }
 

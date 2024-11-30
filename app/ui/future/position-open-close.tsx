@@ -222,11 +222,13 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
   useEffect(() => {
     const options =
       currentNetwork && currentNetwork.id === OPTIMISM_NETWORK
-        ? [{ value: "USDC", label: "USDC", icon: "/usdc-icon.svg" }]
+        ? isOpen
+          ? [{ value: "USDC", label: "USDC", icon: "/usdc-icon.svg" }]
+          : [{ value: "WETH", label: "WETH", icon: "/eth-icon.svg" }]
         : defaultTokenOptions;
     setTokenOptions(options);
     setCoin(options[0]);
-  }, [currentNetwork]);
+  }, [currentNetwork, isOpen]);
 
   useEffect(() => {
     accountCheck();
@@ -699,6 +701,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
       addNotification("error", "Something went wrong, Please try again.");
     }
 
+    await sleep(10000);
     updateAssetAmount("");
     setLoading(false);
   };

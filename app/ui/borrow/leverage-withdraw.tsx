@@ -104,14 +104,12 @@ const LevrageWithdraw = () => {
 
   const handleDepositTokenSelect = (token: PoolTable) => {
     setDepositToken(token);
-    getTokenBalance(token);
     setDepositAmount("");
     setBorrowAmount("");
   };
 
   const handleBorrowTokenSelect = (token: PoolTable) => {
     setBorrowToken(token);
-    getTokenBalance();
     setDepositAmount("");
     setBorrowAmount("");
   };
@@ -257,7 +255,7 @@ const LevrageWithdraw = () => {
     setLoading(false);
   };
 
-  const getTokenBalance = async (token = depositToken) => {
+  const getTokenBalance = async () => {
     try {
       setDepositBalance(0);
       setBorrowBalance(0);
@@ -266,26 +264,26 @@ const LevrageWithdraw = () => {
         let depositBalance;
 
         if (isLeverage) {
-          if (token?.name === undefined) return;
-          if (token?.name == "WETH") {
+          if (depositToken?.name === undefined) return;
+          if (depositToken?.name == "WETH") {
             depositBalance = await library?.getBalance(account);
           } else {
             let contract;
             if (currentNetwork.id === ARBITRUM_NETWORK) {
               contract = new Contract(
-                arbTokensAddress[token?.name],
+                arbTokensAddress[depositToken?.name],
                 ERC20.abi,
                 signer
               );
             } else if (currentNetwork.id === OPTIMISM_NETWORK) {
               contract = new Contract(
-                opTokensAddress[token?.name],
+                opTokensAddress[depositToken?.name],
                 ERC20.abi,
                 signer
               );
             } else if (currentNetwork.id === BASE_NETWORK) {
               contract = new Contract(
-                baseTokensAddress[token?.name],
+                baseTokensAddress[depositToken?.name],
                 ERC20.abi,
                 signer
               );
@@ -297,7 +295,7 @@ const LevrageWithdraw = () => {
           }
 
           const depositBalanceInNumber = formatBignumberToUnits(
-            token?.name,
+            depositToken?.name,
             depositBalance
           );
           setDepositBalance(
@@ -467,11 +465,9 @@ const LevrageWithdraw = () => {
 
       const ethAccountBalance =
         (await library?.getBalance(activeAccount)) / 1e18;
-
       const wethAccounBalance =
         ethAccountBalance +
         Number((await wethContract.balanceOf(activeAccount)) / 1e18);
-
       const wbtcAccounBalance =
         (await wbtcContract.balanceOf(activeAccount)) / 1e18;
       const usdcAccounBalance =
@@ -556,6 +552,10 @@ const LevrageWithdraw = () => {
     getTokenBalance();
     calc();
   }, [account, activeAccount, currentNetwork, isLeverage]);
+
+  useEffect(() => {
+    getTokenBalance();
+  }, [depositToken, borrowToken]);
 
   useEffect(() => {
     const val = getPriceFromAssetsArray(borrowToken.name);
@@ -694,7 +694,7 @@ const LevrageWithdraw = () => {
 
     try {
       if (isLeverage) {
-        if (btnValue === "Deposit") {
+        if (btnValue === "Deposit" || btnValue === "Approve - Deposit") {
           await deposit();
         } else if (btnValue === "Borrow") {
           await borrow();

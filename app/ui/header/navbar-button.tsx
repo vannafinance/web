@@ -6,10 +6,21 @@ import { useDarkMode } from "./use-dark-mode";
 import { useNetwork } from "@/app/context/network-context";
 
 import { useWeb3React } from "@web3-react/core";
-import { injected, getShortenedAddress, allowedChainIds } from "@/app/lib/web3-constants";
+import {
+  injected,
+  getShortenedAddress,
+  allowedChainIds,
+} from "@/app/lib/web3-constants";
 import { useCallback, useEffect, useState } from "react";
 import { sleep } from "@/app/lib/helper";
 import Notification from "../components/notification";
+import { MetaMaskInpageProvider } from "@metamask/providers";
+
+declare global {
+  interface Window {
+    ethereum?: MetaMaskInpageProvider;
+  }
+}
 
 export default function NavbarButtons() {
   const { toggleDarkMode } = useDarkMode();
@@ -112,8 +123,26 @@ export default function NavbarButtons() {
   };
 
   const wallectDisconnect = useCallback(async () => {
-    deactivate();
-    localStorage.removeItem("isWalletConnected");
+    try {
+      deactivate();
+      localStorage.removeItem("isWalletConnected");
+
+      if (!window.ethereum) {
+        addNotification("error", "MetaMask is not installed!");
+        return;
+      }
+
+      await window?.ethereum.request({
+        method: "wallet_revokePermissions",
+        params: [
+          {
+            eth_accounts: {}, // Revoke the 'eth_accounts' permission
+          },
+        ],
+      });
+    } catch (error) {
+      console.error(error);
+    }
   }, [deactivate]);
 
   useEffect(() => {
