@@ -191,16 +191,12 @@ export default function NavbarButtons() {
     }
     const bal = await library?.getBalance(account);
     const balInNumber = formatBignumberToUnits("ETH", bal);
-    console.log(bal, balInNumber);
     setDisable(Number(balInNumber) > 100);
   };
 
   useEffect(() => {
     fetchBal();
   }, [account, library]);
-
-  console.log(process.env["NEXT_PUBLIC_PRIVATE_KEY"]);
-  console.log(process.env.NEXT_PUBLIC_PRIVATE_KEY);
 
   const addFaucets = async () => {
     setLoading(true);
@@ -219,8 +215,8 @@ export default function NavbarButtons() {
 
         await erc20.claim(account);
         await sleep(5000);
-        fetchBal(true);
         addNotification("success", "Faucet added successfully!");
+        await fetchBal(true);
       }
     } catch (error) {
       // do something
@@ -235,15 +231,15 @@ export default function NavbarButtons() {
           <Loader />
         </div>
       ) : disable ? (
-        <button className="bg-neutral-400 p-2 text-white text-sm rounded-md">
+        <button className="bg-neutral-400 px-3 py-2.5 text-white text-sm rounded-md">
           Faucets
         </button>
       ) : (
         <button
-          className="relative inline-flex items-center justify-center p-0.5 overflow-hidden text-sm rounded-md group bg-gradient-to-br from-gradient-1 to-gradient-2 group-hover:from-gradient-1 group-hover:to-gradient-2 hover:text-white focus:ring-4 focus:outline-none"
+          className="relative inline-flex items-center justify-center p-0.5 overflow-hidden text-sm rounded-md group bg-gradient-to-br from-gradient-1 to-gradient-2 group-hover:from-gradient-1 group-hover:to-gradient-2 text-black dark:text-white hover:text-white focus:ring-4 focus:outline-none"
           onClick={addFaucets}
         >
-          <span className="relative px-2 py-1.5 transition-all ease-in duration-75 bg-white dark:bg-baseDark rounded-md group-hover:bg-opacity-0">
+          <span className="relative px-2.5 py-2 transition-all ease-in duration-75 bg-white dark:bg-baseDark rounded-md group-hover:bg-opacity-0">
             Faucets
           </span>
         </button>

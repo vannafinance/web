@@ -808,7 +808,6 @@ export default function Page() {
 
         borrowedBalance =
           Number(formatUnits(Number(borrowedBalance))) * currentEthPrice;
-        console.log("borrowedBalance ", borrowedBalance);
 
         borrowedBalance +=
           Number(
@@ -823,7 +822,6 @@ export default function Page() {
               await vUsdcContract.callStatic.getBorrowBalance(activeAccount)
             )
           ) * (await getAssetPrice("USDC"));
-        console.log("borrowedBalance at usdc ", borrowedBalance);
 
         borrowedBalance +=
           Number(
@@ -1074,8 +1072,6 @@ export default function Page() {
         } else if (daiBorrowApy > 0) {
           count++;
         }
-
-        console.log("totalborrowRate", totalborrowRate);
 
         totalborrowRate = Number(totalborrowRate) / count;
 
