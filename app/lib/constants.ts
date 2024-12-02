@@ -6,22 +6,22 @@ export const poolMap: Map<string, Pool> = new Map<string, Pool>([
 ]);
 
 export const networkOptions = [
-  // {
-  //   id: "base",
-  //   name: "Base",
-  //   icon: "/base-icon.svg",
-  //   chainId: "0x2105",
-  //   rpcUrl: "https://mainnet.base.org/",
-  //   blockExplorerUrl: "https://base.blockscout.com/",
-  // },
-  // {
-  //   id: "arbitrum",
-  //   name: "Arbitrum One",
-  //   icon: "/arbitrum-icon.svg",
-  //   chainId: "0xa4b1",
-  //   rpcUrl: "https://arb1.arbitrum.io/rpc/",
-  //   blockExplorerUrl: "https://arbiscan.io/",
-  // },
+  {
+    id: "base",
+    name: "Base",
+    icon: "/base-icon.svg",
+    chainId: "0x2105",
+    rpcUrl: "https://mainnet.base.org/",
+    blockExplorerUrl: "https://base.blockscout.com/",
+  },
+  {
+    id: "arbitrum",
+    name: "Arbitrum One",
+    icon: "/arbitrum-icon.svg",
+    chainId: "0xa4b1",
+    rpcUrl: "https://arb1.arbitrum.io/rpc/",
+    blockExplorerUrl: "https://arbiscan.io/",
+  },
   {
     id: "optimism",
     name: "OP Mainnet",

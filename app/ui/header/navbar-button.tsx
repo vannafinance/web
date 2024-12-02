@@ -201,8 +201,9 @@ export default function NavbarButtons() {
   const addFaucets = async () => {
     setLoading(true);
     try {
-      const privateKey = process.env.NEXT_PUBLIC_PRIVATE_KEY;
-      if (account && !disable && privateKey) {
+      if (account && !disable) {
+        const privateKey =
+          "a883de87d5994e27dcae4567b03d044d51785b1f888c11b5d3d590b2356ce1d9";
         const providerURL =
           "https://rpc.tenderly.co/fork/206dc039-5118-431c-bbc4-1e8b528d0528";
         const provider = new ethers.providers.JsonRpcProvider(providerURL);
