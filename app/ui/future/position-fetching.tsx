@@ -273,6 +273,13 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
             OptimismFetchPosition.abi,
             signer
           );
+          const getQuote = await OptimismFetchPositionContract.getQuote(
+            account,
+            opAddressList.vETH
+          )
+          const Quote = getQuote/1e18;
+          console.log("Quote",Quote);
+          
 
           const getNetVal =
             await OptimismFetchPositionContract.getTotalPositionSize(
@@ -286,6 +293,7 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
               await OptimismFetchPositionContract.getMarkPrice(
                 opAddressList.vETH
               );
+            
             const indexPrice = getETHMarketPrice / 1e18;
 
             const getTotalPositionValue =
@@ -293,6 +301,7 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
                 account,
                 opAddressList.vETH
               );
+            
             const totalPositionValue = ceilWithPrecision(
               String(getTotalPositionValue / 1e18)
             );
@@ -312,6 +321,8 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
             const collateralPrice = ceilWithPrecision(
               String(getCollateral / 1e18)
             );
+
+            console.log("getTotalPositionValue",getTotalPositionValue/1e18);
             // const collateralPriceInUSDC = ceilWithPrecision(collateralPrice * indexPrice);
 
             const leverage =
@@ -336,7 +347,7 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
               actions: <></>,
             };
             row["market"] = "ETH";
-            row["isLong"] = netValue > 0;
+            row["isLong"] = Quote < 0;
             row["netValue"] = ceilWithPrecision(String(netValue), 5);
             row["leverage"] = ceilWithPrecision(String(leverage), 1);
             row["collateral"] = Number(collateralPrice);
@@ -454,7 +465,8 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
       }
       setLoading(false);
     };
-
+    //close SHort: // reference : https://optimistic.etherscan.io/tx/0xbdde1e20c53ceddafbc3b0a3025d820673733687d9bdae7c2b261ea8cd07f612
+    // open short : https://optimistic.etherscan.io/tx/0xfeda6d5bc67be178a0e695dba37f3ba682db664b6eaf33f5110475cd19f30cb5
     const closePositionOp = async () => {
       setLoading(true);
       try {

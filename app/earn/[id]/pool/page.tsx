@@ -252,6 +252,7 @@ export default function Page({ params }: { params: { id: string } }) {
               //  Utilization Rate
               let utilazation;
               if (pool?.name === "WETH") {
+                console.log("usdcTotalBorrow",formatUnits(ethTotalBorrow))
                 utilazation = String(
                   parseFloat(ceilWithPrecision(formatUnits(ethTotalBorrow))) /
                     parseFloat(String(pool?.supply))
@@ -266,20 +267,23 @@ export default function Page({ params }: { params: { id: string } }) {
                 );
                 utilazation = Number(utilazation) * 100;
                 setUtilizationRate(ceilWithPrecision(String(utilazation)));
+                setUniqueLP("3");
               } else if (pool?.name === "USDC") {
                 utilazation = String(
-                  parseFloat(ceilWithPrecision(formatUnits(usdcTotalBorrow))) /
+                  parseFloat(ceilWithPrecision(formatUnits(usdcTotalBorrow,6))) /
                     parseFloat(String(pool?.supply))
                 );
                 utilazation = Number(utilazation) * 100;
+                setUniqueLP("10");
                 setUtilizationRate(ceilWithPrecision(String(utilazation)));
               } else if (pool?.name === "USDT") {
                 utilazation = String(
-                  parseFloat(ceilWithPrecision(formatUnits(usdtTotalBorrow))) /
+                  parseFloat(ceilWithPrecision(formatUnits(usdtTotalBorrow,6))) /
                     parseFloat(String(pool?.supply))
                 );
                 utilazation = Number(utilazation) * 100;
                 setUtilizationRate(ceilWithPrecision(String(utilazation)));
+                setUniqueLP("2");
               } else if (pool?.name === "DAI") {
                 utilazation = String(
                   parseFloat(ceilWithPrecision(formatUnits(daiTotalBorrow))) /
@@ -287,6 +291,7 @@ export default function Page({ params }: { params: { id: string } }) {
                 );
                 utilazation = Number(utilazation) * 100;
                 setUtilizationRate(ceilWithPrecision(String(utilazation)));
+                setUniqueLP("3");
               }
             };
             fetchValues();
@@ -354,18 +359,40 @@ export default function Page({ params }: { params: { id: string } }) {
                 setUniqueLP("5");
               }
               if (pool?.name === "WBTC") {
+                setUtilizationRate(
+                  String(
+                    parseFloat(wbtcTotalBorrow?.toString()) /
+                      parseFloat(String(pool?.supply))
+                  )
+                );
+                setUniqueLP("3");
               }
-              if (pool?.name === "WETH") {
-                // const poolDetails =
-                // setUtilizationRate = parseFloat(ethTotalBorrow) /parseFloat(String(pool?.supply));
+              if (pool?.name === "USDC") {
+                setUtilizationRate(
+                  String(
+                    parseFloat(usdcTotalBorrow?.toString()) /
+                      parseFloat(String(pool?.supply))
+                  )
+                );
+                setUniqueLP("12");
               }
-              if (pool?.name === "WETH") {
-                // const poolDetails =
-                // setUtilizationRate = parseFloat(ethTotalBorrow) /parseFloat(String(pool?.supply));
+              if (pool?.name === "USDT") {
+                setUtilizationRate(
+                  String(
+                    parseFloat(usdtTotalBorrow?.toString()) /
+                      parseFloat(String(pool?.supply))
+                  )
+                );
+                setUniqueLP("0");
               }
-              if (pool?.name === "WETH") {
-                // const poolDetails =
-                // setUtilizationRate = parseFloat(ethTotalBorrow) /parseFloat(String(pool?.supply));
+              if (pool?.name === "DAI") {
+                setUtilizationRate(
+                  String(
+                    parseFloat(daiTotalBorrow?.toString()) /
+                      parseFloat(String(pool?.supply))
+                  )
+                );
+                setUniqueLP("0");
               }
             };
             fetchValues();
