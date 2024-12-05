@@ -219,6 +219,9 @@ export default function Page() {
   const [futuresPositions, setFuturesPositions] = useState<FuturePosition[]>(
     defaultFuturePositions
   );
+  const [selectedFuturePositions, setSelectedFuturePositions] = useState<
+    FuturePosition[]
+  >([]);
 
   const [portfolioSummary, setPortfolioSummary] = useState({
     future: "-",
@@ -260,11 +263,20 @@ export default function Page() {
 
   const handleFuturePositionSelect = (id: number) => {
     setFuturesPositions((positions) =>
-      positions.map((position) =>
-        position.id === id
-          ? { ...position, selected: !position.selected }
-          : position
-      )
+      positions.map((position) => {
+        if (position.id === id) {
+          const updatedPosition = { ...position, selected: !position.selected };
+
+          setSelectedFuturePositions((prevSelected) =>
+            updatedPosition.selected
+              ? [...prevSelected.filter((p) => p.id !== id), updatedPosition]
+              : prevSelected.filter((p) => p.id !== id)
+          );
+
+          return updatedPosition;
+        }
+        return position;
+      })
     );
   };
 
