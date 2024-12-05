@@ -618,6 +618,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
           { gasLimit: 2300000 }
         );
       } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+        const longShort = buySell === "buy" ? "01" : "00";
         if (!activeAccount || collateralAmount === "") return;
         const signer = await library?.getSigner();
 
@@ -655,6 +656,21 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
         const amount = BigNumber.from(
           formatStringToUnits("WETH", Number(collateralAmount) * leverageValue)
         );
+         // open short : https://optimistic.etherscan.io/tx/0xfeda6d5bc67be178a0e695dba37f3ba682db664b6eaf33f5110475cd19f30cb5
+        //  0	params.baseToken	address	0x8C835DFaA34e2AE61775e80EE29E2c724c6AE2BB
+        //  0	params.isBaseToQuote	bool
+        //  true
+        //  0	params.isExactInput	bool
+        //  false
+        //  0	params.amount	uint256
+        //  5000000000000000000
+        //  0	params.oppositeAmountBound	uint256
+        //  1389047538637164
+        //  0	params.deadline	uint256
+        //  115792089237316195423570985008687907853269984665640564039457584007913129639935
+        //  0	params.sqrtPriceLimitX96	uint160
+        //  0
+        //  0	params.referralCode	bytes32
 
         const openPositionParams = {
           baseToken: opAddressList.vETH, // vETH of perp
@@ -716,6 +732,22 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
       if (currentNetwork.id === ARBITRUM_NETWORK) {
         // add code here according to close a long position / short
       } else if (currentNetwork.id === OPTIMISM_NETWORK) {
+         // open short : https://optimistic.etherscan.io/tx/0xfeda6d5bc67be178a0e695dba37f3ba682db664b6eaf33f5110475cd19f30cb5
+        //  0	params.baseToken	address	0x8C835DFaA34e2AE61775e80EE29E2c724c6AE2BB
+        //  0	params.isBaseToQuote	bool
+        //  true
+        //  0	params.isExactInput	bool
+        //  false
+        //  0	params.amount	uint256
+        //  5000000000000000000
+        //  0	params.oppositeAmountBound	uint256
+        //  1389047538637164
+        //  0	params.deadline	uint256
+        //  115792089237316195423570985008687907853269984665640564039457584007913129639935
+        //  0	params.sqrtPriceLimitX96	uint160
+        //  0
+        //  0	params.referralCode	bytes32
+         
         const signer = await library?.getSigner();
 
         const accountManagerOpContract = new Contract(
