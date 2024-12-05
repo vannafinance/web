@@ -12,27 +12,27 @@ interface FAQItem {
 const faqs: FAQItem[] = [
   {
     question: "Where is the yield/interest coming from?",
-    answer: "The yield comes from...",
+    answer: "Yield comes from borrowers who pay interest on leveraged margin loans, along with liquidation fees shared with lenders.",
   },
   {
     question: "How safe is lending on Vanna?",
-    answer: "Lending on Vanna is...",
+    answer: "Lending is safe due to isolated pools, efficient liquidation mechanisms and no impermanent loss risk. Each pool is protected independently to minimize systemic risk.",
   },
   {
     question: "Are these passive pools or can I be liquidated?",
-    answer: "These pools are...",
+    answer: "These are passive pools and liquidity providers cannot be liquidated. Borrowers bear the liquidation risk.",
   },
   {
     question: "Where can I claim my APY and rewards?",
-    answer: "You can claim your APY and rewards...",
+    answer: "APY and rewards are automatically accrued and can be claimed directly from your Vanna dashboard.",
   },
   {
     question: "Is there some hidden fee or withdrawal fee?",
-    answer: "There are no hidden fees...",
+    answer: "There are no hidden fees. Withdrawal fees, if any, are transparently displayed at the time of withdrawal.",
   },
   {
     question: "Is my liquidity locked? Can I withdraw any time?",
-    answer: "Your liquidity is...",
+    answer: "Liquidity is not locked, and you can withdraw anytime, subject to pool utilization and availability of funds.",
   },
 ];
 
