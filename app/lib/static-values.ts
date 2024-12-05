@@ -121,25 +121,25 @@ export const tradeMenuSubLinks = [
   {
     title: "Dashboard",
     href: "/trade/dashboard",
-    subtitle: "Contracts settled in USDT and USDC",
+    subtitle: "Hedging tool to manage complex strategies with Greeks insights",
     icon: "/dashboard-menu-icon.svg",
   },
   {
     title: "Perps",
     href: "/trade/future",
-    subtitle: "Contracts settled in cryptocurrency",
+    subtitle: "Leveraged perpetual contracts to trade crypto without expiration",
     icon: "/perps-menu-icon.svg",
   },
   {
     title: "Options",
     href: "/trade/options",
-    subtitle: "USDT Options with limited downside and affordable entry",
+    subtitle: "Leveraged contracts for hedging, speculation, or income with controlled risk",
     icon: "/options-menu-icon.svg",
   },
   {
     title: "Spot",
     href: "/trade/spot",
-    subtitle: "USDT Options with limited downside and affordable entry",
+    subtitle: "Margin trade to buy/sell assets at spot prices",
     icon: "/spot-menu-icon.svg",
   },
 ];
