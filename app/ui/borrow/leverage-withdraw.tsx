@@ -24,7 +24,7 @@ import ERC20 from "../../abi/vanna/v1/out/ERC20.sol/ERC20.json";
 import RiskEngine from "../../abi/vanna/v1/out/RiskEngine.sol/RiskEngine.json";
 import VEther from "@/app/abi/vanna/v1/out/VEther.sol/VEther.json";
 import VToken from "@/app/abi/vanna/v1/out/VToken.sol/VToken.json";
-import { parseEther, parseUnits } from "ethers/lib/utils";
+import { formatUnits, parseEther, parseUnits } from "ethers/lib/utils";
 import {
   ceilWithPrecision,
   formatBignumberToUnits,
@@ -364,6 +364,7 @@ const LevrageWithdraw = () => {
         repayBalance = await vUsdcContract.callStatic.getBorrowBalance(
           activeAccount
         );
+        repayBalance = repayBalance/1e6;
       } else if (depositToken?.name == "USDT") {
         repayBalance = await vUsdtContract.callStatic.getBorrowBalance(
           activeAccount
@@ -441,6 +442,7 @@ const LevrageWithdraw = () => {
       let usdtRepayBalance;
       let daiRepayBalance;
       if (borrowToken?.name == "WETH") {
+        console.log("here");
         ethRepayBalance =
           (await vEtherContract.callStatic.getBorrowBalance(activeAccount)) /
           1e18;
@@ -449,9 +451,11 @@ const LevrageWithdraw = () => {
           (await vWbtcContract.callStatic.getBorrowBalance(activeAccount)) /
           1e18;
       } else if (borrowToken?.name == "USDC") {
+        
         usdcRepayBalance =
           (await vUsdcContract.callStatic.getBorrowBalance(activeAccount)) /
           1e18;
+        console.log("usdcRepayBalance",usdcRepayBalance);
       } else if (borrowToken?.name == "USDT") {
         usdtRepayBalance =
           (await vUsdtContract.callStatic.getBorrowBalance(activeAccount)) /
@@ -463,15 +467,12 @@ const LevrageWithdraw = () => {
       }
       let totalBalance;
 
-      const ethAccountBalance =
-        (await library?.getBalance(activeAccount)) / 1e18;
       const wethAccounBalance =
-        ethAccountBalance +
         Number((await wethContract.balanceOf(activeAccount)) / 1e18);
       const wbtcAccounBalance =
         (await wbtcContract.balanceOf(activeAccount)) / 1e18;
       const usdcAccounBalance =
-        (await usdcContract.balanceOf(activeAccount)) / 1e6;
+        Number(await usdcContract.balanceOf(activeAccount)) / 1e6;
       const usdtAccounBalance =
         (await usdtContract.balanceOf(activeAccount)) / 1e6;
       const daiAccounBalance =
@@ -831,14 +832,14 @@ const LevrageWithdraw = () => {
         !accountManagerContract
       )
         return;
-      else if (depositToken?.name === "WETH") {
+      else if (depositToken?.name === "ETH") {
         await accountManagerContract.depositEth(activeAccount, {
           value: parseEther(depositAmount),
           gasLimit: 2300000,
         });
       } else if (
         depositToken?.name === "USDC" ||
-        depositToken?.name === "USDT"
+        depositToken?.name === "USDT" 
       ) {
         const erc20Contract = new Contract(
           opTokensAddress[depositToken?.name],
@@ -846,14 +847,16 @@ const LevrageWithdraw = () => {
           signer
         );
 
-        const allowance = await erc20Contract.allowance(
+        const allowance = formatUnits(await erc20Contract.allowance(
           account,
           opAddressList.accountManagerContractAddress
-        );
-        if (allowance < Number(depositAmount)) {
+        ),6);
+        console.log("here at allowance in op", allowance);
+        console.log("here at depositAmount in op", Number(depositAmount));
+        if (Number(allowance) < Number(depositAmount)) {
           await erc20Contract.approve(
             opAddressList.accountManagerContractAddress,
-            parseUnits(String(Number(depositAmount) - allowance), 6),
+            parseUnits(String(Number(depositAmount) - Number(allowance)), 6),
             { gasLimit: 2300000 }
           );
           await sleep(3000);
@@ -1009,8 +1012,9 @@ const LevrageWithdraw = () => {
       );
       if (borrowToken?.name === undefined || !accountManagerContract) return;
       else if (borrowToken?.name === "WETH") {
-        await accountManagerContract.withdrawEth(
+        await accountManagerContract.withdraw(
           activeAccount,
+          opTokensAddress[borrowToken?.name],
           parseEther(borrowAmount),
           { gasLimit: 2300000 }
         );

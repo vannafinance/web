@@ -78,7 +78,6 @@ export const opAddressList = {
   usdtTokenAddress: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
   wbtcTokenAddress: "0x68f180fcCe6836688e9084f035309E29Bf0A2095",
   tTokenAddress: "0xc8b4aA9729EE997adE0B14723e9A37f5C01b9531",
-
   vDaiContractAddress: "0x278e5d039ba2E09FaD254b87787f852f31060118",
   vUSDCContractAddress: "0x010305302F7BFc12Ec2597Cef77AF2DE91a90Ee9",
   vUSDTContractAddress: "0x7e70816B257Be3AbC4f2acA8C7e42b7bde76AEC8",

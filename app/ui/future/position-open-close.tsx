@@ -618,7 +618,8 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
           { gasLimit: 2300000 }
         );
       } else if (currentNetwork.id === OPTIMISM_NETWORK) {
-        const longShort = buySell === "buy" ? "01" : "00";
+        const isBaseToQuote = buySell === "buy" ? false : true;
+        const isExactInput = buySell === "buy" ? true : false;
         if (!activeAccount || collateralAmount === "") return;
         const signer = await library?.getSigner();
 
@@ -674,8 +675,8 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
 
         const openPositionParams = {
           baseToken: opAddressList.vETH, // vETH of perp
-          isBaseToQuote: false, //(base: USDC and Quote: ETH)
-          isExactInput: true,
+          isBaseToQuote: isBaseToQuote, //(base: USDC and Quote: ETH)
+          isExactInput: isExactInput,
           amount: amount,
           oppositeAmountBound: OppositeAmountBoundBN,
           deadline:
@@ -684,6 +685,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
           referralCode:
             "0x0000000000000000000000000000000000000000000000000000000000000000",
         };
+        console.log("openPositionParams",openPositionParams)
 
         const data = [];
         const target = [];

@@ -246,9 +246,9 @@ export default function Page() {
           );
         }
 
-        let ethBalOfSA = formatUnits(await library?.getBalance(activeAccount));
-        ethBalOfSA += wethContract ? formatUnits(await wethContract.balanceOf(activeAccount)) : 0;
-        
+        const ethBalOfSA = wethContract
+          ? await wethContract.balanceOf(activeAccount)
+          : 0;
         const daiBalOfSA = daiContract
           ? await daiContract.balanceOf(activeAccount)
           : 0;
@@ -264,10 +264,13 @@ export default function Page() {
 
         const listOfBalance: { [key: string]: string } = {};
 
-        listOfBalance["WETH"] = ethBalOfSA;
+        listOfBalance["WETH"] = ceilWithPrecision(
+          formatBignumberToUnits("WETH", ethBalOfSA),
+          6
+        );;
         listOfBalance["WBTC"] = ceilWithPrecision(
-          formatBignumberToUnits("WBTC", daiBalOfSA),
-          4
+          formatBignumberToUnits("WBTC", wbtcBalOfSA),
+          4 
         );
         listOfBalance["USDC"] = ceilWithPrecision(
           formatBignumberToUnits("USDC", usdcBalOfSA)
