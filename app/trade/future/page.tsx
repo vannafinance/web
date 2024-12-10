@@ -18,7 +18,6 @@ import { opAddressList } from "@/app/lib/web3-constants";
 import OpMarkPrice from "../../abi/vanna/v1/out/OpMarkPrice.sol/OpMarkPrice.json";
 import OpIndexPrice from "../../abi/vanna/v1/out/OpIndexPrice.sol/OpIndexPrice.json";
 import { ceilWithPrecision } from "@/app/lib/helper";
-import { formatUnits } from "ethers/lib/utils";
 
 export default function Page() {
   const { library } = useWeb3React();
@@ -100,18 +99,14 @@ export default function Page() {
     const pointOne = (asset.price * 0.1) / 100;
     const indexPrice = Number(asset.price) - Number(pointOne);
     const markPrice = Number(asset.price);
-    const fundingRate = (markPrice - indexPrice) / (indexPrice / 3 ) * 100;
-    console.log("indexPrice",indexPrice);
-    console.log("markPrice",markPrice);
-    console.log("fundingRate",fundingRate);
+    const fundingRate = ((markPrice - indexPrice) / (indexPrice / 3)) * 100;
 
-    
     // setIndexPrice(ceilWithPrecision(String(Number(formatUnits(indexPrice,8))), 2));
     // setMarkPrice(ceilWithPrecision(String(Number(formatUnits(markPrice))), 2));
     // setFundingRate(ceilWithPrecision(String(fundingRate), 3) + "%");
-    setIndexPrice(ceilWithPrecision(String(indexPrice),2));
-    setMarkPrice(ceilWithPrecision(String(markPrice),2));
-    setFundingRate(ceilWithPrecision(String(fundingRate))+ "%");
+    setIndexPrice(ceilWithPrecision(String(indexPrice), 2));
+    setMarkPrice(ceilWithPrecision(String(markPrice), 2));
+    setFundingRate(ceilWithPrecision(String(fundingRate)) + "%");
     setVolume("80,005.6");
   };
 
@@ -251,8 +246,13 @@ export default function Page() {
               Open Interest {openInterestInPercentage}
             </p>
             <div className="flex items-center space-x-1">
-              <p className="text-green-500 text-sm"> {"$"} {openInterestNegative} {"K"} {"/"}</p>
-              <p className="text-red-500 text-sm">{"$"} {openInterestPositive} {"K"}</p>
+              <p className="text-green-500 text-sm">
+                {" "}
+                {"$"} {openInterestNegative} {"K"} {"/"}
+              </p>
+              <p className="text-red-500 text-sm">
+                {"$"} {openInterestPositive} {"K"}
+              </p>
             </div>
           </div>
           <div>

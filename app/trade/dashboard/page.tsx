@@ -222,6 +222,7 @@ export default function Page() {
   const [selectedFuturePositions, setSelectedFuturePositions] = useState<
     FuturePosition[]
   >([]);
+  console.log(selectedFuturePositions);
 
   const [portfolioSummary, setPortfolioSummary] = useState({
     future: "-",
