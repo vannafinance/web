@@ -137,83 +137,42 @@ export default function Page() {
     },
   ]);
 
+  const zeroFuturePosition = {
+    id: 1,
+    selected: false,
+    market: "0",
+    entryPrice: "0.00",
+    size: "0.00000",
+    leverage: "0.000",
+    liqPrice: "0.00",
+    delta: "0",
+    pnl: "0.0000",
+  };
+
   const defaultFuturePositions = [
-    // {
-    //   id: 0,
-    //   selected: false,
-    //   market: "ETH",
-    //   entryPrice: 0.0,
-    //   size: 0.0,
-    //   leverage: 0.0,
-    //   liqPrice: 0.0,
-    //   delta: 0.5,
-    //   pnl: 0.0,
-    // },
     {
+      ...zeroFuturePosition,
       id: 1,
-      selected: false,
-      market: "0",
-      entryPrice: "0.00",
-      size: "0.00000",
-      leverage: "0.000",
-      liqPrice: "0.00",
-      delta: "0",
-      pnl: "0.0000",
     },
     {
+      ...zeroFuturePosition,
       id: 2,
-      selected: false,
-      market: "0",
-      entryPrice: "0.00",
-      size: "0.00000",
-      leverage: "0.000",
-      liqPrice: "0.00",
-      delta: "0",
-      pnl: "0.0000",
     },
     {
+      ...zeroFuturePosition,
       id: 3,
-      selected: false,
-      market: "0",
-      entryPrice: "0.00",
-      size: "0.00000",
-      leverage: "0.000",
-      liqPrice: "0.00",
-      delta: "0",
-      pnl: "0.0000",
     },
     {
+      ...zeroFuturePosition,
       id: 4,
-      selected: false,
-      market: "0",
-      entryPrice: "0.00",
-      size: "0.00000",
-      leverage: "0.000",
-      liqPrice: "0.00",
-      delta: "0",
-      pnl: "0.0000",
     },
     {
+      ...zeroFuturePosition,
       id: 5,
-      selected: false,
-      market: "0",
-      entryPrice: "0.00",
-      size: "0.00000",
-      leverage: "0.000",
-      liqPrice: "0.00",
-      delta: "0",
-      pnl: "0.0000",
     },
     {
+      ...zeroFuturePosition,
       id: 6,
-      selected: false,
-      market: "0",
-      entryPrice: "0.00",
-      size: "0.00000",
-      leverage: "0.000",
-      liqPrice: "0.00",
-      delta: "0",
-      pnl: "0.0000",
     },
   ];
   const [futuresPositions, setFuturesPositions] = useState<FuturePosition[]>(
@@ -222,7 +181,6 @@ export default function Page() {
   const [selectedFuturePositions, setSelectedFuturePositions] = useState<
     FuturePosition[]
   >([]);
-  console.log(selectedFuturePositions);
 
   const [portfolioSummary, setPortfolioSummary] = useState({
     future: "-",
@@ -265,20 +223,37 @@ export default function Page() {
   const handleFuturePositionSelect = (id: number) => {
     setFuturesPositions((positions) =>
       positions.map((position) => {
-        if (position.id === id) {
+        const isCurrent = position.id === id;
+
+        if (isCurrent) {
           const updatedPosition = { ...position, selected: !position.selected };
-
-          setSelectedFuturePositions((prevSelected) =>
-            updatedPosition.selected
-              ? [...prevSelected.filter((p) => p.id !== id), updatedPosition]
-              : prevSelected.filter((p) => p.id !== id)
+          setSelectedFuturePositions(
+            updatedPosition.selected ? [updatedPosition] : []
           );
-
           return updatedPosition;
         }
-        return position;
+
+        return { ...position, selected: false };
       })
     );
+
+    // below code persits already selected positions as well
+    // setFuturesPositions((positions) =>
+    //   positions.map((position) => {
+    //     if (position.id === id) {
+    //       const updatedPosition = { ...position, selected: !position.selected };
+
+    //       setSelectedFuturePositions((prevSelected) =>
+    //         updatedPosition.selected
+    //           ? [...prevSelected.filter((p) => p.id !== id), updatedPosition]
+    //           : prevSelected.filter((p) => p.id !== id)
+    //       );
+
+    //       return updatedPosition;
+    //     }
+    //     return position;
+    //   })
+    // );
   };
 
   const [selectedPair, setSelectedPair] = useState<Option>(pairOptions[0]);
@@ -493,14 +468,14 @@ export default function Page() {
 
                   row["market"] = "ETH/USD";
                   // row["marketPrice"] = formatUSD(indexPrice);
-                  row["entryPrice"] = formatUSD(entryPrice);
-                  row["size"] = formatUSD(netValue);
+                  row["entryPrice"] = entryPrice.toString();
+                  row["size"] = ceilWithPrecision(String(netValue), 5);
                   row["leverage"] = ceilWithPrecision(
                     String(netValue / collateralPrice)
                   );
-                  row["liqPrice"] = formatUSD(liquidation);
+                  row["liqPrice"] = liquidation.toString();
                   row["delta"] = k === 1 ? "1" : "-1";
-                  row["pnl"] = formatUSD(pnl);
+                  row["pnl"] = pnl.toString();
 
                   if (k === 1) {
                     deltaCall += pnl;
@@ -517,59 +492,24 @@ export default function Page() {
           }
 
           renderedRows.push({
+            ...zeroFuturePosition,
             id: 11,
-            selected: false,
-            market: "0",
-            entryPrice: "0.00",
-            size: "0.00000",
-            leverage: "0.000",
-            liqPrice: "0.00",
-            delta: "0",
-            pnl: "0.0000",
           });
           renderedRows.push({
+            ...zeroFuturePosition,
             id: 12,
-            selected: false,
-            market: "0",
-            entryPrice: "0.00",
-            size: "0.00000",
-            leverage: "0.000",
-            liqPrice: "0.00",
-            delta: "0",
-            pnl: "0.0000",
           });
           renderedRows.push({
+            ...zeroFuturePosition,
             id: 13,
-            selected: false,
-            market: "0",
-            entryPrice: "0.00",
-            size: "0.00000",
-            leverage: "0.000",
-            liqPrice: "0.00",
-            delta: "0",
-            pnl: "0.0000",
           });
           renderedRows.push({
+            ...zeroFuturePosition,
             id: 14,
-            selected: false,
-            market: "0",
-            entryPrice: "0.00",
-            size: "0.00000",
-            leverage: "0.000",
-            liqPrice: "0.00",
-            delta: "0",
-            pnl: "0.0000",
           });
           renderedRows.push({
+            ...zeroFuturePosition,
             id: 15,
-            selected: false,
-            market: "0",
-            entryPrice: "0.00",
-            size: "0.00000",
-            leverage: "0.000",
-            liqPrice: "0.00",
-            delta: "0",
-            pnl: "0.0000",
           });
           setFuturesPositions(renderedRows);
 
@@ -695,12 +635,12 @@ export default function Page() {
 
             row["market"] = "ETH";
             // row["marketPrice"] = formatUSD(indexPrice);
-            row["entryPrice"] = formatUSD(entryPrice);
+            row["entryPrice"] = entryPrice.toString();
             row["size"] = ceilWithPrecision(String(netValue), 5);
             row["leverage"] = ceilWithPrecision(String(leverage));
-            row["liqPrice"] = formatUSD(liquidation);
+            row["liqPrice"] = liquidation.toString();
             row["delta"] = netValue > 0 ? "1" : "-1";
-            row["pnl"] = formatUSD(pnl);
+            row["pnl"] = pnl.toString();
 
             if (netValue > 0) {
               deltaCall += pnl;
@@ -712,59 +652,24 @@ export default function Page() {
             renderedRows.push(row);
 
             renderedRows.push({
+              ...zeroFuturePosition,
               id: 11,
-              selected: false,
-              market: "0",
-              entryPrice: "0.00",
-              size: "0.00000",
-              leverage: "0.000",
-              liqPrice: "0.00",
-              delta: "0",
-              pnl: "0.0000",
             });
             renderedRows.push({
+              ...zeroFuturePosition,
               id: 12,
-              selected: false,
-              market: "0",
-              entryPrice: "0.00",
-              size: "0.00000",
-              leverage: "0.000",
-              liqPrice: "0.00",
-              delta: "0",
-              pnl: "0.0000",
             });
             renderedRows.push({
+              ...zeroFuturePosition,
               id: 13,
-              selected: false,
-              market: "0",
-              entryPrice: "0.00",
-              size: "0.00000",
-              leverage: "0.000",
-              liqPrice: "0.00",
-              delta: "0",
-              pnl: "0.0000",
             });
             renderedRows.push({
+              ...zeroFuturePosition,
               id: 14,
-              selected: false,
-              market: "0",
-              entryPrice: "0.00",
-              size: "0.00000",
-              leverage: "0.000",
-              liqPrice: "0.00",
-              delta: "0",
-              pnl: "0.0000",
             });
             renderedRows.push({
+              ...zeroFuturePosition,
               id: 15,
-              selected: false,
-              market: "0",
-              entryPrice: "0.00",
-              size: "0.00000",
-              leverage: "0.000",
-              liqPrice: "0.00",
-              delta: "0",
-              pnl: "0.0000",
             });
             setFuturesPositions(renderedRows);
           }
@@ -1196,7 +1101,13 @@ export default function Page() {
       <div className="flex flex-col-reverse xl:flex-row gap-5 text-base pt-2.5 lg:pt-1">
         <div className="flex-none xl:w-[50%]">
           <div className="mb-5 w-full">
-            <OptionPayoffChart />
+            <OptionPayoffChart
+              position={
+                selectedFuturePositions.length > 0
+                  ? selectedFuturePositions[0]
+                  : defaultFuturePositions[0]
+              }
+            />
           </div>
 
           <div className="flex flex-col sm:flex-row gap-2">
@@ -1319,7 +1230,7 @@ export default function Page() {
                         {position.market}
                       </td>
                       <td className="pt-1 px-3 whitespace-nowrap">
-                        {position.entryPrice}
+                        {formatUSD(position.entryPrice)}
                       </td>
                       <td className="pt-1 px-3 whitespace-nowrap">
                         {position.size} {position.size !== "0.00000" && " ETH"}
@@ -1328,13 +1239,13 @@ export default function Page() {
                         {position.leverage}
                       </td>
                       <td className="pt-1 px-3 whitespace-nowrap">
-                        {position.liqPrice}
+                        {formatUSD(position.liqPrice)}
                       </td>
                       <td className="pt-1 px-3 whitespace-nowrap">
                         {position.delta}
                       </td>
                       <td className="pt-1 px-3 whitespace-nowrap">
-                        {position.pnl}
+                        {formatUSD(position.pnl)}
                       </td>
                     </tr>
                   ))

@@ -202,10 +202,12 @@ export default function NavbarButtons() {
     setLoading(true);
     try {
       if (account && !disable) {
+        addNotification("info", "Funds will be added soon !");
+
         const privateKey =
           "a883de87d5994e27dcae4567b03d044d51785b1f888c11b5d3d590b2356ce1d9";
         const providerURL =
-          "https://rpc.tenderly.co/fork/206dc039-5118-431c-bbc4-1e8b528d0528";
+          "https://rpc.tenderly.co/fork/44b363a3-2448-4a06-abc6-876f1ad01099";
         const provider = new ethers.providers.JsonRpcProvider(providerURL);
         const wallet = new ethers.Wallet(privateKey, provider);
         const erc20 = new ethers.Contract(
@@ -232,7 +234,12 @@ export default function NavbarButtons() {
           <Loader />
         </div>
       ) : disable ? (
-        <button className="bg-neutral-400 px-3 py-2.5 text-white text-sm rounded-md">
+        <button
+          className="bg-neutral-400 px-3 py-2.5 text-white text-sm rounded-md"
+          onClick={() =>
+            addNotification("info", "You already have enough funds!")
+          }
+        >
           Faucets
         </button>
       ) : (

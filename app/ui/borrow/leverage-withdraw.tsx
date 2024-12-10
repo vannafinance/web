@@ -352,7 +352,7 @@ const LevrageWithdraw = () => {
       borrowedBalance = borrowedBalance / 1e18;
 
       let repayBalance;
-      if (depositToken?.name == "WETH") {
+      if (depositToken?.name == "ETH") {
         repayBalance =
           (await vEtherContract.callStatic.getBorrowBalance(activeAccount)) /
           1e18;
@@ -756,7 +756,7 @@ const LevrageWithdraw = () => {
         !accountManagerContract
       )
         return;
-      else if (depositToken?.name === "WETH") {
+      else if (depositToken?.name === "ETH") {
         await accountManagerContract.depositEth(activeAccount, {
           value: parseEther(depositAmount),
           gasLimit: 2300000,
@@ -907,7 +907,7 @@ const LevrageWithdraw = () => {
         !accountManagerContract
       )
         return;
-      else if (depositToken?.name === "WETH") {
+      else if (depositToken?.name === "ETH") {
         await accountManagerContract.depositEth(activeAccount, {
           value: parseEther(depositAmount),
           gasLimit: 2300000,
