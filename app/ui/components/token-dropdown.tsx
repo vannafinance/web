@@ -5,8 +5,11 @@ import { CaretDown } from "@phosphor-icons/react";
 import Image from "next/image";
 import { useEffect, useState, useRef } from "react";
 
-export const TokenDropdown: React.FC<TokenDropdownProps> = ({ onSelect, defaultValue }) => {
-  const options = poolsPlaceholder;
+export const TokenDropdown: React.FC<TokenDropdownProps> = ({
+  onSelect,
+  defaultValue,
+  options = poolsPlaceholder,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedToken, setSelectedToken] = useState(defaultValue ? defaultValue : options[0]);
   const dropdownRef = useRef<HTMLDivElement>(null);

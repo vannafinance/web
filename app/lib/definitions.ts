@@ -74,7 +74,8 @@ interface NotificationProps {
 
 interface TokenDropdownProps {
   onSelect: (token: PoolTable) => void;
-  defaultValue?: PoolTable;
+  defaultValue: PoolTable;
+  options?: PoolTable[];
 }
 
 interface AccountOverviewProps {

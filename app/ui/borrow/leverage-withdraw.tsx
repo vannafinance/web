@@ -40,7 +40,7 @@ import {
   percentageClickValues,
 } from "@/app/lib/constants";
 import { useNetwork } from "@/app/context/network-context";
-import { poolsPlaceholder } from "@/app/lib/static-values";
+import { ethPoolObj, poolsPlaceholder } from "@/app/lib/static-values";
 import axios from "axios";
 import { formatUSD } from "@/app/lib/number-format-helper";
 import Notification from "../components/notification";
@@ -364,7 +364,7 @@ const LevrageWithdraw = () => {
         repayBalance = await vUsdcContract.callStatic.getBorrowBalance(
           activeAccount
         );
-        repayBalance = repayBalance/1e6;
+        repayBalance = repayBalance / 1e6;
       } else if (depositToken?.name == "USDT") {
         repayBalance = await vUsdtContract.callStatic.getBorrowBalance(
           activeAccount
@@ -442,7 +442,6 @@ const LevrageWithdraw = () => {
       let usdtRepayBalance;
       let daiRepayBalance;
       if (borrowToken?.name == "WETH") {
-        console.log("here");
         ethRepayBalance =
           (await vEtherContract.callStatic.getBorrowBalance(activeAccount)) /
           1e18;
@@ -451,11 +450,9 @@ const LevrageWithdraw = () => {
           (await vWbtcContract.callStatic.getBorrowBalance(activeAccount)) /
           1e18;
       } else if (borrowToken?.name == "USDC") {
-        
         usdcRepayBalance =
           (await vUsdcContract.callStatic.getBorrowBalance(activeAccount)) /
           1e18;
-        console.log("usdcRepayBalance",usdcRepayBalance);
       } else if (borrowToken?.name == "USDT") {
         usdtRepayBalance =
           (await vUsdtContract.callStatic.getBorrowBalance(activeAccount)) /
@@ -467,8 +464,9 @@ const LevrageWithdraw = () => {
       }
       let totalBalance;
 
-      const wethAccounBalance =
-        Number((await wethContract.balanceOf(activeAccount)) / 1e18);
+      const wethAccounBalance = Number(
+        (await wethContract.balanceOf(activeAccount)) / 1e18
+      );
       const wbtcAccounBalance =
         (await wbtcContract.balanceOf(activeAccount)) / 1e18;
       const usdcAccounBalance =
@@ -839,7 +837,7 @@ const LevrageWithdraw = () => {
         });
       } else if (
         depositToken?.name === "USDC" ||
-        depositToken?.name === "USDT" 
+        depositToken?.name === "USDT"
       ) {
         const erc20Contract = new Contract(
           opTokensAddress[depositToken?.name],
@@ -847,12 +845,13 @@ const LevrageWithdraw = () => {
           signer
         );
 
-        const allowance = formatUnits(await erc20Contract.allowance(
-          account,
-          opAddressList.accountManagerContractAddress
-        ),6);
-        console.log("here at allowance in op", allowance);
-        console.log("here at depositAmount in op", Number(depositAmount));
+        const allowance = formatUnits(
+          await erc20Contract.allowance(
+            account,
+            opAddressList.accountManagerContractAddress
+          ),
+          6
+        );
         if (Number(allowance) < Number(depositAmount)) {
           await erc20Contract.approve(
             opAddressList.accountManagerContractAddress,
@@ -1273,6 +1272,11 @@ const LevrageWithdraw = () => {
                   <TokenDropdown
                     onSelect={handleDepositTokenSelect}
                     defaultValue={depositToken}
+                    options={
+                      isLeverage
+                        ? [ethPoolObj, ...poolsPlaceholder]
+                        : poolsPlaceholder
+                    }
                   />
                 </div>
               </div>

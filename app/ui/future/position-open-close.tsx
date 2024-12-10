@@ -52,6 +52,7 @@ import VToken from "../../abi/vanna/v1/out/VToken.sol/VToken.json";
 import LiquidityPool from "../../abi/vanna/v1/out/LiquidityPool.sol/LiquidityPool.json";
 import OptimismFetchPosition from "../../abi/vanna/v1/out/OptimismFetchPosition.sol/OptimismFetchPosition.json";
 import AccountManager_op from "../../abi/vanna/v1/out/AccountManager-op.sol/AccountManager-op.json";
+import { defaultTokenOptions } from "@/app/lib/static-values";
 
 const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
   market,
@@ -80,13 +81,6 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
   ];
   const markOption: Option[] = [{ value: "Mark", label: "Mark" }];
 
-  const defaultTokenOptions = [
-    { value: "WETH", label: "WETH", icon: "/eth-icon.svg" },
-    { value: "WBTC", label: "WBTC", icon: "/btc-icon.svg" },
-    { value: "USDC", label: "USDC", icon: "/usdc-icon.svg" },
-    { value: "USDT", label: "USDT", icon: "/usdt-icon.svg" },
-    { value: "DAI", label: "DAI", icon: "/dai-icon.svg" },
-  ];
   const [tokenOptions, setTokenOptions] = useState(defaultTokenOptions);
 
   const [isOpen, setIsOpen] = useState(true);
@@ -685,7 +679,6 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
           referralCode:
             "0x0000000000000000000000000000000000000000000000000000000000000000",
         };
-        console.log("openPositionParams",openPositionParams)
 
         const data = [];
         const target = [];

@@ -143,3 +143,24 @@ export const tradeMenuSubLinks = [
     icon: "/spot-menu-icon.svg",
   },
 ];
+
+export const defaultTokenOptions: Option[] = [
+  { value: "WETH", label: "WETH", icon: "/eth-icon.svg" },
+  { value: "WBTC", label: "WBTC", icon: "/btc-icon.svg" },
+  { value: "USDC", label: "USDC", icon: "/usdc-icon.svg" },
+  { value: "USDT", label: "USDT", icon: "/usdt-icon.svg" },
+  { value: "DAI", label: "DAI", icon: "/dai-icon.svg" },
+];
+
+export const ethPoolObj: PoolTable = {
+  id: 0,
+  name: "ETH",
+  icon: "/eth-icon.svg",
+  supply: "0",
+  supplyAPY: "0",
+  borrowAPY: "0",
+  yourBalance: "0",
+  isActive: false,
+  version: 0,
+  vToken: "ETH",
+}
