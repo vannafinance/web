@@ -111,7 +111,7 @@ export const poolDetailsPlaceholder = [
 
 export const menuLinks = [
   { title: "Overview", href: "/" },
-  { title: "Earn", href: "/earn" },
+  { title: "Lending Market", href: "/earn" },
   { title: "Margin", href: "/borrow" },
   { title: "Trade", href: "/trade/dashboard" },
   // { title: "Analytics", href: "/analytics" },
