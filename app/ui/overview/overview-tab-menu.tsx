@@ -296,6 +296,7 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
               OracleFacade.abi,
               signer
             );
+
           } else if (currentNetwork.id === BASE_NETWORK) {
             daiContract = new Contract(
               baseAddressList.daiTokenAddress,
@@ -418,18 +419,18 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
 
           balance += val;
           // totalHoldings = balance;
-
+          
           const riskEngineContract = new Contract(
             opAddressList.riskEngineContractAddress,
             RiskEngine.abi,
             signer
           );
           //TODO: vatsal rework on this getBalance varibale till the assigne you have to rework for fetching the data
-          let totalbalance =
-            (await riskEngineContract.callStatic.getBalance(activeAccount)) /
-            1e18;
+          // let totalbalance =
+          //   (await riskEngineContract.callStatic.getBalance(activeAccount)) /
+          //   1e18;
 
-          totalbalance = totalbalance * Number(getPriceFromAssetsArray("WETH"));
+          // totalbalance = totalbalance * Number(getPriceFromAssetsArray("WETH"));
 
           let borrowBalance =
             (await riskEngineContract.callStatic.getBorrows(activeAccount)) /
@@ -438,9 +439,24 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
           borrowBalance =
             borrowBalance * Number(getPriceFromAssetsArray("WETH"));
 
-          const balanceWithoutReapy = totalbalance - borrowBalance;
-
-          const totalReturnsAmount = Number(balanceWithoutReapy) - balance;
+          let balanceWithoutReapy;
+          if (tTokenOracleContract !== undefined) {
+            balanceWithoutReapy =
+              (await tTokenOracleContract.callStatic.getPrice(
+                opAddressList.tTokenAddress,
+                activeAccount
+              )) / 1e18;
+          }
+          // @TODO: hardcorded things need to work
+          // D = Deposit Amount 
+          // B = Borrow Amount
+          // P = Profit and Loss (PNL)
+          // L = Total Leverage
+          // TotalBalance=D+B+P
+          // L×D=B+D
+          // B=D(L−1)
+          // P = TotalBalance − B ( 1 / (L - 1) + 1)
+          const totalReturnsAmount = Number(balanceWithoutReapy);
           const totalReturnsPercentage = (totalReturnsAmount / balance) * 100;
           // add color while showing this
           const healthFactor = balance / Number(borrowBalance);

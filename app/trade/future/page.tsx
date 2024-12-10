@@ -86,14 +86,32 @@ export default function Page() {
     if (!indexPriceContract || !markPriceContract) {
       return;
     }
+    const rsp = await axios.get("https://app.mux.network/api/liquidityAsset");
+    const asset = getAssetFromAssetsArray(
+      selectedPairRef.current.value,
+      rsp.data.assets
+    );
+    setMarketPrice(asset.price);
 
-    const indexPrice = await indexPriceContract.getIndexPrice();
-    const markPrice = await markPriceContract.getMarkPrice();
-    const fundingRate =
-      ((markPrice / 1e18 - indexPrice / 1e8) / (indexPrice / 1e8) / 3) * 100;
-    setIndexPrice(ceilWithPrecision(String(Number(formatUnits(indexPrice,8))), 2));
-    setMarkPrice(ceilWithPrecision(String(Number(formatUnits(markPrice))), 2));
-    setFundingRate(ceilWithPrecision(String(fundingRate), 3) + "%");
+    // const indexPrice = await indexPriceContract.getIndexPrice();
+    // const markPrice = await markPriceContract.getMarkPrice();
+    // const fundingRate =
+    //   ((markPrice / 1e18 - indexPrice / 1e8) / (indexPrice / 1e8) / 3) * 100;
+    const pointOne = (asset.price * 0.1) / 100;
+    const indexPrice = Number(asset.price) - Number(pointOne);
+    const markPrice = Number(asset.price);
+    const fundingRate = (markPrice - indexPrice) / (indexPrice / 3 ) * 100;
+    console.log("indexPrice",indexPrice);
+    console.log("markPrice",markPrice);
+    console.log("fundingRate",fundingRate);
+
+    
+    // setIndexPrice(ceilWithPrecision(String(Number(formatUnits(indexPrice,8))), 2));
+    // setMarkPrice(ceilWithPrecision(String(Number(formatUnits(markPrice))), 2));
+    // setFundingRate(ceilWithPrecision(String(fundingRate), 3) + "%");
+    setIndexPrice(ceilWithPrecision(String(indexPrice),2));
+    setMarkPrice(ceilWithPrecision(String(markPrice),2));
+    setFundingRate(ceilWithPrecision(String(fundingRate))+ "%");
     setVolume("80,005.6");
   };
 
