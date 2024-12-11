@@ -83,7 +83,7 @@ export default function NavLinks() {
             >
               {link.title}
             </Link>
-            {link.title === "Lending Market" && (
+            {link.title === "Earn" && (
               <div className="h-5 w-px bg-neutral-500 opacity-60 text-lg mx-2"></div>
             )}
           </>

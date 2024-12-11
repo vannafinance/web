@@ -29,16 +29,16 @@ export default function Page() {
   ];
 
   const networkOptionsMap: { [key: string]: Option[] } = {
-    [BASE_NETWORK]: [{ value: "MUX", label: "MUX" }],
-    [ARBITRUM_NETWORK]: [{ value: "dYdX", label: "dYdX" }],
-    [OPTIMISM_NETWORK]: [{ value: "perp", label: "Perp" }],
+    [BASE_NETWORK]: [{ value: "Avantisfi", label: "Avantisfi" }],
+    [ARBITRUM_NETWORK]: [{ value: "MUX", label: "MUX" }],
+    [OPTIMISM_NETWORK]: [{ value: "Perp", label: "Perp" }],
   };
 
   const [dataFetching, setDataFetching] = useState(false);
   const [selectedPair, setSelectedPair] = useState<Option>(pairOptions[0]);
   const selectedPairRef = useRef(selectedPair);
   const [protocolOptions, setProtocolOptions] = useState<Option[]>([
-    { value: "MUX", label: "MUX" },
+    { value: "Avantisfi", label: "Avantisfi" },
   ]);
   const [selectedProtocol, setSelectedProtocol] = useState<Option>(
     protocolOptions[0]
@@ -116,7 +116,7 @@ export default function Page() {
 
   useEffect(() => {
     const protocol = networkOptionsMap[currentNetwork?.id || ""] || [
-      { value: "MUX", label: "MUX" },
+      { value: "Avantisfi", label: "Avantisfi" },
     ];
     setProtocolOptions(protocol);
     setSelectedProtocol(protocol[0]);
