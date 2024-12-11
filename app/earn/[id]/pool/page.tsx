@@ -242,7 +242,6 @@ export default function Page({ params }: { params: { id: string } }) {
               const res = await MCcontract.callStatic.aggregate(calldata);
 
               // totalBorrow
-
               const ethTotalBorrow = check0xHex(res.returnData[0]);
               const wbtcTotalBorrow = check0xHex(res.returnData[1]);
               const usdcTotalBorrow = check0xHex(res.returnData[2]);
@@ -252,7 +251,6 @@ export default function Page({ params }: { params: { id: string } }) {
               //  Utilization Rate
               let utilazation;
               if (pool?.name === "WETH") {
-                console.log("usdcTotalBorrow",formatUnits(ethTotalBorrow))
                 utilazation = String(
                   parseFloat(ceilWithPrecision(formatUnits(ethTotalBorrow))) /
                     parseFloat(String(pool?.supply))
@@ -270,16 +268,18 @@ export default function Page({ params }: { params: { id: string } }) {
                 setUniqueLP("3");
               } else if (pool?.name === "USDC") {
                 utilazation = String(
-                  parseFloat(ceilWithPrecision(formatUnits(usdcTotalBorrow,6))) /
-                    parseFloat(String(pool?.supply))
+                  parseFloat(
+                    ceilWithPrecision(formatUnits(usdcTotalBorrow, 6))
+                  ) / parseFloat(String(pool?.supply))
                 );
                 utilazation = Number(utilazation) * 100;
                 setUniqueLP("10");
                 setUtilizationRate(ceilWithPrecision(String(utilazation)));
               } else if (pool?.name === "USDT") {
                 utilazation = String(
-                  parseFloat(ceilWithPrecision(formatUnits(usdtTotalBorrow,6))) /
-                    parseFloat(String(pool?.supply))
+                  parseFloat(
+                    ceilWithPrecision(formatUnits(usdtTotalBorrow, 6))
+                  ) / parseFloat(String(pool?.supply))
                 );
                 utilazation = Number(utilazation) * 100;
                 setUtilizationRate(ceilWithPrecision(String(utilazation)));

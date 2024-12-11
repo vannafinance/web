@@ -707,18 +707,17 @@ export default function Page() {
         // const bal = formatUnits(await WETHContract.balanceOf(activeAccount));
         const avail =
           ((await riskEngineContract.callStatic.getBalance(activeAccount)) /
-          1e18) * currentEthPrice;
-        // tToken
-        console.log("avail",avail)
+            1e18) *
+          currentEthPrice;
 
         const marginUsed =
           ((await tTokenOracleContract.callStatic.getPrice(
             opAddressList.tTokenAddress,
             activeAccount
-          )))/1e15;
-        console.log("marginUsed",marginUsed)
+          )) /
+            1e18) *
+          currentEthPrice;
         const availaleBalance = Number(avail) - Number(marginUsed);
-        console.log("availaleBalance",availaleBalance)
         // borrow balance of the individual
 
         // let totalBorrowBalance =
@@ -729,7 +728,7 @@ export default function Page() {
         //   totalBorrowBalance * Number(currentEthPrice);
 
         // PNL = Tb - Ba(1/(La-1))
-        // totaldepsit ? 
+        // totaldepsit ?
 
         const deltaTotal = deltaCall + deltaPut;
         const netBalance = deltaTotal + availaleBalance;
