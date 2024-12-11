@@ -107,7 +107,8 @@ export const opAddressList = {
   indexPriceContractAddress: "0x722Ef09F933f09069257C68563B715486365B895",
   markPriceContractAddress: "0x3d03748A0FbBa8DD5F07b16c0178cdd1327FC58a",
   OracleFacade: "0x61959f47e62A3F92F36B2391b0F4a111c659F042",
-  faucetAddress: "0x090D54a11fe2d2C279e23791A3ee1c1266d678b9"
+  // faucetAddress: "0x090D54a11fe2d2C279e23791A3ee1c1266d678b9"
+  faucetAddress: "0x5d305ba94C1b75F1DFB460219E21190Ba370bfBF"
 };
 
 // =============== BASE ============================================

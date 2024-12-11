@@ -53,11 +53,11 @@ export default function Page() {
   ];
 
   const [userData, setUserData] = useState<UserData>({
-    availableBalance: "-",
-    marginUsage: "-",
-    totalPnl: "-",
-    healthFactor: "-",
-    borrowRate: "-",
+    availableBalance: "0.00",
+    marginUsage: "0.00",
+    totalPnl: "0.00",
+    healthFactor: "0.00",
+    borrowRate: "0.00",
   });
 
   const expiryOptions: Option[] = [
@@ -183,14 +183,14 @@ export default function Page() {
   >([]);
 
   const [portfolioSummary, setPortfolioSummary] = useState({
-    future: "-",
-    premium: "-",
-    option: "-",
-    grossPnl: "-",
-    netBal: "-",
-    theta: "-",
-    vega: "-",
-    gamma: "-",
+    future: "0.00",
+    premium: "0.00",
+    option: "0.00",
+    grossPnl: "0.00",
+    netBal: "0.00",
+    theta: "0.00",
+    vega: "0.00",
+    gamma: "0.00",
   });
 
   const [options, setOptions] = useState({
@@ -706,56 +706,31 @@ export default function Page() {
 
         // const bal = formatUnits(await WETHContract.balanceOf(activeAccount));
         const avail =
-          (await riskEngineContract.callStatic.getBalance(activeAccount)) /
-          1e18;
+          ((await riskEngineContract.callStatic.getBalance(activeAccount)) /
+          1e18) * currentEthPrice;
         // tToken
+        console.log("avail",avail)
 
         const marginUsed =
           ((await tTokenOracleContract.callStatic.getPrice(
             opAddressList.tTokenAddress,
             activeAccount
-          )) /
-            1e18) *
-          currentEthPrice;
-        const availaleBalance = Number(avail) * currentEthPrice - marginUsed;
+          )))/1e15;
+        console.log("marginUsed",marginUsed)
+        const availaleBalance = Number(avail) - Number(marginUsed);
+        console.log("availaleBalance",availaleBalance)
         // borrow balance of the individual
 
-        let borrowedBalance = await vEtherContract.callStatic.getBorrowBalance(
-          activeAccount
-        );
+        // let totalBorrowBalance =
+        // (await riskEngineContract.callStatic.getBorrows(activeAccount)) /
+        // 1e18;
 
-        borrowedBalance =
-          Number(formatUnits(Number(borrowedBalance))) * currentEthPrice;
+        // totalBorrowBalance =
+        //   totalBorrowBalance * Number(currentEthPrice);
 
-        borrowedBalance +=
-          Number(
-            formatUnits(
-              await vWbtcContract.callStatic.getBorrowBalance(activeAccount)
-            )
-          ) * (await getAssetPrice("WBTC"));
-
-        borrowedBalance +=
-          Number(
-            formatUnits(
-              await vUsdcContract.callStatic.getBorrowBalance(activeAccount)
-            )
-          ) * (await getAssetPrice("USDC"));
-
-        borrowedBalance +=
-          Number(
-            formatUnits(
-              await vUsdtContract.callStatic.getBorrowBalance(activeAccount)
-            )
-          ) * (await getAssetPrice("USDT"));
-
-        borrowedBalance +=
-          Number(
-            formatUnits(
-              await vDaiContract.callStatic.getBorrowBalance(activeAccount)
-            )
-          ) * (await getAssetPrice("DAI"));
-
-        const totalPnl = avail * currentEthPrice - borrowedBalance - marginUsed;
+        // PNL = Tb - Ba(1/(La-1))
+        // totaldepsit ? 
+        const totalPnl = "-1.9";
 
         const deltaTotal = deltaCall + deltaPut;
         const netBalance = deltaTotal + availaleBalance;

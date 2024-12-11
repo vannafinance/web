@@ -426,18 +426,18 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
             signer
           );
           //TODO: vatsal rework on this getBalance varibale till the assigne you have to rework for fetching the data
-          // let totalbalance =
-          //   (await riskEngineContract.callStatic.getBalance(activeAccount)) /
-          //   1e18;
+          let totalbalance =
+            (await riskEngineContract.callStatic.getBalance(activeAccount)) /
+            1e18;
 
-          // totalbalance = totalbalance * Number(getPriceFromAssetsArray("WETH"));
+          totalbalance = totalbalance * Number(getPriceFromAssetsArray("WETH"));
 
-          let borrowBalance =
+          let totalBorrowBalance =
             (await riskEngineContract.callStatic.getBorrows(activeAccount)) /
             1e18;
 
-          borrowBalance =
-            borrowBalance * Number(getPriceFromAssetsArray("WETH"));
+          totalBorrowBalance =
+            totalBorrowBalance * Number(getPriceFromAssetsArray("WETH"));
 
           let balanceWithoutReapy;
           if (tTokenOracleContract !== undefined) {
@@ -459,7 +459,8 @@ const TotalHoldings: React.FC<{ activeTab: string }> = ({ activeTab }) => {
           const totalReturnsAmount = Number(balanceWithoutReapy);
           const totalReturnsPercentage = (totalReturnsAmount / balance) * 100;
           // add color while showing this
-          const healthFactor = balance / Number(borrowBalance);
+          const healthFactor = totalbalance / Number(totalBorrowBalance);
+          
           // if healther < 1.5 the color red else green
 
           setTotalHolding(balance);

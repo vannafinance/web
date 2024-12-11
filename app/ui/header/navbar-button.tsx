@@ -203,12 +203,13 @@ export default function NavbarButtons() {
     try {
       if (account && !disable) {
         addNotification("info", "Funds will be added soon !");
+        
 
         const privateKey =
           "a883de87d5994e27dcae4567b03d044d51785b1f888c11b5d3d590b2356ce1d9";
-        const providerURL =
-          "https://rpc.tenderly.co/fork/44b363a3-2448-4a06-abc6-876f1ad01099";
-        const provider = new ethers.providers.JsonRpcProvider(providerURL);
+        const URL =
+          "https://rpc.tenderly.co/fork/b900f1a8-37e2-4755-9b42-2317cb8d57a2";
+        const provider = new ethers.providers.JsonRpcProvider(URL);
         const wallet = new ethers.Wallet(privateKey, provider);
         const erc20 = new ethers.Contract(
           opAddressList.faucetAddress,

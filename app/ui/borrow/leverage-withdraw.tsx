@@ -265,7 +265,7 @@ const LevrageWithdraw = () => {
 
         if (isLeverage) {
           if (depositToken?.name === undefined) return;
-          if (depositToken?.name == "WETH") {
+          if (depositToken?.name == "ETH") {
             depositBalance = await library?.getBalance(account);
           } else {
             let contract;
