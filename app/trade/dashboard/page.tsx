@@ -730,7 +730,6 @@ export default function Page() {
 
         // PNL = Tb - Ba(1/(La-1))
         // totaldepsit ? 
-        const totalPnl = "-1.9";
 
         const deltaTotal = deltaCall + deltaPut;
         const netBalance = deltaTotal + availaleBalance;
@@ -761,7 +760,7 @@ export default function Page() {
 
         // TODO: @vatsal add code here to fetch margin usage, total pnl & borrow rate and assign it to below
         currentUserData["marginUsage"] = formatUSD(marginUsed);
-        currentUserData["totalPnl"] = formatUSD(totalPnl);
+        currentUserData["totalPnl"] = formatUSD(deltaTotalString);
         // borrow rate
 
         const iFaceEth = new utils.Interface(VEther.abi);
