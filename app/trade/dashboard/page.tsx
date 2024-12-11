@@ -707,18 +707,17 @@ export default function Page() {
         // const bal = formatUnits(await WETHContract.balanceOf(activeAccount));
         const avail =
           ((await riskEngineContract.callStatic.getBalance(activeAccount)) /
-          1e18) * currentEthPrice;
-        // tToken
-        console.log("avail",avail)
+            1e18) *
+          currentEthPrice;
 
         const marginUsed =
           ((await tTokenOracleContract.callStatic.getPrice(
             opAddressList.tTokenAddress,
             activeAccount
-          ))/1e18) * currentEthPrice;
-        console.log("marginUsed",marginUsed)
+          )) /
+            1e18) *
+          currentEthPrice;
         const availaleBalance = Number(avail) - Number(marginUsed);
-        console.log("availaleBalance",availaleBalance)
         // borrow balance of the individual
 
         // let totalBorrowBalance =
@@ -729,8 +728,7 @@ export default function Page() {
         //   totalBorrowBalance * Number(currentEthPrice);
 
         // PNL = Tb - Ba(1/(La-1))
-        // totaldepsit ? 
-        const totalPnl = "-1.9";
+        // totaldepsit ?
 
         const deltaTotal = deltaCall + deltaPut;
         const netBalance = deltaTotal + availaleBalance;
@@ -761,7 +759,7 @@ export default function Page() {
 
         // TODO: @vatsal add code here to fetch margin usage, total pnl & borrow rate and assign it to below
         currentUserData["marginUsage"] = formatUSD(marginUsed);
-        currentUserData["totalPnl"] = formatUSD(totalPnl);
+        currentUserData["totalPnl"] = formatUSD(deltaTotalString);
         // borrow rate
 
         const iFaceEth = new utils.Interface(VEther.abi);

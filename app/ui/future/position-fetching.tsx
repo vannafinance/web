@@ -40,7 +40,9 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
   {
     const { account, library } = useWeb3React();
     const { currentNetwork } = useNetwork();
-    const [notifications, setNotifications] = useState<Array<{ id: number; type: NotificationType; message: string }>>([]);
+    const [notifications, setNotifications] = useState<
+      Array<{ id: number; type: NotificationType; message: string }>
+    >([]);
 
     const [market] = useState("ETH");
     const [marketPrice, setMarketPrice] = useState(0);
@@ -125,11 +127,13 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
 
     const addNotification = (type: NotificationType, message: string) => {
       const id = Date.now();
-      setNotifications(prev => [...prev, { id, type, message }]);
+      setNotifications((prev) => [...prev, { id, type, message }]);
     };
-    
+
     const removeNotification = (id: number) => {
-      setNotifications(prev => prev.filter(notification => notification.id !== id));
+      setNotifications((prev) =>
+        prev.filter((notification) => notification.id !== id)
+      );
     };
 
     const getPriceFromAssetsArray = (
@@ -276,10 +280,8 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
           const getQuote = await OptimismFetchPositionContract.getQuote(
             account,
             opAddressList.vETH
-          )
-          const Quote = getQuote/1e18;
-          console.log("Quote",Quote);
-          
+          );
+          const Quote = getQuote / 1e18;
 
           const getNetVal =
             await OptimismFetchPositionContract.getTotalPositionSize(
@@ -293,7 +295,7 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
               await OptimismFetchPositionContract.getMarkPrice(
                 opAddressList.vETH
               );
-            
+
             const indexPrice = getETHMarketPrice / 1e18;
 
             const getTotalPositionValue =
@@ -301,7 +303,7 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
                 account,
                 opAddressList.vETH
               );
-            
+
             const totalPositionValue = ceilWithPrecision(
               String(getTotalPositionValue / 1e18)
             );
@@ -322,7 +324,6 @@ const PositionFetching: React.FC<PositionSectionProps> = ({ dataFetching }) =>
               String(getCollateral / 1e18)
             );
 
-            console.log("getTotalPositionValue",getTotalPositionValue/1e18);
             // const collateralPriceInUSDC = ceilWithPrecision(collateralPrice * indexPrice);
 
             const leverage =
