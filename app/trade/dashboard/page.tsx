@@ -715,7 +715,7 @@ export default function Page() {
           ((await tTokenOracleContract.callStatic.getPrice(
             opAddressList.tTokenAddress,
             activeAccount
-          )))/1e15;
+          ))/1e18) * currentEthPrice;
         console.log("marginUsed",marginUsed)
         const availaleBalance = Number(avail) - Number(marginUsed);
         console.log("availaleBalance",availaleBalance)

@@ -27,11 +27,12 @@ const OptionPayoffChart: React.FC<{
   const generateVariablePayoffData = (
     delta: number,
     entryPrice: number,
-    size: number
+    size: number,
+    liqPrice: number
   ) => {
     const chartData = [];
     const step = 10;
-    const range = 100; // Defines the range around entryPrice
+    const range = Math.abs(entryPrice - liqPrice);
     const minPrice = Math.floor(entryPrice - range);
     const maxPrice = Math.ceil(entryPrice + range);
 
@@ -60,7 +61,8 @@ const OptionPayoffChart: React.FC<{
     const result = generateVariablePayoffData(
       Number(position?.delta),
       Number(position?.entryPrice),
-      Number(position?.size)
+      Number(position?.size),
+      Number(position?.liqPrice)
     );
 
     setData(result);
