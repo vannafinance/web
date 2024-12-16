@@ -633,24 +633,43 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
         //   formatBignumberToUnits(coin.value, collateralAmount.toString())
         // );
         // const asset = pairIndex[marketToken];
-        await accountManagerContract.approve(
-          activeAccount,
-          opAddressList.usdcTokenAddress,
-          opAddressList.vault,
-          parseEther("1"),
-          { gasLimit: 2300000 }
-        );
-
-        const withSlipedAmount =
+        // await accountManagerContract.approve(
+        //   activeAccount,
+        //   opAddressList.usdcTokenAddress,
+        //   opAddressList.vault,
+        //   parseEther("1"),
+        //   { gasLimit: 2300000 }
+        // );
+        let withSlipedAmount;
+        let OppositeAmountBound;
+        let OppositeAmountBoundBN;
+        let amount;
+        if(isBaseToQuote == true){ // for short positon 
+          withSlipedAmount =
+          Number(collateralAmount);
+          OppositeAmountBound =
+            (withSlipedAmount * leverageValue) / getPriceFromAssetsArray("WETH");
+          OppositeAmountBoundBN = BigNumber.from(
+            formatStringToUnits("WETH", OppositeAmountBound + (OppositeAmountBound * 1)/100)
+          );
+          amount = BigNumber.from(
+            formatStringToUnits("WETH", Number(collateralAmount) * leverageValue)
+          );
+        }
+        else { // for long position 
+          withSlipedAmount =
           Number(collateralAmount) - (Number(collateralAmount) * 1) / 100;
-        const OppositeAmountBound =
-          (withSlipedAmount * leverageValue) / getPriceFromAssetsArray("WETH");
-        const OppositeAmountBoundBN = BigNumber.from(
-          formatStringToUnits("WETH", OppositeAmountBound)
-        );
-        const amount = BigNumber.from(
-          formatStringToUnits("WETH", Number(collateralAmount) * leverageValue)
-        );
+          OppositeAmountBound =
+            (withSlipedAmount * leverageValue) / getPriceFromAssetsArray("WETH");
+          OppositeAmountBoundBN = BigNumber.from(
+            formatStringToUnits("WETH", OppositeAmountBound)
+          );
+          amount = BigNumber.from(
+            formatStringToUnits("WETH", Number(collateralAmount) * leverageValue)
+          );
+          
+        }
+        
          // open short : https://optimistic.etherscan.io/tx/0xfeda6d5bc67be178a0e695dba37f3ba682db664b6eaf33f5110475cd19f30cb5
         //  0	params.baseToken	address	0x8C835DFaA34e2AE61775e80EE29E2c724c6AE2BB
         //  0	params.isBaseToQuote	bool

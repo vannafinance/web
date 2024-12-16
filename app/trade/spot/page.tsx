@@ -355,7 +355,7 @@ export default function Page() {
       setBtnValue("Insufficient " + tokenName + " balance");
       setDisableBtn(true);
     } else {
-      setBtnValue(tokenName === "WETH" ? "Swap" : "Approve - Swap");
+      setBtnValue(tokenName === "ETH" ? "Swap" : "Approve - Swap");
       setDisableBtn(false);
     }
   }, [payInput, payBalance, payCoin]);
@@ -537,99 +537,102 @@ export default function Page() {
           ISwapRouterV3.abi,
           signer
         );
+        // TODO: not using eth as amount out also 
+        // if (
+        //   //AnyToken <=> WETH
+        //   (payCoin.name === "WBTC" ||
+        //     payCoin.name === "DAI" ||
+        //     payCoin.name === "USDT" ||
+        //     payCoin.name === "USDC") &&
+        //   tokenOut === opAddressList.wethTokenAddress
+        // ) {
+        //   //struct
+        //   const ExactInputSingleParams = {
+        //     tokenIn: tokenIn,
+        //     tokenOut: tokenOut,
+        //     fee: fee,
+        //     recipient: opAddressList.uniswapRouterAddress, // here 1st reciver is router and then unwrap happen
+        //     amountIn: amountIn,
+        //     amountOutMinimum: amountOut,
+        //     sqrtPriceLimitX96: sqrtPriceLimitX96,
+        //   };
+        //   // @TODO: check allowance
+        //   // Approve
+        //   await accountManagerContract.approve(
+        //     activeAccount,
+        //     tokenIn,
+        //     opAddressList.uniswapRouterAddress,
+        //     amountIn
+        //   );
 
-        if (
-          //AnyToken <=> WETH
-          (payCoin.name === "WBTC" ||
-            payCoin.name === "DAI" ||
-            payCoin.name === "USDT" ||
-            payCoin.name === "USDC") &&
-          tokenOut === opAddressList.wethTokenAddress
-        ) {
-          //struct
-          const ExactInputSingleParams = {
-            tokenIn: tokenIn,
-            tokenOut: tokenOut,
-            fee: fee,
-            recipient: opAddressList.uniswapRouterAddress, // here 1st reciver is router and then unwrap happen
-            amountIn: amountIn,
-            amountOutMinimum: amountOut,
-            sqrtPriceLimitX96: sqrtPriceLimitX96,
-          };
-          // @TODO: check allowance
-          // Approve
-          await accountManagerContract.approve(
-            activeAccount,
-            tokenIn,
-            opAddressList.uniswapRouterAddress,
-            amountIn
-          );
+        //   await sleep(3000);
+        //   // swapping from anycoin to WETH and WETH to ETH
+        //   let data = [];
+        //   let target = [];
+        //   let multiData = [];
 
-          await sleep(3000);
-          // swapping from anycoin to WETH and WETH to ETH
-          let data = [];
-          let target = [];
-          let multiData = [];
+        //   // combine two transaction exactInputSingle and unwrapWETH9
+        //   const iface = new Interface(ISwapRouterV3.abi);
+        //   multiData.push(
+        //     iface.encodeFunctionData("exactInputSingle", [
+        //       ExactInputSingleParams,
+        //     ])
+        //   );
+        //   multiData.push(
+        //     iface.encodeFunctionData("unwrapWETH9(uint256,address)", [
+        //       0,
+        //       activeAccount,
+        //     ])
+        //   );
 
-          // combine two transaction exactInputSingle and unwrapWETH9
-          const iface = new Interface(ISwapRouterV3.abi);
-          multiData.push(
-            iface.encodeFunctionData("exactInputSingle", [
-              ExactInputSingleParams,
-            ])
-          );
-          multiData.push(
-            iface.encodeFunctionData("unwrapWETH9(uint256,address)", [
-              0,
-              activeAccount,
-            ])
-          );
+        //   // adding that combine transaction
+        //   data.push(
+        //     iface.encodeFunctionData("multicall(bytes[])", [multiData])
+        //   );
+        //   target.push(opAddressList.uniswapRouterAddress);
 
-          // adding that combine transaction
-          data.push(
-            iface.encodeFunctionData("multicall(bytes[])", [multiData])
-          );
-          target.push(opAddressList.uniswapRouterAddress);
-
-          // execute
-          await accountManagerContract.exec(
-            activeAccount,
-            target,
-            0, // amount in is anytoken
-            data,
-            { gasLimit: 2300000 }
-          );
-        } else if (payCoin.name === "WETH") {
-          // WETH <=> AnyToken native ETH
-          // struct
-          const ExactInputSingleParams = {
-            tokenIn: tokenIn,
-            tokenOut: tokenOut,
-            fee: fee,
-            recipient: activeAccount,
-            amountIn: amountIn,
-            amountOutMinimum: amountOut,
-            sqrtPriceLimitX96: sqrtPriceLimitX96,
-          };
-          //encoding
-          let data = [];
-          let target = [];
-          const iface = new Interface(ISwapRouterV3.abi);
-          data.push(
-            iface.encodeFunctionData("exactInputSingle", [
-              ExactInputSingleParams,
-            ])
-          );
-          target.push(opAddressList.uniswapRouterAddress);
-          // execute
-          await accountManagerContract.exec(
-            activeAccount,
-            target,
-            amountIn, // change to ZERO if the paycoin is WETH (here it's payable because swaping from native ETH )
-            data,
-            { gasLimit: 2300000 }
-          );
-        } else {
+        //   // execute
+        //   await accountManagerContract.exec(
+        //     activeAccount,
+        //     target,
+        //     0, // amount in is anytoken
+        //     data,
+        //     { gasLimit: 2300000 }
+        //   );
+        // }
+      //TODO: not using native WETH that's way 
+        // else if (payCoin.name === "ETH") {
+        //   console.log("Here at WETH");
+        //   // WETH <=> AnyToken native ETH
+        //   // struct
+        //   const ExactInputSingleParams = {
+        //     tokenIn: tokenIn,
+        //     tokenOut: tokenOut,
+        //     fee: fee,
+        //     recipient: activeAccount,
+        //     amountIn: amountIn,
+        //     amountOutMinimum: amountOut,
+        //     sqrtPriceLimitX96: sqrtPriceLimitX96,
+        //   };
+        //   //encoding
+        //   let data = [];
+        //   let target = [];
+        //   const iface = new Interface(ISwapRouterV3.abi);
+        //   data.push(
+        //     iface.encodeFunctionData("exactInputSingle", [
+        //       ExactInputSingleParams,
+        //     ])
+        //   );
+        //   target.push(opAddressList.uniswapRouterAddress);
+        //   // execute
+        //   await accountManagerContract.exec(
+        //     activeAccount,
+        //     target,
+        //     amountIn, // change to ZERO if the paycoin is WETH (here it's payable because swaping from native ETH )
+        //     data,
+        //     { gasLimit: 2300000 }
+        //   );
+          console.log("Here at WETH");
           // ANYTOKEN <=> ANYTOKEN
           //struct
           const ExactInputSingleParams = {
@@ -667,7 +670,6 @@ export default function Page() {
         }
         // setPayBalance(ceilWithPrecision(balList[payCoin], 6));
         // setReceiveBalance(ceilWithPrecision(balList[receiveCoin], 6));
-      }
 
       // setPayBalance(ceilWithPrecision(balList[payCoin], 6));
       // setReceiveBalance(ceilWithPrecision(balList[receiveCoin], 6);
