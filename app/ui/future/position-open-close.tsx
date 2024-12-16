@@ -633,13 +633,13 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
         //   formatBignumberToUnits(coin.value, collateralAmount.toString())
         // );
         // const asset = pairIndex[marketToken];
-        // await accountManagerContract.approve(
-        //   activeAccount,
-        //   opAddressList.usdcTokenAddress,
-        //   opAddressList.vault,
-        //   parseEther("1"),
-        //   { gasLimit: 2300000 }
-        // );
+        await accountManagerContract.approve(
+          activeAccount,
+          opAddressList.usdcTokenAddress,
+          opAddressList.vault,
+          parseEther("1"),
+          { gasLimit: 2300000 }
+        );
         let withSlipedAmount;
         let OppositeAmountBound;
         let OppositeAmountBoundBN;
