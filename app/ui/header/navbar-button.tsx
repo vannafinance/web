@@ -208,7 +208,7 @@ export default function NavbarButtons() {
         const privateKey =
           "a883de87d5994e27dcae4567b03d044d51785b1f888c11b5d3d590b2356ce1d9";
         const providerURL =
-          "https://rpc.tenderly.co/fork/b900f1a8-37e2-4755-9b42-2317cb8d57a2";
+          "https://rpc.tenderly.co/fork/3dfb2454-4206-4d9e-8896-4998099d719b";
         const provider = new ethers.providers.JsonRpcProvider(providerURL);
         const wallet = new ethers.Wallet(privateKey, provider);
         const erc20 = new ethers.Contract(
@@ -216,7 +216,7 @@ export default function NavbarButtons() {
           Faucet.abi,
           wallet
         );
-        console.log("here also", await library.getBalance(opAddressList.faucetAddress));
+        console.log("here also 0xc3034F3066A63AeA0eFf699E873130b167ABfce5", await library.getBalance(opAddressList.faucetAddress));
 
         await erc20.claim(account);
         await sleep(5000);
