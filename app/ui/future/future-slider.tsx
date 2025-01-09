@@ -14,13 +14,13 @@ const FutureSlider: React.FC<SliderProps> = ({ value, onChange }) => {
     onChange(newValue);
   };
 
-  const percentage = ((value - 10) / 90) * 81 + 9;
+  const percentage = ((value - 1) / 9) * (94 - 0.9) + 0.9;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setInputValue(newValue);
     const numValue = Number(newValue);
-    if (!isNaN(numValue) && numValue >= 1 && numValue <= 100) {
+    if (!isNaN(numValue) && numValue >= 1 && numValue <= 10) {
       onChange(numValue);
     }
   };
@@ -30,9 +30,9 @@ const FutureSlider: React.FC<SliderProps> = ({ value, onChange }) => {
     if (isNaN(numValue) || numValue < 1) {
       setInputValue("1");
       onChange(1);
-    } else if (numValue > 100) {
-      setInputValue("100");
-      onChange(100);
+    } else if (numValue > 10) {
+      setInputValue("10");
+      onChange(10);
     } else {
       setInputValue(Math.round(numValue).toString());
       onChange(Math.round(numValue));
@@ -50,7 +50,7 @@ const FutureSlider: React.FC<SliderProps> = ({ value, onChange }) => {
           <input
             type="number"
             min="1"
-            max="100"
+            max="10"
             value={inputValue}
             onChange={handleInputChange}
             onBlur={handleInputBlur}
@@ -102,7 +102,7 @@ const FutureSlider: React.FC<SliderProps> = ({ value, onChange }) => {
           <input
             type="range"
             min="1"
-            max="100"
+            max="10"
             step="1"
             value={value}
             onChange={handleSliderChange}
@@ -111,7 +111,7 @@ const FutureSlider: React.FC<SliderProps> = ({ value, onChange }) => {
 
           {/* Tick marks */}
           <div className="absolute w-full flex justify-between mt-3.5 text-xs font-semibold text-neutral-500 pl-1.5">
-            {[1, 25, 50, 75, 100].map((val, i) => (
+            {[1, 4, 7, 10].map((val, i) => (
               <span key={i}>{val}x</span>
             ))}
           </div>

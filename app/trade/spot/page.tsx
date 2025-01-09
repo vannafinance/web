@@ -18,7 +18,7 @@ import {
 } from "@/app/lib/web3-constants";
 import TokenDropdown from "@/app/ui/components/token-dropdown";
 import Loader from "@/app/ui/components/loader";
-import { poolsPlaceholder } from "@/app/lib/static-values";
+import { ethPoolObj, poolsPlaceholder } from "@/app/lib/static-values";
 import { CaretDown, CaretUp, Lightning } from "@phosphor-icons/react";
 import { useWeb3React } from "@web3-react/core";
 import { Contract } from "ethers";
@@ -713,6 +713,7 @@ export default function Page() {
               <TokenDropdown
                 onSelect={handleFromSelect}
                 defaultValue={payCoin}
+                options={[ethPoolObj, ...poolsPlaceholder]}
               />
             </div>
           </div>
@@ -757,6 +758,7 @@ export default function Page() {
               <TokenDropdown
                 onSelect={handleToSelect}
                 defaultValue={receiveCoin}
+                options={[ethPoolObj, ...poolsPlaceholder]}
               />
             </div>
           </div>
