@@ -267,10 +267,10 @@ export default function Page() {
         listOfBalance["WETH"] = ceilWithPrecision(
           formatBignumberToUnits("WETH", ethBalOfSA),
           6
-        );;
+        );
         listOfBalance["WBTC"] = ceilWithPrecision(
           formatBignumberToUnits("WBTC", wbtcBalOfSA),
-          4 
+          4
         );
         listOfBalance["USDC"] = ceilWithPrecision(
           formatBignumberToUnits("USDC", usdcBalOfSA)
@@ -537,7 +537,7 @@ export default function Page() {
           ISwapRouterV3.abi,
           signer
         );
-        // TODO: not using eth as amount out also 
+        // TODO: not using eth as amount out also
         // if (
         //   //AnyToken <=> WETH
         //   (payCoin.name === "WBTC" ||
@@ -600,7 +600,7 @@ export default function Page() {
         //     { gasLimit: 2300000 }
         //   );
         // }
-      //TODO: not using native WETH that's way 
+        //TODO: not using native WETH that's way
         // else if (payCoin.name === "ETH") {
         //   console.log("Here at WETH");
         //   // WETH <=> AnyToken native ETH
@@ -632,44 +632,42 @@ export default function Page() {
         //     data,
         //     { gasLimit: 2300000 }
         //   );
-          console.log("Here at WETH");
-          // ANYTOKEN <=> ANYTOKEN
-          //struct
-          const ExactInputSingleParams = {
-            tokenIn: tokenIn,
-            tokenOut: tokenOut,
-            fee: fee,
-            recipient: opAddressList.uniswapRouterAddress,
-            amountIn: amountIn,
-            amountOutMinimum: amountOut,
-            sqrtPriceLimitX96: sqrtPriceLimitX96,
-          };
+        console.log("Here at WETH");
+        // ANYTOKEN <=> ANYTOKEN
+        //struct
+        const ExactInputSingleParams = {
+          tokenIn: tokenIn,
+          tokenOut: tokenOut,
+          fee: fee,
+          recipient: opAddressList.uniswapRouterAddress,
+          amountIn: amountIn,
+          amountOutMinimum: amountOut,
+          sqrtPriceLimitX96: sqrtPriceLimitX96,
+        };
 
-          // Approve
-          await accountManagerContract.approve(
-            activeAccount,
-            tokenIn,
-            opAddressList.uniswapRouterAddress,
-            amountIn
-          );
-          await sleep(3000);
-          let data = [];
-          let target = [];
+        // Approve
+        await accountManagerContract.approve(
+          activeAccount,
+          tokenIn,
+          opAddressList.uniswapRouterAddress,
+          amountIn
+        );
+        await sleep(3000);
+        let data = [];
+        let target = [];
 
-          const iface = new Interface(ISwapRouterV3.abi);
-          data.push(
-            iface.encodeFunctionData("exactInputSingle", [
-              ExactInputSingleParams,
-            ])
-          );
-          target.push(opAddressList.uniswapRouterAddress);
-          // execute
-          await accountManagerContract.exec(activeAccount, target, 0, data, {
-            gasLimit: 2300000,
-          });
-        }
-        // setPayBalance(ceilWithPrecision(balList[payCoin], 6));
-        // setReceiveBalance(ceilWithPrecision(balList[receiveCoin], 6));
+        const iface = new Interface(ISwapRouterV3.abi);
+        data.push(
+          iface.encodeFunctionData("exactInputSingle", [ExactInputSingleParams])
+        );
+        target.push(opAddressList.uniswapRouterAddress);
+        // execute
+        await accountManagerContract.exec(activeAccount, target, 0, data, {
+          gasLimit: 2300000,
+        });
+      }
+      // setPayBalance(ceilWithPrecision(balList[payCoin], 6));
+      // setReceiveBalance(ceilWithPrecision(balList[receiveCoin], 6));
 
       // setPayBalance(ceilWithPrecision(balList[payCoin], 6));
       // setReceiveBalance(ceilWithPrecision(balList[receiveCoin], 6);
