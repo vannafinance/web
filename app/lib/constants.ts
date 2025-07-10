@@ -41,4 +41,14 @@ export const FEES = 0.01;
 export const oneMonthTimestampInterval = 2629743;
 export const referralCode =
   "0x0000000000000000000000000000000000000000000000000000000000000000";
-export const percentageClickValues = [10, 25, 50, 100]
+export const percentageClickValues = [10, 25, 50, 100];
+
+// Derive API constants
+export const DERIVE_WS_TESTNET = "wss://api-demo.lyra.finance/ws";
+export const DERIVE_WS_MAINNET = "wss://api.lyra.finance/ws";
+
+// Derive futures instrument names for different base assets
+export const DERIVE_FUTURES_INSTRUMENTS = {
+  ETH: "ETH-PERP",
+  BTC: "BTC-PERP",
+} as const;
