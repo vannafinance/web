@@ -201,7 +201,7 @@ export default function Page() {
     return () => {
       unsubscribed = true;
     };
-  }, []);
+  }, [selectedPair]);
 
   return (
     <div className="flex flex-col lg:flex-row space-x-0 lg:space-x-5 text-base pt-4 px-2.5 md:px-5 lg:px-7 xl:px-10 text-baseBlack dark:text-baseWhite">

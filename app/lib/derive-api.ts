@@ -248,7 +248,7 @@ class DeriveAPIService {
   // Unsubscribe from futures ticker
   async unsubscribeFromFuturesTicker(instrumentName: string): Promise<void> {
     try {
-      const subscriptionId = `ticker_${instrumentName}`;
+      const subscriptionId = `ticker.${instrumentName}.1000`;
 
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
         await this.sendRequest("unsubscribe", {
@@ -491,11 +491,8 @@ class DeriveAPIService {
         return [];
       }
 
-      // Step 2: Get detailed data for each instrument (limit to first 10 for testing)
-      const instrumentsToFetch = optionInstruments.slice(0, 10);
-
       // Fetch both instrument details and ticker data
-      const dataPromises = instrumentsToFetch.map(async (instrument) => {
+      const dataPromises = optionInstruments.map(async (instrument) => {
         try {
           const [instrumentDetails, tickerData] = await Promise.all([
             this.getInstrument(instrument.instrument_name),
@@ -517,7 +514,7 @@ class DeriveAPIService {
 
       const instrumentDataArray = await Promise.all(dataPromises);
 
-      // Step 3: Transform data to match OptionData interface
+      // Step 2: Transform data to match OptionData interface
       const optionData: OptionData[] = instrumentDataArray
         .filter((data) => data !== null)
         .map((data) => {
