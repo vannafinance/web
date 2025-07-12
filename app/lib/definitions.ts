@@ -237,17 +237,6 @@ interface PositionSectionProps {
   dataFetching: boolean;
 }
 
-interface OptionData {
-  delta: number;
-  iv: number;
-  volume: number;
-  bidSize: number;
-  bidPrice: number;
-  askPrice: number;
-  askSize: number;
-  strike: number;
-}
-
 interface DeriveInstrument {
   instrument_name: string;
   instrument_type: string;
