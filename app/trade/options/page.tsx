@@ -2,7 +2,7 @@
 
 // import { useNetwork } from "@/app/context/network-context";
 // import { ARBITRUM_NETWORK } from "@/app/lib/constants";
-import { generateDummyData } from "@/app/lib/helper";
+import { fetchOptionChainData, deriveAPI } from "@/app/lib/derive-api";
 import FutureDropdown from "@/app/ui/future/future-dropdown";
 // import OptionSlider from "@/app/ui/options/option-slider";
 import PositionsSection from "@/app/ui/options/positions-section";
@@ -11,7 +11,7 @@ import { TrendDown, TrendUp } from "@phosphor-icons/react/dist/ssr";
 import axios from "axios";
 // import { useWeb3React } from "@web3-react/core";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type OptionType = "All" | "Calls" | "Puts";
 type DateOption =
@@ -41,6 +41,13 @@ export default function Page() {
     "Delta",
     "Mark Price",
   ]);
+
+  // Add state for option chain data
+  const [optionChainData, setOptionChainData] = useState<OptionData[]>([]);
+  const [isLoadingOptions, setIsLoadingOptions] = useState<boolean>(true);
+  const [isRefreshingData, setIsRefreshingData] = useState<boolean>(false);
+  const [optionDataError, setOptionDataError] = useState<string | null>(null);
+  const [lastUpdateTime, setLastUpdateTime] = useState<Date | null>(null);
 
   const optionTypes: OptionType[] = ["All", "Calls", "Puts"];
   const dateOptions: DateOption[] = [
@@ -98,8 +105,71 @@ export default function Page() {
     String(date.getDate()).padStart(2, "0");
 
   const currentPrice = 2417.75;
-  const baseStrike = Math.floor(currentPrice / 100) * 100 - 300;
-  const dummyData = generateDummyData(baseStrike, 6);
+
+  // Function to load option chain data
+  const loadOptionChainData = useCallback(async (isRefresh = false) => {
+    if (isRefresh) {
+      setIsRefreshingData(true);
+    } else {
+      setIsLoadingOptions(true);
+      setOptionDataError(null);
+      setOptionChainData([]); // Only clear data on initial load
+    }
+
+    // Set a timeout for the entire operation
+    const timeoutId = setTimeout(() => {
+      if (!isRefresh) {
+        setOptionDataError('Connection timeout - Please try again');
+        setIsLoadingOptions(false);
+      } else {
+        setIsRefreshingData(false);
+        console.warn('Refresh timeout - will retry in next cycle');
+      }
+    }, 45000); // 45 second timeout
+
+    try {
+      const data = await fetchOptionChainData(selectedPair.value);
+      clearTimeout(timeoutId);
+      setOptionChainData(data);
+      setLastUpdateTime(new Date());
+
+      if (data.length === 0 && !isRefresh) {
+        setOptionDataError(`No option data available for ${selectedPair.value}`);
+      } else if (data.length > 0) {
+        // Clear any previous errors if we successfully get data
+        setOptionDataError(null);
+      }
+    } catch (error) {
+      clearTimeout(timeoutId);
+      console.error('Failed to load option chain data:', error);
+
+      // For refresh errors, don't break the UI - just log
+      if (isRefresh) {
+        console.warn('Refresh failed, keeping existing data:', error);
+      } else {
+        // Better error messages based on error type
+        let errorMessage = 'Failed to connect to live data';
+        if (error instanceof Error) {
+          if (error.message.includes('timeout')) {
+            errorMessage = 'Connection timeout - The server is taking too long to respond';
+          } else if (error.message.includes('Rate limit')) {
+            errorMessage = 'Rate limit exceeded - Please wait and try again';
+          } else {
+            errorMessage = `Connection error: ${error.message}`;
+          }
+        }
+
+        setOptionDataError(errorMessage);
+        setOptionChainData([]); // Ensure no stale data
+      }
+    } finally {
+      if (isRefresh) {
+        setIsRefreshingData(false);
+      } else {
+        setIsLoadingOptions(false);
+      }
+    }
+  }, [selectedPair.value]);
 
   // const tableRef = useRef<HTMLDivElement>(null);
   // const [labelPosition, setLabelPosition] = useState<number>(0);
@@ -172,6 +242,35 @@ export default function Page() {
     return () => clearInterval(intervalId); // This is the cleanup function
   }, []);
 
+  // Load option chain data on component mount and when selected pair changes
+  useEffect(() => {
+    // Add a small delay before initial connection to prevent rate limiting
+    const timer = setTimeout(() => {
+      loadOptionChainData(false);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [selectedPair, loadOptionChainData]);
+
+  // Set up live data updates every 1 seconds
+  useEffect(() => {
+    // Only start auto-refresh if we have data and no errors
+    if (optionChainData.length > 0 && !optionDataError && !isLoadingOptions) {
+      const refreshInterval = setInterval(() => {
+        loadOptionChainData(true);
+      }, 1000); // 1 seconds
+
+      return () => clearInterval(refreshInterval);
+    }
+  }, [optionChainData.length, optionDataError, isLoadingOptions, loadOptionChainData]);
+
+  // Cleanup WebSocket connection on component unmount
+  useEffect(() => {
+    return () => {
+      deriveAPI.disconnect();
+    };
+  }, []);
+
   return (
     <div className="flex flex-col lg:flex-row space-x-0 lg:space-x-5 text-base pt-8 px-3 xs:px-5 lg:px-6 custom-scrollbar text-baseBlack dark:text-baseWhite">
       <div className="w-full lg:w-[70%] mx-auto mb-6">
@@ -221,11 +320,10 @@ export default function Page() {
                 <button
                   key={option}
                   onClick={() => handleOptionChange(option)}
-                  className={`px-4 py-2 rounded-md ${
-                    selectedOption === option
-                      ? "bg-purpleBG-lighter dark:bg-baseDarkComplementary border border-purple"
-                      : ""
-                  }`}
+                  className={`px-4 py-2 rounded-md ${selectedOption === option
+                    ? "bg-purpleBG-lighter dark:bg-baseDarkComplementary border border-purple"
+                    : ""
+                    }`}
                 >
                   {option}
                 </button>
@@ -242,11 +340,10 @@ export default function Page() {
                     className="sr-only"
                   />
                   <div
-                    className={`w-5 h-5 rounded mr-2 flex items-center justify-center ${
-                      selectedGreeks.includes(greek)
-                        ? "bg-purple"
-                        : "bg-white border border-baseBlack dark:border-baseWhite"
-                    }`}
+                    className={`w-5 h-5 rounded mr-2 flex items-center justify-center ${selectedGreeks.includes(greek)
+                      ? "bg-purple"
+                      : "bg-white border border-baseBlack dark:border-baseWhite"
+                      }`}
                   >
                     {selectedGreeks.includes(greek) && (
                       <svg
@@ -273,11 +370,10 @@ export default function Page() {
               <button
                 key={date}
                 onClick={() => handleDateChange(date)}
-                className={`px-2.5 xl:px-5 ml-2.5 sm:ml-0 mt-2.5 sm:mt-0 py-2.5 rounded-md ${
-                  selectedDate === date
-                    ? "bg-purpleBG-lighter dark:bg-baseDarkComplementary border border-purple"
-                    : "border border-neutral-300 dark:border-neutral-700"
-                }`}
+                className={`px-2.5 xl:px-5 ml-2.5 sm:ml-0 mt-2.5 sm:mt-0 py-2.5 rounded-md ${selectedDate === date
+                  ? "bg-purpleBG-lighter dark:bg-baseDarkComplementary border border-purple"
+                  : "border border-neutral-300 dark:border-neutral-700"
+                  }`}
               >
                 {date}
               </button>
@@ -289,133 +385,198 @@ export default function Page() {
         </div>
 
         <div className="relative mb-2.5 w-full h-96">
-          <div className="overflow-auto max-w-full 2xl:w-full max-h-full">
-            <table className="bg-white dark:bg-baseDark w-full">
-              <thead>
-                <tr className="text-base font-medium border border-neutral-100 dark:border-neutral-700">
-                  <th className="py-3 px-6 text-center" colSpan={7}>
-                    Calls
-                  </th>
-                  <th className="py-3 text-center text-nowrap w-24" colSpan={1}>
-                    {today}
-                  </th>
-                  <th className="py-3 px-6 text-center" colSpan={7}>
-                    Puts
-                  </th>
-                </tr>
-                <tr className="text-neutral-500 text-xs text-nowrap">
-                  <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                    Delta
-                  </th>
-                  <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                    IV
-                  </th>
-                  <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                    Volume
-                  </th>
-                  <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                    Bid Size
-                  </th>
-                  <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                    Bid Price
-                  </th>
-                  <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                    Ask Price
-                  </th>
-                  <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                    Ask Size
-                  </th>
-                  <th className="py-3 px-5 text-center border-x border-neutral-100 dark:border-neutral-700 w-24">
-                    Strike
-                  </th>
-                  <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                    Bid Size
-                  </th>
-                  <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                    Bid Price
-                  </th>
-                  <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                    Ask Price
-                  </th>
-                  <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                    Ask Size
-                  </th>
-                  <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                    Volume
-                  </th>
-                  <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                    IV
-                  </th>
-                  <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                    Delta
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="text-xs font-normal">
-                {dummyData.map((option, index) => (
-                  <tr key={index}>
-                    <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                      {option.delta.toFixed(5)}
-                    </td>
-                    <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                      {option.iv.toFixed(2)}
-                    </td>
-                    <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                      {option.volume.toFixed(0)}
-                    </td>
-                    <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                      {option.bidSize.toFixed(2)}
-                    </td>
-                    <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSuccess-300 hover:bg-baseSuccess-100">
-                      <div className=" flex flex-row justify-between">
-                        {option.bidPrice.toFixed(1)}
-                        <PlusSquare size={16} />
-                      </div>
-                    </td>
-                    <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSecondary-500 hover:bg-baseSecondary-300">
-                      <div className=" flex flex-row justify-between">
-                        {option.askPrice.toFixed(1)}
-                        <PlusSquare size={16} />
-                      </div>
-                    </td>
-                    <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                      {option.askSize.toFixed(2)}
-                    </td>
-                    <td className="py-3 px-2 text-center border-x border-neutral-100 dark:border-neutral-700 font-medium w-24">
-                      {option.strike}
-                    </td>
-                    <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                      {option.bidSize.toFixed(2)}
-                    </td>
-                    <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSuccess-300 hover:bg-baseSuccess-100">
-                      <div className=" flex flex-row justify-between">
-                        {option.bidPrice.toFixed(1)}
-                        <PlusSquare size={16} />
-                      </div>
-                    </td>
-                    <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSecondary-500 hover:bg-baseSecondary-300">
-                      <div className=" flex flex-row justify-between">
-                        {option.askPrice.toFixed(1)}
-                        <PlusSquare size={16} />
-                      </div>
-                    </td>
-                    <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                      {option.askSize.toFixed(2)}
-                    </td>
-                    <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                      {option.volume.toFixed(0)}
-                    </td>
-                    <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                      {option.iv.toFixed(2)}
-                    </td>
-                    <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                      {option.delta.toFixed(5)}
-                    </td>
+          {/* Loading state */}
+          {isLoadingOptions && (
+            <div className="flex flex-col items-center justify-center h-full">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple mb-4"></div>
+              <div className="text-sm text-neutral-500 text-center">
+                <div className="mb-2">Connecting to live option data...</div>
+                <div className="text-xs">This may take up to 30 seconds</div>
+              </div>
+            </div>
+          )}
+
+          {/* Error message */}
+          {!isLoadingOptions && optionDataError && (
+            <div className="flex flex-col items-center justify-center h-full">
+              <div className="mb-4 p-4 bg-red-100 dark:bg-red-900 border border-red-300 dark:border-red-700 rounded-md max-w-md">
+                <div className="text-sm text-red-800 dark:text-red-200 text-center">
+                  <div className="font-semibold mb-2">Connection Error</div>
+                  <div>{optionDataError}</div>
+                </div>
+              </div>
+              <button
+                onClick={() => loadOptionChainData(false)}
+                className="px-4 py-2 bg-purple text-white rounded-md hover:bg-purple-600 transition-colors"
+              >
+                Retry Connection
+              </button>
+            </div>
+          )}
+
+          {/* Option chain table */}
+          {!isLoadingOptions && !optionDataError && optionChainData.length > 0 && (
+            <div className="overflow-auto max-w-full 2xl:w-full max-h-full">
+              {/* Live data status */}
+              <div className="flex items-center justify-between mb-2 px-2 py-1 bg-gray-50 dark:bg-gray-800 rounded-md text-xs">
+                <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-green-600 dark:text-green-400 font-medium">LIVE</span>
+                  </div>
+                  {isRefreshingData && (
+                    <div className="flex items-center space-x-1">
+                      <div className="w-3 h-3 border border-blue-300 border-t-blue-600 rounded-full animate-spin"></div>
+                      <span className="text-blue-600">Updating...</span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="text-neutral-500">
+                    {lastUpdateTime && (
+                      <span>Last update: {lastUpdateTime.toLocaleTimeString()}</span>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => loadOptionChainData(true)}
+                    disabled={isRefreshingData}
+                    className="px-2 py-1 text-xs bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-200 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    title="Refresh data now"
+                  >
+                    {isRefreshingData ? '⟳' : '↻'} Refresh
+                  </button>
+                </div>
+              </div>
+
+              <table className="bg-white dark:bg-baseDark w-full">
+                <thead>
+                  <tr className="text-base font-medium border border-neutral-100 dark:border-neutral-700">
+                    <th className="py-3 px-6 text-center" colSpan={7}>
+                      Calls
+                    </th>
+                    <th className="py-3 text-center text-nowrap w-24" colSpan={1}>
+                      {today}
+                    </th>
+                    <th className="py-3 px-6 text-center" colSpan={7}>
+                      Puts
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-            {/* <div
+                  <tr className="text-neutral-500 text-xs text-nowrap">
+                    <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                      Delta
+                    </th>
+                    <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                      IV
+                    </th>
+                    <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                      Volume
+                    </th>
+                    <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                      Bid Size
+                    </th>
+                    <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                      Bid Price
+                    </th>
+                    <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                      Ask Price
+                    </th>
+                    <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                      Ask Size
+                    </th>
+                    <th className="py-3 px-5 text-center border-x border-neutral-100 dark:border-neutral-700 w-24">
+                      Strike
+                    </th>
+                    <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                      Bid Size
+                    </th>
+                    <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                      Bid Price
+                    </th>
+                    <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                      Ask Price
+                    </th>
+                    <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                      Ask Size
+                    </th>
+                    <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                      Volume
+                    </th>
+                    <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                      IV
+                    </th>
+                    <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                      Delta
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="text-xs font-normal">
+                  {optionChainData.map((option: OptionData, index: number) => (
+                    <tr
+                      key={index}
+                      className={`transition-colors duration-500 ${isRefreshingData ? 'animate-pulse' : ''}`}
+                    >
+                      <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                        {option.delta.toFixed(5)}
+                      </td>
+                      <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                        {option.iv.toFixed(2)}
+                      </td>
+                      <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                        {option.volume.toFixed(0)}
+                      </td>
+                      <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                        {option.bidSize.toFixed(2)}
+                      </td>
+                      <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSuccess-300 hover:bg-baseSuccess-100">
+                        <div className=" flex flex-row justify-between">
+                          {option.bidPrice.toFixed(1)}
+                          <PlusSquare size={16} />
+                        </div>
+                      </td>
+                      <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSecondary-500 hover:bg-baseSecondary-300">
+                        <div className=" flex flex-row justify-between">
+                          {option.askPrice.toFixed(1)}
+                          <PlusSquare size={16} />
+                        </div>
+                      </td>
+                      <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                        {option.askSize.toFixed(2)}
+                      </td>
+                      <td className="py-3 px-2 text-center border-x border-neutral-100 dark:border-neutral-700 font-medium w-24">
+                        {option.strike}
+                      </td>
+                      <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                        {option.bidSize.toFixed(2)}
+                      </td>
+                      <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSuccess-300 hover:bg-baseSuccess-100">
+                        <div className=" flex flex-row justify-between">
+                          {option.bidPrice.toFixed(1)}
+                          <PlusSquare size={16} />
+                        </div>
+                      </td>
+                      <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSecondary-500 hover:bg-baseSecondary-300">
+                        <div className=" flex flex-row justify-between">
+                          {option.askPrice.toFixed(1)}
+                          <PlusSquare size={16} />
+                        </div>
+                      </td>
+                      <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                        {option.askSize.toFixed(2)}
+                      </td>
+                      <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                        {option.volume.toFixed(0)}
+                      </td>
+                      <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                        {option.iv.toFixed(2)}
+                      </td>
+                      <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                        {option.delta.toFixed(5)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {/* <div
               className="absolute left-1/2 transform -translate-x-1/2 text-white top-10"
             >
               <div className="relative w-20 h-8 flex items-center justify-center bg-gradient-to-r from-gradient-1 to-gradient-2 rounded-md">
@@ -424,7 +585,18 @@ export default function Page() {
                 </span>
               </div>
             </div> */}
-          </div>
+            </div>
+          )}
+
+          {/* Show message when no data is available */}
+          {!isLoadingOptions && optionChainData.length === 0 && !optionDataError && (
+            <div className="flex flex-col items-center justify-center h-full">
+              <div className="text-sm text-neutral-500 text-center">
+                <div className="mb-2">No live option data available for {selectedPair.value}</div>
+                <div className="text-xs">Try selecting a different asset or check back later</div>
+              </div>
+            </div>
+          )}
         </div>
 
         <div>

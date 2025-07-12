@@ -18,6 +18,7 @@ import { opAddressList } from "@/app/lib/web3-constants";
 import OpMarkPrice from "../../abi/vanna/v1/out/OpMarkPrice.sol/OpMarkPrice.json";
 import OpIndexPrice from "../../abi/vanna/v1/out/OpIndexPrice.sol/OpIndexPrice.json";
 import { ceilWithPrecision } from "@/app/lib/helper";
+import { subscribeToFuturesTicker, getFuturesInstrumentName } from "@/app/lib/derive-api";
 
 export default function Page() {
   const { library } = useWeb3React();
@@ -60,6 +61,9 @@ export default function Page() {
   const [openInterestInPercentage, setOpenInterestInPercentage] =
     useState<string>("");
   const [volume, setVolume] = useState<string>("-");
+
+  // Add state for live ticker data
+  const [liveTicker, setLiveTicker] = useState<any>(null);
 
   const fetchValues = async () => {
     if (!currentNetwork) return;
@@ -134,8 +138,8 @@ export default function Page() {
     const low = asset.price - fourPercent;
     setHighLow(
       ceilWithPrecision(String(high), 2) +
-        "/" +
-        ceilWithPrecision(String(low), 2)
+      "/" +
+      ceilWithPrecision(String(low), 2)
     );
     setOpenInterestPositive(
       ceilWithPrecision(String(asset.availableForLong), 1)
@@ -185,6 +189,20 @@ export default function Page() {
     }; // This is the cleanup function
   }, []);
 
+  useEffect(() => {
+    // Subscribe to Derive futures ticker for the selected pair
+    const instrumentName = getFuturesInstrumentName(selectedPair.value);
+
+    let unsubscribed = false;
+    subscribeToFuturesTicker(instrumentName, (data) => {
+      // console.log("WS DATA RECEIVED", data);
+      if (!unsubscribed) setLiveTicker(data);
+    });
+    return () => {
+      unsubscribed = true;
+    };
+  }, []);
+
   return (
     <div className="flex flex-col lg:flex-row space-x-0 lg:space-x-5 text-base pt-4 px-2.5 md:px-5 lg:px-7 xl:px-10 text-baseBlack dark:text-baseWhite">
       <div className="w-full mx-auto mb-6">
@@ -222,42 +240,36 @@ export default function Page() {
 
         <div className="flex flex-wrap sm:flex-nowrap justify-between gap-5 items-center text-sm p-5 border border-neutral-300 dark:border-neutral-700 rounded-xl font-semibold mb-2">
           <div>
-            <p className="text-neutral-500 text-xs">Index Price</p>
-            <p className="text-sm">{indexPrice}</p>
+            <p className="text-neutral-500 text-xs">ETH Price</p>
+            <p className="text-sm">{liveTicker?.instrument_ticker?.mark_price ?? "-"}</p>
           </div>
           <div>
-            <p className="text-neutral-500 text-xs">Mark Price</p>
-            <p className="text-sm">{markPrice}</p>
+            <p className="text-neutral-500 text-xs">24H Change</p>
+            <p className="text-sm">{liveTicker?.instrument_ticker?.stats?.percent_change ?? liveTicker?.instrument_ticker?.stats?.price_change_percentage ?? "-"}</p>
           </div>
           <div>
-            <p className="text-neutral-500 text-xs">24H High/Low</p>
-            <p className="text-sm">{highLow}</p>
+            <p className="text-neutral-500 text-xs">1Y Funding</p>
+            <p className="text-sm">{liveTicker?.instrument_ticker?.perp_details?.funding_rate ?? "-"}</p>
           </div>
           <div className="col-span-2 sm:col-auto">
-            <p className="text-neutral-500 text-xs">Funding Rate (8H)</p>
+            <p className="text-neutral-500 text-xs">24H Volume</p>
             <div className="flex items-center space-x-1">
-              <p className="text=sm">{fundingRate}</p>
-              {/* <p className="text-green-500 text-sm">{netRatePositive}</p>
-              <p className="text-red-500 text-sm">{netRateNegative}</p> */}
+              <p className="text=sm">{liveTicker?.instrument_ticker?.stats?.contract_volume ?? "-"}</p>
             </div>
           </div>
           <div className="col-span-2 sm:col-auto">
             <p className="text-neutral-500 text-xs">
-              Open Interest {openInterestInPercentage}
+              Open Interest
             </p>
             <div className="flex items-center space-x-1">
               <p className="text-green-500 text-sm">
-                {" "}
-                {"$"} {openInterestNegative} {"K"} {"/"}
-              </p>
-              <p className="text-red-500 text-sm">
-                {"$"} {openInterestPositive} {"K"}
+                {liveTicker?.instrument_ticker?.stats?.open_interest ?? "-"}
               </p>
             </div>
           </div>
           <div>
-            <p className="text-neutral-500 text-xs">24H Volume</p>
-            <p className="text-sm">{volume}</p>
+            <p className="text-neutral-500 text-xs">24H Trades</p>
+            <p className="text-sm">{liveTicker?.instrument_ticker?.stats?.num_trades ?? "-"}</p>
           </div>
         </div>
 
