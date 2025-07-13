@@ -18,6 +18,10 @@ class DeriveAPIService {
   private subscriptions: Map<string, DeriveSubscription> = new Map();
   private marketDataCache: Map<string, FuturesMarketData> = new Map();
 
+  // Add properties to store cached data
+  private cachedOptionInstruments: any[] = [];
+  private cachedInstrumentDetails: Map<string, any> = new Map();
+
   constructor() {
     // Auto-connect is handled in ensureConnection
   }
@@ -443,11 +447,35 @@ class DeriveAPIService {
 
   async getTicker(instrumentName: string): Promise<any> {
     try {
-      const response = await this.sendRequest("public/get_ticker", {
-        instrument_name: instrumentName,
+      // Create a promise that will resolve with the first ticker data
+      const tickerPromise = new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          // Clean up subscription on timeout
+          this.unsubscribeFromFuturesTicker(instrumentName).catch(
+            console.error,
+          );
+          reject(
+            new Error(`Ticker subscription timeout for ${instrumentName}`),
+          );
+        }, 10000); // 10 second timeout
+
+        // One-time callback that resolves the promise with ticker data
+        const callback = (data: any) => {
+          clearTimeout(timeout);
+          this.unsubscribeFromFuturesTicker(instrumentName).catch(
+            console.error,
+          );
+          resolve({ result: data.instrument_ticker });
+        };
+
+        // Subscribe to ticker updates
+        this.subscribeToTicker(instrumentName, callback).catch((error) => {
+          clearTimeout(timeout);
+          reject(error);
+        });
       });
 
-      return response;
+      return await tickerPromise;
     } catch (error) {
       console.error(
         `Error fetching ticker for ${instrumentName} via WebSocket:`,
@@ -460,6 +488,7 @@ class DeriveAPIService {
   async getOptionChainData(
     baseAsset: string = "ETH",
     retryAttempt: number = 0,
+    isRefresh: boolean = false,
   ): Promise<OptionData[]> {
     const maxRetries = 3;
     const retryDelay = Math.pow(2, retryAttempt) * 1000; // Exponential backoff
@@ -468,43 +497,53 @@ class DeriveAPIService {
       // Ensure connection is established
       await this.ensureConnection();
 
-      // Step 1: Get all option instruments for the specified base asset
-      const instruments = await this.getAllInstruments(
-        "option",
-        false,
-        baseAsset,
-      );
+      // Only fetch static data if this is not a refresh call
+      let optionInstruments: any[] = [];
+      if (!isRefresh) {
+        // Step 1: Get all option instruments for the specified base asset
+        const instruments = await this.getAllInstruments(
+          "option",
+          false,
+          baseAsset,
+        );
 
-      // console.log("all instruments", instruments);
+        // Filter for active options with strike and option_type
+        optionInstruments = instruments.filter(
+          (instrument) =>
+            instrument.is_active &&
+            instrument.option_details?.strike &&
+            instrument.option_details?.option_type,
+        );
 
-      // Filter for active options with strike and option_type
-      const optionInstruments = instruments.filter(
-        (instrument) =>
-          instrument.is_active &&
-          instrument.option_details?.strike &&
-          instrument.option_details?.option_type,
-      );
-
-      // console.log("optionInstruments", optionInstruments);
-
-      if (optionInstruments.length === 0) {
-        return [];
+        if (optionInstruments.length === 0) {
+          return [];
+        }
       }
 
-      // Fetch both instrument details and ticker data
-      const dataPromises = optionInstruments.map(async (instrument) => {
-        try {
-          const [instrumentDetails, tickerData] = await Promise.all([
-            this.getInstrument(instrument.instrument_name),
-            this.getTicker(instrument.instrument_name),
-          ]);
+      // Get cached instruments if this is a refresh
+      const cachedInstruments = this.cachedOptionInstruments || [];
+      const instrumentsToProcess = isRefresh
+        ? cachedInstruments
+        : optionInstruments;
 
-          // console.log("instrumentDetails", instrumentDetails);
-          // console.log("tickerData", tickerData);
+      // Fetch ticker data only
+      const dataPromises = instrumentsToProcess.map(async (instrument) => {
+        try {
+          const tickerData = await this.getTicker(instrument.instrument_name);
+
+          // If this is not a refresh, also fetch instrument details
+          let instrumentDetails = null;
+          if (!isRefresh) {
+            instrumentDetails = await this.getInstrument(
+              instrument.instrument_name,
+            );
+          }
 
           return {
             instrument,
-            details: instrumentDetails,
+            details:
+              instrumentDetails ||
+              this.cachedInstrumentDetails?.get(instrument.instrument_name),
             ticker: tickerData,
           };
         } catch (error) {
@@ -514,7 +553,17 @@ class DeriveAPIService {
 
       const instrumentDataArray = await Promise.all(dataPromises);
 
-      // Step 2: Transform data to match OptionData interface
+      // Cache the instruments and details if this is not a refresh
+      if (!isRefresh) {
+        this.cachedOptionInstruments = instrumentsToProcess;
+        this.cachedInstrumentDetails = new Map(
+          instrumentDataArray
+            .filter((data) => data !== null)
+            .map((data) => [data!.instrument.instrument_name, data!.details]),
+        );
+      }
+
+      // Transform data to match OptionData interface
       const optionData: OptionData[] = instrumentDataArray
         .filter((data) => data !== null)
         .map((data) => {
@@ -525,7 +574,7 @@ class DeriveAPIService {
             ? parseFloat(instrument.option_details.strike)
             : 0;
 
-          // Extract pricing data from ticker (this is where the real market data is)
+          // Extract pricing data from ticker
           const tickerResult = ticker?.result || ticker;
 
           // Helper function to safely parse numeric values
@@ -536,7 +585,6 @@ class DeriveAPIService {
             return isNaN(parsed) ? 0 : parsed;
           };
 
-          // Map the fields based on actual API response structure
           const optionPricing = tickerResult?.option_pricing;
           const stats = tickerResult?.stats;
 
@@ -581,8 +629,8 @@ class DeriveAPIService {
 
           return mappedData;
         })
-        .filter((option) => option.strike > 0) // Filter out invalid strikes
-        .sort((a, b) => a.strike - b.strike); // Sort by strike price
+        .filter((option) => option.strike > 0)
+        .sort((a, b) => a.strike - b.strike);
 
       return optionData;
     } catch (error) {
@@ -594,7 +642,7 @@ class DeriveAPIService {
       // Retry with exponential backoff
       if (retryAttempt < maxRetries) {
         await new Promise((resolve) => setTimeout(resolve, retryDelay));
-        return this.getOptionChainData(baseAsset, retryAttempt + 1);
+        return this.getOptionChainData(baseAsset, retryAttempt + 1, isRefresh);
       }
 
       throw error;
@@ -622,9 +670,10 @@ export const deriveAPI = new DeriveAPIService();
 // Helper function to fetch live option data from WebSocket
 export async function fetchOptionChainData(
   baseAsset: string = "ETH",
+  isRefresh: boolean = false,
 ): Promise<OptionData[]> {
   try {
-    const data = await deriveAPI.getOptionChainData(baseAsset);
+    const data = await deriveAPI.getOptionChainData(baseAsset, 0, isRefresh);
 
     if (data.length === 0) {
       return [];

@@ -128,7 +128,8 @@ export default function Page() {
     }, 45000); // 45 second timeout
 
     try {
-      const data = await fetchOptionChainData(selectedPair.value);
+      // Pass isRefresh to getOptionChainData
+      const data = await fetchOptionChainData(selectedPair.value, isRefresh);
       clearTimeout(timeoutId);
       setOptionChainData(data);
       setLastUpdateTime(new Date());
@@ -258,7 +259,7 @@ export default function Page() {
     if (optionChainData.length > 0 && !optionDataError && !isLoadingOptions) {
       const refreshInterval = setInterval(() => {
         loadOptionChainData(true);
-      }, 1000); // 1 seconds
+      }, 10000); // 1 seconds
 
       return () => clearInterval(refreshInterval);
     }
@@ -418,7 +419,7 @@ export default function Page() {
           {!isLoadingOptions && !optionDataError && optionChainData.length > 0 && (
             <div className="overflow-auto max-w-full 2xl:w-full max-h-full">
               {/* Live data status */}
-              <div className="flex items-center justify-between mb-2 px-2 py-1 bg-gray-50 dark:bg-gray-800 rounded-md text-xs">
+              {/* <div className="flex items-center justify-between mb-2 px-2 py-1 bg-gray-50 dark:bg-gray-800 rounded-md text-xs">
                 <div className="flex items-center space-x-2">
                   <div className="flex items-center space-x-1">
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -446,7 +447,7 @@ export default function Page() {
                     {isRefreshingData ? '⟳' : '↻'} Refresh
                   </button>
                 </div>
-              </div>
+              </div> */}
 
               <table className="bg-white dark:bg-baseDark w-full">
                 <thead>
