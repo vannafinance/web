@@ -5,6 +5,19 @@ import {
 
 const WS_URL = DERIVE_WS_MAINNET;
 
+// Add new interface for statistics response
+interface StatisticsResponse {
+  daily_fees: string;
+  daily_notional_volume: string;
+  daily_premium_volume: string;
+  daily_trades: number;
+  open_interest: string;
+  total_fees: string;
+  total_notional_volume: string;
+  total_premium_volume: string;
+  total_trades: number;
+}
+
 class DeriveAPIService {
   private ws: WebSocket | null = null;
   private pendingRequests: Map<string, PendingRequest> = new Map();
@@ -13,6 +26,7 @@ class DeriveAPIService {
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private reconnectDelay = 1000; // Start with 1 second
+  private isReady = false;
 
   // Subscription management
   private subscriptions: Map<string, DeriveSubscription> = new Map();
@@ -26,12 +40,17 @@ class DeriveAPIService {
     // Auto-connect is handled in ensureConnection
   }
 
+  // Add method to check connection status
+  public isConnected(): boolean {
+    return this.isReady && this.ws?.readyState === WebSocket.OPEN;
+  }
+
   private generateId(): string {
     return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
 
   private async ensureConnection(): Promise<void> {
-    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+    if (this.isConnected()) {
       return Promise.resolve();
     }
 
@@ -57,6 +76,7 @@ class DeriveAPIService {
           this.ws.close();
         }
         this.isConnecting = false;
+        this.isReady = false;
         reject(new Error("WebSocket connection timeout"));
       }, 30000); // 30 second timeout
 
@@ -68,6 +88,7 @@ class DeriveAPIService {
 
         // Wait for the connection to stabilize
         await new Promise((resolve) => setTimeout(resolve, 1000));
+        this.isReady = true;
 
         // Note: Authentication is optional for public endpoints
         // We can add it later if needed for better rate limits
@@ -94,6 +115,7 @@ class DeriveAPIService {
         clearTimeout(connectionTimeout);
         this.isConnecting = false;
         this.connectionPromise = null;
+        this.isReady = false;
 
         // Reject all pending requests
         this.pendingRequests.forEach(({ reject, timeout }) => {
@@ -117,10 +139,22 @@ class DeriveAPIService {
       this.ws.onerror = (event: Event) => {
         clearTimeout(connectionTimeout);
         this.isConnecting = false;
+        this.isReady = false;
         console.error("Derive WebSocket error:", event);
         reject(new Error("WebSocket connection failed"));
       };
     });
+  }
+
+  // Add method to wait for connection
+  public async waitForConnection(timeoutMs: number = 10000): Promise<void> {
+    const startTime = Date.now();
+    while (!this.isConnected() && Date.now() - startTime < timeoutMs) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    if (!this.isConnected()) {
+      throw new Error("Timeout waiting for WebSocket connection");
+    }
   }
 
   private scheduleReconnect(): void {
@@ -166,11 +200,9 @@ class DeriveAPIService {
     this.pendingRequests.delete(response.id);
 
     if (response.error) {
-      pendingRequest.reject(
-        new Error(`JSON-RPC Error: ${response.error.message}`),
-      );
+      pendingRequest.reject(response.error);
     } else {
-      pendingRequest.resolve(response.result);
+      pendingRequest.resolve(response); // Return the full response
     }
   }
 
@@ -649,6 +681,38 @@ class DeriveAPIService {
     }
   }
 
+  // Add new method to get statistics
+  async getStatistics(
+    instrumentName: string,
+    currency?: string,
+  ): Promise<StatisticsResponse> {
+    try {
+      await this.waitForConnection();
+
+      const params: any = {
+        instrument_name: instrumentName,
+      };
+
+      if (currency) {
+        params.currency = currency;
+      }
+
+      console.log("Sending statistics request with params:", params);
+      const response = await this.sendRequest("public/statistics", params);
+      console.log("Received statistics response:", response);
+
+      if (!response) {
+        throw new Error("No response received from statistics endpoint");
+      }
+
+      // The response should be the full RPC response with result field
+      return response.result;
+    } catch (error) {
+      console.error(`Error fetching statistics for ${instrumentName}:`, error);
+      throw error;
+    }
+  }
+
   disconnect(): void {
     if (this.ws) {
       this.ws.close(1000, "Client disconnect");
@@ -777,4 +841,19 @@ export function getFuturesInstrumentName(baseAsset: string): string {
   const upperAsset =
     baseAsset.toUpperCase() as keyof typeof DERIVE_FUTURES_INSTRUMENTS;
   return DERIVE_FUTURES_INSTRUMENTS[upperAsset] || `${upperAsset}-PERP`;
+}
+
+export async function fetchInstrumentStatistics(
+  instrumentName: string,
+  currency?: string,
+): Promise<StatisticsResponse> {
+  try {
+    console.log("Fetching statistics for:", instrumentName, currency);
+    const response = await deriveAPI.getStatistics(instrumentName, currency);
+    console.log("Processed statistics response:", response);
+    return response;
+  } catch (error) {
+    console.error(`Failed to fetch statistics for ${instrumentName}:`, error);
+    throw error;
+  }
 }

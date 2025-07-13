@@ -2,7 +2,7 @@
 
 // import { useNetwork } from "@/app/context/network-context";
 // import { ARBITRUM_NETWORK } from "@/app/lib/constants";
-import { fetchOptionChainData, deriveAPI } from "@/app/lib/derive-api";
+import { fetchOptionChainData, deriveAPI, fetchInstrumentStatistics } from "@/app/lib/derive-api";
 import FutureDropdown from "@/app/ui/future/future-dropdown";
 // import OptionSlider from "@/app/ui/options/option-slider";
 import PositionsSection from "@/app/ui/options/positions-section";
@@ -76,10 +76,15 @@ export default function Page() {
   const [selectedPair, setSelectedPair] = useState<Option>(pairOptions[0]);
   const selectedPairRef = useRef(selectedPair);
   const [marketPrice, setMarketPrice] = useState<number>(1);
+  const [statistics, setStatistics] = useState<any>({
+    daily_notional_volume: "0",
+    daily_trades: 0,
+    open_interest: "0"
+  });
+  const [isLoadingStats, setIsLoadingStats] = useState(true);
+  const [statsError, setStatsError] = useState<string | null>(null);
 
-  const [selectedOrderType, setSelectedOrderType] = useState<Option>(
-    orderTypeOptions[0]
-  );
+  const [selectedOrderType, setSelectedOrderType] = useState<Option>(orderTypeOptions[0]);
   // const [leverageValue, setLeverageValue] = useState<number>(50);
 
   const handleOptionChange = (option: OptionType) => {
@@ -171,6 +176,49 @@ export default function Page() {
       }
     }
   }, [selectedPair.value]);
+
+  const fetchStatistics = async (retryCount = 0) => {
+    try {
+      setIsLoadingStats(true);
+      setStatsError(null);
+      console.log('Fetching stats for pair:', selectedPair.value);
+      const stats = await fetchInstrumentStatistics("OPTION", selectedPair.value);
+      setStatistics(stats);
+      setIsLoadingStats(false);
+    } catch (error) {
+      console.error("Failed to fetch statistics:", error);
+      // Retry up to 3 times with exponential backoff
+      if (retryCount < 3) {
+        const delay = Math.pow(2, retryCount) * 1000;
+        console.log(`Retrying in ${delay}ms...`);
+        setTimeout(() => fetchStatistics(retryCount + 1), delay);
+      } else {
+        setStatsError('Failed to load statistics');
+        setIsLoadingStats(false);
+      }
+    }
+  };
+
+  // Add useEffect to fetch statistics periodically
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+
+    const initializeStats = async () => {
+      await fetchStatistics();
+      // Only start periodic updates if we don't have an error
+      if (!statsError) {
+        intervalId = setInterval(() => fetchStatistics(), 10000);
+      }
+    };
+
+    initializeStats();
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [selectedPair]);
 
   // const tableRef = useRef<HTMLDivElement>(null);
   // const [labelPosition, setLabelPosition] = useState<number>(0);
@@ -272,6 +320,26 @@ export default function Page() {
     };
   }, []);
 
+  const formatNumber = (value: string | number | undefined, decimals: number = 2): string => {
+    if (!value) return '0';
+    const num = typeof value === 'string' ? parseFloat(value) : value;
+    return num.toLocaleString(undefined, {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals
+    });
+  };
+
+  const formatCurrency = (value: string | number | undefined, decimals: number = 2): string => {
+    if (!value) return '$0';
+    const num = typeof value === 'string' ? parseFloat(value) : value;
+    if (num >= 1000000) {
+      return `$${formatNumber(num / 1000000, decimals)}M`;
+    } else if (num >= 1000) {
+      return `$${formatNumber(num / 1000, decimals)}K`;
+    }
+    return `$${formatNumber(num, decimals)}`;
+  };
+
   return (
     <div className="flex flex-col lg:flex-row space-x-0 lg:space-x-5 text-base pt-8 px-3 xs:px-5 lg:px-6 custom-scrollbar text-baseBlack dark:text-baseWhite">
       <div className="w-full lg:w-[70%] mx-auto mb-6">
@@ -294,22 +362,41 @@ export default function Page() {
           <div className="w-full xs:h-[4.5rem] flex flex-row flex-wrap xs:flex-nowrap justify-between px-6 py-2 xs:py-4 border border-neutral-100 dark:border-neutral-700 rounded-xl font-semibold">
             <div className="my-1.5 xs:my-0">
               <p className="text-neutral-500 text-xs">24H Volume</p>
-              <p className="text-sm">$2.11m</p>
+              <p className="text-sm">
+                {isLoadingStats ? (
+                  <span className="text-neutral-400">Loading...</span>
+                ) : statsError ? (
+                  <span className="text-red-500 text-xs">{statsError}</span>
+                ) : (
+                  formatCurrency(statistics?.daily_notional_volume)
+                )}
+              </p>
             </div>
             <div className="col-span-2 my-1.5 xs:my-0">
               <p className="text-neutral-500 text-xs">
-                Open Interest (45%/55%)
+                Open Interest
               </p>
               <div className="flex items-center space-x-1">
-                <TrendUp size={16} color="#22c55e" />
-                <span className="text-sm">$668.4k</span>&nbsp;
-                <TrendDown size={15} color="#ef4444" />
-                <span className="text-sm">$805.5k</span>
+                {isLoadingStats ? (
+                  <span className="text-neutral-400">Loading...</span>
+                ) : statsError ? (
+                  <span className="text-red-500 text-xs">{statsError}</span>
+                ) : (
+                  <span className="text-sm">{formatCurrency(statistics?.open_interest)}</span>
+                )}
               </div>
             </div>
             <div className="my-1.5 xs:my-0">
-              <p className="text-neutral-500 text-xs">24H Trade</p>
-              <p className="text-sm">58,289.70</p>
+              <p className="text-neutral-500 text-xs">24H Trades</p>
+              <p className="text-sm">
+                {isLoadingStats ? (
+                  <span className="text-neutral-400">Loading...</span>
+                ) : statsError ? (
+                  <span className="text-red-500 text-xs">{statsError}</span>
+                ) : (
+                  formatNumber(statistics?.daily_trades, 0)
+                )}
+              </p>
             </div>
           </div>
         </div>
