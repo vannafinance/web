@@ -2,7 +2,7 @@
 
 // import { useNetwork } from "@/app/context/network-context";
 // import { ARBITRUM_NETWORK } from "@/app/lib/constants";
-import { fetchOptionChainData, deriveAPI, fetchInstrumentStatistics } from "@/app/lib/derive-api";
+import { fetchOptionChainData, deriveAPI, fetchInstrumentStatistics, subscribeToFuturesTicker } from "@/app/lib/derive-api";
 import FutureDropdown from "@/app/ui/future/future-dropdown";
 // import OptionSlider from "@/app/ui/options/option-slider";
 import PositionsSection from "@/app/ui/options/positions-section";
@@ -12,6 +12,8 @@ import axios from "axios";
 // import { useWeb3React } from "@web3-react/core";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
+import PriceBox from "@/app/ui/components/price-box";
+import React from "react";
 
 type OptionType = "All" | "Calls" | "Puts";
 type DateOption =
@@ -340,6 +342,24 @@ export default function Page() {
     return `$${formatNumber(num, decimals)}`;
   };
 
+  const [liveTicker, setLiveTicker] = useState<any>(null);
+
+  // Subscribe to ticker for price updates
+  useEffect(() => {
+    const instrumentName = `${selectedPair.value}-PERP`;
+    let unsubscribed = false;
+
+    subscribeToFuturesTicker(instrumentName, (data) => {
+      if (!unsubscribed) {
+        setLiveTicker(data);
+      }
+    });
+
+    return () => {
+      unsubscribed = true;
+    };
+  }, [selectedPair]);
+
   return (
     <div className="flex flex-col lg:flex-row space-x-0 lg:space-x-5 text-base pt-8 px-3 xs:px-5 lg:px-6 custom-scrollbar text-baseBlack dark:text-baseWhite">
       <div className="w-full lg:w-[70%] mx-auto mb-6">
@@ -598,70 +618,82 @@ export default function Page() {
                   </tr>
                 </thead>
                 <tbody className="text-xs font-normal">
-                  {optionChainData.map((option: OptionData, index: number) => (
-                    <tr
-                      key={index}
-                      className={`transition-colors duration-500 ${isRefreshingData ? 'animate-pulse' : ''}`}
-                    >
-                      <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                        {option.delta.toFixed(5)}
-                      </td>
-                      <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                        {option.iv.toFixed(2)}
-                      </td>
-                      <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                        {option.volume.toFixed(0)}
-                      </td>
-                      <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                        {option.bidSize.toFixed(2)}
-                      </td>
-                      <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSuccess-300 hover:bg-baseSuccess-100">
-                        <div className=" flex flex-row justify-between">
-                          {option.bidPrice.toFixed(1)}
-                          <PlusSquare size={16} />
-                        </div>
-                      </td>
-                      <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSecondary-500 hover:bg-baseSecondary-300">
-                        <div className=" flex flex-row justify-between">
-                          {option.askPrice.toFixed(1)}
-                          <PlusSquare size={16} />
-                        </div>
-                      </td>
-                      <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                        {option.askSize.toFixed(2)}
-                      </td>
-                      <td className="py-3 px-2 text-center border-x border-neutral-100 dark:border-neutral-700 font-medium w-24">
-                        {option.strike}
-                      </td>
-                      <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                        {option.bidSize.toFixed(2)}
-                      </td>
-                      <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSuccess-300 hover:bg-baseSuccess-100">
-                        <div className=" flex flex-row justify-between">
-                          {option.bidPrice.toFixed(1)}
-                          <PlusSquare size={16} />
-                        </div>
-                      </td>
-                      <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSecondary-500 hover:bg-baseSecondary-300">
-                        <div className=" flex flex-row justify-between">
-                          {option.askPrice.toFixed(1)}
-                          <PlusSquare size={16} />
-                        </div>
-                      </td>
-                      <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                        {option.askSize.toFixed(2)}
-                      </td>
-                      <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                        {option.volume.toFixed(0)}
-                      </td>
-                      <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                        {option.iv.toFixed(2)}
-                      </td>
-                      <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                        {option.delta.toFixed(5)}
-                      </td>
-                    </tr>
-                  ))}
+                  {optionChainData.map((option: OptionData, index: number) => {
+
+                    const shouldInsertPriceBox = index === 4 || index === 10;
+                    return (
+                      <React.Fragment key={index}>
+                        <tr
+                          key={index}
+                          className={`transition-colors duration-500 ${isRefreshingData ? 'animate-pulse' : ''}`}
+                        >
+                          <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                            {option.delta.toFixed(5)}
+                          </td>
+                          <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                            {option.iv.toFixed(2)}
+                          </td>
+                          <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                            {option.volume.toFixed(0)}
+                          </td>
+                          <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                            {option.bidSize.toFixed(2)}
+                          </td>
+                          <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSuccess-300 hover:bg-baseSuccess-100">
+                            <div className=" flex flex-row justify-between">
+                              {option.bidPrice.toFixed(1)}
+                              <PlusSquare size={16} />
+                            </div>
+                          </td>
+                          <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSecondary-500 hover:bg-baseSecondary-300">
+                            <div className=" flex flex-row justify-between">
+                              {option.askPrice.toFixed(1)}
+                              <PlusSquare size={16} />
+                            </div>
+                          </td>
+                          <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                            {option.askSize.toFixed(2)}
+                          </td>
+                          <td className="py-3 px-2 text-center border-x border-neutral-100 dark:border-neutral-700 font-medium w-24">
+                            {option.strike}
+                          </td>
+                          <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                            {option.bidSize.toFixed(2)}
+                          </td>
+                          <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSuccess-300 hover:bg-baseSuccess-100">
+                            <div className=" flex flex-row justify-between">
+                              {option.bidPrice.toFixed(1)}
+                              <PlusSquare size={16} />
+                            </div>
+                          </td>
+                          <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSecondary-500 hover:bg-baseSecondary-300">
+                            <div className=" flex flex-row justify-between">
+                              {option.askPrice.toFixed(1)}
+                              <PlusSquare size={16} />
+                            </div>
+                          </td>
+                          <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                            {option.askSize.toFixed(2)}
+                          </td>
+                          <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                            {option.volume.toFixed(0)}
+                          </td>
+                          <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                            {option.iv.toFixed(2)}
+                          </td>
+                          <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                            {option.delta.toFixed(5)}
+                          </td>
+                        </tr>
+                        {shouldInsertPriceBox && (
+                          <PriceBox
+                            symbol={selectedPair.value}
+                            price={marketPrice ? formatNumber(marketPrice, 2) : '-'}
+                          />
+                        )}
+                      </React.Fragment>
+                    )
+                  })}
                 </tbody>
               </table>
               {/* <div
