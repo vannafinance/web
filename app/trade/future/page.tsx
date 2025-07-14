@@ -18,7 +18,11 @@ import { opAddressList } from "@/app/lib/web3-constants";
 import OpMarkPrice from "../../abi/vanna/v1/out/OpMarkPrice.sol/OpMarkPrice.json";
 import OpIndexPrice from "../../abi/vanna/v1/out/OpIndexPrice.sol/OpIndexPrice.json";
 import { ceilWithPrecision } from "@/app/lib/helper";
-import { subscribeToFuturesTicker, getFuturesInstrumentName } from "@/app/lib/derive-api";
+import {
+  subscribeToFuturesTicker,
+  getFuturesInstrumentName,
+  fetchInstrumentStatistics
+} from "@/app/lib/derive-api";
 
 export default function Page() {
   const { library } = useWeb3React();
@@ -64,6 +68,83 @@ export default function Page() {
 
   // Add state for live ticker data
   const [liveTicker, setLiveTicker] = useState<any>(null);
+  const [statistics, setStatistics] = useState<any>({
+    daily_notional_volume: "0",
+    daily_trades: 0,
+    open_interest: "0"
+  });
+  const [isLoadingStats, setIsLoadingStats] = useState(true);
+  const [statsError, setStatsError] = useState<string | null>(null);
+
+  const formatNumber = (value: string | number | undefined, decimals: number = 2): string => {
+    if (!value) return '0';
+    const num = typeof value === 'string' ? parseFloat(value) : value;
+    return num.toLocaleString(undefined, {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals
+    });
+  };
+
+  const formatCurrency = (value: string | number | undefined, decimals: number = 2): string => {
+    if (!value) return '$0';
+    const num = typeof value === 'string' ? parseFloat(value) : value;
+    if (num >= 1000000) {
+      return `$${formatNumber(num / 1000000, decimals)}M`;
+    } else if (num >= 1000) {
+      return `$${formatNumber(num / 1000, decimals)}K`;
+    }
+    return `$${formatNumber(num, decimals)}`;
+  };
+
+  const formatPercentage = (value: string | number | undefined, decimals: number = 2): string => {
+    if (!value) return '0%';
+    const num = typeof value === 'string' ? parseFloat(value) : value;
+    const formattedNum = num.toLocaleString(undefined, {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+      signDisplay: 'exceptZero'
+    });
+    return `${formattedNum}%`;
+  };
+
+  const format24hChange = (value: string | number | undefined): string => {
+    if (!value) return '0%';
+    const num = typeof value === 'string' ? parseFloat(value) : value;
+    // Convert decimal to percentage by multiplying by 100
+    return formatPercentage(num * 100, 3);
+  };
+
+  const formatFundingRate = (value: string | number | undefined): string => {
+    if (!value) return '0%';
+    const num = typeof value === 'string' ? parseFloat(value) : value;
+    // The funding rate comes as a decimal (e.g., 0.0000125 for 0.00125% per hour)
+    // First convert to percentage (multiply by 100)
+    // Then annualize by multiplying by hours in a year (8760)
+    const annualizedRate = num * 100 * 8760;
+    return formatPercentage(annualizedRate, 3);
+  };
+
+  const fetchStatistics = async (retryCount = 0) => {
+    try {
+      setIsLoadingStats(true);
+      setStatsError(null);
+      console.log('Fetching stats for pair:', selectedPair.value);
+      const stats = await fetchInstrumentStatistics("PERP", selectedPair.value);
+      setStatistics(stats);
+      setIsLoadingStats(false);
+    } catch (error) {
+      console.error("Failed to fetch statistics:", error);
+      // Retry up to 3 times with exponential backoff
+      if (retryCount < 3) {
+        const delay = Math.pow(2, retryCount) * 1000;
+        console.log(`Retrying in ${delay}ms...`);
+        setTimeout(() => fetchStatistics(retryCount + 1), delay);
+      } else {
+        setStatsError('Failed to load statistics');
+        setIsLoadingStats(false);
+      }
+    }
+  };
 
   const fetchValues = async () => {
     if (!currentNetwork) return;
@@ -89,25 +170,12 @@ export default function Page() {
     if (!indexPriceContract || !markPriceContract) {
       return;
     }
-    const rsp = await axios.get("https://app.mux.network/api/liquidityAsset");
-    const asset = getAssetFromAssetsArray(
-      selectedPairRef.current.value,
-      rsp.data.assets
-    );
-    setMarketPrice(asset.price);
 
-    // const indexPrice = await indexPriceContract.getIndexPrice();
-    // const markPrice = await markPriceContract.getMarkPrice();
-    // const fundingRate =
-    //   ((markPrice / 1e18 - indexPrice / 1e8) / (indexPrice / 1e8) / 3) * 100;
-    const pointOne = (asset.price * 0.1) / 100;
-    const indexPrice = Number(asset.price) - Number(pointOne);
-    const markPrice = Number(asset.price);
+    const pointOne = (marketPrice * 0.1) / 100;
+    const indexPrice = Number(marketPrice) - Number(pointOne);
+    const markPrice = Number(marketPrice);
     const fundingRate = ((markPrice - indexPrice) / (indexPrice / 3)) * 100;
 
-    // setIndexPrice(ceilWithPrecision(String(Number(formatUnits(indexPrice,8))), 2));
-    // setMarkPrice(ceilWithPrecision(String(Number(formatUnits(markPrice))), 2));
-    // setFundingRate(ceilWithPrecision(String(fundingRate), 3) + "%");
     setIndexPrice(ceilWithPrecision(String(indexPrice), 2));
     setMarkPrice(ceilWithPrecision(String(markPrice), 2));
     setFundingRate(ceilWithPrecision(String(fundingRate)) + "%");
@@ -126,68 +194,9 @@ export default function Page() {
     setSelectedProtocol(protocol[0]);
   }, [currentNetwork]);
 
-  const getAssetPrice = async () => {
-    const rsp = await axios.get("https://app.mux.network/api/liquidityAsset");
-    const asset = getAssetFromAssetsArray(
-      selectedPairRef.current.value,
-      rsp.data.assets
-    );
-    setMarketPrice(asset.price);
-    const fourPercent = (asset.price * 4) / 100;
-    const high = Number(asset.price) + Number(fourPercent);
-    const low = asset.price - fourPercent;
-    setHighLow(
-      ceilWithPrecision(String(high), 2) +
-      "/" +
-      ceilWithPrecision(String(low), 2)
-    );
-    setOpenInterestPositive(
-      ceilWithPrecision(String(asset.availableForLong), 1)
-    );
-    setOpenInterestNegative(
-      ceilWithPrecision(String(asset.availableForShort), 1)
-    );
-    const longPercent = Math.ceil((asset.availableForLong / asset.price) * 100);
-    const shortPercent = Math.ceil(
-      (asset.availableForShort / asset.price) * 100
-    );
-    setOpenInterestInPercentage(
-      "(" + String(shortPercent) + "%/" + String(longPercent) + "%)"
-    );
-
-    return asset.price;
-  };
-
-  const getAssetFromAssetsArray = (
-    tokenSymbol: string,
-    assets: MuxPriceFetchingResponseObject[]
-  ) => {
-    tokenSymbol =
-      tokenSymbol === "WETH" || tokenSymbol === "WBTC"
-        ? tokenSymbol.substring(1)
-        : tokenSymbol;
-    for (const asset of assets) {
-      if (asset.symbol === tokenSymbol) {
-        return asset;
-      }
-    }
-    return { symbol: "", price: 1, availableForLong: 1, availableForShort: 1 };
-  };
-
   useEffect(() => {
     selectedPairRef.current = selectedPair;
   }, [selectedPair]);
-
-  useEffect(() => {
-    getAssetPrice();
-    fetchValues();
-    const intervalId = setInterval(getAssetPrice, 1000); // Calls fetchData every second
-    const fetchValueIntervalId = setInterval(fetchValues, 3000);
-    return () => {
-      clearInterval(intervalId);
-      clearInterval(fetchValueIntervalId);
-    }; // This is the cleanup function
-  }, []);
 
   useEffect(() => {
     // Subscribe to Derive futures ticker for the selected pair
@@ -195,11 +204,33 @@ export default function Page() {
 
     let unsubscribed = false;
     subscribeToFuturesTicker(instrumentName, (data) => {
-      // console.log("WS DATA RECEIVED", data);
-      if (!unsubscribed) setLiveTicker(data);
+      if (!unsubscribed) {
+        setLiveTicker(data);
+      }
     });
     return () => {
       unsubscribed = true;
+    };
+  }, [selectedPair]);
+
+  // Add useEffect to fetch statistics periodically
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+
+    const initializeStats = async () => {
+      await fetchStatistics();
+      // Only start periodic updates if we don't have an error
+      if (!statsError) {
+        intervalId = setInterval(() => fetchStatistics(), 10000);
+      }
+    };
+
+    initializeStats();
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
     };
   }, [selectedPair]);
 
@@ -218,7 +249,7 @@ export default function Page() {
                 onChange={setSelectedPair}
               />
               <span className="text-green-500 font-semibold ml-2">
-                {marketPrice}
+                {liveTicker?.instrument_ticker?.mark_price ? Number(liveTicker.instrument_ticker.mark_price).toFixed(2) : "-"}
               </span>
               {/* <span className="text-sm text-green-500 ml-1">+1.09%</span> */}
             </div>
@@ -241,20 +272,40 @@ export default function Page() {
         <div className="flex flex-wrap sm:flex-nowrap justify-between gap-5 items-center text-sm p-5 border border-neutral-300 dark:border-neutral-700 rounded-xl font-semibold mb-2">
           <div>
             <p className="text-neutral-500 text-xs">ETH Price</p>
-            <p className="text-sm">{liveTicker?.instrument_ticker?.mark_price ?? "-"}</p>
+            <p className="text-sm">{liveTicker?.instrument_ticker?.mark_price ? Number(liveTicker.instrument_ticker.mark_price).toFixed(2) : "-"}</p>
           </div>
           <div>
             <p className="text-neutral-500 text-xs">24H Change</p>
-            <p className="text-sm">{liveTicker?.instrument_ticker?.stats?.percent_change ?? liveTicker?.instrument_ticker?.stats?.price_change_percentage ?? "-"}</p>
+            <p className={`text-sm ${parseFloat(liveTicker?.instrument_ticker?.stats?.percent_change) > 0
+              ? 'text-green-500'
+              : parseFloat(liveTicker?.instrument_ticker?.stats?.percent_change) < 0
+                ? 'text-red-500'
+                : ''
+              }`}>
+              {format24hChange(liveTicker?.instrument_ticker?.stats?.percent_change)}
+            </p>
           </div>
           <div>
             <p className="text-neutral-500 text-xs">1Y Funding</p>
-            <p className="text-sm">{liveTicker?.instrument_ticker?.perp_details?.funding_rate ?? "-"}</p>
+            <p className={`text-sm ${liveTicker?.instrument_ticker?.perp_details?.funding_rate > 0
+              ? 'text-green-500'
+              : liveTicker?.instrument_ticker?.perp_details?.funding_rate < 0
+                ? 'text-red-500'
+                : ''
+              }`}>
+              {formatFundingRate(liveTicker?.instrument_ticker?.perp_details?.funding_rate)}
+            </p>
           </div>
           <div className="col-span-2 sm:col-auto">
             <p className="text-neutral-500 text-xs">24H Volume</p>
             <div className="flex items-center space-x-1">
-              <p className="text=sm">{liveTicker?.instrument_ticker?.stats?.contract_volume ?? "-"}</p>
+              {isLoadingStats ? (
+                <span className="text-neutral-400">Loading...</span>
+              ) : statsError ? (
+                <span className="text-red-500 text-xs">{statsError}</span>
+              ) : (
+                <p className="text-sm">{formatCurrency(statistics?.daily_notional_volume)}</p>
+              )}
             </div>
           </div>
           <div className="col-span-2 sm:col-auto">
@@ -262,14 +313,24 @@ export default function Page() {
               Open Interest
             </p>
             <div className="flex items-center space-x-1">
-              <p className="text-green-500 text-sm">
-                {liveTicker?.instrument_ticker?.stats?.open_interest ?? "-"}
-              </p>
+              {isLoadingStats ? (
+                <span className="text-neutral-400">Loading...</span>
+              ) : statsError ? (
+                <span className="text-red-500 text-xs">{statsError}</span>
+              ) : (
+                <p className="text-green-500 text-sm">{formatCurrency(statistics?.open_interest)}</p>
+              )}
             </div>
           </div>
           <div>
             <p className="text-neutral-500 text-xs">24H Trades</p>
-            <p className="text-sm">{liveTicker?.instrument_ticker?.stats?.num_trades ?? "-"}</p>
+            {isLoadingStats ? (
+              <span className="text-neutral-400">Loading...</span>
+            ) : statsError ? (
+              <span className="text-red-500 text-xs">{statsError}</span>
+            ) : (
+              <p className="text-sm">{formatNumber(statistics?.daily_trades, 0)}</p>
+            )}
           </div>
         </div>
 
