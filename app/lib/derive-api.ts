@@ -259,6 +259,33 @@ class DeriveAPIService {
     });
   }
 
+  // New method for batch subscription to multiple ticker channels
+  async subscribeToMultipleTickers(
+    instrumentNames: string[],
+    callback: (instrumentName: string, data: any) => void,
+  ): Promise<void> {
+    await this.ensureConnection();
+
+    const channels = instrumentNames.map((name) => `ticker.${name}.1000`);
+
+    // Create subscriptions for each instrument
+    instrumentNames.forEach((instrumentName) => {
+      const subscriptionId = `ticker.${instrumentName}.1000`;
+      const subscription: DeriveSubscription = {
+        channel: `ticker.${instrumentName}.1000`,
+        callback: (data: any) => callback(instrumentName, data),
+        instrumentName,
+        type: "ticker",
+      };
+      this.subscriptions.set(subscriptionId, subscription);
+    });
+
+    // Send single subscription request for all channels
+    await this.sendRequest("subscribe", {
+      channels,
+    });
+  }
+
   // async subscribeToOrderBook(
   //   instrumentName: string,
   //   callback: DeriveSubscriptionCallback,
@@ -294,6 +321,29 @@ class DeriveAPIService {
       }
     } catch (error) {
       console.error("Failed to unsubscribe from futures ticker:", error);
+    }
+  }
+
+  // Unsubscribe from multiple tickers
+  async unsubscribeFromMultipleTickers(
+    instrumentNames: string[],
+  ): Promise<void> {
+    try {
+      const channels = instrumentNames.map((name) => `ticker.${name}.1000`);
+
+      if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+        await this.sendRequest("unsubscribe", {
+          channels,
+        });
+
+        // Remove subscriptions from the map
+        instrumentNames.forEach((instrumentName) => {
+          const subscriptionId = `ticker.${instrumentName}.1000`;
+          this.subscriptions.delete(subscriptionId);
+        });
+      }
+    } catch (error) {
+      console.error("Failed to unsubscribe from multiple tickers:", error);
     }
   }
 
@@ -517,6 +567,58 @@ class DeriveAPIService {
     }
   }
 
+  // New method to get multiple tickers using batch subscription
+  async getMultipleTickers(
+    instrumentNames: string[],
+  ): Promise<Map<string, any>> {
+    try {
+      const results = new Map<string, any>();
+      const pendingInstruments = new Set(instrumentNames);
+
+      // Create a promise that will resolve when all ticker data is received
+      const tickersPromise = new Promise<Map<string, any>>(
+        (resolve, reject) => {
+          const timeout = setTimeout(() => {
+            // Clean up subscriptions on timeout using batch unsubscription
+            this.unsubscribeFromMultipleTickers(instrumentNames).catch(
+              console.error,
+            );
+            reject(new Error(`Batch ticker subscription timeout`));
+          }, 15000); // 15 second timeout for batch
+
+          // Callback that handles each ticker response
+          const callback = (instrumentName: string, data: any) => {
+            results.set(instrumentName, { result: data.instrument_ticker });
+            pendingInstruments.delete(instrumentName);
+
+            // If all instruments have responded, resolve
+            if (pendingInstruments.size === 0) {
+              clearTimeout(timeout);
+              // Clean up subscriptions using batch unsubscription
+              this.unsubscribeFromMultipleTickers(instrumentNames).catch(
+                console.error,
+              );
+              resolve(results);
+            }
+          };
+
+          // Subscribe to multiple ticker updates
+          this.subscribeToMultipleTickers(instrumentNames, callback).catch(
+            (error) => {
+              clearTimeout(timeout);
+              reject(error);
+            },
+          );
+        },
+      );
+
+      return await tickersPromise;
+    } catch (error) {
+      console.error(`Error fetching multiple tickers via WebSocket:`, error);
+      throw error;
+    }
+  }
+
   async getOptionChainData(
     baseAsset: string = "ETH",
     retryAttempt: number = 0,
@@ -539,13 +641,19 @@ class DeriveAPIService {
           baseAsset,
         );
 
-        // Filter for active options with strike and option_type
-        optionInstruments = instruments.filter(
-          (instrument) =>
+        // Filter for active options with strike and option_type, and strike between 1500-5000
+        optionInstruments = instruments.filter((instrument) => {
+          const strike = instrument.option_details?.strike
+            ? parseFloat(instrument.option_details.strike)
+            : 0;
+          return (
             instrument.is_active &&
             instrument.option_details?.strike &&
-            instrument.option_details?.option_type,
-        );
+            instrument.option_details?.option_type &&
+            strike >= 1500 &&
+            strike <= 5000
+          );
+        });
 
         if (optionInstruments.length === 0) {
           return [];
@@ -558,32 +666,159 @@ class DeriveAPIService {
         ? cachedInstruments
         : optionInstruments;
 
-      // Fetch ticker data only
-      const dataPromises = instrumentsToProcess.map(async (instrument) => {
-        try {
-          const tickerData = await this.getTicker(instrument.instrument_name);
+      // If refresh and no cached instruments, do nothing
+      if (isRefresh && instrumentsToProcess.length === 0) {
+        return [];
+      }
 
-          // If this is not a refresh, also fetch instrument details
-          let instrumentDetails = null;
-          if (!isRefresh) {
-            instrumentDetails = await this.getInstrument(
-              instrument.instrument_name,
-            );
+      // Fetch ticker data using batch subscription
+      let tickerDataMap: Map<string, any>;
+      const instrumentNames = instrumentsToProcess.map(
+        (instrument) => instrument.instrument_name,
+      );
+
+      try {
+        tickerDataMap = await this.getMultipleTickers(instrumentNames);
+      } catch (error) {
+        console.error(
+          "Batch ticker subscription failed, falling back to individual requests:",
+          error,
+        );
+        // Fallback to individual ticker requests
+        const dataPromises = instrumentsToProcess.map(async (instrument) => {
+          try {
+            const tickerData = await this.getTicker(instrument.instrument_name);
+
+            // If this is not a refresh, also fetch instrument details
+            let instrumentDetails = null;
+            if (!isRefresh) {
+              instrumentDetails = await this.getInstrument(
+                instrument.instrument_name,
+              );
+            }
+
+            return {
+              instrument,
+              details:
+                instrumentDetails ||
+                this.cachedInstrumentDetails?.get(instrument.instrument_name),
+              ticker: tickerData,
+            };
+          } catch (error) {
+            return null;
           }
+        });
 
-          return {
-            instrument,
-            details:
-              instrumentDetails ||
-              this.cachedInstrumentDetails?.get(instrument.instrument_name),
-            ticker: tickerData,
-          };
-        } catch (error) {
-          return null;
+        const instrumentDataArray = await Promise.all(dataPromises);
+
+        // Cache the instruments and details if this is not a refresh
+        if (!isRefresh) {
+          this.cachedOptionInstruments = instrumentsToProcess;
+          this.cachedInstrumentDetails = new Map(
+            instrumentDataArray
+              .filter((data) => data !== null)
+              .map((data) => [data!.instrument.instrument_name, data!.details]),
+          );
         }
-      });
 
-      const instrumentDataArray = await Promise.all(dataPromises);
+        // Transform data to match OptionData interface
+        const optionData: OptionData[] = instrumentDataArray
+          .filter((data) => data !== null)
+          .map((data) => {
+            const { instrument, ticker } = data!;
+
+            // Extract strike price from instrument option_details
+            const strike = instrument.option_details?.strike
+              ? parseFloat(instrument.option_details.strike)
+              : 0;
+
+            // Extract pricing data from ticker
+            const tickerResult = ticker?.result || ticker;
+
+            // Helper function to safely parse numeric values
+            const parseNumeric = (value: any): number => {
+              if (value === null || value === undefined) return 0;
+              const parsed =
+                typeof value === "string" ? parseFloat(value) : Number(value);
+              return isNaN(parsed) ? 0 : parsed;
+            };
+
+            const optionPricing = tickerResult?.option_pricing;
+            const stats = tickerResult?.stats;
+
+            const mappedData = {
+              delta:
+                parseNumeric(optionPricing?.delta) ||
+                parseNumeric(tickerResult?.delta) ||
+                0,
+              iv:
+                parseNumeric(optionPricing?.iv) ||
+                parseNumeric(optionPricing?.implied_volatility) ||
+                parseNumeric(tickerResult?.iv) ||
+                parseNumeric(tickerResult?.implied_volatility) ||
+                0,
+              volume:
+                parseNumeric(stats?.contract_volume) ||
+                parseNumeric(tickerResult?.volume_24h) ||
+                parseNumeric(tickerResult?.volume) ||
+                0,
+              bidSize:
+                parseNumeric(tickerResult?.best_bid_amount) ||
+                parseNumeric(tickerResult?.bid_size) ||
+                parseNumeric(tickerResult?.bidSize) ||
+                0,
+              bidPrice:
+                parseNumeric(tickerResult?.best_bid_price) ||
+                parseNumeric(tickerResult?.bid_price) ||
+                parseNumeric(tickerResult?.bidPrice) ||
+                0,
+              askPrice:
+                parseNumeric(tickerResult?.best_ask_price) ||
+                parseNumeric(tickerResult?.ask_price) ||
+                parseNumeric(tickerResult?.askPrice) ||
+                0,
+              askSize:
+                parseNumeric(tickerResult?.best_ask_amount) ||
+                parseNumeric(tickerResult?.ask_size) ||
+                parseNumeric(tickerResult?.askSize) ||
+                0,
+              strike: strike,
+            };
+
+            return mappedData;
+          })
+          .filter((option) => option.strike >= 1500 && option.strike <= 5000)
+          .sort((a, b) => a.strike - b.strike);
+
+        return optionData;
+      }
+
+      // Process batch ticker data
+      const instrumentDataArray = await Promise.all(
+        instrumentsToProcess.map(async (instrument) => {
+          try {
+            const tickerData = tickerDataMap.get(instrument.instrument_name);
+
+            // If this is not a refresh, also fetch instrument details
+            let instrumentDetails = null;
+            if (!isRefresh) {
+              instrumentDetails = await this.getInstrument(
+                instrument.instrument_name,
+              );
+            }
+
+            return {
+              instrument,
+              details:
+                instrumentDetails ||
+                this.cachedInstrumentDetails?.get(instrument.instrument_name),
+              ticker: tickerData,
+            };
+          } catch (error) {
+            return null;
+          }
+        }),
+      );
 
       // Cache the instruments and details if this is not a refresh
       if (!isRefresh) {
@@ -661,7 +896,7 @@ class DeriveAPIService {
 
           return mappedData;
         })
-        .filter((option) => option.strike > 0)
+        .filter((option) => option.strike >= 1500 && option.strike <= 5000)
         .sort((a, b) => a.strike - b.strike);
 
       return optionData;
@@ -791,6 +1026,18 @@ export async function subscribeToFuturesTicker(
   }
 }
 
+export async function subscribeToMultipleFuturesTickers(
+  instrumentNames: string[],
+  callback: (instrumentName: string, data: any) => void,
+): Promise<void> {
+  try {
+    await deriveAPI.subscribeToMultipleTickers(instrumentNames, callback);
+  } catch (error) {
+    console.error(`Failed to subscribe to multiple futures tickers:`, error);
+    throw error;
+  }
+}
+
 // Comment out order book subscriptions for now
 // export async function subscribeToFuturesOrderBook(
 //   instrumentName: string,
@@ -815,6 +1062,20 @@ export async function unsubscribeFromFuturesTicker(
   } catch (error) {
     console.error(
       `Failed to unsubscribe from futures ticker for ${instrumentName}:`,
+      error,
+    );
+    throw error;
+  }
+}
+
+export async function unsubscribeFromMultipleFuturesTickers(
+  instrumentNames: string[],
+): Promise<void> {
+  try {
+    await deriveAPI.unsubscribeFromMultipleTickers(instrumentNames);
+  } catch (error) {
+    console.error(
+      `Failed to unsubscribe from multiple futures tickers:`,
       error,
     );
     throw error;

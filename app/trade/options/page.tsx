@@ -625,7 +625,7 @@ export default function Page() {
                       <React.Fragment key={index}>
                         <tr
                           key={index}
-                          className={`transition-colors duration-500 ${isRefreshingData ? 'animate-pulse' : ''}`}
+                          className={"transition-colors duration-500"}
                         >
                           <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
                             {option.delta.toFixed(5)}
