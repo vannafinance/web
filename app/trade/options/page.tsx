@@ -41,6 +41,69 @@ const formatDateForDisplay = (dateStr: string): string => {
   return date.toLocaleDateString("en-US", { day: "2-digit", month: "short" });
 };
 
+// Helper function to determine if an option is a call or put based on instrument name
+const isCallOption = (instrumentName: string): boolean => {
+  return instrumentName.endsWith("C");
+};
+
+const isPutOption = (instrumentName: string): boolean => {
+  return instrumentName.endsWith("P");
+};
+
+// Function to group options by strike price and separate calls/puts
+const groupOptionsByStrike = (optionChainData: OptionData[]) => {
+  const groupedOptions: {
+    [strike: number]: { call?: OptionData; put?: OptionData };
+  } = {};
+
+  optionChainData.forEach((option) => {
+    const strike = option.strike;
+    const instrumentName = option.instrument?.instrument_name || "";
+
+    if (!groupedOptions[strike]) {
+      groupedOptions[strike] = {};
+    }
+
+    if (isCallOption(instrumentName)) {
+      groupedOptions[strike].call = option;
+    } else if (isPutOption(instrumentName)) {
+      groupedOptions[strike].put = option;
+    }
+  });
+
+  return groupedOptions;
+};
+
+// Function to filter grouped options based on selected option type
+const filterGroupedOptions = (
+  groupedOptions: { [strike: number]: { call?: OptionData; put?: OptionData } },
+  selectedOption: OptionType,
+) => {
+  const strikes = Object.keys(groupedOptions)
+    .map(Number)
+    .sort((a, b) => a - b);
+
+  return strikes
+    .filter((strike) => {
+      const { call, put } = groupedOptions[strike];
+
+      switch (selectedOption) {
+        case "Calls":
+          return call !== undefined;
+        case "Puts":
+          return put !== undefined;
+        case "All":
+        default:
+          return call !== undefined || put !== undefined;
+      }
+    })
+    .map((strike) => ({
+      strike,
+      call: groupedOptions[strike].call,
+      put: groupedOptions[strike].put,
+    }));
+};
+
 // Function to get sorted unique dates from option chain data
 const getUniqueDates = (optionChainData: OptionData[]): string[] => {
   const dates = new Set<string>();
@@ -105,6 +168,10 @@ export default function Page() {
   const [filteredOptionData, setFilteredOptionData] = useState<OptionData[]>(
     [],
   );
+  // Add state for grouped options by strike
+  const [groupedFilteredOptions, setGroupedFilteredOptions] = useState<
+    { strike: number; call?: OptionData; put?: OptionData }[]
+  >([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Add state for option chain data
@@ -425,7 +492,12 @@ export default function Page() {
   useEffect(() => {
     const filtered = filterOptionsByDate(optionChainData, selectedDate);
     setFilteredOptionData(filtered);
-  }, [optionChainData, selectedDate]);
+
+    // Group options by strike and filter by selected option type
+    const grouped = groupOptionsByStrike(filtered);
+    const groupedAndFiltered = filterGroupedOptions(grouped, selectedOption);
+    setGroupedFilteredOptions(groupedAndFiltered);
+  }, [optionChainData, selectedDate, selectedOption]);
 
   // Click outside handler for dropdown
   useEffect(() => {
@@ -806,12 +878,12 @@ export default function Page() {
                     </tr>
                   </thead>
                   <tbody className="text-xs font-normal">
-                    {filteredOptionData.map(
-                      (option: OptionData, index: number) => {
+                    {groupedFilteredOptions.map(
+                      ({ strike, call, put }, index: number) => {
                         // Determine if price box should be inserted after this row
                         // Insert price box between strike prices where current market price falls
-                        const currentStrike = option.strike;
-                        const nextOption = filteredOptionData[index + 1];
+                        const currentStrike = strike;
+                        const nextOption = groupedFilteredOptions[index + 1];
                         const nextStrike = nextOption?.strike;
 
                         let shouldInsertPriceBox = false;
@@ -821,7 +893,10 @@ export default function Page() {
                           shouldInsertPriceBox =
                             marketPrice >= currentStrike &&
                             marketPrice < nextStrike;
-                        } else if (index === filteredOptionData.length - 1) {
+                        } else if (
+                          index ===
+                          groupedFilteredOptions.length - 1
+                        ) {
                           // Insert after the last option if market price is higher than all strikes
                           shouldInsertPriceBox = marketPrice >= currentStrike;
                         }
@@ -834,12 +909,12 @@ export default function Page() {
                         // Debug logging
                         if (index < 3) {
                           console.log(
-                            `Option ${index}: Strike ${currentStrike}, Market Price ${marketPrice}, Insert Before: ${shouldInsertPriceBoxBefore}, Insert After: ${shouldInsertPriceBox}`,
+                            `Strike ${currentStrike}: Call ${call ? "exists" : "missing"}, Put ${put ? "exists" : "missing"}, Market Price ${marketPrice}`,
                           );
                         }
 
                         return (
-                          <React.Fragment key={index}>
+                          <React.Fragment key={strike}>
                             {/* Insert price box before first row if market price is below all strikes */}
                             {shouldInsertPriceBoxBefore && (
                               <PriceBox
@@ -852,105 +927,146 @@ export default function Page() {
                               />
                             )}
                             <tr
-                              key={index}
+                              key={strike}
                               className={"transition-colors duration-500"}
                             >
+                              {/* Calls section */}
                               <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                                {option.delta.toFixed(5)}
+                                {call ? call.delta.toFixed(5) : "-"}
                               </td>
                               <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                                {option.iv.toFixed(2)}
+                                {call ? call.iv.toFixed(2) : "-"}
                               </td>
                               <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                                {option.volume.toFixed(0)}
+                                {call ? call.volume.toFixed(0) : "-"}
                               </td>
                               <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                                {option.bidSize.toFixed(2)}
+                                {call ? call.bidSize.toFixed(2) : "-"}
                               </td>
                               <td
-                                className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSecondary-500 hover:bg-baseSecondary-300 cursor-pointer"
+                                className={`py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 ${
+                                  call
+                                    ? "text-baseSecondary-500 hover:bg-baseSecondary-300 cursor-pointer"
+                                    : ""
+                                }`}
                                 onClick={() =>
+                                  call &&
                                   handleOptionPriceClick(
-                                    option,
+                                    call,
                                     "call",
                                     "sell",
-                                    option.bidPrice,
+                                    call.bidPrice,
                                   )
                                 }
                               >
-                                <div className=" flex flex-row justify-between">
-                                  {option.bidPrice.toFixed(1)}
-                                  <PlusSquare size={16} />
-                                </div>
+                                {call ? (
+                                  <div className="flex flex-row justify-between">
+                                    {call.bidPrice.toFixed(1)}
+                                    <PlusSquare size={16} />
+                                  </div>
+                                ) : (
+                                  "-"
+                                )}
                               </td>
                               <td
-                                className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSuccess-300 hover:bg-baseSuccess-100 cursor-pointer"
+                                className={`py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 ${
+                                  call
+                                    ? "text-baseSuccess-300 hover:bg-baseSuccess-100 cursor-pointer"
+                                    : ""
+                                }`}
                                 onClick={() =>
+                                  call &&
                                   handleOptionPriceClick(
-                                    option,
+                                    call,
                                     "call",
                                     "buy",
-                                    option.askPrice,
+                                    call.askPrice,
                                   )
                                 }
                               >
-                                <div className=" flex flex-row justify-between">
-                                  {option.askPrice.toFixed(1)}
-                                  <PlusSquare size={16} />
-                                </div>
+                                {call ? (
+                                  <div className="flex flex-row justify-between">
+                                    {call.askPrice.toFixed(1)}
+                                    <PlusSquare size={16} />
+                                  </div>
+                                ) : (
+                                  "-"
+                                )}
                               </td>
                               <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                                {option.askSize.toFixed(2)}
+                                {call ? call.askSize.toFixed(2) : "-"}
                               </td>
+
+                              {/* Strike column */}
                               <td className="py-3 px-2 text-center border-x border-neutral-100 dark:border-neutral-700 font-medium w-24">
-                                {option.strike}
+                                {strike}
                               </td>
+
+                              {/* Puts section */}
                               <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                                {option.bidSize.toFixed(2)}
+                                {put ? put.bidSize.toFixed(2) : "-"}
                               </td>
                               <td
-                                className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSecondary-500 hover:bg-baseSecondary-300 cursor-pointer"
+                                className={`py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 ${
+                                  put
+                                    ? "text-baseSecondary-500 hover:bg-baseSecondary-300 cursor-pointer"
+                                    : ""
+                                }`}
                                 onClick={() =>
+                                  put &&
                                   handleOptionPriceClick(
-                                    option,
+                                    put,
                                     "put",
                                     "sell",
-                                    option.bidPrice,
+                                    put.bidPrice,
                                   )
                                 }
                               >
-                                <div className=" flex flex-row justify-between">
-                                  {option.bidPrice.toFixed(1)}
-                                  <PlusSquare size={16} />
-                                </div>
+                                {put ? (
+                                  <div className="flex flex-row justify-between">
+                                    {put.bidPrice.toFixed(1)}
+                                    <PlusSquare size={16} />
+                                  </div>
+                                ) : (
+                                  "-"
+                                )}
                               </td>
                               <td
-                                className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSuccess-300 hover:bg-baseSuccess-100 cursor-pointer"
+                                className={`py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 ${
+                                  put
+                                    ? "text-baseSuccess-300 hover:bg-baseSuccess-100 cursor-pointer"
+                                    : ""
+                                }`}
                                 onClick={() =>
+                                  put &&
                                   handleOptionPriceClick(
-                                    option,
+                                    put,
                                     "put",
                                     "buy",
-                                    option.askPrice,
+                                    put.askPrice,
                                   )
                                 }
                               >
-                                <div className=" flex flex-row justify-between">
-                                  {option.askPrice.toFixed(1)}
-                                  <PlusSquare size={16} />
-                                </div>
+                                {put ? (
+                                  <div className="flex flex-row justify-between">
+                                    {put.askPrice.toFixed(1)}
+                                    <PlusSquare size={16} />
+                                  </div>
+                                ) : (
+                                  "-"
+                                )}
                               </td>
                               <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                                {option.askSize.toFixed(2)}
+                                {put ? put.askSize.toFixed(2) : "-"}
                               </td>
                               <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                                {option.volume.toFixed(0)}
+                                {put ? put.volume.toFixed(0) : "-"}
                               </td>
                               <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                                {option.iv.toFixed(2)}
+                                {put ? put.iv.toFixed(2) : "-"}
                               </td>
                               <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                                {option.delta.toFixed(5)}
+                                {put ? put.delta.toFixed(5) : "-"}
                               </td>
                             </tr>
                             {shouldInsertPriceBox && (
