@@ -782,10 +782,49 @@ export default function Page() {
                   <tbody className="text-xs font-normal">
                     {filteredOptionData.map(
                       (option: OptionData, index: number) => {
-                        const shouldInsertPriceBox =
-                          index === 4 || index === 10;
+                        // Determine if price box should be inserted after this row
+                        // Insert price box between strike prices where current market price falls
+                        const currentStrike = option.strike;
+                        const nextOption = filteredOptionData[index + 1];
+                        const nextStrike = nextOption?.strike;
+
+                        let shouldInsertPriceBox = false;
+
+                        if (nextStrike) {
+                          // Insert between current and next strike if market price falls between them
+                          shouldInsertPriceBox =
+                            marketPrice >= currentStrike &&
+                            marketPrice < nextStrike;
+                        } else if (index === filteredOptionData.length - 1) {
+                          // Insert after the last option if market price is higher than all strikes
+                          shouldInsertPriceBox = marketPrice >= currentStrike;
+                        }
+
+                        // Also handle case where market price is lower than the first strike
+                        const isFirstOption = index === 0;
+                        const shouldInsertPriceBoxBefore =
+                          isFirstOption && marketPrice < currentStrike;
+
+                        // Debug logging
+                        if (index < 3) {
+                          console.log(
+                            `Option ${index}: Strike ${currentStrike}, Market Price ${marketPrice}, Insert Before: ${shouldInsertPriceBoxBefore}, Insert After: ${shouldInsertPriceBox}`,
+                          );
+                        }
+
                         return (
                           <React.Fragment key={index}>
+                            {/* Insert price box before first row if market price is below all strikes */}
+                            {shouldInsertPriceBoxBefore && (
+                              <PriceBox
+                                symbol={selectedPair.value}
+                                price={
+                                  marketPrice
+                                    ? formatNumber(marketPrice, 2)
+                                    : "-"
+                                }
+                              />
+                            )}
                             <tr
                               key={index}
                               className={"transition-colors duration-500"}
