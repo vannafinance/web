@@ -1,9 +1,9 @@
 import {
-  DERIVE_WS_MAINNET,
+  DERIVE_WS_TESTNET,
   DERIVE_FUTURES_INSTRUMENTS,
 } from "@/app/lib/constants";
 
-const WS_URL = DERIVE_WS_MAINNET;
+const WS_URL = DERIVE_WS_TESTNET;
 
 // Add new interface for statistics response
 interface StatisticsResponse {
@@ -892,6 +892,10 @@ class DeriveAPIService {
               parseNumeric(tickerResult?.askSize) ||
               0,
             strike: strike,
+            instrument: {
+              instrument_name: instrument.instrument_name,
+              option_details: instrument.option_details,
+            },
           };
 
           return mappedData;

@@ -2,7 +2,12 @@
 
 // import { useNetwork } from "@/app/context/network-context";
 // import { ARBITRUM_NETWORK } from "@/app/lib/constants";
-import { fetchOptionChainData, deriveAPI, fetchInstrumentStatistics, subscribeToFuturesTicker } from "@/app/lib/derive-api";
+import {
+  fetchOptionChainData,
+  deriveAPI,
+  fetchInstrumentStatistics,
+  subscribeToFuturesTicker,
+} from "@/app/lib/derive-api";
 import FutureDropdown from "@/app/ui/future/future-dropdown";
 // import OptionSlider from "@/app/ui/options/option-slider";
 import PositionsSection from "@/app/ui/options/positions-section";
@@ -16,17 +21,67 @@ import PriceBox from "@/app/ui/components/price-box";
 import React from "react";
 
 type OptionType = "All" | "Calls" | "Puts";
-type DateOption =
-  | "2 Sep"
-  | "3 Sep"
-  | "4 Sep"
-  | "10 Sep"
-  | "20 Sep"
-  | "28 Sep"
-  | "3 Oct"
-  | "16 Oct"
-  | "Next month";
+
+// Update DateOption to be dynamic string type
+type DateOption = string;
 type GreekOption = "Delta" | "Mark Price" | "Gamma" | "Vega" | "Theta";
+
+// Function to parse date from instrument name (e.g., "ETH-20250718-2800-C.1000" -> "2025-07-18")
+const parseInstrumentDate = (instrumentName: string): string => {
+  const match = instrumentName.match(/(\d{4})(\d{2})(\d{2})/);
+  if (!match) return "";
+  const [_, year, month, day] = match;
+  return `${year}-${month}-${day}`;
+};
+
+// Function to format date for display (e.g., "2025-07-18" -> "18 Jul")
+const formatDateForDisplay = (dateStr: string): string => {
+  if (!dateStr) return "";
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("en-US", { day: "2-digit", month: "short" });
+};
+
+// Function to get sorted unique dates from option chain data
+const getUniqueDates = (optionChainData: OptionData[]): string[] => {
+  const dates = new Set<string>();
+  console.log("Processing option chain data:", optionChainData.length, "items"); // Debug log
+  optionChainData.forEach((data: any, index: number) => {
+    if (data.instrument?.instrument_name) {
+      const date = parseInstrumentDate(data.instrument.instrument_name);
+      if (date) {
+        dates.add(date);
+        if (index < 3)
+          console.log(
+            "Sample instrument:",
+            data.instrument.instrument_name,
+            "-> date:",
+            date,
+          ); // Debug log
+      }
+    }
+  });
+  const sortedDates = Array.from(dates).sort();
+  console.log("Unique dates found:", sortedDates); // Debug log
+  return sortedDates;
+};
+
+// Function to filter option chain data by selected date
+const filterOptionsByDate = (
+  optionChainData: OptionData[],
+  selectedDate: string,
+): OptionData[] => {
+  if (!selectedDate) return optionChainData;
+
+  return optionChainData.filter((option: any) => {
+    if (option.instrument?.instrument_name) {
+      const instrumentDate = parseInstrumentDate(
+        option.instrument.instrument_name,
+      );
+      return instrumentDate === selectedDate;
+    }
+    return false;
+  });
+};
 
 export default function Page() {
   // const { account, library } = useWeb3React();
@@ -38,11 +93,19 @@ export default function Page() {
   ];
 
   const [selectedOption, setSelectedOption] = useState<OptionType>("All");
-  const [selectedDate, setSelectedDate] = useState<DateOption>("2 Sep");
+  const [selectedDate, setSelectedDate] = useState<DateOption>("");
+  const [availableDates, setAvailableDates] = useState<DateOption[]>([]);
   const [selectedGreeks, setSelectedGreeks] = useState<GreekOption[]>([
     "Delta",
     "Mark Price",
   ]);
+
+  // Add state for dropdown
+  const [showNextMonthDropdown, setShowNextMonthDropdown] = useState(false);
+  const [filteredOptionData, setFilteredOptionData] = useState<OptionData[]>(
+    [],
+  );
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Add state for option chain data
   const [optionChainData, setOptionChainData] = useState<OptionData[]>([]);
@@ -52,16 +115,6 @@ export default function Page() {
   const [lastUpdateTime, setLastUpdateTime] = useState<Date | null>(null);
 
   const optionTypes: OptionType[] = ["All", "Calls", "Puts"];
-  const dateOptions: DateOption[] = [
-    "2 Sep",
-    "3 Sep",
-    "4 Sep",
-    "10 Sep",
-    "20 Sep",
-    "28 Sep",
-    "3 Oct",
-    "16 Oct",
-  ];
   const greekOptions: GreekOption[] = [
     "Delta",
     "Mark Price",
@@ -81,12 +134,14 @@ export default function Page() {
   const [statistics, setStatistics] = useState<any>({
     daily_notional_volume: "0",
     daily_trades: 0,
-    open_interest: "0"
+    open_interest: "0",
   });
   const [isLoadingStats, setIsLoadingStats] = useState(true);
   const [statsError, setStatsError] = useState<string | null>(null);
 
-  const [selectedOrderType, setSelectedOrderType] = useState<Option>(orderTypeOptions[0]);
+  const [selectedOrderType, setSelectedOrderType] = useState<Option>(
+    orderTypeOptions[0],
+  );
   // const [leverageValue, setLeverageValue] = useState<number>(50);
 
   const handleOptionChange = (option: OptionType) => {
@@ -99,7 +154,7 @@ export default function Page() {
 
   const handleGreekChange = (greek: GreekOption) => {
     setSelectedGreeks((prev) =>
-      prev.includes(greek) ? prev.filter((g) => g !== greek) : [...prev, greek]
+      prev.includes(greek) ? prev.filter((g) => g !== greek) : [...prev, greek],
     );
   };
 
@@ -114,77 +169,97 @@ export default function Page() {
   const currentPrice = 2417.75;
 
   // Function to load option chain data
-  const loadOptionChainData = useCallback(async (isRefresh = false) => {
-    if (isRefresh) {
-      setIsRefreshingData(true);
-    } else {
-      setIsLoadingOptions(true);
-      setOptionDataError(null);
-      setOptionChainData([]); // Only clear data on initial load
-    }
-
-    // Set a timeout for the entire operation
-    const timeoutId = setTimeout(() => {
-      if (!isRefresh) {
-        setOptionDataError('Connection timeout - Please try again');
-        setIsLoadingOptions(false);
-      } else {
-        setIsRefreshingData(false);
-        console.warn('Refresh timeout - will retry in next cycle');
-      }
-    }, 45000); // 45 second timeout
-
-    try {
-      // Pass isRefresh to getOptionChainData
-      const data = await fetchOptionChainData(selectedPair.value, isRefresh);
-      clearTimeout(timeoutId);
-      setOptionChainData(data);
-      setLastUpdateTime(new Date());
-
-      if (data.length === 0 && !isRefresh) {
-        setOptionDataError(`No option data available for ${selectedPair.value}`);
-      } else if (data.length > 0) {
-        // Clear any previous errors if we successfully get data
-        setOptionDataError(null);
-      }
-    } catch (error) {
-      clearTimeout(timeoutId);
-      console.error('Failed to load option chain data:', error);
-
-      // For refresh errors, don't break the UI - just log
+  const loadOptionChainData = useCallback(
+    async (isRefresh = false) => {
       if (isRefresh) {
-        console.warn('Refresh failed, keeping existing data:', error);
+        setIsRefreshingData(true);
       } else {
-        // Better error messages based on error type
-        let errorMessage = 'Failed to connect to live data';
-        if (error instanceof Error) {
-          if (error.message.includes('timeout')) {
-            errorMessage = 'Connection timeout - The server is taking too long to respond';
-          } else if (error.message.includes('Rate limit')) {
-            errorMessage = 'Rate limit exceeded - Please wait and try again';
-          } else {
-            errorMessage = `Connection error: ${error.message}`;
-          }
+        setIsLoadingOptions(true);
+        setOptionDataError(null);
+        setOptionChainData([]); // Only clear data on initial load
+      }
+
+      // Set a timeout for the entire operation
+      const timeoutId = setTimeout(() => {
+        if (!isRefresh) {
+          setOptionDataError("Connection timeout - Please try again");
+          setIsLoadingOptions(false);
+        } else {
+          setIsRefreshingData(false);
+          console.warn("Refresh timeout - will retry in next cycle");
+        }
+      }, 45000); // 45 second timeout
+
+      try {
+        // Pass isRefresh to getOptionChainData
+        const data = await fetchOptionChainData(selectedPair.value, isRefresh);
+        clearTimeout(timeoutId);
+
+        // Get unique dates from the data
+        const dates = getUniqueDates(data);
+        console.log("Available dates:", dates); // Debug log
+        setAvailableDates(dates);
+
+        // If no date is selected, select the earliest available date
+        if (!selectedDate && dates.length > 0) {
+          console.log("Setting selected date to:", dates[0]); // Debug log
+          setSelectedDate(dates[0]);
         }
 
-        setOptionDataError(errorMessage);
-        setOptionChainData([]); // Ensure no stale data
+        setOptionChainData(data);
+        setLastUpdateTime(new Date());
+
+        if (data.length === 0 && !isRefresh) {
+          setOptionDataError(
+            `No option data available for ${selectedPair.value}`,
+          );
+        } else if (data.length > 0) {
+          // Clear any previous errors if we successfully get data
+          setOptionDataError(null);
+        }
+      } catch (error) {
+        clearTimeout(timeoutId);
+        console.error("Failed to load option chain data:", error);
+
+        // For refresh errors, don't break the UI - just log
+        if (isRefresh) {
+          console.warn("Refresh failed, keeping existing data:", error);
+        } else {
+          // Better error messages based on error type
+          let errorMessage = "Failed to connect to live data";
+          if (error instanceof Error) {
+            if (error.message.includes("timeout")) {
+              errorMessage = "Connection timed out - please try again";
+            } else if (error.message.includes("Rate limit")) {
+              errorMessage = "Too many requests - please wait a moment";
+            } else {
+              errorMessage = error.message;
+            }
+          }
+
+          setOptionDataError(errorMessage);
+          setOptionChainData([]); // Ensure no stale data
+        }
+      } finally {
+        if (isRefresh) {
+          setIsRefreshingData(false);
+        } else {
+          setIsLoadingOptions(false);
+        }
       }
-    } finally {
-      if (isRefresh) {
-        setIsRefreshingData(false);
-      } else {
-        setIsLoadingOptions(false);
-      }
-    }
-  }, [selectedPair.value]);
+    },
+    [selectedPair.value, selectedDate],
+  );
 
   const fetchStatistics = async (retryCount = 0) => {
     try {
       setIsLoadingStats(true);
       setStatsError(null);
-      console.log('Fetching stats for pair:', selectedPair.value);
-      const stats = await fetchInstrumentStatistics("OPTION", selectedPair.value);
+      console.log("Fetching stats for pair:", selectedPair.value);
+      const stats = await fetchInstrumentStatistics(
+        "OPTION",
+        selectedPair.value,
+      );
       setStatistics(stats);
       setIsLoadingStats(false);
     } catch (error) {
@@ -195,7 +270,7 @@ export default function Page() {
         console.log(`Retrying in ${delay}ms...`);
         setTimeout(() => fetchStatistics(retryCount + 1), delay);
       } else {
-        setStatsError('Failed to load statistics');
+        setStatsError("Failed to load statistics");
         setIsLoadingStats(false);
       }
     }
@@ -259,7 +334,7 @@ export default function Page() {
 
   const getPriceFromAssetsArray = (
     tokenSymbol: string,
-    assets: MuxPriceFetchingResponseObject[]
+    assets: MuxPriceFetchingResponseObject[],
   ) => {
     tokenSymbol =
       tokenSymbol === "WETH" || tokenSymbol === "WBTC"
@@ -313,7 +388,33 @@ export default function Page() {
 
       return () => clearInterval(refreshInterval);
     }
-  }, [optionChainData.length, optionDataError, isLoadingOptions, loadOptionChainData]);
+  }, [
+    optionChainData.length,
+    optionDataError,
+    isLoadingOptions,
+    loadOptionChainData,
+  ]);
+
+  // Filter option data when selected date changes
+  useEffect(() => {
+    const filtered = filterOptionsByDate(optionChainData, selectedDate);
+    setFilteredOptionData(filtered);
+  }, [optionChainData, selectedDate]);
+
+  // Click outside handler for dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowNextMonthDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Cleanup WebSocket connection on component unmount
   useEffect(() => {
@@ -322,18 +423,24 @@ export default function Page() {
     };
   }, []);
 
-  const formatNumber = (value: string | number | undefined, decimals: number = 2): string => {
-    if (!value) return '0';
-    const num = typeof value === 'string' ? parseFloat(value) : value;
+  const formatNumber = (
+    value: string | number | undefined,
+    decimals: number = 2,
+  ): string => {
+    if (!value) return "0";
+    const num = typeof value === "string" ? parseFloat(value) : value;
     return num.toLocaleString(undefined, {
       minimumFractionDigits: decimals,
-      maximumFractionDigits: decimals
+      maximumFractionDigits: decimals,
     });
   };
 
-  const formatCurrency = (value: string | number | undefined, decimals: number = 2): string => {
-    if (!value) return '$0';
-    const num = typeof value === 'string' ? parseFloat(value) : value;
+  const formatCurrency = (
+    value: string | number | undefined,
+    decimals: number = 2,
+  ): string => {
+    if (!value) return "$0";
+    const num = typeof value === "string" ? parseFloat(value) : value;
     if (num >= 1000000) {
       return `$${formatNumber(num / 1000000, decimals)}M`;
     } else if (num >= 1000) {
@@ -374,7 +481,9 @@ export default function Page() {
                 defaultValue={selectedPair}
                 onChange={setSelectedPair}
               />
-              <span className="text-green-500 ml-2 font-semibold">{marketPrice}</span>
+              <span className="text-green-500 ml-2 font-semibold">
+                {marketPrice}
+              </span>
               {/* <span className="text-sm text-green-500 ml-1">+1.09%</span> */}
             </div>
           </div>
@@ -393,16 +502,16 @@ export default function Page() {
               </p>
             </div>
             <div className="col-span-2 my-1.5 xs:my-0">
-              <p className="text-neutral-500 text-xs">
-                Open Interest
-              </p>
+              <p className="text-neutral-500 text-xs">Open Interest</p>
               <div className="flex items-center space-x-1">
                 {isLoadingStats ? (
                   <span className="text-neutral-400">Loading...</span>
                 ) : statsError ? (
                   <span className="text-red-500 text-xs">{statsError}</span>
                 ) : (
-                  <span className="text-sm">{formatCurrency(statistics?.open_interest)}</span>
+                  <span className="text-sm">
+                    {formatCurrency(statistics?.open_interest)}
+                  </span>
                 )}
               </div>
             </div>
@@ -428,10 +537,11 @@ export default function Page() {
                 <button
                   key={option}
                   onClick={() => handleOptionChange(option)}
-                  className={`px-4 py-2 rounded-md ${selectedOption === option
-                    ? "bg-purpleBG-lighter dark:bg-baseDarkComplementary border border-purple"
-                    : ""
-                    }`}
+                  className={`px-4 py-2 rounded-md ${
+                    selectedOption === option
+                      ? "bg-purpleBG-lighter dark:bg-baseDarkComplementary border border-purple"
+                      : ""
+                  }`}
                 >
                   {option}
                 </button>
@@ -448,10 +558,11 @@ export default function Page() {
                     className="sr-only"
                   />
                   <div
-                    className={`w-5 h-5 rounded mr-2 flex items-center justify-center ${selectedGreeks.includes(greek)
-                      ? "bg-purple"
-                      : "bg-white border border-baseBlack dark:border-baseWhite"
-                      }`}
+                    className={`w-5 h-5 rounded mr-2 flex items-center justify-center ${
+                      selectedGreeks.includes(greek)
+                        ? "bg-purple"
+                        : "bg-white border border-baseBlack dark:border-baseWhite"
+                    }`}
                   >
                     {selectedGreeks.includes(greek) && (
                       <svg
@@ -474,21 +585,67 @@ export default function Page() {
           </div>
 
           <div className="flex flex-wrap sm:flex-nowrap sm:justify-between text-xs font-semibold">
-            {dateOptions.map((date) => (
+            {/* Show first 6-7 dates as tabs */}
+            {availableDates.slice(0, 6).map((date) => (
               <button
                 key={date}
                 onClick={() => handleDateChange(date)}
-                className={`px-2.5 xl:px-5 ml-2.5 sm:ml-0 mt-2.5 sm:mt-0 py-2.5 rounded-md ${selectedDate === date
-                  ? "bg-purpleBG-lighter dark:bg-baseDarkComplementary border border-purple"
-                  : "border border-neutral-300 dark:border-neutral-700"
-                  }`}
+                className={`px-2.5 xl:px-5 ml-2.5 sm:ml-0 mt-2.5 sm:mt-0 py-2.5 rounded-md ${
+                  selectedDate === date
+                    ? "bg-purpleBG-lighter dark:bg-baseDarkComplementary border border-purple"
+                    : "border border-neutral-300 dark:border-neutral-700"
+                }`}
               >
-                {date}
+                {formatDateForDisplay(date)}
               </button>
             ))}
-            <button className="px-2.5 py-2 ml-2.5 sm:ml-0 mt-2.5 sm:mt-0 rounded-lg text-xs font-semibold border border-neutral-300 dark:border-neutral-700 flex items-center">
-              Next month <CaretDown size={16} className="ml-2" />
-            </button>
+
+            {/* More dates dropdown button - show if there are more than 6 dates */}
+            {availableDates.length > 6 && (
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  className="px-2.5 py-2 ml-2.5 sm:ml-0 mt-2.5 sm:mt-0 rounded-lg text-xs font-semibold border border-neutral-300 dark:border-neutral-700 flex items-center"
+                  onClick={() =>
+                    setShowNextMonthDropdown(!showNextMonthDropdown)
+                  }
+                >
+                  More dates
+                  <CaretDown size={16} className="ml-2" />
+                </button>
+
+                {/* Dropdown menu with all available dates */}
+                {showNextMonthDropdown && (
+                  <div className="absolute top-full left-0 mt-1 bg-white dark:bg-baseDark border border-neutral-300 dark:border-neutral-700 rounded-md shadow-lg z-10 min-w-[150px] max-h-60 overflow-y-auto">
+                    <div className="px-3 py-1 text-xs text-neutral-500 font-medium border-b border-neutral-200 dark:border-neutral-700">
+                      All Available Dates:
+                    </div>
+                    {availableDates.map((date) => (
+                      <button
+                        key={date}
+                        className={`w-full px-3 py-2 text-left text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 ${
+                          selectedDate === date
+                            ? "bg-purpleBG-lighter dark:bg-baseDarkComplementary text-purple"
+                            : ""
+                        }`}
+                        onClick={() => {
+                          handleDateChange(date);
+                          setShowNextMonthDropdown(false);
+                        }}
+                      >
+                        {formatDateForDisplay(date)}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Show message if no dates are available */}
+            {availableDates.length === 0 && (
+              <div className="text-neutral-500 text-xs py-2">
+                Loading dates...
+              </div>
+            )}
           </div>
         </div>
 
@@ -523,10 +680,12 @@ export default function Page() {
           )}
 
           {/* Option chain table */}
-          {!isLoadingOptions && !optionDataError && optionChainData.length > 0 && (
-            <div className="overflow-auto max-w-full 2xl:w-full max-h-full">
-              {/* Live data status */}
-              {/* <div className="flex items-center justify-between mb-2 px-2 py-1 bg-gray-50 dark:bg-gray-800 rounded-md text-xs">
+          {!isLoadingOptions &&
+            !optionDataError &&
+            optionChainData.length > 0 && (
+              <div className="overflow-auto max-w-full 2xl:w-full max-h-full">
+                {/* Live data status */}
+                {/* <div className="flex items-center justify-between mb-2 px-2 py-1 bg-gray-50 dark:bg-gray-800 rounded-md text-xs">
                 <div className="flex items-center space-x-2">
                   <div className="flex items-center space-x-1">
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -556,147 +715,156 @@ export default function Page() {
                 </div>
               </div> */}
 
-              <table className="bg-white dark:bg-baseDark w-full">
-                <thead>
-                  <tr className="text-base font-medium border border-neutral-100 dark:border-neutral-700">
-                    <th className="py-3 px-6 text-center" colSpan={7}>
-                      Calls
-                    </th>
-                    <th className="py-3 text-center text-nowrap w-24" colSpan={1}>
-                      {today}
-                    </th>
-                    <th className="py-3 px-6 text-center" colSpan={7}>
-                      Puts
-                    </th>
-                  </tr>
-                  <tr className="text-neutral-500 text-xs text-nowrap">
-                    <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                      Delta
-                    </th>
-                    <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                      IV
-                    </th>
-                    <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                      Volume
-                    </th>
-                    <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                      Bid Size
-                    </th>
-                    <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                      Bid Price
-                    </th>
-                    <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                      Ask Price
-                    </th>
-                    <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                      Ask Size
-                    </th>
-                    <th className="py-3 px-5 text-center border-x border-neutral-100 dark:border-neutral-700 w-24">
-                      Strike
-                    </th>
-                    <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                      Bid Size
-                    </th>
-                    <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                      Bid Price
-                    </th>
-                    <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                      Ask Price
-                    </th>
-                    <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                      Ask Size
-                    </th>
-                    <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                      Volume
-                    </th>
-                    <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                      IV
-                    </th>
-                    <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                      Delta
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="text-xs font-normal">
-                  {optionChainData.map((option: OptionData, index: number) => {
-
-                    const shouldInsertPriceBox = index === 4 || index === 10;
-                    return (
-                      <React.Fragment key={index}>
-                        <tr
-                          key={index}
-                          className={"transition-colors duration-500"}
-                        >
-                          <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                            {option.delta.toFixed(5)}
-                          </td>
-                          <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                            {option.iv.toFixed(2)}
-                          </td>
-                          <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                            {option.volume.toFixed(0)}
-                          </td>
-                          <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                            {option.bidSize.toFixed(2)}
-                          </td>
-                          <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSuccess-300 hover:bg-baseSuccess-100">
-                            <div className=" flex flex-row justify-between">
-                              {option.bidPrice.toFixed(1)}
-                              <PlusSquare size={16} />
-                            </div>
-                          </td>
-                          <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSecondary-500 hover:bg-baseSecondary-300">
-                            <div className=" flex flex-row justify-between">
-                              {option.askPrice.toFixed(1)}
-                              <PlusSquare size={16} />
-                            </div>
-                          </td>
-                          <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                            {option.askSize.toFixed(2)}
-                          </td>
-                          <td className="py-3 px-2 text-center border-x border-neutral-100 dark:border-neutral-700 font-medium w-24">
-                            {option.strike}
-                          </td>
-                          <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                            {option.bidSize.toFixed(2)}
-                          </td>
-                          <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSuccess-300 hover:bg-baseSuccess-100">
-                            <div className=" flex flex-row justify-between">
-                              {option.bidPrice.toFixed(1)}
-                              <PlusSquare size={16} />
-                            </div>
-                          </td>
-                          <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSecondary-500 hover:bg-baseSecondary-300">
-                            <div className=" flex flex-row justify-between">
-                              {option.askPrice.toFixed(1)}
-                              <PlusSquare size={16} />
-                            </div>
-                          </td>
-                          <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                            {option.askSize.toFixed(2)}
-                          </td>
-                          <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                            {option.volume.toFixed(0)}
-                          </td>
-                          <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                            {option.iv.toFixed(2)}
-                          </td>
-                          <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
-                            {option.delta.toFixed(5)}
-                          </td>
-                        </tr>
-                        {shouldInsertPriceBox && (
-                          <PriceBox
-                            symbol={selectedPair.value}
-                            price={marketPrice ? formatNumber(marketPrice, 2) : '-'}
-                          />
-                        )}
-                      </React.Fragment>
-                    )
-                  })}
-                </tbody>
-              </table>
-              {/* <div
+                <table className="bg-white dark:bg-baseDark w-full">
+                  <thead>
+                    <tr className="text-base font-medium border border-neutral-100 dark:border-neutral-700">
+                      <th className="py-3 px-6 text-center" colSpan={7}>
+                        Calls
+                      </th>
+                      <th
+                        className="py-3 text-center text-nowrap w-24"
+                        colSpan={1}
+                      >
+                        {today}
+                      </th>
+                      <th className="py-3 px-6 text-center" colSpan={7}>
+                        Puts
+                      </th>
+                    </tr>
+                    <tr className="text-neutral-500 text-xs text-nowrap">
+                      <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                        Delta
+                      </th>
+                      <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                        IV
+                      </th>
+                      <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                        Volume
+                      </th>
+                      <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                        Bid Size
+                      </th>
+                      <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                        Bid Price
+                      </th>
+                      <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                        Ask Price
+                      </th>
+                      <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                        Ask Size
+                      </th>
+                      <th className="py-3 px-5 text-center border-x border-neutral-100 dark:border-neutral-700 w-24">
+                        Strike
+                      </th>
+                      <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                        Bid Size
+                      </th>
+                      <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                        Bid Price
+                      </th>
+                      <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                        Ask Price
+                      </th>
+                      <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                        Ask Size
+                      </th>
+                      <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                        Volume
+                      </th>
+                      <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                        IV
+                      </th>
+                      <th className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                        Delta
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-xs font-normal">
+                    {filteredOptionData.map(
+                      (option: OptionData, index: number) => {
+                        const shouldInsertPriceBox =
+                          index === 4 || index === 10;
+                        return (
+                          <React.Fragment key={index}>
+                            <tr
+                              key={index}
+                              className={"transition-colors duration-500"}
+                            >
+                              <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                                {option.delta.toFixed(5)}
+                              </td>
+                              <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                                {option.iv.toFixed(2)}
+                              </td>
+                              <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                                {option.volume.toFixed(0)}
+                              </td>
+                              <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                                {option.bidSize.toFixed(2)}
+                              </td>
+                              <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSuccess-300 hover:bg-baseSuccess-100">
+                                <div className=" flex flex-row justify-between">
+                                  {option.bidPrice.toFixed(1)}
+                                  <PlusSquare size={16} />
+                                </div>
+                              </td>
+                              <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSecondary-500 hover:bg-baseSecondary-300">
+                                <div className=" flex flex-row justify-between">
+                                  {option.askPrice.toFixed(1)}
+                                  <PlusSquare size={16} />
+                                </div>
+                              </td>
+                              <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                                {option.askSize.toFixed(2)}
+                              </td>
+                              <td className="py-3 px-2 text-center border-x border-neutral-100 dark:border-neutral-700 font-medium w-24">
+                                {option.strike}
+                              </td>
+                              <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                                {option.bidSize.toFixed(2)}
+                              </td>
+                              <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSuccess-300 hover:bg-baseSuccess-100">
+                                <div className=" flex flex-row justify-between">
+                                  {option.bidPrice.toFixed(1)}
+                                  <PlusSquare size={16} />
+                                </div>
+                              </td>
+                              <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSecondary-500 hover:bg-baseSecondary-300">
+                                <div className=" flex flex-row justify-between">
+                                  {option.askPrice.toFixed(1)}
+                                  <PlusSquare size={16} />
+                                </div>
+                              </td>
+                              <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                                {option.askSize.toFixed(2)}
+                              </td>
+                              <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                                {option.volume.toFixed(0)}
+                              </td>
+                              <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                                {option.iv.toFixed(2)}
+                              </td>
+                              <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
+                                {option.delta.toFixed(5)}
+                              </td>
+                            </tr>
+                            {shouldInsertPriceBox && (
+                              <PriceBox
+                                symbol={selectedPair.value}
+                                price={
+                                  marketPrice
+                                    ? formatNumber(marketPrice, 2)
+                                    : "-"
+                                }
+                              />
+                            )}
+                          </React.Fragment>
+                        );
+                      },
+                    )}
+                  </tbody>
+                </table>
+                {/* <div
               className="absolute left-1/2 transform -translate-x-1/2 text-white top-10"
             >
               <div className="relative w-20 h-8 flex items-center justify-center bg-gradient-to-r from-gradient-1 to-gradient-2 rounded-md">
@@ -705,18 +873,24 @@ export default function Page() {
                 </span>
               </div>
             </div> */}
-            </div>
-          )}
+              </div>
+            )}
 
           {/* Show message when no data is available */}
-          {!isLoadingOptions && optionChainData.length === 0 && !optionDataError && (
-            <div className="flex flex-col items-center justify-center h-full">
-              <div className="text-sm text-neutral-500 text-center">
-                <div className="mb-2">No live option data available for {selectedPair.value}</div>
-                <div className="text-xs">Try selecting a different asset or check back later</div>
+          {!isLoadingOptions &&
+            optionChainData.length === 0 &&
+            !optionDataError && (
+              <div className="flex flex-col items-center justify-center h-full">
+                <div className="text-sm text-neutral-500 text-center">
+                  <div className="mb-2">
+                    No live option data available for {selectedPair.value}
+                  </div>
+                  <div className="text-xs">
+                    Try selecting a different asset or check back later
+                  </div>
+                </div>
               </div>
-            </div>
-          )}
+            )}
         </div>
 
         <div>
@@ -754,18 +928,14 @@ export default function Page() {
                 className="ml-2"
               />
               <div className="flex flex-col ml-2">
-                <span className="text-xs font-semibold">
-                  BTC $53000 Call
-                </span>
+                <span className="text-xs font-semibold">BTC $53000 Call</span>
                 <span className="text-xs font-normal text-neutral-500">
                   Exp 13 sep
                 </span>
               </div>
             </div>
             <div className="flex flex-row mr-1">
-              <span className="text-xs font-semibold mr-2">
-                $4990.00
-              </span>
+              <span className="text-xs font-semibold mr-2">$4990.00</span>
               <X size={14} />
             </div>
           </div>

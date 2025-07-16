@@ -182,6 +182,13 @@ interface OptionData {
   askPrice: number;
   askSize: number;
   strike: number;
+  instrument?: {
+    instrument_name: string;
+    option_details?: {
+      strike: string;
+      option_type: string;
+    };
+  };
 }
 
 interface PoolPropsLenderDashboard {
