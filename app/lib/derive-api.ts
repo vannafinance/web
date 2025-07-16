@@ -783,6 +783,10 @@ class DeriveAPIService {
                 parseNumeric(tickerResult?.askSize) ||
                 0,
               strike: strike,
+              instrument: {
+                instrument_name: instrument.instrument_name,
+                option_details: instrument.option_details,
+              },
             };
 
             return mappedData;
@@ -976,7 +980,15 @@ export async function fetchOptionChainData(
   isRefresh: boolean = false,
 ): Promise<OptionData[]> {
   try {
+    console.log(
+      `🔄 fetchOptionChainData called with baseAsset: ${baseAsset}, isRefresh: ${isRefresh}`,
+    );
     const data = await deriveAPI.getOptionChainData(baseAsset, 0, isRefresh);
+
+    console.log(`✅ fetchOptionChainData received ${data.length} items`);
+    if (data.length > 0) {
+      console.log("📊 Sample option data:", data[0]);
+    }
 
     if (data.length === 0) {
       return [];
@@ -984,7 +996,7 @@ export async function fetchOptionChainData(
 
     return data;
   } catch (error) {
-    console.error("Failed to fetch live option chain data:", error);
+    console.error("❌ Failed to fetch live option chain data:", error);
     throw error;
   }
 }

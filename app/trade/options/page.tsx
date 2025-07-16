@@ -158,6 +158,24 @@ export default function Page() {
     );
   };
 
+  // Handle clicking on bid/ask prices to update sidebar
+  const handleOptionPriceClick = (
+    option: OptionData,
+    type: "call" | "put",
+    action: "buy" | "sell",
+    price: number,
+  ) => {
+    setSelectedOptionData({
+      option,
+      type,
+      action,
+      price,
+    });
+
+    // Pre-fill the limit price with the clicked price
+    setLimitPrice(price.toFixed(1));
+  };
+
   const date = new Date();
   const today =
     date.getFullYear() +
@@ -302,6 +320,14 @@ export default function Page() {
 
   const [size, setSize] = useState<string | undefined>(undefined);
   const [limitPrice, setLimitPrice] = useState<string | undefined>(undefined);
+
+  // Selected option state for sidebar
+  const [selectedOptionData, setSelectedOptionData] = useState<{
+    option: OptionData;
+    type: "call" | "put";
+    action: "buy" | "sell";
+    price: number;
+  } | null>(null);
 
   // const updateLabelPosition = () => {
   //   if (tableRef.current) {
@@ -841,13 +867,33 @@ export default function Page() {
                               <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
                                 {option.bidSize.toFixed(2)}
                               </td>
-                              <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSuccess-300 hover:bg-baseSuccess-100">
+                              <td
+                                className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSecondary-500 hover:bg-baseSecondary-300 cursor-pointer"
+                                onClick={() =>
+                                  handleOptionPriceClick(
+                                    option,
+                                    "call",
+                                    "sell",
+                                    option.bidPrice,
+                                  )
+                                }
+                              >
                                 <div className=" flex flex-row justify-between">
                                   {option.bidPrice.toFixed(1)}
                                   <PlusSquare size={16} />
                                 </div>
                               </td>
-                              <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSecondary-500 hover:bg-baseSecondary-300">
+                              <td
+                                className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSuccess-300 hover:bg-baseSuccess-100 cursor-pointer"
+                                onClick={() =>
+                                  handleOptionPriceClick(
+                                    option,
+                                    "call",
+                                    "buy",
+                                    option.askPrice,
+                                  )
+                                }
+                              >
                                 <div className=" flex flex-row justify-between">
                                   {option.askPrice.toFixed(1)}
                                   <PlusSquare size={16} />
@@ -862,13 +908,33 @@ export default function Page() {
                               <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700">
                                 {option.bidSize.toFixed(2)}
                               </td>
-                              <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSuccess-300 hover:bg-baseSuccess-100">
+                              <td
+                                className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSecondary-500 hover:bg-baseSecondary-300 cursor-pointer"
+                                onClick={() =>
+                                  handleOptionPriceClick(
+                                    option,
+                                    "put",
+                                    "sell",
+                                    option.bidPrice,
+                                  )
+                                }
+                              >
                                 <div className=" flex flex-row justify-between">
                                   {option.bidPrice.toFixed(1)}
                                   <PlusSquare size={16} />
                                 </div>
                               </td>
-                              <td className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSecondary-500 hover:bg-baseSecondary-300">
+                              <td
+                                className="py-3 px-2 text-left border-b border-neutral-100 dark:border-neutral-700 text-baseSuccess-300 hover:bg-baseSuccess-100 cursor-pointer"
+                                onClick={() =>
+                                  handleOptionPriceClick(
+                                    option,
+                                    "put",
+                                    "buy",
+                                    option.askPrice,
+                                  )
+                                }
+                              >
                                 <div className=" flex flex-row justify-between">
                                   {option.askPrice.toFixed(1)}
                                   <PlusSquare size={16} />
@@ -940,7 +1006,11 @@ export default function Page() {
       <div className="flex-none w-full lg:w-[30%] pb-9">
         <div className="bg-baseComplementary dark:bg-baseDarkComplementary p-2 px-3 pb-6 rounded-3xl w-full">
           <div className="ml-auto flex items-center justify-between py-2 mb-5">
-            <div className="text-2xl font-normal">Long Call</div>
+            <div className="text-2xl font-normal">
+              {selectedOptionData
+                ? `${selectedOptionData.action === "buy" ? "Long" : "Short"} ${selectedOptionData.type === "call" ? "Call" : "Put"}`
+                : "Long Call"}
+            </div>
             <div className="flex flex-row items-center font-medium text-base p-2 bg-white dark:bg-baseDark rounded-md">
               <FutureDropdown
                 options={orderTypeOptions}
@@ -951,33 +1021,70 @@ export default function Page() {
           </div>
 
           <div className="bg-purple-100 rounded py-1 text-base font-semibold inline-block mb-4">
-            Multiple Calls
+            {selectedOptionData
+              ? `${selectedOptionData.type === "call" ? "Call" : "Put"} Options`
+              : "Multiple Calls"}
             {/* <span className="px-2 inline-flex text-xs leading-4 font-medium rounded-md bg-purpleBG-lighter text-purple">
                 Long
               </span> */}
           </div>
 
-          <div className="flex flex-row justify-between mb-5">
-            <div className="flex flex-row">
-              <Image
-                src="/eth-icon.svg"
-                width="24"
-                height="24"
-                alt="token"
-                className="ml-2"
-              />
-              <div className="flex flex-col ml-2">
-                <span className="text-xs font-semibold">BTC $53000 Call</span>
-                <span className="text-xs font-normal text-neutral-500">
-                  Exp 13 sep
+          {selectedOptionData && (
+            <div className="flex flex-row justify-between mb-5">
+              <div className="flex flex-row">
+                <Image
+                  src={selectedPair.icon || "/eth-icon.svg"}
+                  width="24"
+                  height="24"
+                  alt="token"
+                  className="ml-2"
+                />
+                <div className="flex flex-col ml-2">
+                  <span className="text-xs font-semibold">
+                    {selectedPair.value} ${selectedOptionData.option.strike}{" "}
+                    {selectedOptionData.type === "call" ? "Call" : "Put"}
+                  </span>
+                  <span className="text-xs font-normal text-neutral-500">
+                    {formatDateForDisplay(selectedDate)}
+                  </span>
+                </div>
+              </div>
+              <div className="flex flex-row mr-1">
+                <span className="text-xs font-semibold mr-2">
+                  ${selectedOptionData.price.toFixed(2)}
                 </span>
+                <X
+                  size={14}
+                  className="cursor-pointer"
+                  onClick={() => setSelectedOptionData(null)}
+                />
               </div>
             </div>
-            <div className="flex flex-row mr-1">
-              <span className="text-xs font-semibold mr-2">$4990.00</span>
-              <X size={14} />
+          )}
+
+          {!selectedOptionData && (
+            <div className="flex flex-row justify-between mb-5">
+              <div className="flex flex-row">
+                <Image
+                  src="/eth-icon.svg"
+                  width="24"
+                  height="24"
+                  alt="token"
+                  className="ml-2"
+                />
+                <div className="flex flex-col ml-2">
+                  <span className="text-xs font-semibold">BTC $53000 Call</span>
+                  <span className="text-xs font-normal text-neutral-500">
+                    Exp 13 sep
+                  </span>
+                </div>
+              </div>
+              <div className="flex flex-row mr-1">
+                <span className="text-xs font-semibold mr-2">$4990.00</span>
+                <X size={14} />
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="mb-5">
             <button className="flex items-center bg-white dark:bg-baseDark mb-4 px-2 py-1 text-purple">
@@ -1017,9 +1124,19 @@ export default function Page() {
 
           <div className="flex text-xs my-5">
             <span className="text-neutral-500">Bid: </span>
-            <span className="text-baseSuccess-300">$335.8</span>
+            <span className="text-baseSuccess-300">
+              $
+              {selectedOptionData
+                ? selectedOptionData.option.bidPrice.toFixed(1)
+                : "335.8"}
+            </span>
             <span className="text-neutral-500 ml-1">Ask: </span>
-            <span className="text-baseSecondary-500">$346.8</span>
+            <span className="text-baseSecondary-500">
+              $
+              {selectedOptionData
+                ? selectedOptionData.option.askPrice.toFixed(1)
+                : "346.8"}
+            </span>
           </div>
 
           {/* <div className="flex justify-between items-center mb-5">
@@ -1050,8 +1167,14 @@ export default function Page() {
           </div>
 
           <div className="flex gap-4">
-            <button className="w-full bg-baseSuccess-300 text-white py-2.5 px-5 rounded-md text-base font-semibold text-center">
-              Buy
+            <button
+              className={`w-full py-2.5 px-5 rounded-md text-base font-semibold text-center ${
+                selectedOptionData?.action === "sell"
+                  ? "bg-baseSecondary-500 text-white"
+                  : "bg-baseSuccess-300 text-white"
+              }`}
+            >
+              {selectedOptionData?.action === "sell" ? "Sell" : "Buy"}
             </button>
           </div>
         </div>
