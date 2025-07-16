@@ -7,6 +7,7 @@ import {
   deriveAPI,
   fetchInstrumentStatistics,
   subscribeToFuturesTicker,
+  unsubscribeFromFuturesTicker,
 } from "@/app/lib/derive-api";
 import FutureDropdown from "@/app/ui/future/future-dropdown";
 // import OptionSlider from "@/app/ui/options/option-slider";
@@ -514,10 +515,16 @@ export default function Page() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Cleanup WebSocket connection on component unmount
+  // Cleanup subscriptions on component unmount
   useEffect(() => {
     return () => {
-      deriveAPI.disconnect();
+      // Unsubscribe from current ticker subscription when component unmounts
+      if (currentTickerSubscription.current) {
+        unsubscribeFromFuturesTicker(currentTickerSubscription.current).catch(
+          console.error,
+        );
+        currentTickerSubscription.current = null;
+      }
     };
   }, []);
 
@@ -548,20 +555,39 @@ export default function Page() {
   };
 
   const [liveTicker, setLiveTicker] = useState<any>(null);
+  const currentTickerSubscription = useRef<string | null>(null);
 
   // Subscribe to ticker for price updates
   useEffect(() => {
     const instrumentName = `${selectedPair.value}-PERP`;
     let unsubscribed = false;
 
+    // Unsubscribe from previous ticker if exists
+    if (
+      currentTickerSubscription.current &&
+      currentTickerSubscription.current !== instrumentName
+    ) {
+      unsubscribeFromFuturesTicker(currentTickerSubscription.current).catch(
+        console.error,
+      );
+    }
+
+    // Subscribe to new ticker
     subscribeToFuturesTicker(instrumentName, (data) => {
       if (!unsubscribed) {
         setLiveTicker(data);
       }
     });
 
+    currentTickerSubscription.current = instrumentName;
+
     return () => {
       unsubscribed = true;
+      // Unsubscribe from current ticker when effect cleanup runs
+      if (currentTickerSubscription.current === instrumentName) {
+        unsubscribeFromFuturesTicker(instrumentName).catch(console.error);
+        currentTickerSubscription.current = null;
+      }
     };
   }, [selectedPair]);
 

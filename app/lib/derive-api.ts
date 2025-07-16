@@ -1,9 +1,9 @@
 import {
-  DERIVE_WS_TESTNET,
+  DERIVE_WS_MAINNET,
   DERIVE_FUTURES_INSTRUMENTS,
 } from "@/app/lib/constants";
 
-const WS_URL = DERIVE_WS_TESTNET;
+const WS_URL = DERIVE_WS_MAINNET;
 
 // Add new interface for statistics response
 interface StatisticsResponse {
@@ -244,6 +244,18 @@ class DeriveAPIService {
     await this.ensureConnection();
 
     const subscriptionId = `ticker.${instrumentName}.1000`;
+
+    // Check if subscription already exists
+    if (this.subscriptions.has(subscriptionId)) {
+      console.log(
+        `Already subscribed to ticker ${instrumentName}, updating callback`,
+      );
+      // Update the callback for existing subscription
+      const existingSubscription = this.subscriptions.get(subscriptionId)!;
+      existingSubscription.callback = callback;
+      return;
+    }
+
     const subscription: DeriveSubscription = {
       channel: `ticker.${instrumentName}.1000`,
       callback,
@@ -266,10 +278,32 @@ class DeriveAPIService {
   ): Promise<void> {
     await this.ensureConnection();
 
-    const channels = instrumentNames.map((name) => `ticker.${name}.1000`);
+    // Filter out instruments that are already subscribed
+    const newInstruments = instrumentNames.filter((instrumentName) => {
+      const subscriptionId = `ticker.${instrumentName}.1000`;
+      return !this.subscriptions.has(subscriptionId);
+    });
 
-    // Create subscriptions for each instrument
+    // Update callbacks for existing subscriptions
     instrumentNames.forEach((instrumentName) => {
+      const subscriptionId = `ticker.${instrumentName}.1000`;
+      if (this.subscriptions.has(subscriptionId)) {
+        const existingSubscription = this.subscriptions.get(subscriptionId)!;
+        existingSubscription.callback = (data: any) =>
+          callback(instrumentName, data);
+      }
+    });
+
+    // Only subscribe to new instruments
+    if (newInstruments.length === 0) {
+      console.log("All instruments already subscribed, callbacks updated");
+      return;
+    }
+
+    const channels = newInstruments.map((name) => `ticker.${name}.1000`);
+
+    // Create subscriptions for new instruments only
+    newInstruments.forEach((instrumentName) => {
       const subscriptionId = `ticker.${instrumentName}.1000`;
       const subscription: DeriveSubscription = {
         channel: `ticker.${instrumentName}.1000`,
@@ -280,7 +314,7 @@ class DeriveAPIService {
       this.subscriptions.set(subscriptionId, subscription);
     });
 
-    // Send single subscription request for all channels
+    // Send single subscription request for new channels only
     await this.sendRequest("subscribe", {
       channels,
     });
@@ -313,12 +347,23 @@ class DeriveAPIService {
     try {
       const subscriptionId = `ticker.${instrumentName}.1000`;
 
+      // Check if subscription exists before trying to unsubscribe
+      if (!this.subscriptions.has(subscriptionId)) {
+        console.log(
+          `No active subscription found for ticker ${instrumentName}`,
+        );
+        return;
+      }
+
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
         await this.sendRequest("unsubscribe", {
           channels: [`ticker.${instrumentName}.1000`],
         });
-        this.subscriptions.delete(subscriptionId);
       }
+
+      // Always remove from local subscriptions map, even if WebSocket is not open
+      this.subscriptions.delete(subscriptionId);
+      console.log(`Unsubscribed from ticker ${instrumentName}`);
     } catch (error) {
       console.error("Failed to unsubscribe from futures ticker:", error);
     }
@@ -329,19 +374,39 @@ class DeriveAPIService {
     instrumentNames: string[],
   ): Promise<void> {
     try {
-      const channels = instrumentNames.map((name) => `ticker.${name}.1000`);
+      // Filter only instruments that are actually subscribed
+      const subscribedInstruments = instrumentNames.filter((instrumentName) => {
+        const subscriptionId = `ticker.${instrumentName}.1000`;
+        return this.subscriptions.has(subscriptionId);
+      });
+
+      if (subscribedInstruments.length === 0) {
+        console.log(
+          "No active subscriptions found for the specified instruments",
+        );
+        return;
+      }
+
+      const channels = subscribedInstruments.map(
+        (name) => `ticker.${name}.1000`,
+      );
 
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
         await this.sendRequest("unsubscribe", {
           channels,
         });
-
-        // Remove subscriptions from the map
-        instrumentNames.forEach((instrumentName) => {
-          const subscriptionId = `ticker.${instrumentName}.1000`;
-          this.subscriptions.delete(subscriptionId);
-        });
       }
+
+      // Remove subscriptions from the map (always, even if WebSocket is not open)
+      subscribedInstruments.forEach((instrumentName) => {
+        const subscriptionId = `ticker.${instrumentName}.1000`;
+        this.subscriptions.delete(subscriptionId);
+      });
+
+      console.log(
+        `Unsubscribed from ${subscribedInstruments.length} tickers:`,
+        subscribedInstruments,
+      );
     } catch (error) {
       console.error("Failed to unsubscribe from multiple tickers:", error);
     }
@@ -954,6 +1019,16 @@ class DeriveAPIService {
       console.error(`Error fetching statistics for ${instrumentName}:`, error);
       throw error;
     }
+  }
+
+  // Debug method to get current subscriptions
+  getActiveSubscriptions(): string[] {
+    return Array.from(this.subscriptions.keys());
+  }
+
+  // Debug method to get subscription count
+  getSubscriptionCount(): number {
+    return this.subscriptions.size;
   }
 
   disconnect(): void {
