@@ -1,9 +1,9 @@
 import {
-  DERIVE_WS_MAINNET,
+  DERIVE_WS_TESTNET,
   DERIVE_FUTURES_INSTRUMENTS,
 } from "@/app/lib/constants";
 
-const WS_URL = DERIVE_WS_MAINNET;
+const WS_URL = DERIVE_WS_TESTNET;
 
 // Add new interface for statistics response
 interface StatisticsResponse {
@@ -35,6 +35,17 @@ class DeriveAPIService {
   // Add properties to store cached data
   private cachedOptionInstruments: any[] = [];
   private cachedInstrumentDetails: Map<string, any> = new Map();
+  private currentCachedAsset: string | null = null;
+
+  // Add properties for persistent option subscriptions
+  private optionSubscriptions: Map<
+    string,
+    {
+      instrumentNames: string[];
+      callback: (instrumentName: string, data: any) => void;
+    }
+  > = new Map();
+  private isOptionSubscriptionActive = false;
 
   constructor() {
     // Auto-connect is handled in ensureConnection
@@ -534,7 +545,7 @@ class DeriveAPIService {
         expired,
         instrument_type: instrumentType,
         page: 1,
-        page_size: 100,
+        page_size: 400,
       };
 
       if (currency) {
@@ -684,6 +695,14 @@ class DeriveAPIService {
     }
   }
 
+  // Method to clear cache manually if needed
+  public clearOptionCache(): void {
+    console.log("🧹 Manually clearing option cache");
+    this.cachedOptionInstruments = [];
+    this.cachedInstrumentDetails.clear();
+    this.currentCachedAsset = null;
+  }
+
   async getOptionChainData(
     baseAsset: string = "ETH",
     retryAttempt: number = 0,
@@ -696,9 +715,25 @@ class DeriveAPIService {
       // Ensure connection is established
       await this.ensureConnection();
 
+      console.log(
+        `🔍 getOptionChainData: baseAsset=${baseAsset}, retryAttempt=${retryAttempt}, isRefresh=${isRefresh}`,
+      );
+      console.log(`🔍 Current cached asset: ${this.currentCachedAsset}`);
+
+      // Clear cache if switching to a different asset
+      if (this.currentCachedAsset && this.currentCachedAsset !== baseAsset) {
+        console.log(
+          `🧹 Clearing cache due to asset change: ${this.currentCachedAsset} -> ${baseAsset}`,
+        );
+        this.cachedOptionInstruments = [];
+        this.cachedInstrumentDetails.clear();
+        this.currentCachedAsset = null;
+      }
+
       // Only fetch static data if this is not a refresh call
       let optionInstruments: any[] = [];
       if (!isRefresh) {
+        console.log(`🔄 Fetching fresh instruments for ${baseAsset}...`);
         // Step 1: Get all option instruments for the specified base asset
         const instruments = await this.getAllInstruments(
           "option",
@@ -706,23 +741,31 @@ class DeriveAPIService {
           baseAsset,
         );
 
-        // Filter for active options with strike and option_type, and strike between 1500-5000
+        console.log(
+          `📦 Received ${instruments.length} raw instruments from API`,
+        );
+
+        // Filter for active options with strike and option_type (no strike range filtering)
         optionInstruments = instruments.filter((instrument) => {
-          const strike = instrument.option_details?.strike
-            ? parseFloat(instrument.option_details.strike)
-            : 0;
-          return (
+          const isValid =
             instrument.is_active &&
             instrument.option_details?.strike &&
-            instrument.option_details?.option_type &&
-            strike >= 1500 &&
-            strike <= 5000
-          );
+            instrument.option_details?.option_type;
+
+          return isValid;
         });
 
+        console.log(
+          `✅ Filtered to ${optionInstruments.length} valid instruments for ${baseAsset}`,
+        );
+
         if (optionInstruments.length === 0) {
+          console.warn(`⚠️ No option instruments found for ${baseAsset}`);
           return [];
         }
+
+        // Set the current cached asset
+        this.currentCachedAsset = baseAsset;
       }
 
       // Get cached instruments if this is a refresh
@@ -731,8 +774,23 @@ class DeriveAPIService {
         ? cachedInstruments
         : optionInstruments;
 
+      console.log(
+        `🔄 Processing ${instrumentsToProcess.length} instruments (isRefresh: ${isRefresh})`,
+      );
+
       // If refresh and no cached instruments, do nothing
       if (isRefresh && instrumentsToProcess.length === 0) {
+        console.warn(
+          `⚠️ Refresh requested but no cached instruments available for ${baseAsset}`,
+        );
+        return [];
+      }
+
+      // If refresh and cached asset doesn't match current asset, return empty
+      if (isRefresh && this.currentCachedAsset !== baseAsset) {
+        console.warn(
+          `⚠️ Refresh requested for ${baseAsset} but cache is for ${this.currentCachedAsset}`,
+        );
         return [];
       }
 
@@ -778,12 +836,16 @@ class DeriveAPIService {
 
         // Cache the instruments and details if this is not a refresh
         if (!isRefresh) {
+          console.log(
+            `💾 Caching ${instrumentsToProcess.length} instruments for ${baseAsset}`,
+          );
           this.cachedOptionInstruments = instrumentsToProcess;
           this.cachedInstrumentDetails = new Map(
             instrumentDataArray
               .filter((data) => data !== null)
               .map((data) => [data!.instrument.instrument_name, data!.details]),
           );
+          this.currentCachedAsset = baseAsset;
         }
 
         // Transform data to match OptionData interface
@@ -856,7 +918,6 @@ class DeriveAPIService {
 
             return mappedData;
           })
-          .filter((option) => option.strike >= 1500 && option.strike <= 5000)
           .sort((a, b) => a.strike - b.strike);
 
         return optionData;
@@ -887,16 +948,18 @@ class DeriveAPIService {
             return null;
           }
         }),
-      );
-
-      // Cache the instruments and details if this is not a refresh
+      ); // Cache the instruments and details if this is not a refresh
       if (!isRefresh) {
+        console.log(
+          `💾 Caching ${instrumentsToProcess.length} instruments for ${baseAsset} (batch)`,
+        );
         this.cachedOptionInstruments = instrumentsToProcess;
         this.cachedInstrumentDetails = new Map(
           instrumentDataArray
             .filter((data) => data !== null)
             .map((data) => [data!.instrument.instrument_name, data!.details]),
         );
+        this.currentCachedAsset = baseAsset;
       }
 
       // Transform data to match OptionData interface
@@ -969,8 +1032,16 @@ class DeriveAPIService {
 
           return mappedData;
         })
-        .filter((option) => option.strike >= 1500 && option.strike <= 5000)
         .sort((a, b) => a.strike - b.strike);
+
+      console.log(
+        `✅ Returning ${optionData.length} option data points for ${baseAsset}`,
+      );
+      if (optionData.length > 0) {
+        console.log(
+          `📊 Strike range in results: ${Math.min(...optionData.map((o) => o.strike))} - ${Math.max(...optionData.map((o) => o.strike))}`,
+        );
+      }
 
       return optionData;
     } catch (error) {
@@ -987,6 +1058,192 @@ class DeriveAPIService {
 
       throw error;
     }
+  }
+
+  // Add new method for persistent option data subscriptions
+  async subscribeToOptionChainUpdates(
+    baseAsset: string,
+    callback: (data: OptionData[]) => void,
+  ): Promise<void> {
+    try {
+      console.log(
+        `🔔 Setting up persistent option subscription for ${baseAsset}`,
+      );
+
+      // Get initial option instruments if not cached
+      if (
+        this.currentCachedAsset !== baseAsset ||
+        this.cachedOptionInstruments.length === 0
+      ) {
+        console.log(`📦 Fetching initial instruments for ${baseAsset}...`);
+        await this.getOptionChainData(baseAsset, 0, false);
+      }
+
+      const instrumentNames = this.cachedOptionInstruments.map(
+        (instrument) => instrument.instrument_name,
+      );
+
+      if (instrumentNames.length === 0) {
+        console.warn(`⚠️ No option instruments found for ${baseAsset}`);
+        return;
+      }
+
+      // Unsubscribe from any existing option subscriptions
+      // if (this.isOptionSubscriptionActive) {
+      //   await this.unsubscribeFromOptionChainUpdates();
+      // }
+
+      const subscriptionKey = `option_chain_${baseAsset}`;
+
+      // Subscribe to multiple tickers with persistent callback
+      const tickerCallback = (instrumentName: string, data: any) => {
+        // Update cache with new ticker data
+        this.updateCachedOptionData(instrumentName, data);
+
+        // Transform cached data and call the callback
+        const optionData = this.transformCachedDataToOptionData();
+        callback(optionData);
+      };
+
+      await this.subscribeToMultipleTickers(instrumentNames, tickerCallback);
+
+      // Store subscription info
+      this.optionSubscriptions.set(subscriptionKey, {
+        instrumentNames,
+        callback: tickerCallback,
+      });
+      this.isOptionSubscriptionActive = true;
+
+      console.log(
+        `✅ Persistent option subscription active for ${baseAsset} (${instrumentNames.length} instruments)`,
+      );
+    } catch (error) {
+      console.error(
+        `❌ Failed to set up persistent option subscription for ${baseAsset}:`,
+        error,
+      );
+      throw error;
+    }
+  }
+
+  // Method to unsubscribe from option chain updates
+  async unsubscribeFromOptionChainUpdates(): Promise<void> {
+    try {
+      if (!this.isOptionSubscriptionActive) {
+        console.log("📴 No active option subscriptions to unsubscribe from");
+        return;
+      }
+
+      console.log("🔕 Unsubscribing from persistent option subscriptions...");
+
+      // Use forEach instead of for...of to avoid iterator issues
+      this.optionSubscriptions.forEach(async (subscription, key) => {
+        await this.unsubscribeFromMultipleTickers(subscription.instrumentNames);
+      });
+
+      this.optionSubscriptions.clear();
+      this.isOptionSubscriptionActive = false;
+
+      console.log("✅ Successfully unsubscribed from all option subscriptions");
+    } catch (error) {
+      console.error(
+        "❌ Failed to unsubscribe from option subscriptions:",
+        error,
+      );
+      throw error;
+    }
+  }
+
+  // Helper method to update cached option data with new ticker data
+  private updateCachedOptionData(
+    instrumentName: string,
+    tickerData: any,
+  ): void {
+    // Find and update the cached instrument data
+    const instrument = this.cachedOptionInstruments.find(
+      (inst) => inst.instrument_name === instrumentName,
+    );
+
+    if (instrument) {
+      // Store the latest ticker data for this instrument
+      instrument._latestTickerData =
+        tickerData?.instrument_ticker || tickerData;
+      console.log(`📊 Updated cached data for ${instrumentName}`);
+    }
+  }
+
+  // Helper method to transform cached data to OptionData format
+  private transformCachedDataToOptionData(): OptionData[] {
+    if (!this.cachedOptionInstruments.length) {
+      return [];
+    }
+
+    // Transform cached instruments and latest ticker data to OptionData format
+    const optionData: OptionData[] = this.cachedOptionInstruments
+      .filter((instrument) => instrument._latestTickerData) // Only include instruments with ticker data
+      .map((instrument) => {
+        const strike = instrument.option_details?.strike
+          ? parseFloat(instrument.option_details.strike)
+          : 0;
+
+        const tickerResult = instrument._latestTickerData;
+
+        // Helper function to safely parse numeric values
+        const parseNumeric = (value: any): number => {
+          if (value === null || value === undefined) return 0;
+          const parsed =
+            typeof value === "string" ? parseFloat(value) : Number(value);
+          return isNaN(parsed) ? 0 : parsed;
+        };
+
+        const optionPricing = tickerResult?.option_pricing;
+        const stats = tickerResult?.stats;
+
+        return {
+          delta:
+            parseNumeric(optionPricing?.delta) ||
+            parseNumeric(tickerResult?.delta) ||
+            0,
+          iv:
+            parseNumeric(optionPricing?.iv) ||
+            parseNumeric(optionPricing?.implied_volatility) ||
+            parseNumeric(tickerResult?.iv) ||
+            parseNumeric(tickerResult?.implied_volatility) ||
+            0,
+          volume:
+            parseNumeric(stats?.contract_volume) ||
+            parseNumeric(tickerResult?.volume_24h) ||
+            parseNumeric(tickerResult?.volume) ||
+            0,
+          bidSize:
+            parseNumeric(tickerResult?.best_bid_amount) ||
+            parseNumeric(tickerResult?.bid_size) ||
+            parseNumeric(tickerResult?.bidSize) ||
+            0,
+          bidPrice:
+            parseNumeric(tickerResult?.best_bid_price) ||
+            parseNumeric(tickerResult?.bid_price) ||
+            parseNumeric(tickerResult?.bidPrice) ||
+            0,
+          askPrice:
+            parseNumeric(tickerResult?.best_ask_price) ||
+            parseNumeric(tickerResult?.ask_price) ||
+            parseNumeric(tickerResult?.askPrice) ||
+            0,
+          askSize:
+            parseNumeric(tickerResult?.best_ask_amount) ||
+            parseNumeric(tickerResult?.ask_size) ||
+            parseNumeric(tickerResult?.askSize) ||
+            0,
+          strike: strike,
+          instrument: {
+            instrument_name: instrument.instrument_name,
+            option_details: instrument.option_details,
+          },
+        };
+      });
+
+    return optionData.sort((a, b) => a.strike - b.strike);
   }
 
   // Add new method to get statistics
@@ -1206,6 +1463,36 @@ export async function fetchInstrumentStatistics(
     return response;
   } catch (error) {
     console.error(`Failed to fetch statistics for ${instrumentName}:`, error);
+    throw error;
+  }
+}
+
+// Helper function to clear option cache
+export function clearOptionCache(): void {
+  deriveAPI.clearOptionCache();
+}
+
+// Helper function for persistent option chain subscriptions
+export async function subscribeToOptionChainUpdates(
+  baseAsset: string,
+  callback: (data: OptionData[]) => void,
+): Promise<void> {
+  try {
+    await deriveAPI.subscribeToOptionChainUpdates(baseAsset, callback);
+  } catch (error) {
+    console.error(
+      `Failed to subscribe to option chain updates for ${baseAsset}:`,
+      error,
+    );
+    throw error;
+  }
+}
+
+export async function unsubscribeFromOptionChainUpdates(): Promise<void> {
+  try {
+    await deriveAPI.unsubscribeFromOptionChainUpdates();
+  } catch (error) {
+    console.error("Failed to unsubscribe from option chain updates:", error);
     throw error;
   }
 }

@@ -6,8 +6,9 @@ import {
   fetchOptionChainData,
   deriveAPI,
   fetchInstrumentStatistics,
-  subscribeToFuturesTicker,
-  unsubscribeFromFuturesTicker,
+  subscribeToOptionChainUpdates,
+  unsubscribeFromOptionChainUpdates,
+  clearOptionCache,
 } from "@/app/lib/derive-api";
 import FutureDropdown from "@/app/ui/future/future-dropdown";
 // import OptionSlider from "@/app/ui/options/option-slider";
@@ -173,6 +174,14 @@ export default function Page() {
   const [groupedFilteredOptions, setGroupedFilteredOptions] = useState<
     { strike: number; call?: OptionData; put?: OptionData }[]
   >([]);
+
+  // Add state to track price box position (calculated once when data changes)
+  const [priceBoxPosition, setPriceBoxPosition] = useState<{
+    insertAfterIndex: number;
+    insertBeforeFirst: boolean;
+    price: string;
+  } | null>(null);
+
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Add state for option chain data
@@ -181,6 +190,11 @@ export default function Page() {
   const [isRefreshingData, setIsRefreshingData] = useState<boolean>(false);
   const [optionDataError, setOptionDataError] = useState<string | null>(null);
   const [lastUpdateTime, setLastUpdateTime] = useState<Date | null>(null);
+  const [isPersistentSubscriptionActive, setIsPersistentSubscriptionActive] =
+    useState(false);
+
+  // Option subscription ref
+  const currentOptionSubscription = useRef<string | null>(null);
 
   const optionTypes: OptionType[] = ["All", "Calls", "Puts"];
   const greekOptions: GreekOption[] = [
@@ -457,10 +471,20 @@ export default function Page() {
     selectedPairRef.current = selectedPair;
   }, [selectedPair]);
 
+  // Asset price polling for market price updates
   useEffect(() => {
-    const intervalId = setInterval(getAssetPrice, 1000); // Calls fetchData every second
-    return () => clearInterval(intervalId); // This is the cleanup function
-  }, []);
+    // Initial price fetch
+    getAssetPrice().catch(console.error);
+
+    // Set up polling for price updates (less aggressive than before)
+    const intervalId = setInterval(() => {
+      getAssetPrice().catch(console.error);
+    }, 5000); // 5 second intervals instead of 1 second
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [selectedPair.value]);
 
   // Load option chain data on component mount and when selected pair changes
   useEffect(() => {
@@ -472,21 +496,56 @@ export default function Page() {
     return () => clearTimeout(timer);
   }, [selectedPair, loadOptionChainData]);
 
-  // Set up live data updates every 1 seconds
+  // Set up persistent option data subscriptions instead of polling
   useEffect(() => {
-    // Only start auto-refresh if we have data and no errors
-    if (optionChainData.length > 0 && !optionDataError && !isLoadingOptions) {
-      const refreshInterval = setInterval(() => {
-        loadOptionChainData(true);
-      }, 10000); // 1 seconds
+    // Only set up persistent subscription if we have initial data and no errors
+    if (
+      optionChainData.length > 0 &&
+      !optionDataError &&
+      !isLoadingOptions &&
+      !isPersistentSubscriptionActive
+    ) {
+      console.log("🔔 Setting up persistent option data subscription...");
 
-      return () => clearInterval(refreshInterval);
+      const setupPersistentSubscription = async () => {
+        try {
+          await subscribeToOptionChainUpdates(
+            selectedPair.value,
+            (data: OptionData[]) => {
+              console.log(
+                "📊 Received persistent option data update:",
+                data.length,
+                "items",
+              );
+              setOptionChainData(data);
+              setLastUpdateTime(new Date());
+            },
+          );
+
+          setIsPersistentSubscriptionActive(true);
+          console.log("✅ Persistent option subscription active");
+        } catch (error) {
+          console.error(
+            "❌ Failed to set up persistent option subscription:",
+            error,
+          );
+          // Fallback to manual refresh if persistent subscription fails
+          console.log("🔄 Falling back to manual refresh...");
+        }
+      };
+
+      setupPersistentSubscription();
     }
+
+    return () => {
+      // Cleanup will be handled in the main cleanup useEffect
+    };
   }, [
     optionChainData.length,
     optionDataError,
     isLoadingOptions,
-    loadOptionChainData,
+    isPersistentSubscriptionActive,
+    selectedPair.value,
   ]);
 
   // Filter option data when selected date changes
@@ -498,7 +557,47 @@ export default function Page() {
     const grouped = groupOptionsByStrike(filtered);
     const groupedAndFiltered = filterGroupedOptions(grouped, selectedOption);
     setGroupedFilteredOptions(groupedAndFiltered);
-  }, [optionChainData, selectedDate, selectedOption]);
+
+    // Calculate price box position once when data changes (not on every price update)
+    if (groupedAndFiltered.length > 0 && marketPrice > 0) {
+      let insertAfterIndex = -1;
+      let insertBeforeFirst = false;
+
+      // Check if market price is lower than the first strike
+      if (marketPrice < groupedAndFiltered[0].strike) {
+        insertBeforeFirst = true;
+      } else {
+        // Find the correct position between strikes
+        for (let i = 0; i < groupedAndFiltered.length - 1; i++) {
+          const currentStrike = groupedAndFiltered[i].strike;
+          const nextStrike = groupedAndFiltered[i + 1].strike;
+
+          if (marketPrice >= currentStrike && marketPrice < nextStrike) {
+            insertAfterIndex = i;
+            break;
+          }
+        }
+
+        // If not found between strikes, check if it should be after the last strike
+        if (
+          insertAfterIndex === -1 &&
+          marketPrice >=
+            groupedAndFiltered[groupedAndFiltered.length - 1].strike
+        ) {
+          insertAfterIndex = groupedAndFiltered.length - 1;
+        }
+      }
+
+      // Store position and freeze the price used for display
+      setPriceBoxPosition({
+        insertAfterIndex,
+        insertBeforeFirst,
+        price: formatNumber(marketPrice, 2),
+      });
+    } else {
+      setPriceBoxPosition(null);
+    }
+  }, [optionChainData, selectedDate, selectedOption, marketPrice]);
 
   // Click outside handler for dropdown
   useEffect(() => {
@@ -518,15 +617,35 @@ export default function Page() {
   // Cleanup subscriptions on component unmount
   useEffect(() => {
     return () => {
-      // Unsubscribe from current ticker subscription when component unmounts
-      if (currentTickerSubscription.current) {
-        unsubscribeFromFuturesTicker(currentTickerSubscription.current).catch(
-          console.error,
-        );
-        currentTickerSubscription.current = null;
+      console.log("🧹 Component unmounting, cleaning up all subscriptions...");
+
+      // Clean up option subscriptions
+      if (isPersistentSubscriptionActive) {
+        unsubscribeFromOptionChainUpdates().catch(console.error);
       }
     };
-  }, []);
+  }, []); // Empty dependency array - only runs on unmount
+
+  // Handle pair changes - clean up existing subscriptions and reset state
+  useEffect(() => {
+    const cleanup = async () => {
+      if (isPersistentSubscriptionActive) {
+        console.log(
+          `🔄 Pair changed to ${selectedPair.value}, cleaning up old subscriptions...`,
+        );
+        try {
+          await unsubscribeFromOptionChainUpdates();
+          setIsPersistentSubscriptionActive(false);
+          currentOptionSubscription.current = null;
+          console.log("✅ Old subscriptions cleaned up");
+        } catch (error) {
+          console.error("❌ Error cleaning up old subscriptions:", error);
+        }
+      }
+    };
+
+    cleanup();
+  }, [selectedPair.value]);
 
   const formatNumber = (
     value: string | number | undefined,
@@ -553,43 +672,6 @@ export default function Page() {
     }
     return `$${formatNumber(num, decimals)}`;
   };
-
-  const [liveTicker, setLiveTicker] = useState<any>(null);
-  const currentTickerSubscription = useRef<string | null>(null);
-
-  // Subscribe to ticker for price updates
-  useEffect(() => {
-    const instrumentName = `${selectedPair.value}-PERP`;
-    let unsubscribed = false;
-
-    // Unsubscribe from previous ticker if exists
-    if (
-      currentTickerSubscription.current &&
-      currentTickerSubscription.current !== instrumentName
-    ) {
-      unsubscribeFromFuturesTicker(currentTickerSubscription.current).catch(
-        console.error,
-      );
-    }
-
-    // Subscribe to new ticker
-    subscribeToFuturesTicker(instrumentName, (data) => {
-      if (!unsubscribed) {
-        setLiveTicker(data);
-      }
-    });
-
-    currentTickerSubscription.current = instrumentName;
-
-    return () => {
-      unsubscribed = true;
-      // Unsubscribe from current ticker when effect cleanup runs
-      if (currentTickerSubscription.current === instrumentName) {
-        unsubscribeFromFuturesTicker(instrumentName).catch(console.error);
-        currentTickerSubscription.current = null;
-      }
-    };
-  }, [selectedPair]);
 
   return (
     <div className="flex flex-col lg:flex-row space-x-0 lg:space-x-5 text-base pt-8 px-3 xs:px-5 lg:px-6 custom-scrollbar text-baseBlack dark:text-baseWhite">
@@ -906,38 +988,11 @@ export default function Page() {
                   <tbody className="text-xs font-normal">
                     {groupedFilteredOptions.map(
                       ({ strike, call, put }, index: number) => {
-                        // Determine if price box should be inserted after this row
-                        // Insert price box between strike prices where current market price falls
-                        const currentStrike = strike;
-                        const nextOption = groupedFilteredOptions[index + 1];
-                        const nextStrike = nextOption?.strike;
-
-                        let shouldInsertPriceBox = false;
-
-                        if (nextStrike) {
-                          // Insert between current and next strike if market price falls between them
-                          shouldInsertPriceBox =
-                            marketPrice >= currentStrike &&
-                            marketPrice < nextStrike;
-                        } else if (
-                          index ===
-                          groupedFilteredOptions.length - 1
-                        ) {
-                          // Insert after the last option if market price is higher than all strikes
-                          shouldInsertPriceBox = marketPrice >= currentStrike;
-                        }
-
-                        // Also handle case where market price is lower than the first strike
-                        const isFirstOption = index === 0;
+                        // Use pre-calculated price box position instead of calculating on each render
+                        const shouldInsertPriceBox =
+                          priceBoxPosition?.insertAfterIndex === index;
                         const shouldInsertPriceBoxBefore =
-                          isFirstOption && marketPrice < currentStrike;
-
-                        // Debug logging
-                        if (index < 3) {
-                          console.log(
-                            `Strike ${currentStrike}: Call ${call ? "exists" : "missing"}, Put ${put ? "exists" : "missing"}, Market Price ${marketPrice}`,
-                          );
-                        }
+                          priceBoxPosition?.insertBeforeFirst && index === 0;
 
                         return (
                           <React.Fragment key={strike}>
@@ -945,11 +1000,7 @@ export default function Page() {
                             {shouldInsertPriceBoxBefore && (
                               <PriceBox
                                 symbol={selectedPair.value}
-                                price={
-                                  marketPrice
-                                    ? formatNumber(marketPrice, 2)
-                                    : "-"
-                                }
+                                price={priceBoxPosition?.price || "-"}
                               />
                             )}
                             <tr
@@ -1098,11 +1149,7 @@ export default function Page() {
                             {shouldInsertPriceBox && (
                               <PriceBox
                                 symbol={selectedPair.value}
-                                price={
-                                  marketPrice
-                                    ? formatNumber(marketPrice, 2)
-                                    : "-"
-                                }
+                                price={priceBoxPosition?.price || "-"}
                               />
                             )}
                           </React.Fragment>
