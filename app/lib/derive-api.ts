@@ -2,6 +2,12 @@ import {
   DERIVE_WS_TESTNET,
   DERIVE_FUTURES_INSTRUMENTS,
 } from "@/app/lib/constants";
+import {
+  authenticationService,
+  type AuthenticationSession,
+  type WalletProvider,
+} from "./authentication-service";
+import { ORDER_CONFIG } from "./order-config";
 
 const WS_URL = DERIVE_WS_TESTNET;
 
