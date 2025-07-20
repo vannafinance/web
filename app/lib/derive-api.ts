@@ -127,6 +127,11 @@ class DeriveAPIService {
     this.wsManager.disconnect();
   }
 
+  // Direct WebSocket request method
+  async sendRequest(method: string, params: any): Promise<any> {
+    return this.wsManager.sendRequest(method, params);
+  }
+
   // Authentication Methods (delegated to AuthMethods)
   async login(walletProvider: WalletProvider): Promise<AuthenticationSession> {
     return this.authMethods.login(walletProvider);
@@ -561,7 +566,7 @@ class DeriveAPIService {
             reject(new Error(`Batch ticker subscription timeout`));
           }, 15000);
 
-          const callback = (instrumentName: string, data: any) => {
+          const callback = (instrumentName: string, data: unknown) => {
             results.set(instrumentName, { result: data.instrument_ticker });
             pendingInstruments.delete(instrumentName);
 

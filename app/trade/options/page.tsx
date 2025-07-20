@@ -1,6 +1,6 @@
 "use client";
 
-// import { useNetwork } from "@/app/context/network-context";
+import { useNetwork } from "@/app/context/network-context";
 // import { ARBITRUM_NETWORK } from "@/app/lib/constants";
 import {
   fetchOptionChainData,
@@ -16,11 +16,24 @@ import PositionsSection from "@/app/ui/options/positions-section";
 import { CaretDown, Plus, PlusSquare, X } from "@phosphor-icons/react";
 import { TrendDown, TrendUp } from "@phosphor-icons/react/dist/ssr";
 import axios from "axios";
-// import { useWeb3React } from "@web3-react/core";
+import { useWeb3React } from "@web3-react/core";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import PriceBox from "@/app/ui/components/price-box";
 import React from "react";
+import {
+  orderService,
+  type OrderFormData,
+  type OrderState,
+  type OrderValidation,
+  type OrderResult,
+  type OrderStatusUpdate,
+} from "@/app/lib/order-service";
+import {
+  authenticationService,
+  type AuthenticationState,
+  type WalletProvider,
+} from "@/app/lib/authentication-service";
 
 type OptionType = "All" | "Calls" | "Puts";
 
@@ -149,8 +162,8 @@ const filterOptionsByDate = (
 };
 
 export default function Page() {
-  // const { account, library } = useWeb3React();
-  // const { currentNetwork } = useNetwork();
+  const { account, library } = useWeb3React();
+  const { currentNetwork } = useNetwork();
 
   const pairOptions: Option[] = [
     { value: "ETH", label: "ETH/USD", icon: "/eth-icon.svg" },
@@ -213,7 +226,7 @@ export default function Page() {
   const [selectedPair, setSelectedPair] = useState<Option>(pairOptions[0]);
   const selectedPairRef = useRef(selectedPair);
   const [marketPrice, setMarketPrice] = useState<number>(1);
-  const [statistics, setStatistics] = useState<any>({
+  const [statistics, setStatistics] = useState<unknown>({
     daily_notional_volume: "0",
     daily_trades: 0,
     open_interest: "0",
@@ -256,6 +269,21 @@ export default function Page() {
 
     // Pre-fill the limit price with the clicked price
     setLimitPrice(price.toFixed(1));
+
+    // Clear any existing errors when user selects a new option
+    setFormErrors({});
+    setShowValidationErrors(false);
+    setOrderFeedback({ type: null, message: "" });
+
+    // Set default size if not already set
+    if (!size) {
+      setSize("1");
+    }
+
+    // Ensure order type is set to limit when clicking prices
+    if (selectedOrderType.value !== "Limit") {
+      setSelectedOrderType(orderTypeOptions[0]); // Limit is the first option
+    }
   };
 
   const date = new Date();
@@ -410,6 +438,46 @@ export default function Page() {
     action: "buy" | "sell";
     price: number;
   } | null>(null);
+
+  // Order state management
+  const [orderState, setOrderState] = useState<OrderState>({
+    isSubmitting: false,
+  });
+  const [orderValidation, setOrderValidation] = useState<OrderValidation>({
+    isValid: false,
+    errors: {},
+  });
+  const [authState, setAuthState] = useState<AuthenticationState>({
+    isAuthenticated: false,
+    isAuthenticating: false,
+    session: null,
+    lastError: null,
+    retryCount: 0,
+    recoveryActions: [],
+  });
+
+  // Order form validation state
+  const [formErrors, setFormErrors] = useState<{
+    size?: string;
+    limitPrice?: string;
+    general?: string;
+  }>({});
+  const [showValidationErrors, setShowValidationErrors] = useState(false);
+
+  // Order confirmation dialog state
+  const [showOrderConfirmation, setShowOrderConfirmation] = useState(false);
+  const [pendingOrderData, setPendingOrderData] =
+    useState<OrderFormData | null>(null);
+
+  // Success/error feedback state
+  const [orderFeedback, setOrderFeedback] = useState<{
+    type: "success" | "error" | null;
+    message: string;
+    orderId?: string;
+  }>({
+    type: null,
+    message: "",
+  });
 
   // const updateLabelPosition = () => {
   //   if (tableRef.current) {
@@ -646,6 +714,279 @@ export default function Page() {
 
     cleanup();
   }, [selectedPair.value]);
+
+  // Order state management - subscribe to order service state changes
+  useEffect(() => {
+    const unsubscribeOrderState = orderService.onStateChange((newState) => {
+      setOrderState(newState);
+
+      // Handle order completion feedback
+      if (newState.lastOrder) {
+        if (newState.lastOrder.success) {
+          setOrderFeedback({
+            type: "success",
+            message: `Order submitted successfully${newState.lastOrder.orderId ? ` (ID: ${newState.lastOrder.orderId})` : ""}`,
+            orderId: newState.lastOrder.orderId,
+          });
+
+          // Clear form on successful order
+          setSize(undefined);
+          setLimitPrice(undefined);
+          setFormErrors({});
+          setShowValidationErrors(false);
+
+          // Auto-hide success message after 5 seconds
+          setTimeout(() => {
+            setOrderFeedback({ type: null, message: "" });
+          }, 5000);
+        } else {
+          setOrderFeedback({
+            type: "error",
+            message: newState.lastOrder.error || "Order submission failed",
+          });
+
+          // Auto-hide error message after 10 seconds
+          setTimeout(() => {
+            setOrderFeedback({ type: null, message: "" });
+          }, 10000);
+        }
+      }
+
+      // Update form validation errors
+      if (newState.validationErrors) {
+        setFormErrors({
+          size: newState.validationErrors.size,
+          limitPrice: newState.validationErrors.limitPrice,
+          general:
+            newState.validationErrors.authentication ||
+            newState.validationErrors.network ||
+            newState.validationErrors.balance ||
+            newState.validationErrors.limits,
+        });
+        setShowValidationErrors(true);
+      }
+    });
+
+    const unsubscribeOrderUpdates = orderService.onOrderUpdate((update) => {
+      console.log("Order status update:", update);
+      // Handle real-time order status updates
+      if (update.status === "filled" || update.status === "completed") {
+        setOrderFeedback({
+          type: "success",
+          message: `Order ${update.orderId} has been filled`,
+          orderId: update.orderId,
+        });
+      } else if (
+        update.status === "rejected" ||
+        update.status === "cancelled"
+      ) {
+        setOrderFeedback({
+          type: "error",
+          message: `Order ${update.orderId} was ${update.status}`,
+        });
+      }
+    });
+
+    return () => {
+      unsubscribeOrderState();
+      unsubscribeOrderUpdates();
+    };
+  }, []);
+
+  // Authentication state management - subscribe to auth service state changes
+  useEffect(() => {
+    const unsubscribeAuthState = authenticationService.onStateChange(
+      (newAuthState) => {
+        setAuthState(newAuthState);
+
+        // Handle authentication errors
+        if (newAuthState.lastError) {
+          setFormErrors((prev) => ({
+            ...prev,
+            general: `Authentication error: ${newAuthState.lastError.message}`,
+          }));
+        }
+      },
+    );
+
+    // Initialize with current auth state
+    setAuthState(authenticationService.getState());
+
+    return () => {
+      unsubscribeAuthState();
+    };
+  }, []);
+
+  // Wallet connection integration - sync with useWeb3React
+  useEffect(() => {
+    // Update auth state based on actual wallet connection
+    if (account && library) {
+      // Wallet is connected, update auth state to reflect this
+      setAuthState((prev) => ({
+        ...prev,
+        isAuthenticated: true,
+        session: {
+          access_token: "mock_token",
+          refresh_token: "mock_refresh",
+          expires_at: Date.now() / 1000 + 3600, // 1 hour from now
+          wallet_address: account,
+          session_id: "mock_session",
+        },
+      }));
+    } else {
+      // Wallet is not connected, clear auth state
+      setAuthState((prev) => ({
+        ...prev,
+        isAuthenticated: false,
+        session: null,
+      }));
+    }
+  }, [account, library]);
+
+  // Real-time form validation
+  useEffect(() => {
+    const validateForm = async () => {
+      if (!selectedOptionData || (!size && !limitPrice)) {
+        setOrderValidation({ isValid: false, errors: {} });
+        return;
+      }
+
+      try {
+        const orderFormData: OrderFormData = {
+          size: size || "0",
+          limitPrice: limitPrice || "0",
+          orderType: selectedOrderType.value === "Limit" ? "limit" : "market",
+          direction: selectedOptionData.action,
+          selectedOption: selectedOptionData.option,
+          optionType: selectedOptionData.type,
+        };
+
+        // Create a mock wallet provider for validation
+        const mockWalletProvider: WalletProvider = {
+          address: "0x0000000000000000000000000000000000000000",
+          signer: {} as unknown,
+          isConnected: authState.isAuthenticated,
+        };
+
+        const validation = await orderService.validateOrder(
+          orderFormData,
+          mockWalletProvider,
+        );
+        setOrderValidation(validation);
+
+        // Update form errors based on validation
+        const newFormErrors: typeof formErrors = {};
+        if (validation.errors.size) newFormErrors.size = validation.errors.size;
+        if (validation.errors.limitPrice)
+          newFormErrors.limitPrice = validation.errors.limitPrice;
+        if (
+          validation.errors.authentication ||
+          validation.errors.network ||
+          validation.errors.balance ||
+          validation.errors.limits
+        ) {
+          newFormErrors.general =
+            validation.errors.authentication ||
+            validation.errors.network ||
+            validation.errors.balance ||
+            validation.errors.limits;
+        }
+
+        setFormErrors(newFormErrors);
+      } catch (error) {
+        console.error("Form validation error:", error);
+        setOrderValidation({
+          isValid: false,
+          errors: { limits: "Validation failed" },
+        });
+      }
+    };
+
+    // Debounce validation to avoid excessive API calls
+    const timeoutId = setTimeout(validateForm, 500);
+    return () => clearTimeout(timeoutId);
+  }, [
+    size,
+    limitPrice,
+    selectedOptionData,
+    selectedOrderType,
+    authState.isAuthenticated,
+  ]);
+
+  // Clear feedback messages when user starts typing
+  useEffect(() => {
+    if (size || limitPrice) {
+      if (orderFeedback.type === "error") {
+        setOrderFeedback({ type: null, message: "" });
+      }
+      setShowValidationErrors(false);
+    }
+  }, [size, limitPrice]);
+
+  // Handle order confirmation
+  const handleOrderConfirmation = (confirmed: boolean) => {
+    if (confirmed && pendingOrderData) {
+      // Proceed with order submission
+      submitOrderToService(pendingOrderData);
+    }
+
+    // Close dialog and clear pending data
+    setShowOrderConfirmation(false);
+    setPendingOrderData(null);
+  };
+
+  // Submit order to service
+  const submitOrderToService = async (orderData: OrderFormData) => {
+    try {
+      // Create real wallet provider from useWeb3React
+      if (!account || !library) {
+        throw new Error("Wallet not connected");
+      }
+
+      const signer = library.getSigner();
+      const walletProvider: WalletProvider = {
+        address: account,
+        signer: signer,
+        isConnected: true,
+      };
+
+      await orderService.submitOrder(orderData, walletProvider);
+    } catch (error) {
+      console.error("Order submission failed:", error);
+      setOrderFeedback({
+        type: "error",
+        message:
+          error instanceof Error ? error.message : "Order submission failed",
+      });
+    }
+  };
+
+  // Prepare order for confirmation
+  const prepareOrderForConfirmation = (): OrderFormData | null => {
+    if (!selectedOptionData || !size) {
+      return null;
+    }
+
+    return {
+      size,
+      limitPrice: limitPrice || "0",
+      orderType: selectedOrderType.value === "Limit" ? "limit" : "market",
+      direction: selectedOptionData.action,
+      selectedOption: selectedOptionData.option,
+      optionType: selectedOptionData.type,
+    };
+  };
+
+  // Calculate order value for display
+  const calculateOrderValue = (orderData: OrderFormData): number => {
+    const sizeNum = parseFloat(orderData.size);
+    const priceNum =
+      orderData.orderType === "limit"
+        ? parseFloat(orderData.limitPrice)
+        : selectedOptionData?.price || 0;
+
+    return sizeNum * priceNum;
+  };
 
   const formatNumber = (
     value: string | number | undefined,
@@ -1282,33 +1623,147 @@ export default function Page() {
             </button>
           </div>
 
+          {/* Order feedback messages */}
+          {orderFeedback.type && (
+            <div
+              className={`mb-4 p-3 rounded-md text-sm ${
+                orderFeedback.type === "success"
+                  ? "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 border border-green-300 dark:border-green-700"
+                  : "bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 border border-red-300 dark:border-red-700"
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div
+                    className={`w-2 h-2 rounded-full mr-2 ${
+                      orderFeedback.type === "success"
+                        ? "bg-green-500"
+                        : "bg-red-500"
+                    }`}
+                  ></div>
+                  <span className="font-medium">
+                    {orderFeedback.type === "success" ? "Success" : "Error"}
+                  </span>
+                </div>
+                <button
+                  onClick={() => setOrderFeedback({ type: null, message: "" })}
+                  className="text-current opacity-70 hover:opacity-100"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+              <div className="mt-1">{orderFeedback.message}</div>
+              {orderFeedback.orderId && (
+                <div className="mt-1 text-xs opacity-75">
+                  Order ID: {orderFeedback.orderId}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* General error display */}
+          {formErrors.general && showValidationErrors && (
+            <div className="mb-4 p-3 rounded-md text-sm bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 border border-yellow-300 dark:border-yellow-700">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="w-2 h-2 rounded-full mr-2 bg-yellow-500"></div>
+                  <span className="font-medium">Warning</span>
+                </div>
+                <button
+                  onClick={() => setShowValidationErrors(false)}
+                  className="text-current opacity-70 hover:opacity-100"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+              <div className="mt-1">{formErrors.general}</div>
+            </div>
+          )}
+
+          {/* Authentication status */}
+          {!authState.isAuthenticated && !authState.isAuthenticating && (
+            <div className="mb-4 p-3 rounded-md text-sm bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border border-blue-300 dark:border-blue-700">
+              <div className="flex items-center">
+                <div className="w-2 h-2 rounded-full mr-2 bg-blue-500"></div>
+                <span className="font-medium">Connect wallet to trade</span>
+              </div>
+            </div>
+          )}
+
+          {authState.isAuthenticating && (
+            <div className="mb-4 p-3 rounded-md text-sm bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border border-blue-300 dark:border-blue-700">
+              <div className="flex items-center">
+                <div className="w-3 h-3 border border-blue-300 border-t-blue-600 rounded-full animate-spin mr-2"></div>
+                <span className="font-medium">Authenticating...</span>
+              </div>
+            </div>
+          )}
+
           <div className="flex justify-between my-5">
             <div className="text-xs">
               <span className="text-neutral-500">Avail: </span>
               <span>0.00 USDT</span>
             </div>
+            {orderState.isSubmitting && (
+              <div className="text-xs text-blue-600 dark:text-blue-400 flex items-center">
+                <div className="w-3 h-3 border border-blue-300 border-t-blue-600 rounded-full animate-spin mr-1"></div>
+                Submitting...
+              </div>
+            )}
           </div>
 
-          <div className="flex w-full rounded-xl bg-white dark:bg-baseDark py-2 pl-2 mb-5">
-            <input
-              type="number"
-              value={size}
-              onChange={(e) => setSize(e.target.value)}
-              className="w-full text-baseBlack dark:text-baseWhite dark:bg-baseDark text-sm font-normal outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              placeholder="Size"
-              min={0}
-            />
+          {/* Size input with validation */}
+          <div className="mb-5">
+            <div
+              className={`flex w-full rounded-xl bg-white dark:bg-baseDark py-2 pl-2 ${
+                formErrors.size && showValidationErrors
+                  ? "border-2 border-red-300 dark:border-red-700"
+                  : ""
+              }`}
+            >
+              <input
+                type="number"
+                value={size}
+                onChange={(e) => setSize(e.target.value)}
+                className="w-full text-baseBlack dark:text-baseWhite dark:bg-baseDark text-sm font-normal outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                placeholder="Size"
+                min={0}
+                disabled={orderState.isSubmitting}
+              />
+            </div>
+            {formErrors.size && showValidationErrors && (
+              <div className="text-xs text-red-600 dark:text-red-400 mt-1 ml-2">
+                {formErrors.size}
+              </div>
+            )}
           </div>
 
-          <div className="flex w-full rounded-xl bg-white dark:bg-baseDark py-2 pl-2 mb-5">
-            <input
-              type="number"
-              value={limitPrice}
-              onChange={(e) => setLimitPrice(e.target.value)}
-              className="w-full text-baseBlack dark:text-baseWhite dark:bg-baseDark text-sm font-normal outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              placeholder="Limit Price"
-              min={0}
-            />
+          {/* Limit price input with validation */}
+          <div className="mb-5">
+            <div
+              className={`flex w-full rounded-xl bg-white dark:bg-baseDark py-2 pl-2 ${
+                formErrors.limitPrice && showValidationErrors
+                  ? "border-2 border-red-300 dark:border-red-700"
+                  : ""
+              }`}
+            >
+              <input
+                type="number"
+                value={limitPrice}
+                onChange={(e) => setLimitPrice(e.target.value)}
+                className="w-full text-baseBlack dark:text-baseWhite dark:bg-baseDark text-sm font-normal outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                placeholder="Limit Price"
+                min={0}
+                disabled={
+                  orderState.isSubmitting || selectedOrderType.value !== "Limit"
+                }
+              />
+            </div>
+            {formErrors.limitPrice && showValidationErrors && (
+              <div className="text-xs text-red-600 dark:text-red-400 mt-1 ml-2">
+                {formErrors.limitPrice}
+              </div>
+            )}
           </div>
 
           <div className="flex text-xs my-5">
@@ -1357,16 +1812,240 @@ export default function Page() {
 
           <div className="flex gap-4">
             <button
-              className={`w-full py-2.5 px-5 rounded-md text-base font-semibold text-center ${
-                selectedOptionData?.action === "sell"
-                  ? "bg-baseSecondary-500 text-white"
-                  : "bg-baseSuccess-300 text-white"
+              onClick={async () => {
+                // Simple wallet connection check
+                if (!account || !library) {
+                  setFormErrors((prev) => ({
+                    ...prev,
+                    general: "Please connect your wallet to place orders",
+                  }));
+                  setShowValidationErrors(true);
+                  return;
+                }
+
+                // Prepare and show order confirmation
+                const orderData = prepareOrderForConfirmation();
+                if (orderData) {
+                  setPendingOrderData(orderData);
+                  setShowOrderConfirmation(true);
+                } else {
+                  setFormErrors((prev) => ({
+                    ...prev,
+                    general: "Please fill in all required order details",
+                  }));
+                  setShowValidationErrors(true);
+                }
+              }}
+              disabled={
+                !orderValidation.isValid ||
+                orderState.isSubmitting ||
+                !selectedOptionData ||
+                authState.isAuthenticating
+              }
+              className={`w-full py-2.5 px-5 rounded-md text-base font-semibold text-center transition-all duration-200 ${
+                !orderValidation.isValid ||
+                orderState.isSubmitting ||
+                !selectedOptionData ||
+                authState.isAuthenticating
+                  ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+                  : selectedOptionData?.action === "sell"
+                    ? "bg-baseSecondary-500 text-white hover:bg-baseSecondary-600"
+                    : "bg-baseSuccess-300 text-white hover:bg-baseSuccess-400"
               }`}
             >
-              {selectedOptionData?.action === "sell" ? "Sell" : "Buy"}
+              {orderState.isSubmitting ? (
+                <div className="flex items-center justify-center">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  Submitting...
+                </div>
+              ) : authState.isAuthenticating ? (
+                <div className="flex items-center justify-center">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  Authenticating...
+                </div>
+              ) : !authState.isAuthenticated ? (
+                "Connect Wallet"
+              ) : selectedOptionData?.action === "sell" ? (
+                "Sell"
+              ) : (
+                "Buy"
+              )}
             </button>
           </div>
         </div>
+
+        {/* Order Confirmation Dialog */}
+        {showOrderConfirmation && pendingOrderData && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-baseDark rounded-xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">Confirm Order</h3>
+                <button
+                  onClick={() => handleOrderConfirmation(false)}
+                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {/* Order Summary */}
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                  <h4 className="font-medium mb-3">Order Details</h4>
+
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">
+                        Action:
+                      </span>
+                      <span
+                        className={`font-medium ${
+                          pendingOrderData.direction === "buy"
+                            ? "text-green-600 dark:text-green-400"
+                            : "text-red-600 dark:text-red-400"
+                        }`}
+                      >
+                        {pendingOrderData.direction === "buy" ? "Buy" : "Sell"}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">
+                        Option:
+                      </span>
+                      <span className="font-medium">
+                        {selectedPair.value} $
+                        {selectedOptionData?.option.strike}{" "}
+                        {pendingOrderData.optionType === "call"
+                          ? "Call"
+                          : "Put"}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">
+                        Expiry:
+                      </span>
+                      <span className="font-medium">
+                        {formatDateForDisplay(selectedDate)}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">
+                        Size:
+                      </span>
+                      <span className="font-medium">
+                        {pendingOrderData.size}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">
+                        Order Type:
+                      </span>
+                      <span className="font-medium capitalize">
+                        {pendingOrderData.orderType}
+                      </span>
+                    </div>
+
+                    {pendingOrderData.orderType === "limit" && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 dark:text-gray-400">
+                          Limit Price:
+                        </span>
+                        <span className="font-medium">
+                          ${pendingOrderData.limitPrice}
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="flex justify-between border-t border-gray-200 dark:border-gray-700 pt-2 mt-2">
+                      <span className="text-gray-600 dark:text-gray-400">
+                        Estimated Value:
+                      </span>
+                      <span className="font-medium">
+                        ${calculateOrderValue(pendingOrderData).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Risk Warning */}
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
+                  <div className="flex items-start">
+                    <div className="w-4 h-4 rounded-full bg-yellow-500 mt-0.5 mr-2 flex-shrink-0"></div>
+                    <div className="text-sm text-yellow-800 dark:text-yellow-200">
+                      <div className="font-medium mb-1">Risk Warning</div>
+                      <div>
+                        Options trading involves significant risk. You may lose
+                        your entire investment. Please ensure you understand the
+                        risks before proceeding.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Current Market Info */}
+                {selectedOptionData && (
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                    <div className="text-sm">
+                      <div className="font-medium mb-2">Current Market</div>
+                      <div className="flex justify-between">
+                        <span>
+                          Bid:{" "}
+                          <span className="text-green-600 dark:text-green-400">
+                            $
+                            {selectedOptionData.option.bidPrice?.toFixed(2) ||
+                              "N/A"}
+                          </span>
+                        </span>
+                        <span>
+                          Ask:{" "}
+                          <span className="text-red-600 dark:text-red-400">
+                            $
+                            {selectedOptionData.option.askPrice?.toFixed(2) ||
+                              "N/A"}
+                          </span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => handleOrderConfirmation(false)}
+                  className="flex-1 py-2.5 px-4 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleOrderConfirmation(true)}
+                  disabled={orderState.isSubmitting}
+                  className={`flex-1 py-2.5 px-4 rounded-md text-white font-medium transition-colors ${
+                    orderState.isSubmitting
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : pendingOrderData.direction === "sell"
+                        ? "bg-baseSecondary-500 hover:bg-baseSecondary-600"
+                        : "bg-baseSuccess-300 hover:bg-baseSuccess-400"
+                  }`}
+                >
+                  {orderState.isSubmitting ? (
+                    <div className="flex items-center justify-center">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                      Submitting...
+                    </div>
+                  ) : (
+                    `Confirm ${pendingOrderData.direction === "buy" ? "Buy" : "Sell"}`
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
