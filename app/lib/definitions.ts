@@ -16,6 +16,23 @@ interface NetworkOption {
   blockExplorerUrl: string;
 }
 
+interface PoolsType {
+  id:string;
+  name: string;
+  icons: string[];
+  tvl: string;
+  tvlChange: number;
+  vol24h: string;
+  vol24hChange: number;
+  vol1w: string;
+  vol1wChange: number;
+  tx24h: number;
+  apr: string;
+  protocol_version:string,
+  swap_fee:number
+  isSoon:boolean
+}
+
 interface TabProps {
   tabs: {
     name: string;

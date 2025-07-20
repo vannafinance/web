@@ -142,6 +142,65 @@ export const tradeMenuSubLinks = [
     subtitle: "Margin trade to buy/sell assets at spot prices",
     icon: "/spot-menu-icon.svg",
   },
+  {
+    title:"Farm",
+    href:"/trade/farm",
+    subtitle:"Top Crypto Liquidity Pools Ranked by Performance",
+    icon:"/leaves-icon.png"
+  }
+];
+
+
+export const mockPools:PoolsType[] = [
+  {
+    id:"1",
+    name: "USDC / USDT",
+    icons: ["/usdc-icon.svg", "/usdt-icon.svg"],
+    tvl: "$15.98m",
+    tvlChange: -2.03,
+    vol24h: "$3.63m",
+    vol24hChange: 19.58,
+    vol1w: "$11.00m",
+    vol1wChange: 50.19,
+    tx24h: 3764,
+    apr: "14.47%",
+    protocol_version:"V3",
+    swap_fee:0.01,
+    isSoon:false
+  },
+  {
+    id:"2",
+    name: "AUSD / USDC",
+    icons: ["/ausd-icon.svg", "/usdc-icon.svg"],
+    tvl: "$12.14m",
+    tvlChange: 21.12,
+    vol24h: "$8.51m",
+    vol24hChange: 125.9,
+    vol1w: "$21.35m",
+    vol1wChange: 309.61,
+    tx24h: 7357,
+    apr: "56.45%",
+    protocol_version:"V3",
+    swap_fee:0.01,
+    isSoon:true
+  },
+  {
+    id:"3",
+    name: "BTCK / LBTC",
+    icons: ["/bitcoin.svg", "/lbtc-icon.svg"],
+    tvl: "$6.32m",
+    tvlChange: 253.57,
+    vol24h: "$449.75",
+    vol24hChange: -97.61,
+    vol1w: "$258.38k",
+    vol1wChange: 95.78,
+    tx24h: 156,
+    apr: "11.02%",
+    protocol_version:"V3",
+    swap_fee:0.01,
+    isSoon:true
+  },
+  // Add more mock pools as needed
 ];
 
 export const defaultTokenOptions: Option[] = [
