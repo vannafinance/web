@@ -17,7 +17,7 @@ interface NetworkOption {
 }
 
 interface PoolsType {
-  id:string;
+  id: string;
   name: string;
   icons: string[];
   tvl: string;
@@ -28,9 +28,9 @@ interface PoolsType {
   vol1wChange: number;
   tx24h: number;
   apr: string;
-  protocol_version:string,
-  swap_fee:number
-  isSoon:boolean
+  protocol_version: string;
+  swap_fee: number;
+  isSoon: boolean;
 }
 
 interface TabProps {
@@ -247,7 +247,7 @@ interface NavItem {
   count: number | null;
   component: React.ComponentType<any>; // Accepts any component
   props?: Record<string, any>; // Optional props
-};
+}
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 interface PositionSectionProps {

@@ -127,13 +127,15 @@ export const tradeMenuSubLinks = [
   {
     title: "Perps",
     href: "/trade/future",
-    subtitle: "Leveraged perpetual contracts to trade crypto without expiration",
+    subtitle:
+      "Leveraged perpetual contracts to trade crypto without expiration",
     icon: "/perps-menu-icon.svg",
   },
   {
     title: "Options",
     href: "/trade/options",
-    subtitle: "Leveraged contracts for hedging, speculation, or income with controlled risk",
+    subtitle:
+      "Leveraged contracts for hedging, speculation, or income with controlled risk",
     icon: "/options-menu-icon.svg",
   },
   {
@@ -143,17 +145,16 @@ export const tradeMenuSubLinks = [
     icon: "/spot-menu-icon.svg",
   },
   {
-    title:"Farm",
-    href:"/trade/farm",
-    subtitle:"Top Crypto Liquidity Pools Ranked by Performance",
-    icon:"/leaves-icon.png"
-  }
+    title: "Farm",
+    href: "/trade/farm",
+    subtitle: "Top Crypto Liquidity Pools Ranked by Performance",
+    icon: "/leaves-icon.png",
+  },
 ];
 
-
-export const mockPools:PoolsType[] = [
+export const mockPools: PoolsType[] = [
   {
-    id:"1",
+    id: "1",
     name: "USDC / USDT",
     icons: ["/usdc-icon.svg", "/usdt-icon.svg"],
     tvl: "$15.98m",
@@ -164,12 +165,12 @@ export const mockPools:PoolsType[] = [
     vol1wChange: 50.19,
     tx24h: 3764,
     apr: "14.47%",
-    protocol_version:"V3",
-    swap_fee:0.01,
-    isSoon:false
+    protocol_version: "V3",
+    swap_fee: 0.01,
+    isSoon: false,
   },
   {
-    id:"2",
+    id: "2",
     name: "AUSD / USDC",
     icons: ["/ausd-icon.svg", "/usdc-icon.svg"],
     tvl: "$12.14m",
@@ -180,12 +181,12 @@ export const mockPools:PoolsType[] = [
     vol1wChange: 309.61,
     tx24h: 7357,
     apr: "56.45%",
-    protocol_version:"V3",
-    swap_fee:0.01,
-    isSoon:true
+    protocol_version: "V3",
+    swap_fee: 0.01,
+    isSoon: true,
   },
   {
-    id:"3",
+    id: "3",
     name: "BTCK / LBTC",
     icons: ["/bitcoin.svg", "/lbtc-icon.svg"],
     tvl: "$6.32m",
@@ -196,9 +197,9 @@ export const mockPools:PoolsType[] = [
     vol1wChange: 95.78,
     tx24h: 156,
     apr: "11.02%",
-    protocol_version:"V3",
-    swap_fee:0.01,
-    isSoon:true
+    protocol_version: "V3",
+    swap_fee: 0.01,
+    isSoon: true,
   },
   // Add more mock pools as needed
 ];
@@ -222,4 +223,4 @@ export const ethPoolObj: PoolTable = {
   isActive: false,
   version: 0,
   vToken: "ETH",
-}
+};

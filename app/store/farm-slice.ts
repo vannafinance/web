@@ -24,13 +24,13 @@ const FarmDataSlice = createSlice({
 
 export const { setFarmData } = FarmDataSlice.actions;
 
-
 export const selectFarmData = (state: RootState) => state.farm.FarmData;
 
 // Selector to get a pool by id
 export const selectFarmDataById = (id: string) => (state: RootState) => {
-  return state.farm.FarmData?.find((pool: PoolsType) => String(pool.id) === String(id));
+  return state.farm.FarmData?.find(
+    (pool: PoolsType) => String(pool.id) === String(id)
+  );
 };
-
 
 export default FarmDataSlice.reducer;
