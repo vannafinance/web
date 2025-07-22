@@ -47,6 +47,10 @@ export const percentageClickValues = [10, 25, 50, 100];
 export const DERIVE_WS_TESTNET = "wss://api-demo.lyra.finance/ws";
 export const DERIVE_WS_MAINNET = "wss://api.lyra.finance/ws";
 
+// Derive REST API constants
+export const DERIVE_REST_TESTNET = "https://api-demo.lyra.finance";
+export const DERIVE_REST_MAINNET = "https://api.lyra.finance";
+
 // Derive futures instrument names for different base assets
 export const DERIVE_FUTURES_INSTRUMENTS = {
   ETH: "ETH-PERP",

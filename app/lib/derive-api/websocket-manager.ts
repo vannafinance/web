@@ -4,9 +4,9 @@
  * Handles WebSocket connection, reconnection, message handling, and request management.
  */
 
-import { DERIVE_WS_TESTNET } from "../constants";
+import { DERIVE_WS_MAINNET } from "../constants";
 
-const WS_URL = DERIVE_WS_TESTNET;
+const WS_URL = DERIVE_WS_MAINNET;
 
 export interface PendingRequest {
   resolve: (value: any) => void;
@@ -52,6 +52,12 @@ export class WebSocketManager {
   private onReconnectCallback?: () => Promise<void>;
 
   constructor() {
+    console.log("🏗️ WebSocketManager constructor called");
+    console.log("📡 Target WebSocket URL:", WS_URL);
+    console.log(
+      "🌐 WebSocket API available:",
+      typeof WebSocket !== "undefined",
+    );
     // Auto-connect is handled in ensureConnection
   }
 
@@ -80,15 +86,50 @@ export class WebSocketManager {
    * Ensure WebSocket connection is established
    */
   async ensureConnection(): Promise<void> {
+    // If already connected, resolve immediately
     if (this.isConnected()) {
+      console.log("WebSocket already connected, using existing connection");
       return Promise.resolve();
     }
 
+    // If connection is in progress, wait for it
     if (this.connectionPromise) {
+      console.log("WebSocket connection in progress, waiting...");
       return this.connectionPromise;
     }
 
-    this.connectionPromise = this.connect();
+    console.log("Initiating new WebSocket connection to:", WS_URL);
+
+    // Try to connect with retry logic
+    let retryCount = 0;
+    const maxRetries = 3;
+
+    while (retryCount < maxRetries) {
+      try {
+        this.connectionPromise = this.connect();
+        await this.connectionPromise;
+        console.log("WebSocket connection established successfully");
+        return;
+      } catch (error) {
+        retryCount++;
+        console.error(
+          `WebSocket connection attempt ${retryCount} failed:`,
+          error,
+        );
+
+        if (retryCount >= maxRetries) {
+          console.error("Maximum WebSocket connection retries reached");
+          this.connectionPromise = null;
+          throw error;
+        }
+
+        // Wait before retrying
+        const delay = 1000 * Math.pow(2, retryCount - 1); // Exponential backoff
+        console.log(`Retrying connection in ${delay}ms...`);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
+    }
+
     return this.connectionPromise;
   }
 
@@ -98,13 +139,43 @@ export class WebSocketManager {
   private async connect(): Promise<void> {
     return new Promise((resolve, reject) => {
       if (this.isConnecting) {
+        console.log("Connection already in progress, skipping...");
         return;
       }
 
       this.isConnecting = true;
-      this.ws = new WebSocket(WS_URL);
+
+      console.log("🔌 Attempting WebSocket connection to:", WS_URL);
+      console.log("🌐 Environment checks:", {
+        hasWebSocket: typeof WebSocket !== "undefined",
+        isBrowser: typeof window !== "undefined",
+        isSecureContext:
+          typeof window !== "undefined" ? window.isSecureContext : "unknown",
+        userAgent:
+          typeof navigator !== "undefined" ? navigator.userAgent : "unknown",
+      });
+
+      if (typeof WebSocket === "undefined") {
+        console.error("❌ WebSocket is not available in this environment");
+        this.isConnecting = false;
+        reject(new Error("WebSocket is not available in this environment"));
+        return;
+      }
+
+      try {
+        console.log("🚀 Creating WebSocket instance...");
+        this.ws = new WebSocket(WS_URL);
+        console.log("✅ WebSocket instance created successfully");
+        console.log("📊 Initial WebSocket state:", this.ws.readyState);
+      } catch (error) {
+        console.error("❌ Failed to create WebSocket instance:", error);
+        this.isConnecting = false;
+        reject(error);
+        return;
+      }
 
       const connectionTimeout = setTimeout(() => {
+        console.error("❌ WebSocket connection timeout after 30 seconds");
         if (this.ws) {
           this.ws.close();
         }
@@ -114,6 +185,10 @@ export class WebSocketManager {
       }, 30000); // 30 second timeout
 
       this.ws.onopen = async () => {
+        console.log(
+          "✅ WebSocket connection established successfully to:",
+          WS_URL,
+        );
         clearTimeout(connectionTimeout);
         this.isConnecting = false;
         this.reconnectAttempts = 0;
@@ -178,8 +253,15 @@ export class WebSocketManager {
         clearTimeout(connectionTimeout);
         this.isConnecting = false;
         this.isReady = false;
-        console.error("Derive WebSocket error:", event);
-        reject(new Error("WebSocket connection failed"));
+        console.error("❌ WebSocket connection error:", {
+          event,
+          url: WS_URL,
+          readyState: this.ws?.readyState,
+          timestamp: new Date().toISOString(),
+        });
+        reject(
+          new Error(`WebSocket connection failed to ${WS_URL}: ${event.type}`),
+        );
       };
     });
   }
@@ -188,13 +270,51 @@ export class WebSocketManager {
    * Wait for connection to be established
    */
   async waitForConnection(timeoutMs: number = 10000): Promise<void> {
-    const startTime = Date.now();
-    while (!this.isConnected() && Date.now() - startTime < timeoutMs) {
-      await new Promise((resolve) => setTimeout(resolve, 100));
+    console.log(
+      `Waiting for WebSocket connection (timeout: ${timeoutMs}ms)...`,
+    );
+
+    // First try to ensure connection with retry logic
+    try {
+      await this.ensureConnection();
+      console.log("Connection established via ensureConnection");
+      return;
+    } catch (error) {
+      console.warn("ensureConnection failed, falling back to polling:", error);
     }
+
+    // Fall back to polling if ensureConnection fails
+    const startTime = Date.now();
+    const pollInterval = 200; // Poll every 200ms
+
+    while (!this.isConnected() && Date.now() - startTime < timeoutMs) {
+      console.log(
+        `Waiting for connection... (${Math.round((Date.now() - startTime) / 1000)}s elapsed)`,
+      );
+      await new Promise((resolve) => setTimeout(resolve, pollInterval));
+
+      // Try to reconnect if not connecting
+      if (
+        !this.isConnecting &&
+        !this.isConnected() &&
+        !this.connectionPromise
+      ) {
+        console.log("Connection not in progress, attempting to connect...");
+        try {
+          this.connectionPromise = this.connect();
+          await this.connectionPromise;
+        } catch (error) {
+          console.warn("Connection attempt failed:", error);
+        }
+      }
+    }
+
     if (!this.isConnected()) {
+      console.error(`WebSocket connection timeout after ${timeoutMs}ms`);
       throw new Error("Timeout waiting for WebSocket connection");
     }
+
+    console.log("WebSocket connection confirmed");
   }
 
   /**
@@ -222,7 +342,7 @@ export class WebSocketManager {
   /**
    * Handle subscription messages
    */
-  private handleSubscriptionMessage(message: any): void {
+  private handleSubscriptionMessage(message: unknown): void {
     const { method, params } = message;
 
     if (method === "subscription" && params) {
@@ -239,8 +359,11 @@ export class WebSocketManager {
    * Handle JSON-RPC responses
    */
   private handleResponse(response: JSONRPCResponse): void {
+    console.log(`Received WebSocket response:`, response);
+
     const pendingRequest = this.pendingRequests.get(response.id);
     if (!pendingRequest) {
+      console.warn(`No pending request found for response ID: ${response.id}`);
       return;
     }
 
@@ -248,8 +371,10 @@ export class WebSocketManager {
     this.pendingRequests.delete(response.id);
 
     if (response.error) {
+      console.error(`WebSocket request error:`, response.error);
       pendingRequest.reject(response.error);
     } else {
+      console.log(`WebSocket request successful:`, response.result);
       pendingRequest.resolve(response); // Return the full response
     }
   }
@@ -257,7 +382,7 @@ export class WebSocketManager {
   /**
    * Send request via WebSocket
    */
-  async sendRequest(method: string, params: any): Promise<any> {
+  async sendRequest(method: string, params: unknown): Promise<unknown> {
     await this.ensureConnection();
 
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
@@ -283,6 +408,7 @@ export class WebSocketManager {
 
       // Send request
       const requestString = JSON.stringify(request);
+      console.log(`Sending WebSocket request:`, request);
       this.ws!.send(requestString);
     });
   }
