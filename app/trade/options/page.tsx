@@ -26,7 +26,7 @@ type DateOption =
   | "Next month";
 type GreekOption = "Delta" | "Mark Price" | "Gamma" | "Vega" | "Theta";
 
-export default function Page() {
+function Options() {
   // const { account, library } = useWeb3React();
   // const { currentNetwork } = useNetwork();
 
@@ -558,3 +558,6 @@ export default function Page() {
     </div>
   );
 }
+
+
+export default Options

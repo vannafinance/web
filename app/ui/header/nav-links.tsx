@@ -6,9 +6,11 @@ import { usePathname } from "next/navigation";
 import { CaretDown } from "@phosphor-icons/react";
 import FeatureCard from "./feature-card";
 import { menuLinks, tradeMenuSubLinks } from "@/app/lib/static-values";
+import { useNetwork } from "@/app/context/network-context";
 
 export default function NavLinks() {
   const pathname = usePathname();
+  const { currentNetwork } = useNetwork();
 
   return (
     <div className="flex flex-row gap-2 items-center justify-center text-sm">
@@ -50,21 +52,30 @@ export default function NavLinks() {
                 key={link.title + "2"}
                 className="absolute left-2 top-10 z-50 mt-2 rounded-md shadow-xl bg-white dark:bg-baseDark ring-1 ring-black dark:ring-neutral-800 ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300"
               >
-                {tradeMenuSubLinks.map((subItem, index) => (
-                  <Link
-                    key={index}
-                    href={subItem.href}
-                    className="block p-1 w-72 text-sm"
-                  >
-                    <FeatureCard
-                      key={"a" + index}
-                      icon={subItem.icon}
-                      title={subItem.title}
-                      subtitle={subItem.subtitle}
-                      isSoon={subItem.title === "Options"}
-                    />
-                  </Link>
-                ))}
+                {tradeMenuSubLinks
+                  .filter((subItem) => {
+                    // On Katana: only allow "Farm"
+                    if (currentNetwork?.name === "Katana") {
+                      return subItem.title === "Farm";
+                    }
+                    // On other networks: allow all
+                    return true;
+                  })
+                  .map((subItem, index) => (
+                    <Link
+                      key={index}
+                      href={subItem.href}
+                      className="block p-1 w-72 text-sm"
+                    >
+                      <FeatureCard
+                        key={"a" + index}
+                        icon={subItem.icon}
+                        title={subItem.title}
+                        subtitle={subItem.subtitle}
+                        isSoon={subItem.title === "Options"}
+                      />
+                    </Link>
+                  ))}
               </div>
             </div>
           );

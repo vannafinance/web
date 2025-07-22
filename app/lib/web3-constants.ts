@@ -12,10 +12,11 @@ export const injected = new InjectedConnector({
     901, // lyraTestNet
     10, // optimism
     8453, // base
+    747474
   ],
 });
 
-export const allowedChainIds = [8453, 42161, 10];
+export const allowedChainIds = [8453, 42161, 10, 747474];
 
 export const getShortenedAddress = (address: string, start = 6, end = 4) => {
   if (address != "") {

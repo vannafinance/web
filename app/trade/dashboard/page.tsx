@@ -41,7 +41,7 @@ import Multicall from "@/app/abi/vanna/v1/out/Multicall.sol/Multicall.json";
 import DefaultRateModel from "@/app/abi/vanna/v1/out/DefaultRateModel.sol/DefaultRateModel.json";
 import Loader from "@/app/ui/components/loader";
 
-export default function Page() {
+function Dashboard() {
   const { account, library } = useWeb3React();
   const { currentNetwork } = useNetwork();
   const [activeAccount, setActiveAccount] = useState<string | undefined>();
@@ -1355,3 +1355,5 @@ export default function Page() {
     </div>
   );
 }
+
+export default Dashboard

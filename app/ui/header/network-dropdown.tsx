@@ -53,7 +53,6 @@ export const NetworkDropdown = () => {
         return;
       }
     }
-
     setSelectedNetwork(network);
     setCurrentNetwork(network);
   };
@@ -69,8 +68,11 @@ export const NetworkDropdown = () => {
       } else if (chainId === 10) {
         setSelectedNetwork(networks[2]);
         setCurrentNetwork(networks[2]);
+      } else if (chainId === 747474) {
+        setSelectedNetwork(networks[3]);
+        setCurrentNetwork(networks[3]);
       } else {
-        switchNetwork(networks[0]);
+        switchNetwork(networks[0])
       }
     }
 

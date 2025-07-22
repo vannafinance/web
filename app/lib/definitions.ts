@@ -4,7 +4,7 @@ interface FeatureCardProps {
   icon: string;
   title: string;
   subtitle: string;
-  isSoon: boolean;
+  isSoon?: boolean;
 }
 
 interface NetworkOption {
