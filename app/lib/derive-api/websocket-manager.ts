@@ -343,15 +343,44 @@ export class WebSocketManager {
    * Handle subscription messages
    */
   private handleSubscriptionMessage(message: unknown): void {
-    const { method, params } = message;
-
-    if (method === "subscription" && params) {
-      const { channel, data } = params;
-      const subscription = this.subscriptions.get(channel);
-
-      if (subscription) {
-        subscription.callback(data);
+    try {
+      if (typeof message !== "object" || message === null) {
+        console.warn("Invalid subscription message format:", message);
+        return;
       }
+
+      const msg = message as Record<string, unknown>;
+      const { method, params } = msg;
+
+      if (method === "subscription" && params) {
+        const paramsObj = params as Record<string, unknown>;
+        const { channel, data } = paramsObj;
+
+        if (typeof channel === "string") {
+          const subscription = this.subscriptions.get(channel);
+
+          if (subscription) {
+            subscription.callback(data);
+          } else {
+            // Check for order-related channels that might use different naming
+            if (channel.includes("user.orders") || channel.includes("orders")) {
+              // Try to find any order subscription
+              const orderSubscription = Array.from(
+                this.subscriptions.values(),
+              ).find(
+                (sub) =>
+                  sub.type === "orders" || sub.channel.includes("orders"),
+              );
+
+              if (orderSubscription) {
+                orderSubscription.callback(data);
+              }
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error handling subscription message:", error);
     }
   }
 

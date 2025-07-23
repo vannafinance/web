@@ -195,6 +195,16 @@ class DeriveAPIService {
     return this.orderOps.unsubscribeFromOrderUpdates();
   }
 
+  async subscribeToTradeUpdates(
+    callback: (tradeUpdate: any) => void,
+  ): Promise<void> {
+    return this.orderOps.subscribeToTradeUpdates(callback);
+  }
+
+  async unsubscribeFromTradeUpdates(): Promise<void> {
+    return this.orderOps.unsubscribeFromTradeUpdates();
+  }
+
   async getOrderBook(instrumentName: string, depth: number = 10): Promise<any> {
     return this.orderOps.getOrderBook(instrumentName, depth);
   }

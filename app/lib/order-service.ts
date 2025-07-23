@@ -80,6 +80,22 @@ export interface OrderStatusUpdate {
   details?: unknown;
 }
 
+export interface OrderHistoryItem {
+  orderId: string;
+  instrumentName: string;
+  direction: "buy" | "sell";
+  amount: number;
+  price: number;
+  orderType: "limit" | "market";
+  status: string;
+  createdAt: number;
+  updatedAt: number;
+  filledAmount: number;
+  averagePrice?: number;
+  fee: number;
+  subaccountId: number;
+}
+
 // Order service event types
 export type OrderUpdateCallback = (update: OrderStatusUpdate) => void;
 export type OrderStateCallback = (state: OrderState) => void;
@@ -93,6 +109,10 @@ export class OrderService {
   private orderUpdateListeners: OrderUpdateCallback[] = [];
   private orderStatusSubscription: (() => void) | null = null;
   private notificationUnsubscribe: (() => void) | null = null;
+
+  // Order history management
+  private orderHistory: Map<string, OrderHistoryItem> = new Map();
+  private orderHistoryListeners: ((history: OrderHistoryItem[]) => void)[] = [];
 
   constructor() {
     // Initialize order status tracking
@@ -135,6 +155,74 @@ export class OrderService {
         this.orderUpdateListeners.splice(index, 1);
       }
     };
+  }
+
+  /**
+   * Subscribe to order history updates
+   */
+  onOrderHistoryUpdate(
+    listener: (history: OrderHistoryItem[]) => void,
+  ): () => void {
+    this.orderHistoryListeners.push(listener);
+    return () => {
+      const index = this.orderHistoryListeners.indexOf(listener);
+      if (index > -1) {
+        this.orderHistoryListeners.splice(index, 1);
+      }
+    };
+  }
+
+  /**
+   * Get current order history
+   */
+  getOrderHistory(): OrderHistoryItem[] {
+    return Array.from(this.orderHistory.values()).sort(
+      (a, b) => b.updatedAt - a.updatedAt,
+    );
+  }
+
+  /**
+   * Get order history filtered by status
+   */
+  getOrderHistoryByStatus(status?: string): OrderHistoryItem[] {
+    const history = this.getOrderHistory();
+    if (!status) return history;
+    return history.filter(
+      (order) => order.status.toLowerCase() === status.toLowerCase(),
+    );
+  }
+
+  /**
+   * Get open orders (orders that can be cancelled)
+   */
+  getOpenOrders(): OrderHistoryItem[] {
+    const openStatuses = ["open", "pending", "partially_filled", "submitted"];
+    return this.getOrderHistory().filter((order) =>
+      openStatuses.includes(order.status.toLowerCase()),
+    );
+  }
+
+  /**
+   * Get completed orders
+   */
+  getCompletedOrders(): OrderHistoryItem[] {
+    const completedStatuses = [
+      "filled",
+      "completed",
+      "cancelled",
+      "rejected",
+      "expired",
+    ];
+    return this.getOrderHistory().filter((order) =>
+      completedStatuses.includes(order.status.toLowerCase()),
+    );
+  }
+
+  /**
+   * Get order by ID from history
+   */
+  getOrderById(orderId: string): OrderHistoryItem | null {
+    return this.orderHistory.get(orderId) || null;
   }
 
   /**
@@ -235,6 +323,9 @@ export class OrderService {
           result.details,
         );
         orderErrorHandler.notify(notification);
+
+        // Add to order history
+        this.addToOrderHistory(orderFormData, result, subaccountId);
 
         // Start tracking this order
         this.trackOrderStatus(result.orderId);
@@ -416,7 +507,50 @@ export class OrderService {
    */
   async cancelOrder(orderId: string): Promise<OrderResult> {
     try {
+      console.log(`🚫 Cancelling order: ${orderId}`);
+
+      // Check if order exists in history and is cancellable
+      const orderInHistory = this.getOrderById(orderId);
+      if (orderInHistory) {
+        const cancellableStatuses = [
+          "open",
+          "pending",
+          "partially_filled",
+          "submitted",
+        ];
+        if (
+          !cancellableStatuses.includes(orderInHistory.status.toLowerCase())
+        ) {
+          throw new Error(
+            `Order ${orderId} cannot be cancelled (status: ${orderInHistory.status})`,
+          );
+        }
+      }
+
       const result = await deriveAPI.cancelOrder(orderId);
+
+      // Update order status in history immediately
+      if (orderInHistory) {
+        const updatedOrder: OrderHistoryItem = {
+          ...orderInHistory,
+          status: "cancelling",
+          updatedAt: Date.now(),
+        };
+        this.orderHistory.set(orderId, updatedOrder);
+        this.notifyOrderHistoryListeners();
+      }
+
+      // Create success notification
+      const notification = orderErrorHandler.createSuccessNotification(
+        orderId,
+        {
+          message: `Order ${orderId} cancellation requested`,
+          type: "order_cancellation",
+        },
+      );
+      orderErrorHandler.notify(notification);
+
+      console.log(`✅ Order cancellation requested: ${orderId}`);
 
       return {
         success: true,
@@ -425,6 +559,19 @@ export class OrderService {
         timestamp: Date.now(),
       };
     } catch (error) {
+      console.error(`❌ Failed to cancel order ${orderId}:`, error);
+
+      // Create error notification
+      const notification = orderErrorHandler.createErrorNotification({
+        type: OrderErrorType.ORDER_CANCELLATION_FAILED,
+        message:
+          error instanceof Error ? error.message : "Failed to cancel order",
+        recoverable: true,
+        retryable: true,
+        orderId,
+      });
+      orderErrorHandler.notify(notification);
+
       return {
         success: false,
         orderId,
@@ -436,9 +583,52 @@ export class OrderService {
   }
 
   /**
-   * Get order history
+   * Cancel multiple orders
    */
-  async getOrderHistory(
+  async cancelMultipleOrders(orderIds: string[]): Promise<OrderResult[]> {
+    console.log(`🚫 Cancelling ${orderIds.length} orders:`, orderIds);
+
+    const results = await Promise.allSettled(
+      orderIds.map((orderId) => this.cancelOrder(orderId)),
+    );
+
+    return results.map((result, index) => {
+      if (result.status === "fulfilled") {
+        return result.value;
+      } else {
+        return {
+          success: false,
+          orderId: orderIds[index],
+          error:
+            result.reason instanceof Error
+              ? result.reason.message
+              : "Cancellation failed",
+          timestamp: Date.now(),
+        };
+      }
+    });
+  }
+
+  /**
+   * Cancel all open orders
+   */
+  async cancelAllOpenOrders(): Promise<OrderResult[]> {
+    const openOrders = this.getOpenOrders();
+    const orderIds = openOrders.map((order) => order.orderId);
+
+    if (orderIds.length === 0) {
+      console.log("No open orders to cancel");
+      return [];
+    }
+
+    console.log(`🚫 Cancelling all ${orderIds.length} open orders`);
+    return this.cancelMultipleOrders(orderIds);
+  }
+
+  /**
+   * Get order history from API
+   */
+  async getOrderHistoryFromAPI(
     subaccountId?: number,
     instrumentName?: string,
     limit: number = 50,
@@ -558,11 +748,16 @@ export class OrderService {
   private async initializeOrderStatusTracking(): Promise<void> {
     try {
       // Subscribe to order updates from the API
-      this.orderStatusSubscription = await deriveAPI.subscribeToOrderUpdates(
-        (orderUpdate: unknown) => {
-          this.handleOrderUpdate(orderUpdate);
-        },
-      );
+      await deriveAPI.subscribeToOrderUpdates((orderUpdate: unknown) => {
+        this.handleOrderUpdate(orderUpdate);
+      });
+
+      // Subscribe to trade updates for position refresh
+      await deriveAPI.subscribeToTradeUpdates((tradeUpdate: unknown) => {
+        this.handleTradeUpdate(tradeUpdate);
+      });
+
+      console.log("✅ Order status tracking initialized");
     } catch (error) {
       console.warn("Failed to initialize order status tracking:", error);
     }
@@ -577,6 +772,20 @@ export class OrderService {
       const update = this.parseOrderUpdate(orderUpdate);
 
       if (update) {
+        console.log("📊 Order status update:", {
+          orderId: update.orderId,
+          status: update.status,
+          timestamp: new Date(update.timestamp).toISOString(),
+        });
+
+        // Update order history
+        this.updateOrderInHistory(update);
+
+        // Check if order is completed and trigger position refresh
+        if (this.isOrderCompleted(update.status)) {
+          this.handleOrderCompletion(update);
+        }
+
         // Notify listeners
         this.orderUpdateListeners.forEach((listener) => {
           try {
@@ -592,6 +801,151 @@ export class OrderService {
   }
 
   /**
+   * Handle trade updates from WebSocket
+   */
+  private handleTradeUpdate(tradeUpdate: unknown): void {
+    try {
+      if (typeof tradeUpdate === "object" && tradeUpdate !== null) {
+        const trade = tradeUpdate as Record<string, unknown>;
+
+        console.log("💰 Trade executed:", {
+          tradeId: trade.tradeId,
+          orderId: trade.orderId,
+          instrument: trade.instrumentName,
+          amount: trade.amount,
+          price: trade.price,
+        });
+
+        // Trigger position refresh after trade execution
+        this.refreshPositionsAfterTrade(trade);
+
+        // Create trade notification
+        const notification = orderErrorHandler.createSuccessNotification(
+          String(trade.tradeId || "trade"),
+          {
+            message: `Trade executed: ${trade.amount} ${trade.instrumentName} at ${trade.price}`,
+            type: "trade_execution",
+          },
+        );
+        orderErrorHandler.notify(notification);
+      }
+    } catch (error) {
+      console.error("Failed to handle trade update:", error);
+    }
+  }
+
+  /**
+   * Check if order status indicates completion
+   */
+  private isOrderCompleted(status: string): boolean {
+    const completedStatuses = [
+      "filled",
+      "completed",
+      "partially_filled",
+      "cancelled",
+      "rejected",
+      "expired",
+    ];
+    return completedStatuses.includes(status.toLowerCase());
+  }
+
+  /**
+   * Handle order completion - refresh positions and balances
+   */
+  private async handleOrderCompletion(
+    orderUpdate: OrderStatusUpdate,
+  ): Promise<void> {
+    try {
+      console.log("🔄 Order completed, refreshing positions and balances...");
+
+      // Refresh positions
+      await this.refreshPositions();
+
+      // Refresh balances
+      await this.refreshBalances();
+
+      // Create completion notification
+      const isSuccessful = ["filled", "completed", "partially_filled"].includes(
+        orderUpdate.status.toLowerCase(),
+      );
+
+      if (isSuccessful) {
+        const notification = orderErrorHandler.createSuccessNotification(
+          orderUpdate.orderId,
+          {
+            message: `Order ${orderUpdate.orderId} ${orderUpdate.status}`,
+            type: "order_completion",
+          },
+        );
+        orderErrorHandler.notify(notification);
+      } else {
+        const notification = orderErrorHandler.createWarningNotification(
+          `Order ${orderUpdate.orderId} ${orderUpdate.status}`,
+          "Order Status",
+        );
+        orderErrorHandler.notify(notification);
+      }
+    } catch (error) {
+      console.error("Failed to handle order completion:", error);
+    }
+  }
+
+  /**
+   * Refresh positions after trade execution
+   */
+  private async refreshPositionsAfterTrade(
+    trade: Record<string, unknown>,
+  ): Promise<void> {
+    try {
+      // Small delay to ensure backend has processed the trade
+      setTimeout(async () => {
+        await this.refreshPositions();
+        await this.refreshBalances();
+      }, 1000);
+    } catch (error) {
+      console.error("Failed to refresh positions after trade:", error);
+    }
+  }
+
+  /**
+   * Refresh user positions
+   */
+  private async refreshPositions(): Promise<void> {
+    try {
+      // This would typically trigger a UI refresh
+      // For now, we just log the action
+      console.log("🔄 Refreshing positions...");
+
+      // In a real implementation, this might:
+      // 1. Fetch updated positions from the API
+      // 2. Update a global state store
+      // 3. Trigger UI components to re-render
+
+      // Example: await deriveAPI.getPositions();
+    } catch (error) {
+      console.error("Failed to refresh positions:", error);
+    }
+  }
+
+  /**
+   * Refresh user balances
+   */
+  private async refreshBalances(): Promise<void> {
+    try {
+      console.log("💰 Refreshing balances...");
+
+      // In a real implementation, this might:
+      // 1. Fetch updated account summary
+      // 2. Update balance displays in UI
+      // 3. Recalculate available trading power
+
+      // Example: await deriveAPI.getAccountSummary();
+    } catch (error) {
+      console.error("Failed to refresh balances:", error);
+    }
+  }
+
+  /**
    * Parse order update from WebSocket message
    */
   private parseOrderUpdate(orderUpdate: unknown): OrderStatusUpdate | null {
@@ -599,11 +953,62 @@ export class OrderService {
       if (typeof orderUpdate === "object" && orderUpdate !== null) {
         const update = orderUpdate as Record<string, unknown>;
 
+        // Handle different possible data structures
+        let orderData = update;
+
+        // If update has an 'order' property, use that
+        if (update.order) {
+          orderData = update.order as Record<string, unknown>;
+        }
+
+        // If update is an array, take the first item
+        if (Array.isArray(update) && update.length > 0) {
+          orderData = update[0] as Record<string, unknown>;
+        }
+
+        const orderId = String(
+          orderData.orderId || orderData.order_id || orderData.id || "",
+        );
+        const status = String(
+          orderData.status ||
+            orderData.order_state ||
+            orderData.state ||
+            "unknown",
+        );
+
+        // Extract additional order information
+        const instrumentName = String(
+          orderData.instrumentName || orderData.instrument_name || "",
+        );
+        const direction = String(orderData.direction || "");
+        const amount = orderData.amount
+          ? parseFloat(String(orderData.amount))
+          : undefined;
+        const price = orderData.price
+          ? parseFloat(String(orderData.price))
+          : undefined;
+        const filledAmount =
+          orderData.filledAmount || orderData.filled_amount
+            ? parseFloat(
+                String(orderData.filledAmount || orderData.filled_amount),
+              )
+            : 0;
+
         return {
-          orderId: String(update.order_id || update.id || ""),
-          status: String(update.order_state || update.status || "unknown"),
-          timestamp: Date.now(),
-          details: update,
+          orderId,
+          status,
+          timestamp:
+            typeof orderData.timestamp === "number"
+              ? orderData.timestamp
+              : Date.now(),
+          details: {
+            ...orderData,
+            instrumentName,
+            direction,
+            amount,
+            price,
+            filledAmount,
+          },
         };
       }
 
@@ -920,6 +1325,171 @@ export class OrderService {
   }
 
   /**
+   * Add order to history when submitted
+   */
+  private addToOrderHistory(
+    orderFormData: OrderFormData,
+    orderResult: OrderResult,
+    subaccountId: number,
+  ): void {
+    if (!orderResult.orderId) return;
+
+    const historyItem: OrderHistoryItem = {
+      orderId: orderResult.orderId,
+      instrumentName: orderFormData.selectedOption.instrument.instrument_name,
+      direction: orderFormData.direction,
+      amount: parseFloat(orderFormData.size),
+      price: parseFloat(orderFormData.limitPrice || "0"),
+      orderType: orderFormData.orderType,
+      status: "pending",
+      createdAt: orderResult.timestamp,
+      updatedAt: orderResult.timestamp,
+      filledAmount: 0,
+      averagePrice: undefined,
+      fee: 0,
+      subaccountId,
+    };
+
+    this.orderHistory.set(orderResult.orderId, historyItem);
+    this.notifyOrderHistoryListeners();
+  }
+
+  /**
+   * Update order in history from status update
+   */
+  private updateOrderInHistory(update: OrderStatusUpdate): void {
+    const existingOrder = this.orderHistory.get(update.orderId);
+
+    if (existingOrder) {
+      // Update existing order
+      const updatedOrder: OrderHistoryItem = {
+        ...existingOrder,
+        status: update.status,
+        updatedAt: update.timestamp,
+      };
+
+      // Update additional fields from details if available
+      if (update.details && typeof update.details === "object") {
+        const details = update.details as Record<string, unknown>;
+
+        if (details.filledAmount && typeof details.filledAmount === "number") {
+          updatedOrder.filledAmount = details.filledAmount;
+        }
+
+        if (details.averagePrice && typeof details.averagePrice === "number") {
+          updatedOrder.averagePrice = details.averagePrice;
+        }
+
+        if (details.fee && typeof details.fee === "number") {
+          updatedOrder.fee = details.fee;
+        }
+      }
+
+      this.orderHistory.set(update.orderId, updatedOrder);
+      this.notifyOrderHistoryListeners();
+    } else {
+      // Create new order entry from update (in case we missed the initial submission)
+      if (update.details && typeof update.details === "object") {
+        const details = update.details as Record<string, unknown>;
+
+        const historyItem: OrderHistoryItem = {
+          orderId: update.orderId,
+          instrumentName: String(details.instrumentName || ""),
+          direction: String(details.direction || "buy") as "buy" | "sell",
+          amount: typeof details.amount === "number" ? details.amount : 0,
+          price: typeof details.price === "number" ? details.price : 0,
+          orderType: "limit", // Default assumption
+          status: update.status,
+          createdAt: update.timestamp,
+          updatedAt: update.timestamp,
+          filledAmount:
+            typeof details.filledAmount === "number" ? details.filledAmount : 0,
+          averagePrice:
+            typeof details.averagePrice === "number"
+              ? details.averagePrice
+              : undefined,
+          fee: typeof details.fee === "number" ? details.fee : 0,
+          subaccountId: 0, // Default assumption
+        };
+
+        this.orderHistory.set(update.orderId, historyItem);
+        this.notifyOrderHistoryListeners();
+      }
+    }
+  }
+
+  /**
+   * Notify order history listeners
+   */
+  private notifyOrderHistoryListeners(): void {
+    const history = this.getOrderHistory();
+    this.orderHistoryListeners.forEach((listener) => {
+      try {
+        listener(history);
+      } catch (error) {
+        console.error("Error in order history listener:", error);
+      }
+    });
+  }
+
+  /**
+   * Load order history from API
+   */
+  async loadOrderHistory(
+    subaccountId?: number,
+    instrumentName?: string,
+    limit: number = 50,
+  ): Promise<void> {
+    try {
+      const history = await this.getOrderHistoryFromAPI(
+        subaccountId,
+        instrumentName,
+        limit,
+      );
+
+      // Convert API response to OrderHistoryItem format
+      if (Array.isArray(history)) {
+        history.forEach((order: any) => {
+          const historyItem: OrderHistoryItem = {
+            orderId: order.order_id || order.id,
+            instrumentName: order.instrument_name || "",
+            direction: order.direction || "buy",
+            amount: parseFloat(order.amount || "0"),
+            price: parseFloat(order.price || "0"),
+            orderType: order.order_type || "limit",
+            status: order.order_state || order.status || "unknown",
+            createdAt: order.creation_timestamp || Date.now(),
+            updatedAt:
+              order.last_update_timestamp ||
+              order.creation_timestamp ||
+              Date.now(),
+            filledAmount: parseFloat(order.filled_amount || "0"),
+            averagePrice: order.average_price
+              ? parseFloat(order.average_price)
+              : undefined,
+            fee: parseFloat(order.fee || "0"),
+            subaccountId: order.subaccount_id || 0,
+          };
+
+          this.orderHistory.set(historyItem.orderId, historyItem);
+        });
+
+        this.notifyOrderHistoryListeners();
+      }
+    } catch (error) {
+      console.error("Failed to load order history:", error);
+    }
+  }
+
+  /**
+   * Clear order history
+   */
+  clearOrderHistory(): void {
+    this.orderHistory.clear();
+    this.notifyOrderHistoryListeners();
+  }
+
+  /**
    * Cleanup resources
    */
   destroy(): void {
@@ -938,6 +1508,10 @@ export class OrderService {
     // Clear listeners
     this.stateChangeListeners = [];
     this.orderUpdateListeners = [];
+    this.orderHistoryListeners = [];
+
+    // Clear order history
+    this.orderHistory.clear();
   }
 }
 

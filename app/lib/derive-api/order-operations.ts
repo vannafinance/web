@@ -202,18 +202,32 @@ export class OrderOperations {
 
       const subscriptionId = "user.orders";
 
+      // Enhanced callback that parses order updates
+      const enhancedCallback = (data: any) => {
+        try {
+          const parsedUpdate = this.parseOrderStatusUpdate(data);
+          if (parsedUpdate) {
+            callback(parsedUpdate);
+          }
+        } catch (error) {
+          console.error("Error parsing order update:", error);
+          // Still call the original callback with raw data as fallback
+          callback(data);
+        }
+      };
+
       // Check if subscription already exists
       if (this.wsManager.hasSubscription(subscriptionId)) {
         console.log("Already subscribed to order updates, updating callback");
         const existingSubscription =
           this.wsManager.getSubscription(subscriptionId)!;
-        existingSubscription.callback = callback;
+        existingSubscription.callback = enhancedCallback;
         return;
       }
 
       const subscription = {
         channel: "user.orders",
-        callback,
+        callback: enhancedCallback,
         instrumentName: "orders",
         type: "orders",
       };
@@ -229,6 +243,65 @@ export class OrderOperations {
     } catch (error) {
       console.error("❌ Failed to subscribe to order updates:", error);
       throw error;
+    }
+  }
+
+  /**
+   * Parse order status update from WebSocket message
+   */
+  private parseOrderStatusUpdate(data: any): any {
+    try {
+      if (!data) return null;
+
+      // Handle different possible data structures
+      let orderData = data;
+
+      // If data has an 'order' property, use that
+      if (data.order) {
+        orderData = data.order;
+      }
+
+      // If data is an array, take the first item
+      if (Array.isArray(data) && data.length > 0) {
+        orderData = data[0];
+      }
+
+      // Extract order information
+      const orderId = orderData.order_id || orderData.id;
+      const status =
+        orderData.order_state || orderData.status || orderData.state;
+      const instrumentName = orderData.instrument_name;
+      const direction = orderData.direction;
+      const amount = orderData.amount
+        ? parseFloat(orderData.amount)
+        : undefined;
+      const price = orderData.price ? parseFloat(orderData.price) : undefined;
+      const filledAmount = orderData.filled_amount
+        ? parseFloat(orderData.filled_amount)
+        : 0;
+      const averagePrice = orderData.average_price
+        ? parseFloat(orderData.average_price)
+        : undefined;
+      const fee = orderData.fee ? parseFloat(orderData.fee) : 0;
+      const timestamp =
+        orderData.creation_timestamp || orderData.timestamp || Date.now();
+
+      return {
+        orderId,
+        status,
+        instrumentName,
+        direction,
+        amount,
+        price,
+        filledAmount,
+        averagePrice,
+        fee,
+        timestamp,
+        rawData: orderData,
+      };
+    } catch (error) {
+      console.error("Failed to parse order status update:", error);
+      return null;
     }
   }
 
@@ -257,6 +330,124 @@ export class OrderOperations {
       console.log("✅ Unsubscribed from order updates");
     } catch (error) {
       console.error("❌ Failed to unsubscribe from order updates:", error);
+    }
+  }
+
+  /**
+   * Subscribe to order fills and trade updates
+   */
+  async subscribeToTradeUpdates(
+    callback: (tradeUpdate: any) => void,
+  ): Promise<void> {
+    try {
+      await this.authMethods.ensureAuthenticated();
+      await this.wsManager.ensureConnection();
+
+      const subscriptionId = "user.trades";
+
+      // Enhanced callback that parses trade updates
+      const enhancedCallback = (data: any) => {
+        try {
+          const parsedTrade = this.parseTradeUpdate(data);
+          if (parsedTrade) {
+            callback(parsedTrade);
+          }
+        } catch (error) {
+          console.error("Error parsing trade update:", error);
+          callback(data);
+        }
+      };
+
+      // Check if subscription already exists
+      if (this.wsManager.hasSubscription(subscriptionId)) {
+        console.log("Already subscribed to trade updates, updating callback");
+        const existingSubscription =
+          this.wsManager.getSubscription(subscriptionId)!;
+        existingSubscription.callback = enhancedCallback;
+        return;
+      }
+
+      const subscription = {
+        channel: "user.trades",
+        callback: enhancedCallback,
+        instrumentName: "trades",
+        type: "trades",
+      };
+
+      this.wsManager.addSubscription(subscriptionId, subscription);
+
+      // Send subscription request
+      await this.authMethods.sendAuthenticatedRequest("private/subscribe", {
+        channels: ["user.trades"],
+      });
+
+      console.log("✅ Subscribed to trade updates");
+    } catch (error) {
+      console.error("❌ Failed to subscribe to trade updates:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Parse trade update from WebSocket message
+   */
+  private parseTradeUpdate(data: any): any {
+    try {
+      if (!data) return null;
+
+      // Handle different possible data structures
+      let tradeData = data;
+
+      if (data.trade) {
+        tradeData = data.trade;
+      }
+
+      if (Array.isArray(data) && data.length > 0) {
+        tradeData = data[0];
+      }
+
+      return {
+        tradeId: tradeData.trade_id || tradeData.id,
+        orderId: tradeData.order_id,
+        instrumentName: tradeData.instrument_name,
+        direction: tradeData.direction,
+        amount: tradeData.amount ? parseFloat(tradeData.amount) : 0,
+        price: tradeData.price ? parseFloat(tradeData.price) : 0,
+        fee: tradeData.fee ? parseFloat(tradeData.fee) : 0,
+        timestamp: tradeData.timestamp || Date.now(),
+        rawData: tradeData,
+      };
+    } catch (error) {
+      console.error("Failed to parse trade update:", error);
+      return null;
+    }
+  }
+
+  /**
+   * Unsubscribe from trade updates
+   */
+  async unsubscribeFromTradeUpdates(): Promise<void> {
+    try {
+      const subscriptionId = "user.trades";
+
+      if (!this.wsManager.hasSubscription(subscriptionId)) {
+        console.log("No active trade updates subscription found");
+        return;
+      }
+
+      if (
+        this.wsManager.isConnected() &&
+        this.authMethods.isUserAuthenticated()
+      ) {
+        await this.authMethods.sendAuthenticatedRequest("private/unsubscribe", {
+          channels: ["user.trades"],
+        });
+      }
+
+      this.wsManager.removeSubscription(subscriptionId);
+      console.log("✅ Unsubscribed from trade updates");
+    } catch (error) {
+      console.error("❌ Failed to unsubscribe from trade updates:", error);
     }
   }
 

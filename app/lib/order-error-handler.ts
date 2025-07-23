@@ -8,6 +8,7 @@ export enum OrderErrorType {
   NETWORK_ERROR = "NETWORK_ERROR",
   INSUFFICIENT_BALANCE = "INSUFFICIENT_BALANCE",
   ORDER_REJECTED = "ORDER_REJECTED",
+  ORDER_CANCELLATION_FAILED = "ORDER_CANCELLATION_FAILED",
   UNKNOWN_ERROR = "UNKNOWN_ERROR",
 }
 
@@ -17,6 +18,7 @@ export interface OrderError {
   recoverable: boolean;
   retryable: boolean;
   field?: string;
+  orderId?: string;
 }
 
 export interface OrderRecoveryAction {

@@ -20,6 +20,7 @@ import { useWeb3React } from "@web3-react/core";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import PriceBox from "@/app/ui/components/price-box";
+import OrderStatusDisplay from "@/app/ui/components/order-status-display";
 import React from "react";
 import {
   orderService,
@@ -150,7 +151,7 @@ const filterOptionsByDate = (
 ): OptionData[] => {
   if (!selectedDate) return optionChainData;
 
-  return optionChainData.filter((option: any) => {
+  return optionChainData.filter((option: unknown) => {
     if (option.instrument?.instrument_name) {
       const instrumentDate = parseInstrumentDate(
         option.instrument.instrument_name,
@@ -479,6 +480,12 @@ export default function Page() {
     message: "",
   });
 
+  // Real-time order status tracking
+  const [recentOrderUpdates, setRecentOrderUpdates] = useState<
+    OrderStatusUpdate[]
+  >([]);
+  const [showOrderHistory, setShowOrderHistory] = useState(false);
+
   // const updateLabelPosition = () => {
   //   if (tableRef.current) {
   //     const lowerStrike = Math.floor(currentPrice / 100) * 100;
@@ -769,11 +776,27 @@ export default function Page() {
 
     const unsubscribeOrderUpdates = orderService.onOrderUpdate((update) => {
       console.log("Order status update:", update);
+
+      // Add to recent updates list (keep last 10 updates)
+      setRecentOrderUpdates((prev) => {
+        const newUpdates = [
+          update,
+          ...prev.filter((u) => u.orderId !== update.orderId),
+        ];
+        return newUpdates.slice(0, 10);
+      });
+
       // Handle real-time order status updates
       if (update.status === "filled" || update.status === "completed") {
         setOrderFeedback({
           type: "success",
           message: `Order ${update.orderId} has been filled`,
+          orderId: update.orderId,
+        });
+      } else if (update.status === "partially_filled") {
+        setOrderFeedback({
+          type: "success",
+          message: `Order ${update.orderId} partially filled`,
           orderId: update.orderId,
         });
       } else if (
@@ -1710,6 +1733,116 @@ export default function Page() {
                 <div className="w-3 h-3 border border-blue-300 border-t-blue-600 rounded-full animate-spin mr-2"></div>
                 <span className="font-medium">Authenticating...</span>
               </div>
+            </div>
+          )}
+
+          {/* Order Management Section */}
+          <div className="mb-4">
+
+            {/* Order Status Display */}
+            <OrderStatusDisplay
+              className="mb-2"
+              maxItems={3}
+              showActions={true}
+            />
+          </div>
+
+          {/* Real-time order status updates */}
+          {recentOrderUpdates.length > 0 && (
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                  Recent Orders
+                </span>
+                <button
+                  onClick={() => setShowOrderHistory(!showOrderHistory)}
+                  className="text-xs text-purple hover:text-purple-600 dark:hover:text-purple-400"
+                >
+                  {showOrderHistory ? "Hide" : "Show"} (
+                  {recentOrderUpdates.length})
+                </button>
+              </div>
+
+              {showOrderHistory && (
+                <div className="max-h-48 overflow-y-auto space-y-2">
+                  {recentOrderUpdates.map((update, index) => {
+                    const statusColor =
+                      update.status === "filled" ||
+                      update.status === "completed"
+                        ? "text-green-600 dark:text-green-400"
+                        : update.status === "partially_filled"
+                          ? "text-yellow-600 dark:text-yellow-400"
+                          : update.status === "rejected" ||
+                              update.status === "cancelled"
+                            ? "text-red-600 dark:text-red-400"
+                            : "text-blue-600 dark:text-blue-400";
+
+                    const statusBg =
+                      update.status === "filled" ||
+                      update.status === "completed"
+                        ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
+                        : update.status === "partially_filled"
+                          ? "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800"
+                          : update.status === "rejected" ||
+                              update.status === "cancelled"
+                            ? "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
+                            : "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800";
+
+                    return (
+                      <div
+                        key={`${update.orderId}-${index}`}
+                        className={`p-2 rounded-md text-xs border ${statusBg}`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <div
+                              className={`w-1.5 h-1.5 rounded-full mr-2 ${statusColor.replace("text-", "bg-")}`}
+                            ></div>
+                            <span className="font-medium">
+                              {update.orderId.slice(0, 8)}...
+                            </span>
+                          </div>
+                          <span className={`font-medium ${statusColor}`}>
+                            {update.status.toUpperCase()}
+                          </span>
+                        </div>
+
+                        {update.details && (
+                          <div className="mt-1 text-neutral-600 dark:text-neutral-400">
+                            {update.details.instrumentName && (
+                              <div>
+                                {update.details.direction}{" "}
+                                {update.details.amount}{" "}
+                                {update.details.instrumentName}
+                              </div>
+                            )}
+                            {update.details.price && (
+                              <div>
+                                @ $
+                                {typeof update.details.price === "number"
+                                  ? update.details.price.toFixed(2)
+                                  : update.details.price}
+                              </div>
+                            )}
+                            {update.details.filledAmount &&
+                              update.details.filledAmount > 0 && (
+                                <div>
+                                  Filled: {update.details.filledAmount}
+                                  {update.details.averagePrice &&
+                                    ` @ $${update.details.averagePrice.toFixed(2)}`}
+                                </div>
+                              )}
+                          </div>
+                        )}
+
+                        <div className="mt-1 text-neutral-500 text-xs">
+                          {new Date(update.timestamp).toLocaleTimeString()}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
 
