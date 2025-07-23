@@ -21,8 +21,9 @@ export function middleware(request: NextRequest) {
   const network = request.cookies.get("network")?.value
   const isTradeurl = request.nextUrl.pathname.startsWith("/trade")
   const isFarmPage = request.nextUrl.pathname === "/trade/farm"
+  const isFarmDetailedPage = request.nextUrl.pathname.startsWith("/trade/farm/")
 
-  if(network==="Katana" && isTradeurl && !isFarmPage){
+  if(network==="Katana" && isTradeurl && !isFarmPage && !isFarmDetailedPage){
     const url = request.nextUrl.clone()
     url.pathname = "/"
     return NextResponse.redirect(url)
