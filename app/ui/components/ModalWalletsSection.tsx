@@ -26,11 +26,10 @@ export default function ModalWalletsSection({
         {wallets?.map((section, idx) => (
           <div key={section.section} className="mb-2">
             <div
-              className={`${
-                section.section === "Installed"
+              className={`${section.section === "Installed"
                   ? " text-blue-500"
                   : "text-neutral-500"
-              } text-xs font-semibold  uppercase mb-1 mt-3`}
+                } text-xs font-semibold  uppercase mb-1 mt-3`}
             >
               {section.section}
             </div>

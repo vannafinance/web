@@ -1,5 +1,7 @@
 "use client";
 
+
+
 import OptionPayoffChart from "@/app/ui/dashboard/option-payoff-chart";
 import { SimpleTableComponent } from "@/app/ui/dashboard/simple-table";
 import {

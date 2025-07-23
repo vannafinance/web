@@ -1,15 +1,26 @@
 // Utility for detecting installed wallet extensions and returning wallet options for the modal
 
+interface EthereumProvider {
+  isMetaMask?: boolean;
+}
+
+interface Window {
+  ethereum?: EthereumProvider;
+}
+
 // Returns an array of wallet sections (Installed, Not Installed, Others) with wallet info for the modal
 export const detectInstalledWallets = (): {
   section: string;
   items: WalletItem[];
 }[] => {
-  let installed: WalletItem[] = [];
-  let notInstalled: WalletItem[] = [];
+  const installed: WalletItem[] = [];
+  const notInstalled: WalletItem[] = [];
 
   // Detect MetaMask extension
-  if (typeof window !== "undefined" && (window as any).ethereum?.isMetaMask) {
+  if (
+    typeof window !== "undefined" &&
+    (window as Window).ethereum?.isMetaMask
+  ) {
     installed.push({
       icon: "/metamask-icon.svg",
       name: "MetaMask",
@@ -47,7 +58,7 @@ export const detectInstalledWallets = (): {
     },
   ];
 
-  let walletSections: { section: string; items: WalletItem[] }[] = [];
+  const walletSections: { section: string; items: WalletItem[] }[] = [];
 
   // Add installed wallets section if any
   if (installed.length > 0) {
