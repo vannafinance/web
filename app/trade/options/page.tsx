@@ -950,6 +950,20 @@ export default function Page() {
         isConnected: true,
       };
 
+      // First authenticate with Derive API using the wallet
+      console.log("Authenticating with Derive API...");
+      try {
+        await authenticationService.authenticate(walletProvider);
+        console.log("Authentication successful");
+      } catch (authError) {
+        console.error("Authentication failed:", authError);
+        throw new Error(
+          `Authentication failed: ${authError instanceof Error ? authError.message : "Unknown error"}`,
+        );
+      }
+
+      // Now submit the order
+      console.log("Submitting order...");
       await orderService.submitOrder(orderData, walletProvider);
     } catch (error) {
       console.error("Order submission failed:", error);
