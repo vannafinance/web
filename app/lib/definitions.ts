@@ -7,6 +7,13 @@ interface FeatureCardProps {
   isSoon?: boolean;
 }
 
+interface WalletItem {
+  name: string;
+  icon: string;
+  onClick: string | null;
+  label?: string;
+}
+
 interface NetworkOption {
   id: string;
   name: string;

@@ -19,6 +19,7 @@ import { ethers } from "ethers";
 import { opAddressList } from "@/app/lib/web3-constants";
 import Faucet from "../../abi/vanna/v1/out/Faucet.sol/Faucet.json";
 import Loader from "../components/loader";
+import WalletConnectModal from "../components/WalletConnectModal";
 
 declare global {
   interface Window {
@@ -34,6 +35,7 @@ export default function NavbarButtons() {
   const { account, activate, deactivate, chainId, library } = useWeb3React();
   const [disable, setDisable] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [walletModalOpen, setWalletModalOpen] = useState(false);
 
   const walletConnect = useCallback(async () => {
     try {
@@ -263,9 +265,7 @@ export default function NavbarButtons() {
       {!account && (
         <button
           className="bg-gradient-to-r from-gradient-1 to-gradient-2 w-40 h-11 text-baseWhite rounded-lg text-base font-semibold"
-          onClick={() => {
-            walletConnect();
-          }}
+          onClick={() => setWalletModalOpen(true)}
         >
           Connect Wallet
         </button>
@@ -280,6 +280,15 @@ export default function NavbarButtons() {
           {buttonText}
         </button>
       )}
+
+      <WalletConnectModal
+        open={walletModalOpen}
+        onClose={() => setWalletModalOpen(false)}
+        onMetaMask={() => {
+          setWalletModalOpen(false);
+          walletConnect();
+        }}
+      />
 
       <div className="fixed bottom-5 left-5 w-72">
         {notifications.map(({ id, type, message }) => (

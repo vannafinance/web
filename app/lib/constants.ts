@@ -37,18 +37,17 @@ export const networkOptions = [
     chainId: "0xB67D2",
     rpcUrl: "https://rpc.katana.network",
     blockExplorerUrl: "https://explorer.katanarpc.com/",
-  }
-
+  },
 ];
 
 export const BASE_NETWORK = "base";
 export const ARBITRUM_NETWORK = "arbitrum";
 export const OPTIMISM_NETWORK = "optimism";
-export const KATANA_NETWORK = 'katana'
+export const KATANA_NETWORK = "katana";
 
 export const SECS_PER_YEAR = 31556952;
 export const FEES = 0.01;
 export const oneMonthTimestampInterval = 2629743;
 export const referralCode =
   "0x0000000000000000000000000000000000000000000000000000000000000000";
-export const percentageClickValues = [10, 25, 50, 100]
+export const percentageClickValues = [10, 25, 50, 100];
