@@ -7,6 +7,7 @@ import { Web3Providers } from "./web3-providers";
 import { NetworkProvider } from "./context/network-context";
 import StoreProvider from "./store-provider";
 import { DarkModeProvider } from "./ui/header/use-dark-mode";
+import AuthTestLoader from "./components/auth-test-loader";
 
 export default function RootLayout({
   children,
@@ -20,6 +21,7 @@ export default function RootLayout({
           <NetworkProvider>
             <Web3Providers>
               <DarkModeProvider>
+                <AuthTestLoader />
                 <Navbar />
                 {children}
               </DarkModeProvider>
