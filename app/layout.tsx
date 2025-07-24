@@ -7,6 +7,7 @@ import { Web3Providers } from "./web3-providers";
 import { NetworkProvider } from "./context/network-context";
 import StoreProvider from "./store-provider";
 import { DarkModeProvider } from "./ui/header/use-dark-mode";
+import { StellarProvider } from "./context/stellar-context";
 
 export default function RootLayout({
   children,
@@ -19,10 +20,12 @@ export default function RootLayout({
         <StoreProvider>
           <NetworkProvider>
             <Web3Providers>
+              <StellarProvider>
               <DarkModeProvider>
                 <Navbar />
                 {children}
-              </DarkModeProvider>
+                </DarkModeProvider>
+              </StellarProvider>
             </Web3Providers>
           </NetworkProvider>
         </StoreProvider>

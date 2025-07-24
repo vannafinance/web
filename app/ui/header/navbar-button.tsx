@@ -19,6 +19,9 @@ import { ethers } from "ethers";
 import { opAddressList } from "@/app/lib/web3-constants";
 import Faucet from "../../abi/vanna/v1/out/Faucet.sol/Faucet.json";
 import Loader from "../components/loader";
+import { useStellar } from "@/app/context/stellar-context";
+import ConnectWalletModal from "../ConnectWalletModal";
+import { get } from "http";
 
 declare global {
   interface Window {
@@ -29,11 +32,13 @@ declare global {
 export default function NavbarButtons() {
   const { toggleDarkMode } = useDarkMode();
   const { currentNetwork } = useNetwork();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [buttonText, setButtonText] = useState("");
   const { account, activate, deactivate, chainId, library } = useWeb3React();
   const [disable, setDisable] = useState(true);
   const [loading, setLoading] = useState(false);
+  const stellar = useStellar();
 
   const walletConnect = useCallback(async () => {
     try {
@@ -45,6 +50,27 @@ export default function NavbarButtons() {
       errorHandlingForConnectWallet(e);
     }
   }, [activate]);
+
+  const walletDisconnect = useCallback(async () => {
+    try {
+      deactivate();
+      localStorage.removeItem("isWalletConnected");
+      addNotification("info", "Wallet disconnected successfully.");
+    } catch (error) {
+      console.error("Error disconnecting wallet:", error);
+      addNotification("error", "Error disconnecting wallet.");
+    }
+  }, [deactivate]);
+
+  const handleDisconnect = () => {
+    if (account) {
+      wallectDisconnect();
+    }
+    if (stellar.publicKey) {
+      stellar.disconnect();
+      addNotification("info", "Stellar wallet disconnected.");
+    }
+  };
 
   const checkNetwork = async () => {
     if (chainId && !allowedChainIds.includes(chainId)) {
@@ -229,7 +255,11 @@ export default function NavbarButtons() {
     setLoading(false);
   };
 
+  const connectedAddress = account || stellar.publicKey;
+  const isWalletConnected = !!connectedAddress;
+
   return (
+    <>
     <div className="flex flex-row gap-2 items-center justify-center my-auto dark:bg-baseDark">
       {loading ? (
         <div className="w-16 border border-purple rounded-md flex justify-center p-1">
@@ -260,26 +290,29 @@ export default function NavbarButtons() {
       <div>
         <NetworkDropdown />
       </div>
-      {!account && (
+
+      {!isWalletConnected ? (
         <button
           className="bg-gradient-to-r from-gradient-1 to-gradient-2 w-40 h-11 text-baseWhite rounded-lg text-base font-semibold"
-          onClick={() => {
-            walletConnect();
-          }}
+          onClick={() => setIsModalOpen(true)}
         >
           Connect Wallet
         </button>
-      )}
-      {account && (
+      ) : (
         <button
-          className="bg-gradient-to-r from-gradient-1 to-gradient-2 w-40 h-11 text-baseWhite rounded-lg text-base font-semibold"
-          onClick={() => {
-            walletButtonClick();
-          }}
+          className="bg-gray-700 w-auto px-4 h-11 text-white rounded-lg text-base font-semibold flex items-center justify-center"
+          onClick={handleDisconnect}
         >
-          {buttonText}
+          {getShortenedAddress(connectedAddress)}
         </button>
       )}
+      </div>
+      <ConnectWalletModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConnectEVM={walletConnect}
+        onConnectStellar={stellar.connect}
+      />
 
       <div className="fixed bottom-5 left-5 w-72">
         {notifications.map(({ id, type, message }) => (
@@ -292,6 +325,6 @@ export default function NavbarButtons() {
           />
         ))}
       </div>
-    </div>
+    </>
   );
 }
