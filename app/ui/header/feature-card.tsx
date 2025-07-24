@@ -8,6 +8,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
   subtitle,
   isSoon,
 }) => {
+  
   return (
     <div className="bg-white dark:bg-baseDark rounded-lg px-2 py-3 flex items-start space-x-2 hover:bg-neutral-100 dark:hover:bg-baseDarkComplementary">
       <Image

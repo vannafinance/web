@@ -4,7 +4,14 @@ interface FeatureCardProps {
   icon: string;
   title: string;
   subtitle: string;
-  isSoon: boolean;
+  isSoon?: boolean;
+}
+
+interface WalletItem {
+  name: string;
+  icon: string;
+  onClick: string | null;
+  label?: string;
 }
 
 interface NetworkOption {
@@ -14,6 +21,23 @@ interface NetworkOption {
   chainId: string;
   rpcUrl: string;
   blockExplorerUrl: string;
+}
+
+interface PoolsType {
+  id: string;
+  name: string;
+  icons: string[];
+  tvl: string;
+  tvlChange: number;
+  vol24h: string;
+  vol24hChange: number;
+  vol1w: string;
+  vol1wChange: number;
+  tx24h: number;
+  apr: string;
+  protocol_version: string;
+  swap_fee: number;
+  isSoon: boolean;
 }
 
 interface TabProps {
@@ -230,7 +254,7 @@ interface NavItem {
   count: number | null;
   component: React.ComponentType<any>; // Accepts any component
   props?: Record<string, any>; // Optional props
-};
+}
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 interface PositionSectionProps {

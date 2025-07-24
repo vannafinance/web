@@ -19,7 +19,8 @@ import OpMarkPrice from "../../abi/vanna/v1/out/OpMarkPrice.sol/OpMarkPrice.json
 import OpIndexPrice from "../../abi/vanna/v1/out/OpIndexPrice.sol/OpIndexPrice.json";
 import { ceilWithPrecision } from "@/app/lib/helper";
 
-export default function Page() {
+
+function Future() {
   const { library } = useWeb3React();
   const { currentNetwork } = useNetwork();
 
@@ -281,3 +282,6 @@ export default function Page() {
     </div>
   );
 }
+
+
+export default Future

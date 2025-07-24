@@ -4,7 +4,7 @@ import { CaretDown, CaretUp } from "@phosphor-icons/react";
 import { menuLinks, tradeMenuSubLinks } from "@/app/lib/static-values";
 import Image from "next/image";
 
-export default function BurgerMenu({ onClose }: BurgerMenuProps) {
+export default function BurgerMenu({ onClose, onConnectWallet }: BurgerMenuProps & { onConnectWallet?: () => void }) {
   const [isTradeExpanded, setIsTradeExpanded] = useState(false);
 
   return (
@@ -57,6 +57,15 @@ export default function BurgerMenu({ onClose }: BurgerMenuProps) {
               )}
             </div>
           ))}
+        </div>
+        {/* Connect Wallet button at the bottom */}
+        <div className="p-4">
+          <button
+            className="w-full bg-gradient-to-r from-gradient-1 to-gradient-2 text-baseWhite rounded-lg text-base font-semibold py-3"
+            onClick={onConnectWallet}
+          >
+            Connect Wallet
+          </button>
         </div>
       </div>
     </div>

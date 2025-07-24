@@ -42,7 +42,7 @@ import { formatUSD } from "@/app/lib/number-format-helper";
 import CreateSmartAccountModal from "@/app/ui/components/create-smart-account-model";
 import Notification from "@/app/ui/components/notification";
 
-export default function Page() {
+function Spot() {
   const { account, library } = useWeb3React();
   const [activeAccount, setActiveAccount] = useState<string | undefined>();
   const { currentNetwork } = useNetwork();
@@ -867,3 +867,6 @@ export default function Page() {
     </div>
   );
 }
+
+
+export default Spot

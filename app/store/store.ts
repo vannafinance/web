@@ -2,10 +2,12 @@
 
 import { configureStore } from "@reduxjs/toolkit";
 import poolsReducer from "./pools-slice";
+import farmReducer from "./farm-slice"
 
 export const store = configureStore({
   reducer: {
     pools: poolsReducer,
+    farm:farmReducer
   },
 });
 
