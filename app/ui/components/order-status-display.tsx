@@ -10,7 +10,7 @@ import {
   CheckCircle,
   Clock,
   XCircle,
-  AlertCircle,
+  Warning,
   Trash,
 } from "@phosphor-icons/react";
 
@@ -120,7 +120,7 @@ const OrderStatusDisplay: React.FC<OrderStatusDisplayProps> = ({
       case "rejected":
       case "expired":
         return {
-          icon: AlertCircle,
+          icon: Warning,
           color: "text-red-500",
           bgColor: "bg-red-100 dark:bg-red-900/20",
         };

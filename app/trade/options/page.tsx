@@ -9,13 +9,14 @@ import {
   subscribeToOptionChainUpdates,
   unsubscribeFromOptionChainUpdates,
   clearOptionCache,
+  subscribeToFuturesTicker,
+  getFuturesInstrumentName,
 } from "@/app/lib/derive-api";
 import FutureDropdown from "@/app/ui/future/future-dropdown";
 // import OptionSlider from "@/app/ui/options/option-slider";
 import PositionsSection from "@/app/ui/options/positions-section";
 import { CaretDown, Plus, PlusSquare, X } from "@phosphor-icons/react";
 import { TrendDown, TrendUp } from "@phosphor-icons/react/dist/ssr";
-import axios from "axios";
 import { useWeb3React } from "@web3-react/core";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -234,6 +235,9 @@ export default function Page() {
   });
   const [isLoadingStats, setIsLoadingStats] = useState(true);
   const [statsError, setStatsError] = useState<string | null>(null);
+
+  // Add state for live ticker data
+  const [liveTicker, setLiveTicker] = useState<any>(null);
 
   const [selectedOrderType, setSelectedOrderType] = useState<Option>(
     orderTypeOptions[0],
@@ -515,51 +519,29 @@ export default function Page() {
   //   return () => window.removeEventListener('resize', updateLabelPosition);
   // }, [currentPrice]);
 
-  const getPriceFromAssetsArray = (
-    tokenSymbol: string,
-    assets: MuxPriceFetchingResponseObject[],
-  ) => {
-    tokenSymbol =
-      tokenSymbol === "WETH" || tokenSymbol === "WBTC"
-        ? tokenSymbol.substring(1)
-        : tokenSymbol;
-    for (const asset of assets) {
-      if (asset.symbol === tokenSymbol) {
-        return asset.price;
-      }
-    }
-    return 1;
-  };
-
-  const getAssetPrice = async (assetName = selectedPairRef.current.value) => {
-    const rsp = await axios.get("https://app.mux.network/api/liquidityAsset", {
-      timeout: 10 * 1000,
-    });
-
-    const price = getPriceFromAssetsArray(assetName, rsp.data.assets);
-    setMarketPrice(price);
-
-    return price;
-  };
-
   useEffect(() => {
     selectedPairRef.current = selectedPair;
   }, [selectedPair]);
 
-  // Asset price polling for market price updates
+  // Subscribe to live ticker data for market price updates
   useEffect(() => {
-    // Initial price fetch
-    getAssetPrice().catch(console.error);
+    // Subscribe to Derive futures ticker for the selected pair to get market price
+    const instrumentName = getFuturesInstrumentName(selectedPair.value);
 
-    // Set up polling for price updates (less aggressive than before)
-    const intervalId = setInterval(() => {
-      getAssetPrice().catch(console.error);
-    }, 5000); // 5 second intervals instead of 1 second
-
+    let unsubscribed = false;
+    subscribeToFuturesTicker(instrumentName, (data) => {
+      if (!unsubscribed) {
+        setLiveTicker(data);
+        // Update market price from ticker data
+        if (data?.instrument_ticker?.mark_price) {
+          setMarketPrice(Number(data.instrument_ticker.mark_price));
+        }
+      }
+    });
     return () => {
-      clearInterval(intervalId);
+      unsubscribed = true;
     };
-  }, [selectedPair.value]);
+  }, [selectedPair]);
 
   // Load option chain data on component mount and when selected pair changes
   useEffect(() => {
@@ -634,12 +616,16 @@ export default function Page() {
     setGroupedFilteredOptions(groupedAndFiltered);
 
     // Calculate price box position once when data changes (not on every price update)
-    if (groupedAndFiltered.length > 0 && marketPrice > 0) {
+    const currentPrice = liveTicker?.instrument_ticker?.mark_price
+      ? Number(liveTicker.instrument_ticker.mark_price)
+      : marketPrice;
+
+    if (groupedAndFiltered.length > 0 && currentPrice > 0) {
       let insertAfterIndex = -1;
       let insertBeforeFirst = false;
 
       // Check if market price is lower than the first strike
-      if (marketPrice < groupedAndFiltered[0].strike) {
+      if (currentPrice < groupedAndFiltered[0].strike) {
         insertBeforeFirst = true;
       } else {
         // Find the correct position between strikes
@@ -647,7 +633,7 @@ export default function Page() {
           const currentStrike = groupedAndFiltered[i].strike;
           const nextStrike = groupedAndFiltered[i + 1].strike;
 
-          if (marketPrice >= currentStrike && marketPrice < nextStrike) {
+          if (currentPrice >= currentStrike && currentPrice < nextStrike) {
             insertAfterIndex = i;
             break;
           }
@@ -656,7 +642,7 @@ export default function Page() {
         // If not found between strikes, check if it should be after the last strike
         if (
           insertAfterIndex === -1 &&
-          marketPrice >=
+          currentPrice >=
             groupedAndFiltered[groupedAndFiltered.length - 1].strike
         ) {
           insertAfterIndex = groupedAndFiltered.length - 1;
@@ -667,12 +653,12 @@ export default function Page() {
       setPriceBoxPosition({
         insertAfterIndex,
         insertBeforeFirst,
-        price: formatNumber(marketPrice, 2),
+        price: formatNumber(currentPrice, 2),
       });
     } else {
       setPriceBoxPosition(null);
     }
-  }, [optionChainData, selectedDate, selectedOption, marketPrice]);
+  }, [optionChainData, selectedDate, selectedOption, liveTicker, marketPrice]);
 
   // Click outside handler for dropdown
   useEffect(() => {
@@ -1066,13 +1052,45 @@ export default function Page() {
                 onChange={setSelectedPair}
               />
               <span className="text-green-500 ml-2 font-semibold">
-                {marketPrice}
+                {liveTicker?.instrument_ticker?.mark_price
+                  ? Number(liveTicker.instrument_ticker.mark_price).toFixed(2)
+                  : marketPrice.toFixed(2)}
               </span>
               {/* <span className="text-sm text-green-500 ml-1">+1.09%</span> */}
             </div>
           </div>
 
           <div className="w-full xs:h-[4.5rem] flex flex-row flex-wrap xs:flex-nowrap justify-between px-6 py-2 xs:py-4 border border-neutral-100 dark:border-neutral-700 rounded-xl font-semibold">
+            <div className="my-1.5 xs:my-0">
+              <p className="text-neutral-500 text-xs">
+                {selectedPair.value} Price
+              </p>
+              <p className="text-sm">
+                {liveTicker?.instrument_ticker?.mark_price
+                  ? Number(liveTicker.instrument_ticker.mark_price).toFixed(2)
+                  : marketPrice.toFixed(2)}
+              </p>
+            </div>
+            <div className="my-1.5 xs:my-0">
+              <p className="text-neutral-500 text-xs">24H Change</p>
+              <p
+                className={`text-sm ${
+                  parseFloat(
+                    liveTicker?.instrument_ticker?.stats?.percent_change,
+                  ) > 0
+                    ? "text-green-500"
+                    : parseFloat(
+                          liveTicker?.instrument_ticker?.stats?.percent_change,
+                        ) < 0
+                      ? "text-red-500"
+                      : ""
+                }`}
+              >
+                {liveTicker?.instrument_ticker?.stats?.percent_change
+                  ? `${(parseFloat(liveTicker.instrument_ticker.stats.percent_change) * 100).toFixed(2)}%`
+                  : "-"}
+              </p>
+            </div>
             <div className="my-1.5 xs:my-0">
               <p className="text-neutral-500 text-xs">24H Volume</p>
               <p className="text-sm">
@@ -1738,7 +1756,6 @@ export default function Page() {
 
           {/* Order Management Section */}
           <div className="mb-4">
-
             {/* Order Status Display */}
             <OrderStatusDisplay
               className="mb-2"

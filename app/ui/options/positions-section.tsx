@@ -6,7 +6,7 @@ import {
   CheckCircle,
   Clock,
   XCircle,
-  AlertCircle,
+  Warning,
   Trash,
 } from "@phosphor-icons/react";
 
@@ -238,7 +238,7 @@ const OrderHistoryComponent = () => {
         return { icon: XCircle, color: "text-gray-500" };
       case "rejected":
       case "expired":
-        return { icon: AlertCircle, color: "text-red-500" };
+        return { icon: Warning, color: "text-red-500" };
       default:
         return { icon: Clock, color: "text-gray-400" };
     }

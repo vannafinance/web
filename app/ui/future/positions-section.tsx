@@ -2,9 +2,31 @@
 
 import React, { useState } from "react";
 import PositionFetching from "./position-fetching";
+import OrderHistory from "@/app/ui/components/order-history";
 
 const OpenOrdersComponent = () => <div>Open Orders Component</div>;
-const OrderHistoryComponent = () => <div>Order History Component</div>;
+const OrderHistoryComponent = () => {
+  const [showOrderHistory, setShowOrderHistory] = useState(false);
+
+  return (
+    <>
+      <div className="p-4">
+        <button
+          onClick={() => setShowOrderHistory(true)}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          View Order History
+        </button>
+      </div>
+      {showOrderHistory && (
+        <OrderHistory
+          isOpen={showOrderHistory}
+          onClose={() => setShowOrderHistory(false)}
+        />
+      )}
+    </>
+  );
+};
 const TradeHistoryComponent = () => <div>Trade History Component</div>;
 const TransactionHistoryComponent = () => (
   <div>Transaction History Component</div>
@@ -37,7 +59,7 @@ const PositionsSection: React.FC<PositionSectionProps> = ({ dataFetching }) => {
   ];
 
   const activeItem = navItems.find((item) => item.name === activeTab);
-const ActiveComponent = activeItem?.component || (() => null);
+  const ActiveComponent = activeItem?.component || (() => null);
 
   return (
     <div className="border border-neutral-100 dark:border-neutral-700 rounded-xl p-1 text-baseBlack dark:text-baseWhite">
