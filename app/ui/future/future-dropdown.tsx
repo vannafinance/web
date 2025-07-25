@@ -19,13 +19,24 @@ const FutureDropdown: React.FC<FutureDropdownProps> = ({
     onChange(option);
   };
 
-  useEffect(() => {
-    onChange(selectedOption);
-  }, []);
+
+  // The onChange should only be called when user actually selects something
+  // useEffect(() => {
+  //   onChange(selectedOption);
+  // }, []);
+
+  // Use a ref to track if we've initialized to prevent infinite loops
+  const initializedRef = useRef(false);
 
   useEffect(() => {
-    setSelectedOption(defaultValue);
-  }, [defaultValue]);
+    if (!initializedRef.current) {
+      setSelectedOption(defaultValue);
+      initializedRef.current = true;
+    } else if (defaultValue.value !== selectedOption.value) {
+      // Only update if the value actually changed
+      setSelectedOption(defaultValue);
+    }
+  }, [defaultValue, selectedOption.value]); 
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

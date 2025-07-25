@@ -59,6 +59,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
   setMarket,
   marketOption,
   setDataFetching,
+  selectedPrice,
 }) => {
   const { account, library } = useWeb3React();
   const { currentNetwork } = useNetwork();
@@ -88,10 +89,10 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
   //   protocolOptions[0]
   // );
   const [selectedOptionType, setSelectedOptionType] = useState<Option>(
-    optionType[0]
+    optionType[0],
   );
   const [selectedMarkOption, setSelectedMarkOption] = useState<Option>(
-    markOption[0]
+    markOption[0],
   );
   const [stopUsdcValue, setStopUsdcValue] = useState("");
   const [coin, setCoin] = useState<Option>(tokenOptions[0]);
@@ -106,7 +107,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
   const [marketPrice, setMarketPrice] = useState(1);
   const [assetsPrice, setAssetsPrice] = useState([]);
   const [activeAccount, setActiveAccount] = useState<string | undefined>(
-    undefined
+    undefined,
   );
   const [coinBalance, setCoinBalance] = useState(0);
   const [useValue, setUseValue] = useState("0");
@@ -134,7 +135,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
 
   const removeNotification = (id: number) => {
     setNotifications((prev) =>
-      prev.filter((notification) => notification.id !== id)
+      prev.filter((notification) => notification.id !== id),
     );
   };
 
@@ -169,25 +170,24 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
           regitstryContract = new Contract(
             arbAddressList.registryContractAddress,
             Registry.abi,
-            signer
+            signer,
           );
         } else if (currentNetwork.id === OPTIMISM_NETWORK) {
           regitstryContract = new Contract(
             opAddressList.registryContractAddress,
             Registry.abi,
-            signer
+            signer,
           );
         } else if (currentNetwork.id === BASE_NETWORK) {
           regitstryContract = new Contract(
             baseAddressList.registryContractAddress,
             Registry.abi,
-            signer
+            signer,
           );
         }
         if (regitstryContract) {
-          const accountsArray = await regitstryContract.accountsOwnedBy(
-            account
-          );
+          const accountsArray =
+            await regitstryContract.accountsOwnedBy(account);
           let tempAccount;
 
           if (accountsArray.length > 0) {
@@ -234,7 +234,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
 
   const getAssetPrice = async (
     assetName = marketToken.value,
-    shouldSetMarketPrice = true
+    shouldSetMarketPrice = true,
   ) => {
     const rsp = await axios.get("https://app.mux.network/api/liquidityAsset", {
       timeout: 10 * 1000,
@@ -251,7 +251,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
 
   const getPriceFromAssetsArray = (
     tokenSymbol: string,
-    assets: MuxPriceFetchingResponseObject[] = assetsPrice
+    assets: MuxPriceFetchingResponseObject[] = assetsPrice,
   ) => {
     tokenSymbol =
       tokenSymbol === "WETH" || tokenSymbol === "WBTC"
@@ -294,103 +294,103 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
             daiContract = new Contract(
               arbAddressList.daiTokenAddress,
               ERC20.abi,
-              signer
+              signer,
             );
             usdcContract = new Contract(
               arbAddressList.usdcTokenAddress,
               ERC20.abi,
-              signer
+              signer,
             );
             usdtContract = new Contract(
               arbAddressList.usdtTokenAddress,
               ERC20.abi,
-              signer
+              signer,
             );
             wethContract = new Contract(
               arbAddressList.wethTokenAddress,
               ERC20.abi,
-              signer
+              signer,
             );
             wbtcContract = new Contract(
               arbAddressList.wbtcTokenAddress,
               ERC20.abi,
-              signer
+              signer,
             );
             vEtherContract = new Contract(
               arbAddressList.vEtherContractAddress,
               VEther.abi,
-              signer
+              signer,
             );
             vDaiContract = new Contract(
               arbAddressList.vDaiContractAddress,
               VToken.abi,
-              signer
+              signer,
             );
             vUsdcContract = new Contract(
               arbAddressList.vUSDCContractAddress,
               VToken.abi,
-              signer
+              signer,
             );
             vUsdtContract = new Contract(
               arbAddressList.vUSDTContractAddress,
               VToken.abi,
-              signer
+              signer,
             );
             vWbtcContract = new Contract(
               arbAddressList.vWBTCContractAddress,
               VToken.abi,
-              signer
+              signer,
             );
           } else if (currentNetwork.id === OPTIMISM_NETWORK) {
             daiContract = new Contract(
               opAddressList.daiTokenAddress,
               ERC20.abi,
-              signer
+              signer,
             );
             usdcContract = new Contract(
               opAddressList.usdcTokenAddress,
               ERC20.abi,
-              signer
+              signer,
             );
             usdtContract = new Contract(
               opAddressList.usdtTokenAddress,
               ERC20.abi,
-              signer
+              signer,
             );
             wethContract = new Contract(
               opAddressList.wethTokenAddress,
               ERC20.abi,
-              signer
+              signer,
             );
             wbtcContract = new Contract(
               opAddressList.wbtcTokenAddress,
               ERC20.abi,
-              signer
+              signer,
             );
             vEtherContract = new Contract(
               opAddressList.vEtherContractAddress,
               VEther.abi,
-              signer
+              signer,
             );
             vDaiContract = new Contract(
               opAddressList.vDaiContractAddress,
               VToken.abi,
-              signer
+              signer,
             );
             vUsdcContract = new Contract(
               opAddressList.vUSDCContractAddress,
               VToken.abi,
-              signer
+              signer,
             );
             vUsdtContract = new Contract(
               opAddressList.vUSDTContractAddress,
               VToken.abi,
-              signer
+              signer,
             );
             vWbtcContract = new Contract(
               opAddressList.vWBTCContractAddress,
               VToken.abi,
-              signer
+              signer,
             );
           } else if (currentNetwork.id === BASE_NETWORK) {
           }
@@ -433,7 +433,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
 
           if (accountBalance) {
             setCoinBalance(
-              Number(ceilWithPrecision(String(accountBalance), 5))
+              Number(ceilWithPrecision(String(accountBalance), 5)),
             );
           }
         } else {
@@ -441,7 +441,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
             const liquidityPoolContract = new Contract(
               arbAddressList.muxLiquidityPoolAddress,
               LiquidityPool.abi,
-              signer
+              signer,
             );
 
             let subAccountId;
@@ -459,9 +459,8 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
                   "0" +
                   k +
                   "000000000000000000";
-                const result = await liquidityPoolContract.getSubAccount(
-                  subAccountId
-                );
+                const result =
+                  await liquidityPoolContract.getSubAccount(subAccountId);
                 const size = result.size / 1e18;
 
                 if (size != 0) {
@@ -479,13 +478,13 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
             const OptimismFetchPositionContract = new Contract(
               opAddressList.optimismFetchPositionContractAddress,
               OptimismFetchPosition.abi,
-              signer
+              signer,
             );
 
             const getNetVal =
               await OptimismFetchPositionContract.getTotalPositionSize(
                 activeAccount,
-                opAddressList.vETH
+                opAddressList.vETH,
               );
             const netValue = getNetVal / 1e18;
 
@@ -503,6 +502,18 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
     getTokenBalance();
     updateCollateralAmount(collateralAmount);
   }, [activeAccount, coin, currentNetwork, collateralAmount, isOpen]);
+
+  // Update collateral amount when a price is selected from orderbook
+  useEffect(() => {
+    if (selectedPrice && selectedPrice > 0) {
+      // When a price is selected from orderbook, use it as a reference
+      // Set a reasonable position size based on the selected price
+      // For example, $100 worth of the asset at the selected price
+      const referenceAmount = 100; // $100 reference amount
+      const suggestedCollateral = (referenceAmount / selectedPrice).toFixed(6);
+      updateCollateralAmount(suggestedCollateral);
+    }
+  }, [selectedPrice]);
 
   const updateCollateralAmount = (amt: string | number) => {
     if (amt === "") {
@@ -555,8 +566,8 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
         const collateralAmountForPosition = BigNumber.from(
           formatStringToUnits(
             coin.value,
-            collateralAmount !== "" ? Number(collateralAmount) : 0
-          )
+            collateralAmount !== "" ? Number(collateralAmount) : 0,
+          ),
         );
         // let units = 18;
         // if (coin.value == "USDC" || coin.value == "USDT") {
@@ -567,8 +578,8 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
             coin.value,
             collateralAmount !== ""
               ? Number(collateralAmount)
-              : 1 * leverageValue
-          )
+              : 1 * leverageValue,
+          ),
         );
         // this will changes, temporary static value
         const flags = 192;
@@ -578,7 +589,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
         const accountManagerContract = new Contract(
           arbAddressList.accountManagerContractAddress,
           AccountManager.abi,
-          signer
+          signer,
         );
         // const contract = new Contract(arbTokensAddress[coin.value], ERC20.abi, signer);
         // const approveMuxContract = await contract.approve(
@@ -609,7 +620,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
           arbAddressList.muxFutureContractAddress,
           collateralAmountForPosition,
           encodedData,
-          { gasLimit: 2300000 }
+          { gasLimit: 2300000 },
         );
       } else if (currentNetwork.id === OPTIMISM_NETWORK) {
         const isBaseToQuote = buySell === "buy" ? false : true;
@@ -620,13 +631,13 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
         const accountManagerContract = new Contract(
           opAddressList.accountManagerContractAddress,
           AccountManagerop.abi,
-          signer
+          signer,
         );
         const depositAmount = BigNumber.from(
           formatStringToUnits(
             "USDC",
-            collateralAmount === "" ? 0 : Number(collateralAmount)
-          )
+            collateralAmount === "" ? 0 : Number(collateralAmount),
+          ),
         );
 
         // const positionSize = BigNumber.from(
@@ -638,39 +649,49 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
           opAddressList.usdcTokenAddress,
           opAddressList.vault,
           parseEther("1"),
-          { gasLimit: 2300000 }
+          { gasLimit: 2300000 },
         );
         let withSlipedAmount;
         let OppositeAmountBound;
         let OppositeAmountBoundBN;
         let amount;
-        if(isBaseToQuote == true){ // for short positon 
-          withSlipedAmount =
-          Number(collateralAmount);
+        if (isBaseToQuote == true) {
+          // for short positon
+          withSlipedAmount = Number(collateralAmount);
           OppositeAmountBound =
-            (withSlipedAmount * leverageValue) / getPriceFromAssetsArray("WETH");
+            (withSlipedAmount * leverageValue) /
+            getPriceFromAssetsArray("WETH");
           OppositeAmountBoundBN = BigNumber.from(
-            formatStringToUnits("WETH", OppositeAmountBound + (OppositeAmountBound * 1)/100)
+            formatStringToUnits(
+              "WETH",
+              OppositeAmountBound + (OppositeAmountBound * 1) / 100,
+            ),
           );
           amount = BigNumber.from(
-            formatStringToUnits("WETH", Number(collateralAmount) * leverageValue)
+            formatStringToUnits(
+              "WETH",
+              Number(collateralAmount) * leverageValue,
+            ),
           );
-        }
-        else { // for long position 
+        } else {
+          // for long position
           withSlipedAmount =
-          Number(collateralAmount) - (Number(collateralAmount) * 1) / 100;
+            Number(collateralAmount) - (Number(collateralAmount) * 1) / 100;
           OppositeAmountBound =
-            (withSlipedAmount * leverageValue) / getPriceFromAssetsArray("WETH");
+            (withSlipedAmount * leverageValue) /
+            getPriceFromAssetsArray("WETH");
           OppositeAmountBoundBN = BigNumber.from(
-            formatStringToUnits("WETH", OppositeAmountBound)
+            formatStringToUnits("WETH", OppositeAmountBound),
           );
           amount = BigNumber.from(
-            formatStringToUnits("WETH", Number(collateralAmount) * leverageValue)
+            formatStringToUnits(
+              "WETH",
+              Number(collateralAmount) * leverageValue,
+            ),
           );
-          
         }
-        
-         // open short : https://optimistic.etherscan.io/tx/0xfeda6d5bc67be178a0e695dba37f3ba682db664b6eaf33f5110475cd19f30cb5
+
+        // open short : https://optimistic.etherscan.io/tx/0xfeda6d5bc67be178a0e695dba37f3ba682db664b6eaf33f5110475cd19f30cb5
         //  0	params.baseToken	address	0x8C835DFaA34e2AE61775e80EE29E2c724c6AE2BB
         //  0	params.isBaseToQuote	bool
         //  true
@@ -706,12 +727,12 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
           iface.encodeFunctionData("deposit", [
             opAddressList.usdcTokenAddress,
             depositAmount,
-          ])
+          ]),
         );
 
         const iface1 = new Interface(ClearingHouse.abi);
         data.push(
-          iface1.encodeFunctionData("openPosition", [openPositionParams])
+          iface1.encodeFunctionData("openPosition", [openPositionParams]),
         );
         target.push(opAddressList.vault);
         target.push(opAddressList.ClearingHouse);
@@ -746,7 +767,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
       if (currentNetwork.id === ARBITRUM_NETWORK) {
         // add code here according to close a long position / short
       } else if (currentNetwork.id === OPTIMISM_NETWORK) {
-         // open short : https://optimistic.etherscan.io/tx/0xfeda6d5bc67be178a0e695dba37f3ba682db664b6eaf33f5110475cd19f30cb5
+        // open short : https://optimistic.etherscan.io/tx/0xfeda6d5bc67be178a0e695dba37f3ba682db664b6eaf33f5110475cd19f30cb5
         //  0	params.baseToken	address	0x8C835DFaA34e2AE61775e80EE29E2c724c6AE2BB
         //  0	params.isBaseToQuote	bool
         //  true
@@ -761,26 +782,26 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
         //  0	params.sqrtPriceLimitX96	uint160
         //  0
         //  0	params.referralCode	bytes32
-         
+
         const signer = await library?.getSigner();
 
         const accountManagerOpContract = new Contract(
           opAddressList.accountManagerContractAddress,
           AccountManager_op.abi,
-          signer
+          signer,
         );
         const ClearingHouseContract = new Contract(
           opAddressList.ClearingHouse,
           ClearingHouse.abi,
-          signer
+          signer,
         );
         const PerpVaultContract = new Contract(
           opAddressList.vault,
           PerpVault.abi,
-          signer
+          signer,
         );
         let oppositeAmountBound = Number(
-          formatStringToUnits("ETH", Number(collateralAmount))
+          formatStringToUnits("ETH", Number(collateralAmount)),
         );
 
         const parmas = {
@@ -805,20 +826,19 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
           target,
           0,
           data,
-          { gasLimit: 2300000 }
+          { gasLimit: 2300000 },
         );
         addNotification("info", "Please wait until transaction is processing!");
         await sleep(10000);
         await x.wait();
 
-        const withdrawAmount = await PerpVaultContract.getSettlementTokenValue(
-          activeAccount
-        );
+        const withdrawAmount =
+          await PerpVaultContract.getSettlementTokenValue(activeAccount);
 
         oppositeAmountBound = withdrawAmount / 1e6;
 
         oppositeAmountBound = Number(
-          formatStringToUnits("USDC", oppositeAmountBound)
+          formatStringToUnits("USDC", oppositeAmountBound),
         );
 
         oppositeAmountBound = oppositeAmountBound - 100;
@@ -830,7 +850,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
           iface1.encodeFunctionData("withdraw", [
             opAddressList.usdcTokenAddress,
             oppositeAmountBound,
-          ])
+          ]),
         );
 
         // data.push()
@@ -862,13 +882,13 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
           <div
             className={clsx(
               "flex-1 p-[1px] rounded-2xl",
-              isOpen ? "bg-gradient-to-r from-gradient-1 to-gradient-2" : ""
+              isOpen ? "bg-gradient-to-r from-gradient-1 to-gradient-2" : "",
             )}
           >
             <button
               className={clsx(
                 "w-full py-3 px-2 rounded-2xl",
-                isOpen ? "bg-white dark:bg-baseDark" : "bg-transparent"
+                isOpen ? "bg-white dark:bg-baseDark" : "bg-transparent",
               )}
               onClick={() => handleToggle("open")}
             >
@@ -878,13 +898,13 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
           <div
             className={clsx(
               "flex-1 p-[1px] rounded-2xl",
-              !isOpen ? "bg-gradient-to-r from-gradient-1 to-gradient-2" : ""
+              !isOpen ? "bg-gradient-to-r from-gradient-1 to-gradient-2" : "",
             )}
           >
             <button
               className={clsx(
                 "w-full py-3 px-2 rounded-2xl",
-                !isOpen ? "bg-white dark:bg-baseDark" : "bg-transparent"
+                !isOpen ? "bg-white dark:bg-baseDark" : "bg-transparent",
               )}
               onClick={() => handleToggle("close")}
             >
@@ -942,7 +962,14 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
 
         <div className="flex flex-col mb-2 rounded-xl bg-white dark:bg-baseDark py-2">
           <div className="mb-3 flex flex-row justify-between px-2 text-xs text-neutral-500">
-            <div>Use : {formatUSD(useValue)}</div>
+            <div className="flex items-center space-x-2">
+              <span>Use : {formatUSD(useValue)}</span>
+              {selectedPrice && (
+                <span className="text-green-500 text-xs">
+                  (Price: ${selectedPrice.toFixed(2)})
+                </span>
+              )}
+            </div>
             <div>
               {coinBalance !== undefined
                 ? coinBalance + " " + coin?.label
@@ -956,7 +983,11 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
                 value={collateralAmount}
                 onChange={(e) => updateCollateralAmount(e.target.value)}
                 className="w-full dark:bg-baseDark text-base outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                placeholder="Enter Amount"
+                placeholder={
+                  selectedPrice
+                    ? `Based on $${selectedPrice.toFixed(2)}`
+                    : "Enter Amount"
+                }
                 min={0}
               />
             </div>
@@ -1055,7 +1086,7 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
                       "font-normal text-xs",
                       isEnabled
                         ? "text-purple"
-                        : "text-baseBlack dark:text-baseWhite"
+                        : "text-baseBlack dark:text-baseWhite",
                     )}
                   >
                     TP/SL

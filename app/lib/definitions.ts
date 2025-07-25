@@ -114,6 +114,7 @@ interface PositionOpenCloseProps {
   setMarket: React.Dispatch<React.SetStateAction<Option>>;
   marketOption: Option[];
   setDataFetching: React.Dispatch<React.SetStateAction<boolean>>;
+  selectedPrice?: number | null;
 }
 
 interface UserData {
