@@ -1658,14 +1658,14 @@ export default function Page() {
                   className="ml-2"
                 />
                 <div className="flex flex-col ml-2">
-                  <span className="text-xs font-semibold">BTC $53000 Call</span>
+                  <span className="text-xs font-semibold">Select Any Option</span>
                   <span className="text-xs font-normal text-neutral-500">
-                    Exp 13 sep
+                    
                   </span>
                 </div>
               </div>
               <div className="flex flex-row mr-1">
-                <span className="text-xs font-semibold mr-2">$4990.00</span>
+                <span className="text-xs font-semibold mr-2">Price</span>
                 <X size={14} />
               </div>
             </div>
@@ -1936,14 +1936,14 @@ export default function Page() {
               $
               {selectedOptionData
                 ? selectedOptionData.option.bidPrice.toFixed(1)
-                : "335.8"}
+                : "--"}
             </span>
             <span className="text-neutral-500 ml-1">Ask: </span>
             <span className="text-baseSecondary-500">
               $
               {selectedOptionData
                 ? selectedOptionData.option.askPrice.toFixed(1)
-                : "346.8"}
+                : "--"}
             </span>
           </div>
 
@@ -1954,7 +1954,7 @@ export default function Page() {
           <div className="space-y-2 text-xs font-normal py-5 px-4 mb-5 border-y border-purpleBG-lighter dark:border-neutral-700">
             <div className="flex justify-between">
               <span>Min Received</span>
-              <span>$215.70</span>
+              <span>-</span>
             </div>
             <div className="flex justify-between">
               <span>Fees</span>
@@ -1962,7 +1962,7 @@ export default function Page() {
             </div>
             <div className="flex justify-between">
               <span>Mark Price</span>
-              <span>$230.80</span>
+              <span>-</span>
             </div>
             <div className="flex justify-between">
               <span>Liquidation Price</span>
