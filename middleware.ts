@@ -27,6 +27,10 @@ export function middleware(request: NextRequest) {
     const url = request.nextUrl.clone()
     url.pathname = "/"
     return NextResponse.redirect(url)
+  } else if (network!=="Katana" && isTradeurl && (isFarmPage || isFarmDetailedPage)) {
+    const url = request.nextUrl.clone()
+    url.pathname = "/"
+    return NextResponse.redirect(url)
   }
 
   return NextResponse.next();

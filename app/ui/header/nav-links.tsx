@@ -57,6 +57,8 @@ export default function NavLinks() {
                     // On Katana: only allow "Farm"
                     if (currentNetwork?.name === "Katana") {
                       return subItem.title === "Farm";
+                    } else {
+                      return subItem.title !=="Farm"
                     }
                     // On other networks: allow all
                     return true;

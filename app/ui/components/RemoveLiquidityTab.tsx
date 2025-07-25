@@ -52,7 +52,11 @@ const RemoveLiquidityTab: React.FC<RemoveLiquidityTabProps> = ({
             </div>
           </div>
           <div className="mt-2">
-            <FarmSlider  onChange={(val) => handlePercentageChange(val)} value={state.percentage} key={"range"}/>
+            <FarmSlider
+              onChange={(val) => handlePercentageChange(val)}
+              value={state.percentage}
+              key={"range"}
+            />
           </div>
         </div>
       </div>
