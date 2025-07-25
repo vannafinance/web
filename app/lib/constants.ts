@@ -1,3 +1,4 @@
+
 export const poolMap: Map<string, Pool> = new Map<string, Pool>([
   ["1", { id: 1, name: "Ethereum", shortName: "WETH" }],
   ["2", { id: 2, name: "Wrap Bitcoin", shortName: "WBTC" }],
@@ -51,3 +52,23 @@ export const oneMonthTimestampInterval = 2629743;
 export const referralCode =
   "0x0000000000000000000000000000000000000000000000000000000000000000";
 export const percentageClickValues = [10, 25, 50, 100];
+
+// Mock data for RemoveLiquidityTab
+export const mockRemoveLiquidityState = {
+  percentage: 0,
+  token0Amount: 0,
+  token1Amount: 0,
+  fees: {
+    token0: 0,
+    token1: 0,
+  },
+};
+
+// Mock data for FeesTab
+export const mockFeesTabState = {
+  unclaimedFees: 0.0002,
+  tokens: [
+    { symbol: "USDC", amount: 0.000068, usdValue: 0.000068 },
+    { symbol: "USDT", amount: 0.000151, usdValue: 0.0002 },
+  ],
+};

@@ -19,8 +19,8 @@ function ChangeText({ value }: { value: number }) {
         value > 0
           ? "text-green-400"
           : value < 0
-            ? "text-red-400"
-            : "text-gray-400"
+          ? "text-red-400"
+          : "text-gray-400"
       }
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
@@ -162,7 +162,14 @@ export default function Page() {
 
                     {/* Pool name and metadata */}
                     <div>
-                      <div className="ml-2 font-medium">{pool.name}</div>
+                      <div className="ml-2 flex gap-2 font-medium">
+                        <div>{pool.name}</div>
+                        <div>
+                          <button className="py-0.5 px-2 bg-neutral-600 text-xs rounded-xl text-baseWhite">
+                            sushi
+                          </button>
+                        </div>
+                      </div>
                       <div className="ml-2 mt-2 flex gap-2">
                         {/* Protocol version badge */}
                         <motion.div

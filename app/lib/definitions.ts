@@ -260,3 +260,44 @@ interface NavItem {
 interface PositionSectionProps {
   dataFetching: boolean;
 }
+
+// Types for modular liquidity management tabs
+
+interface LiquidityTabState {
+  activeTab: "add" | "remove" | "fees";
+}
+
+interface RemoveLiquidityState {
+  percentage: number;
+  token0Amount: number;
+  token1Amount: number;
+  fees: {
+    token0: number;
+    token1: number;
+  };
+}
+
+interface FeesTabState {
+  unclaimedFees: number;
+  tokens: Array<{
+    symbol: string;
+    amount: number;
+    usdValue: number;
+  }>;
+}
+
+interface RemoveLiquidityTabProps {
+  state: RemoveLiquidityState;
+  onChange: (state: RemoveLiquidityState) => void;
+  onConnectWallet: () => void;
+  isWalletConnected: boolean;
+  token0: { symbol: string; icon: string };
+  token1: { symbol: string; icon: string };
+}
+interface FeesTabProps {
+  state: FeesTabState;
+  onConnectWallet: () => void;
+  isWalletConnected: boolean;
+  token0: { symbol: string; icon: string };
+  token1: { symbol: string; icon: string };
+}
