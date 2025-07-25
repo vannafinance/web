@@ -1,12 +1,23 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from "react";
 import { networkOptions } from "@/app/lib/constants";
-import Cookie from "js-cookie"
+import Cookie from "js-cookie";
+import { switchNetwork } from "@/app/lib/wallet-utils"; // Import the utility
+
+// Define the interface for a network option
+interface NetworkOption {
+  id: string;
+  name: string;
+  icon: string;
+  chainId: string;
+  rpcUrl: string;
+  blockExplorerUrl: string;
+}
 
 interface NetworkContextType {
   currentNetwork: NetworkOption | undefined;
-  setCurrentNetwork: (network: NetworkOption) => void;
+  handleSetCurrentNetwork: (network: NetworkOption) => void; 
   networks: NetworkOption[];
 }
 
@@ -17,15 +28,21 @@ export const NetworkProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [currentNetwork, setCurrentNetwork] = useState<NetworkOption>();
 
-  useEffect(()=>{
-    if(currentNetwork?.name){
-      Cookie.set("network",currentNetwork.name)
+  
+  const handleSetCurrentNetwork = useCallback(async (network: NetworkOption) => {
+    await switchNetwork(network.id);
+    setCurrentNetwork(network); 
+  }, []);
+
+  useEffect(() => {
+    if (currentNetwork?.name) {
+      Cookie.set("network", currentNetwork.name);
     }
-  },[currentNetwork?.name])
+  }, [currentNetwork?.name]);
 
   return (
     <NetworkContext.Provider
-      value={{ currentNetwork, setCurrentNetwork, networks: networkOptions }}
+      value={{ currentNetwork, handleSetCurrentNetwork, networks: networkOptions }}
     >
       {children}
     </NetworkContext.Provider>

@@ -39,12 +39,21 @@ export const networkOptions = [
     rpcUrl: "https://rpc.katana.network",
     blockExplorerUrl: "https://explorer.katanarpc.com/",
   },
+  {
+    id: "hyperliquid",
+    name: "Hyperliquid",
+    icon: "/HL symbol_mint green.svg",
+    chainId: "0xa4b1",
+    rpcUrl: "https://api.hyperliquid.xyz",
+    blockExplorerUrl: "https://explorer.hyperliquid.xyz/",
+  },
 ];
 
 export const BASE_NETWORK = "base";
 export const ARBITRUM_NETWORK = "arbitrum";
 export const OPTIMISM_NETWORK = "optimism";
 export const KATANA_NETWORK = "katana";
+export const HYPERLIQUID_NETWORK = "hyperliquid";
 
 export const SECS_PER_YEAR = 31556952;
 export const FEES = 0.01;
