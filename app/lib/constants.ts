@@ -41,11 +41,16 @@ export const networkOptions = [
   },
   {
     id: "hyperliquid",
-    name: "Hyperliquid",
+    name: "HyperEVM",
     icon: "/HL symbol_mint green.svg",
-    chainId: "0xa4b1",
-    rpcUrl: "https://api.hyperliquid.xyz",
-    blockExplorerUrl: "https://explorer.hyperliquid.xyz/",
+    chainId: "0x3e7",
+    rpcUrl: "https://rpc.hyperliquid.xyz/evm",
+    blockExplorerUrl: "https://hyperscan.gas.zip",
+    nativeCurrency: {
+      name: "HYPE",
+      symbol: "HYPE",
+      decimals: 18,
+    },
   },
 ];
 

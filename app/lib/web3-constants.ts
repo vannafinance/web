@@ -12,7 +12,8 @@ export const injected = new InjectedConnector({
     901, // lyraTestNet
     10, // optimism
     8453, // base
-    747474
+    747474,
+    999 // hyperliquid
   ],
 });
 

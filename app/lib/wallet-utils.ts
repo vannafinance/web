@@ -1,6 +1,5 @@
 import { networkOptions } from "./constants";
 
-// Define the structure of a network option for TypeScript
 interface NetworkOption {
   id: string;
   name: string;
@@ -8,10 +7,14 @@ interface NetworkOption {
   chainId: string;
   rpcUrl: string;
   blockExplorerUrl: string;
+  nativeCurrency?: {
+    name: string;
+    symbol: string;
+    decimals: number;
+  };
 }
 
 export const switchNetwork = async (networkId: string) => {
-  // Check if MetaMask or another EIP-1193 compatible wallet is installed
   const provider = (window as any).ethereum;
   if (!provider) {
     alert("A wallet like MetaMask is not installed.");
@@ -25,16 +28,13 @@ export const switchNetwork = async (networkId: string) => {
   }
 
   try {
-    // Request to switch to the selected network
     await provider.request({
       method: "wallet_switchEthereumChain",
       params: [{ chainId: network.chainId }],
     });
   } catch (switchError: any) {
-    // This error (code 4902) indicates that the chain has not been added to the wallet yet
     if (switchError.code === 4902) {
       try {
-        // Request to add the new network to the wallet
         await provider.request({
           method: "wallet_addEthereumChain",
           params: [
@@ -43,11 +43,7 @@ export const switchNetwork = async (networkId: string) => {
               chainName: network.name,
               rpcUrls: [network.rpcUrl],
               blockExplorerUrls: [network.blockExplorerUrl],
-              nativeCurrency: {
-                name: "Ether",
-                symbol: "ETH",
-                decimals: 18,
-              },
+              nativeCurrency: network.nativeCurrency,
             },
           ],
         });
