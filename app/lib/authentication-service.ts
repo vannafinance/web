@@ -666,7 +666,7 @@ export class AuthenticationService {
 
       // Send login request to Derive API
       const loginResponse = await deriveAPI.sendRequest("public/login", {
-        wallet: "0x946D0B438235b9d41AA0e4Dc0884A3c4F838CC39",
+        wallet: credentials.wallet_address,
         timestamp: credentials.timestamp.toString(),
         signature: credentials.signature,
       });
