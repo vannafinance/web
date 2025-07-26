@@ -53,6 +53,8 @@ import LiquidityPool from "../../abi/vanna/v1/out/LiquidityPool.sol/LiquidityPoo
 import OptimismFetchPosition from "../../abi/vanna/v1/out/OptimismFetchPosition.sol/OptimismFetchPosition.json";
 import AccountManager_op from "../../abi/vanna/v1/out/AccountManager-op.sol/AccountManager-op.json";
 import { defaultTokenOptions } from "@/app/lib/static-values";
+import OrderStatusDisplay from "../components/order-status-display";
+import { X } from "@phosphor-icons/react";
 
 const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
   market,
@@ -60,6 +62,25 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
   marketOption,
   setDataFetching,
   selectedPrice,
+  // Order-related props
+  orderState,
+  orderValidation,
+  authState,
+  formErrors,
+  showValidationErrors,
+  orderFeedback,
+  recentOrderUpdates,
+  showOrderHistory,
+  setShowOrderHistory,
+  orderSize,
+  setOrderSize,
+  orderLimitPrice,
+  setOrderLimitPrice,
+  orderDirection,
+  setOrderDirection,
+  onOrderSubmit,
+  onClearFeedback,
+  onClearValidationErrors,
 }) => {
   const { account, library } = useWeb3React();
   const { currentNetwork } = useNetwork();
@@ -1057,6 +1078,229 @@ const PositionOpenClose: React.FC<PositionOpenCloseProps> = ({
             <div className="flex justify-between items-center mb-5">
               <FutureSlider value={leverageValue} onChange={setLeverageValue} />
             </div>
+
+            {/* New Order Form Section - Only show if order-related props are provided */}
+            {orderState && (
+              <>
+                {/* Order feedback messages */}
+                {orderFeedback?.type && (
+                  <div
+                    className={`mb-4 p-3 rounded-md text-sm ${
+                      orderFeedback.type === "success"
+                        ? "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 border border-green-300 dark:border-green-700"
+                        : "bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 border border-red-300 dark:border-red-700"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <div
+                          className={`w-2 h-2 rounded-full mr-2 ${
+                            orderFeedback.type === "success"
+                              ? "bg-green-500"
+                              : "bg-red-500"
+                          }`}
+                        ></div>
+                        <span className="font-medium">
+                          {orderFeedback.type === "success"
+                            ? "Success"
+                            : "Error"}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => onClearFeedback?.()}
+                        className="text-current opacity-70 hover:opacity-100"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                    <div className="mt-1">{orderFeedback.message}</div>
+                    {orderFeedback.orderId && (
+                      <div className="mt-1 text-xs opacity-75">
+                        Order ID: {orderFeedback.orderId}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* General error display */}
+                {formErrors?.general && showValidationErrors && (
+                  <div className="mb-4 p-3 rounded-md text-sm bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 border border-yellow-300 dark:border-yellow-700">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <div className="w-2 h-2 rounded-full mr-2 bg-yellow-500"></div>
+                        <span className="font-medium">Warning</span>
+                      </div>
+                      <button
+                        onClick={onClearValidationErrors}
+                        className="text-current opacity-70 hover:opacity-100"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                    <div className="mt-1">{formErrors.general}</div>
+                  </div>
+                )}
+
+                {/* Authentication status */}
+                {!authState?.isAuthenticated &&
+                  !authState?.isAuthenticating && (
+                    <div className="mb-4 p-3 rounded-md text-sm bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border border-blue-300 dark:border-blue-700">
+                      <div className="flex items-center">
+                        <div className="w-2 h-2 rounded-full mr-2 bg-blue-500"></div>
+                        <span className="font-medium">
+                          Connect wallet to trade
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                {authState?.isAuthenticating && (
+                  <div className="mb-4 p-3 rounded-md text-sm bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border border-blue-300 dark:border-blue-700">
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 border border-blue-300 border-t-blue-600 rounded-full animate-spin mr-2"></div>
+                      <span className="font-medium">Authenticating...</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Order Management Section */}
+                <div className="mb-4">
+                  {/* Order Status Display */}
+                  <OrderStatusDisplay
+                    className="mb-2"
+                    maxItems={3}
+                    showActions={true}
+                  />
+                </div>
+
+                {/* Order Direction Selection */}
+                <div className="flex mb-4 p-1 text-sm bg-gray-100 dark:bg-gray-800 rounded-lg">
+                  <button
+                    className={`flex-1 py-2 px-3 rounded-md transition-colors ${
+                      orderDirection === "buy"
+                        ? "bg-green-500 text-white"
+                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+                    }`}
+                    onClick={() => setOrderDirection?.("buy")}
+                  >
+                    Long
+                  </button>
+                  <button
+                    className={`flex-1 py-2 px-3 rounded-md transition-colors ${
+                      orderDirection === "sell"
+                        ? "bg-red-500 text-white"
+                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+                    }`}
+                    onClick={() => setOrderDirection?.("sell")}
+                  >
+                    Short
+                  </button>
+                </div>
+
+                {/* Order Size input with validation */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Order Size
+                  </label>
+                  <div
+                    className={`flex w-full rounded-xl bg-white dark:bg-baseDark py-2 pl-2 border ${
+                      formErrors?.size && showValidationErrors
+                        ? "border-red-300 dark:border-red-700"
+                        : "border-gray-300 dark:border-gray-600"
+                    }`}
+                  >
+                    <input
+                      type="number"
+                      value={orderSize}
+                      onChange={(e) => setOrderSize?.(e.target.value)}
+                      className="w-full text-baseBlack dark:text-baseWhite dark:bg-baseDark text-sm font-normal outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      placeholder="Enter size"
+                      min={0}
+                      disabled={orderState.isSubmitting}
+                    />
+                  </div>
+                  {formErrors?.size && showValidationErrors && (
+                    <div className="text-xs text-red-600 dark:text-red-400 mt-1 ml-2">
+                      {formErrors.size}
+                    </div>
+                  )}
+                </div>
+
+                {/* Limit price input with validation */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Limit Price (Optional)
+                  </label>
+                  <div
+                    className={`flex w-full rounded-xl bg-white dark:bg-baseDark py-2 pl-2 border ${
+                      formErrors?.limitPrice && showValidationErrors
+                        ? "border-red-300 dark:border-red-700"
+                        : "border-gray-300 dark:border-gray-600"
+                    }`}
+                  >
+                    <input
+                      type="number"
+                      value={orderLimitPrice}
+                      onChange={(e) => setOrderLimitPrice?.(e.target.value)}
+                      className="w-full text-baseBlack dark:text-baseWhite dark:bg-baseDark text-sm font-normal outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      placeholder="Market price if empty"
+                      min={0}
+                      disabled={orderState.isSubmitting}
+                    />
+                  </div>
+                  {formErrors?.limitPrice && showValidationErrors && (
+                    <div className="text-xs text-red-600 dark:text-red-400 mt-1 ml-2">
+                      {formErrors.limitPrice}
+                    </div>
+                  )}
+                </div>
+
+                {/* New Order Submit Button */}
+                <div className="mb-4">
+                  <button
+                    onClick={() => onOrderSubmit?.()}
+                    disabled={
+                      !orderValidation?.isValid ||
+                      orderState.isSubmitting ||
+                      authState?.isAuthenticating
+                    }
+                    className={`w-full py-2.5 px-5 rounded-md text-base font-semibold text-center transition-all duration-200 ${
+                      !orderValidation?.isValid ||
+                      orderState.isSubmitting ||
+                      authState?.isAuthenticating
+                        ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+                        : orderDirection === "sell"
+                          ? "bg-red-500 text-white hover:bg-red-600"
+                          : "bg-green-500 text-white hover:bg-green-600"
+                    }`}
+                  >
+                    {orderState.isSubmitting ? (
+                      <div className="flex items-center justify-center">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                        Submitting...
+                      </div>
+                    ) : authState?.isAuthenticating ? (
+                      <div className="flex items-center justify-center">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                        Authenticating...
+                      </div>
+                    ) : !authState?.isAuthenticated ? (
+                      "Connect Wallet"
+                    ) : orderDirection === "sell" ? (
+                      "Submit Short Order"
+                    ) : (
+                      "Submit Long Order"
+                    )}
+                  </button>
+                </div>
+
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mb-4">
+                  <div className="text-xs text-gray-500 mb-2">
+                    Legacy Trading (Existing System)
+                  </div>
+                </div>
+              </>
+            )}
 
             <div>
               <div

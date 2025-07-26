@@ -661,7 +661,7 @@ export class AuthenticationService {
       console.log("Sending login request with credentials:", {
         wallet: credentials.wallet_address,
         timestamp: credentials.timestamp.toString(),
-        signature: credentials.signature.substring(0, 10) + "...", // Only show first 10 chars for security
+        signature: credentials.signature
       });
 
       // Send login request to Derive API

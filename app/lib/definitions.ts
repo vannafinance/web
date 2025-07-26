@@ -115,6 +115,25 @@ interface PositionOpenCloseProps {
   marketOption: Option[];
   setDataFetching: React.Dispatch<React.SetStateAction<boolean>>;
   selectedPrice?: number | null;
+  // Order-related props
+  orderState?: any;
+  orderValidation?: any;
+  authState?: any;
+  formErrors?: any;
+  showValidationErrors?: boolean;
+  orderFeedback?: any;
+  recentOrderUpdates?: any[];
+  showOrderHistory?: boolean;
+  setShowOrderHistory?: (show: boolean) => void;
+  orderSize?: string;
+  setOrderSize?: (size: string) => void;
+  orderLimitPrice?: string;
+  setOrderLimitPrice?: (price: string) => void;
+  orderDirection?: "buy" | "sell";
+  setOrderDirection?: (direction: "buy" | "sell") => void;
+  onOrderSubmit?: () => void;
+  onClearFeedback?: () => void;
+  onClearValidationErrors?: () => void;
 }
 
 interface UserData {
