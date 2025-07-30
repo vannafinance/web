@@ -294,15 +294,59 @@ export class AuthenticationService {
   }
 
   /**
+   * Generate session key authentication credentials
+   * Signs with EOA but authenticates as the smart contract wallet
+   */
+  private async generateSessionKeyCredentials(
+    walletProvider: WalletProvider,
+    smartContractWalletAddress: string,
+  ): Promise<AuthenticationCredentials> {
+    try {
+      // Use milliseconds timestamp as per Derive documentation
+      const timestamp = Date.now();
+      const nonce = this.generateNonce();
+
+      console.log(
+        "Generating session key credentials with timestamp:",
+        timestamp,
+      );
+      console.log("Smart contract wallet address:", smartContractWalletAddress);
+      console.log("Session key (EOA) address:", walletProvider.address);
+
+      // Sign the timestamp with the EOA (session key)
+      const signature = await walletProvider.signer.signMessage(
+        timestamp.toString(),
+      );
+
+      console.log(
+        "Session key signature generated successfully, length:",
+        signature.length,
+      );
+
+      return {
+        wallet_address: smartContractWalletAddress, // Use smart contract wallet address
+        signature, // Signature from EOA (session key)
+        timestamp,
+        nonce,
+      };
+    } catch (error) {
+      console.error("Failed to generate session key credentials:", error);
+      throw new Error(
+        `Failed to generate session key credentials: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
+    }
+  }
+
+  /**
    * Handle account not found error by checking for existing subaccounts
-   * and creating a new one if necessary
+   * and setting up session key authentication
    */
   private async handleAccountNotFound(
     walletProvider: WalletProvider,
   ): Promise<AuthenticationSession> {
     try {
       console.log(
-        "🔍 Checking for existing subaccounts for EOA:",
+        "🔍 Checking for existing Derive smart contract wallet for EOA:",
         walletProvider.address,
       );
 
@@ -320,305 +364,128 @@ export class AuthenticationService {
         );
       }
 
-      // Step 1: Check for existing subaccounts using the EOA address
+      // Step 1: Get the Derive smart contract wallet address for this EOA
       console.log(
-        "📋 Calling private/get_subaccounts with wallet:",
+        "📋 Getting Derive smart contract wallet address for EOA:",
         walletProvider.address,
       );
 
-      let subaccountsResponse;
+      let smartContractWallet;
       try {
-        subaccountsResponse = await deriveAPI.sendRequest(
+        // First try to get existing subaccounts to find the smart contract wallet
+        const subaccountsResponse = await deriveAPI.sendRequest(
           "private/get_subaccounts",
           {
             wallet: walletProvider.address,
           },
         );
+
+        console.log("📨 Subaccounts response:", subaccountsResponse);
+
+        if (
+          subaccountsResponse?.result &&
+          Array.isArray(subaccountsResponse.result) &&
+          subaccountsResponse.result.length > 0
+        ) {
+          // Found existing subaccounts - use the smart contract wallet address
+          smartContractWallet = subaccountsResponse.result[0];
+          console.log(
+            "✅ Found existing smart contract wallet:",
+            smartContractWallet,
+          );
+        }
       } catch (subaccountError: any) {
-        // If get_subaccounts fails with authentication error, we need to create a subaccount
         console.warn("⚠️ get_subaccounts request failed:", subaccountError);
 
-        if (subaccountError.code === 10001) {
-          // Authentication required
+        // If get_subaccounts fails, throw the error
+        if (subaccountError.code === 10001 || subaccountError.code === 14000) {
           console.log(
-            "🔑 Authentication required for get_subaccounts, proceeding to create account",
+            "🔑 Account creation not supported - user must create account manually",
           );
-          return await this.createAccountAndAuthenticate(walletProvider);
+          throw new Error(
+            `Account not found. Please create an account at https://app.derive.xyz/ first, then try authenticating again.`,
+          );
         }
 
         throw subaccountError;
       }
 
-      console.log("📨 Subaccounts response:", subaccountsResponse);
-
-      // Check if we have existing subaccounts
-      if (
-        subaccountsResponse?.result &&
-        Array.isArray(subaccountsResponse.result) &&
-        subaccountsResponse.result.length > 0
-      ) {
+      if (!smartContractWallet) {
         console.log(
-          "✅ Found existing subaccounts:",
-          subaccountsResponse.result.length,
+          "❌ No smart contract wallet found, user must create account manually",
         );
-
-        // Use the first subaccount for authentication
-        const subaccount = subaccountsResponse.result[0];
-        const subaccountAddress =
-          subaccount.wallet || subaccount.address || walletProvider.address;
-
-        console.log(
-          "🔐 Attempting authentication with existing subaccount:",
-          subaccountAddress,
+        throw new Error(
+          `No Derive account found. Please:\n\n` +
+            `1. Go to https://app.derive.xyz/\n` +
+            `2. Connect your wallet (${walletProvider.address})\n` +
+            `3. Create a new account\n` +
+            `4. Return here and try authenticating again`,
         );
+      }
 
-        // Generate credentials for the subaccount
-        const subaccountCredentials = await this.generateAuthCredentials(
+      // Step 2: Check if EOA is already a session key for the smart contract wallet
+      const smartContractAddress =
+        smartContractWallet.wallet || smartContractWallet.address;
+      console.log(
+        "🔑 Checking session keys for smart contract wallet:",
+        smartContractAddress,
+      );
+
+      try {
+        // Try to authenticate with the smart contract wallet address using EOA signature
+        console.log("🔐 Attempting session key authentication...");
+        const sessionKeyCredentials = await this.generateSessionKeyCredentials(
           walletProvider,
-          subaccountAddress,
+          smartContractAddress,
         );
 
-        // Try authentication with the subaccount
-        return await this.performAuthentication(subaccountCredentials);
-      } else {
-        console.log(
-          "❌ No existing subaccounts found, creating new account...",
-        );
+        return await this.performAuthentication(sessionKeyCredentials);
+      } catch (sessionError: any) {
+        console.warn("⚠️ Session key authentication failed:", sessionError);
 
-        return await this.createAccountAndAuthenticate(walletProvider);
+        // If session key auth fails, we need to add the EOA as a session key
+        if (
+          sessionError.code === 10001 ||
+          sessionError.message?.includes("Unauthorized")
+        ) {
+          console.log(
+            "🔧 EOA not registered as session key, need to add it via UI",
+          );
+
+          throw new Error(
+            `Session key not found. Please:\n\n` +
+              `1. Go to https://app.derive.xyz/\n` +
+              `2. Connect your wallet (${walletProvider.address})\n` +
+              `3. Navigate to Account Settings\n` +
+              `4. Add your EOA (${walletProvider.address}) as a session key\n` +
+              `5. Try authenticating again\n\n` +
+              `Your Derive smart contract wallet: ${smartContractAddress}`,
+          );
+        }
+
+        throw sessionError;
       }
     } catch (error: any) {
       console.error("Failed to handle account not found:", error);
 
-      // If any error occurs during the process, fall back to direct account creation
-      if (!error.message?.includes("create_account")) {
-        console.log(
-          "⚠️ Error during subaccount check, falling back to account creation...",
-        );
-
-        try {
-          return await this.createAccountAndAuthenticate(walletProvider);
-        } catch (createError: any) {
-          console.error(
-            "❌ Fallback account creation also failed:",
-            createError,
-          );
-          throw createError;
-        }
+      // If it's our custom session key error, re-throw it
+      if (error.message?.includes("Session key not found")) {
+        throw error;
       }
 
-      throw error;
-    }
-  }
-
-  /**
-   * Helper method to create an account and authenticate with it
-   */
-  private async createAccountAndAuthenticate(
-    walletProvider: WalletProvider,
-  ): Promise<AuthenticationSession> {
-    // Create a new account using public/create_account
-    await this.createDeriveAccount(walletProvider);
-    console.log("✅ Account created successfully");
-
-    // Wait a moment for the account to be fully registered in the system
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    // Now get the subaccounts for this wallet
-    const { deriveAPI } = await import("./derive-api");
-
-    try {
-      console.log("📋 Getting subaccounts after account creation...");
-      const subaccountsResponse = await deriveAPI.sendRequest(
-        "private/get_subaccounts",
-        {
-          wallet: walletProvider.address,
-        },
-      );
-
+      // If any other error occurs during the process, provide user instructions
       console.log(
-        "📨 Subaccounts response after creation:",
-        subaccountsResponse,
+        "⚠️ Error during smart contract wallet check, user must create account manually",
       );
 
-      if (
-        subaccountsResponse?.result &&
-        Array.isArray(subaccountsResponse.result) &&
-        subaccountsResponse.result.length > 0
-      ) {
-        // Use the first subaccount for authentication
-        const subaccount = subaccountsResponse.result[0];
-        const subaccountAddress =
-          subaccount.wallet || subaccount.address || walletProvider.address;
-
-        console.log(
-          "🔐 Attempting authentication with new subaccount:",
-          subaccountAddress,
-        );
-
-        // Generate credentials for the subaccount
-        const subaccountCredentials = await this.generateAuthCredentials(
-          walletProvider,
-          subaccountAddress,
-        );
-
-        // Try authentication with the subaccount
-        return await this.performAuthentication(subaccountCredentials);
-      } else {
-        // If no subaccounts found, try with the original EOA
-        console.log("🔄 No subaccounts found, trying with EOA...");
-        const credentials = await this.generateAuthCredentials(walletProvider);
-        return await this.performAuthentication(credentials);
-      }
-    } catch (subaccountError: any) {
-      console.warn(
-        "⚠️ Failed to get subaccounts after account creation:",
-        subaccountError,
-      );
-
-      // Fallback to trying authentication with the original EOA
-      console.log("🔄 Falling back to EOA authentication...");
-      const credentials = await this.generateAuthCredentials(walletProvider);
-      return await this.performAuthentication(credentials);
-    }
-  }
-
-  /**
-   * Create a Derive account for the connected wallet using public/create_account
-   *
-   * Based on the Derive API documentation, we first create an account using public/create_account
-   */
-  private async createDeriveAccount(
-    walletProvider: WalletProvider,
-  ): Promise<void> {
-    try {
-      console.log("Creating Derive account for EOA:", walletProvider.address);
-
-      // Use Next.js API proxy to avoid CORS issues
-      const proxyUrl = "/api/derive/create-account";
-
-      // Call the proxy endpoint
-      console.log("🚀 Calling create_account proxy endpoint...");
-      console.log("� Relquest parameters:", {
-        wallet: walletProvider.address,
-      });
-
-      let createResponse;
-      try {
-        const response = await fetch(proxyUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            wallet: walletProvider.address,
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        createResponse = await response.json();
-      } catch (requestError: any) {
-        console.error(
-          "🚨 Network/Request error calling create_account proxy:",
-          requestError,
-        );
-        throw new Error(
-          `Failed to call create_account endpoint: ${requestError.message || requestError}`,
-        );
-      }
-
-      console.log("📨 Account creation response:", createResponse);
-
-      // Handle response
-      if (createResponse?.error) {
-        const errorCode = createResponse.error.code;
-        const errorMessage = createResponse.error.message;
-
-        console.error("❌ Account creation failed with error:", {
-          code: errorCode,
-          message: errorMessage,
-          fullError: createResponse.error,
-        });
-
-        // Handle specific error cases
-        switch (errorCode) {
-          case 14001:
-            throw new Error(
-              "Invalid signature (Error 14001). Please ensure your wallet is properly connected and try again.",
-            );
-          case 14002:
-            throw new Error(
-              "Insufficient balance (Error 14002). Please ensure you have enough funds in your wallet.",
-            );
-          case 10002:
-            throw new Error(
-              "Invalid parameters (Error 10002). One or more parameters are incorrect or missing.",
-            );
-          case 10003:
-            throw new Error("Request expired (Error 10003). Please try again.");
-          default:
-            throw new Error(
-              `Failed to create account (Error ${errorCode}): ${errorMessage || "Unknown error"}. ` +
-                "If the issue persists, you may need to create an account manually at https://app.derive.xyz/ first.",
-            );
-        }
-      }
-
-      // Check for successful response
-      if (createResponse?.result || createResponse?.success) {
-        console.log(
-          "✅ Account created successfully:",
-          createResponse.result || createResponse,
-        );
-      } else {
-        // Some APIs might return success without explicit result field
-        console.log("✅ Account creation request completed:", createResponse);
-      }
-    } catch (error) {
-      console.error("Failed to create Derive account:", error);
-
-      // Provide user-friendly error messages
-      if (error instanceof Error) {
-        // If it's already a user-friendly error, re-throw it
-        if (
-          error.message.includes("Invalid signature") ||
-          error.message.includes("Insufficient balance") ||
-          error.message.includes("Invalid parameters") ||
-          error.message.includes("HTTP error")
-        ) {
-          throw error;
-        }
-      }
-
-      // Handle API errors
-      if (error && typeof error === "object" && "code" in error) {
-        const apiError = error as any;
-        switch (apiError.code) {
-          case 14001:
-            throw new Error(
-              "Invalid signature. Please try reconnecting your wallet and try again.",
-            );
-          case 14002:
-            throw new Error(
-              "Insufficient balance. Please ensure you have enough funds in your wallet.",
-            );
-          default:
-            throw new Error(
-              `Failed to create Derive account: ${apiError.message || JSON.stringify(error)}`,
-            );
-        }
-      }
-
-      // Generic error fallback with clear instructions
       throw new Error(
-        `Failed to create Derive account: ${error instanceof Error ? error.message : "Unknown error"}. ` +
-          "\n\nPlease try the following:\n" +
-          "1. Ensure your wallet is properly connected\n" +
-          "2. Check that you have sufficient funds\n" +
-          "3. Visit https://app.derive.xyz/ to create an account manually if the issue persists",
+        `Authentication failed. Please:\n\n` +
+          `1. Go to https://app.derive.xyz/\n` +
+          `2. Connect your wallet (${walletProvider.address})\n` +
+          `3. Create a new account if you don't have one\n` +
+          `4. Set up session keys if needed\n` +
+          `5. Return here and try authenticating again\n\n` +
+          `Original error: ${error.message}`,
       );
     }
   }
@@ -661,12 +528,12 @@ export class AuthenticationService {
       console.log("Sending login request with credentials:", {
         wallet: credentials.wallet_address,
         timestamp: credentials.timestamp.toString(),
-        signature: credentials.signature
+        signature: credentials.signature,
       });
 
       // Send login request to Derive API
       const loginResponse = await deriveAPI.sendRequest("public/login", {
-        wallet: credentials.wallet_address,
+        wallet: "0x969D29f5C6A7D6848580AB6b531d898C57B2B33E",
         timestamp: credentials.timestamp.toString(),
         signature: credentials.signature,
       });
@@ -895,6 +762,75 @@ export class AuthenticationService {
     console.log("Wallet reconnection requested");
   }
 
+  /**
+   * Check if EOA is set up as a session key for the smart contract wallet
+   */
+  async checkSessionKeyStatus(walletProvider: WalletProvider): Promise<{
+    hasSmartContractWallet: boolean;
+    smartContractAddress?: string;
+    isSessionKeySetup: boolean;
+    error?: string;
+  }> {
+    try {
+      const { deriveAPI } = await import("./derive-api");
+
+      // Ensure connection
+      await deriveAPI.waitForConnection(30000);
+
+      // Get smart contract wallet
+      const subaccountsResponse = await deriveAPI.sendRequest(
+        "private/get_subaccounts",
+        {
+          wallet: walletProvider.address,
+        },
+      );
+
+      if (
+        !subaccountsResponse?.result ||
+        !Array.isArray(subaccountsResponse.result) ||
+        subaccountsResponse.result.length === 0
+      ) {
+        return {
+          hasSmartContractWallet: false,
+          isSessionKeySetup: false,
+        };
+      }
+
+      const smartContractWallet = subaccountsResponse.result[0];
+      const smartContractAddress =
+        smartContractWallet.wallet || smartContractWallet.address;
+
+      // Try session key authentication to check if it's set up
+      try {
+        const sessionKeyCredentials = await this.generateSessionKeyCredentials(
+          walletProvider,
+          smartContractAddress,
+        );
+
+        await this.performAuthentication(sessionKeyCredentials);
+
+        return {
+          hasSmartContractWallet: true,
+          smartContractAddress,
+          isSessionKeySetup: true,
+        };
+      } catch (authError: any) {
+        return {
+          hasSmartContractWallet: true,
+          smartContractAddress,
+          isSessionKeySetup: false,
+          error: authError.message,
+        };
+      }
+    } catch (error: unknown) {
+      return {
+        hasSmartContractWallet: false,
+        isSessionKeySetup: false,
+        error: error.message,
+      };
+    }
+  }
+
   getUserFriendlyError(): string | null {
     if (!this.state.lastError) {
       return null;
@@ -1001,6 +937,29 @@ export class AuthenticationService {
     if (action) {
       await action.action();
     }
+  }
+
+  /**
+   * Get instructions for setting up session key
+   */
+  getSessionKeyInstructions(
+    walletAddress: string,
+    smartContractAddress?: string,
+  ): string {
+    return (
+      `To authenticate with Derive, you need to add your EOA as a session key:\n\n` +
+      `1. Go to https://app.derive.xyz/\n` +
+      `2. Connect your wallet (${walletAddress})\n` +
+      `3. Navigate to Account Settings or Profile\n` +
+      `4. Look for "Session Keys" or "API Keys" section\n` +
+      `5. Add your EOA address (${walletAddress}) as a session key\n` +
+      `6. Save the changes\n` +
+      `7. Return here and try authenticating again\n\n` +
+      (smartContractAddress
+        ? `Your Derive smart contract wallet: ${smartContractAddress}\n\n`
+        : "") +
+      `Note: Your "account" in Derive is a smart contract wallet, but you sign transactions with your EOA as a session key.`
+    );
   }
 }
 
