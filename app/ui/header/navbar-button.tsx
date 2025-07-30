@@ -20,6 +20,7 @@ import { opAddressList } from "@/app/lib/web3-constants";
 import Faucet from "../../abi/vanna/v1/out/Faucet.sol/Faucet.json";
 import Loader from "../components/loader";
 import WalletConnectModal from "../components/WalletConnectModal";
+import TermsOfServiceModal from "../components/TermsOfServiceModal";
 
 declare global {
   interface Window {
@@ -36,6 +37,7 @@ export default function NavbarButtons() {
   const [disable, setDisable] = useState(true);
   const [loading, setLoading] = useState(false);
   const [walletModalOpen, setWalletModalOpen] = useState(false);
+  const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
 
   const walletConnect = useCallback(async () => {
     try {
@@ -168,8 +170,33 @@ export default function NavbarButtons() {
   }, []);
 
   useEffect(() => {
-    checkNetwork();
-  }, [library]);
+    if (account) {
+      const hasAccepted = localStorage.getItem(`vanna_terms_accepted_${account}`);
+      if (!hasAccepted) {
+        setIsTermsModalOpen(true);
+      } else {
+        localStorage.setItem("isWalletConnected", "true");
+        addNotification("info", "Wallet connected successfully.");
+        checkNetwork();
+      }
+    }
+  }, [account]);
+
+  const handleAcceptTerms = () => {
+    if (account) {
+        localStorage.setItem(`vanna_terms_accepted_${account}`, "true");
+        localStorage.setItem("isWalletConnected", "true");
+        setIsTermsModalOpen(false);
+        addNotification("success", "Terms accepted. Welcome!");
+        checkNetwork();
+    }
+  };
+
+  const handleDeclineTerms = () => {
+    setIsTermsModalOpen(false);
+    wallectDisconnect();
+    addNotification("error", "You must accept the terms to continue.");
+  };
 
   const [notifications, setNotifications] = useState<
     Array<{ id: number; type: NotificationType; message: string }>
@@ -199,6 +226,14 @@ export default function NavbarButtons() {
   useEffect(() => {
     fetchBal();
   }, [account, library]);
+
+  useEffect(() => {
+    if (account) {
+      checkNetwork();
+    } else {
+      setButtonText("");
+    }
+  }, [library, account]);
 
   const addFaucets = async () => {
     console.log("here");
@@ -288,6 +323,12 @@ export default function NavbarButtons() {
           setWalletModalOpen(false);
           walletConnect();
         }}
+      />
+      
+      <TermsOfServiceModal
+        isOpen={isTermsModalOpen}
+        onAccept={handleAcceptTerms}
+        onDecline={handleDeclineTerms}
       />
 
       <div className="fixed bottom-5 left-5 w-72">

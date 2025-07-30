@@ -37,7 +37,7 @@ export default function ModalWalletInfoSection({
             />
           </svg>
         </button>
-        <h2 className="text-lg font-bold text-baseBlack dark:text-baseWhite flex-1 text-center text-center">
+        <h2 className="text-lg font-bold text-baseBlack dark:text-baseWhite flex-1 text-center">
           What is a Wallet?
         </h2>
         <button
