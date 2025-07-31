@@ -21,10 +21,9 @@ import Faucet from "../../abi/vanna/v1/out/Faucet.sol/Faucet.json";
 import Loader from "../components/loader";
 import WalletConnectModal from "../components/WalletConnectModal";
 
-declare global {
-    interface Window {
-        ethereum?: MetaMaskInpageProvider;
-    }
+
+interface window {
+    ethereum?: MetaMaskInpageProvider;
 }
 
 export default function NavbarButtons() {
@@ -140,7 +139,7 @@ export default function NavbarButtons() {
                 return;
             }
 
-            await window?.ethereum.request({
+            await (window.ethereum as unknown as MetaMaskInpageProvider).request({
                 method: "wallet_revokePermissions",
                 params: [
                     {
