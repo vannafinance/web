@@ -13,6 +13,7 @@ import RemoveLiquidityTab from '@/app/ui/components/RemoveLiquidityTab';
 import FeesTab from '@/app/ui/components/FeesTab';
 import { mockRemoveLiquidityState, mockFeesTabState } from '@/app/lib/constants';
 import { AnimatePresence } from "framer-motion";
+import { usePrivy } from "@privy-io/react-auth";
 
 // Interface for price range management
 interface priceType {
@@ -31,7 +32,7 @@ export default function PoolDetailPage({ params }: { params: { id: string } }) {
   const { id } = params;
 
   // Web3 connection state
-  const { account } = useWeb3React();
+  const { authenticated,user } = usePrivy();
 
   // Redux state management
   const pool = useSelector(selectFarmDataById(id));
@@ -297,7 +298,7 @@ export default function PoolDetailPage({ params }: { params: { id: string } }) {
                     setToken1Amount={setToken1Amount}
                     usdcUsdPrice={usdcUsdPrice}
                     usdtUsdPrice={usdtUsdPrice}
-                    account={account}
+                    account={user?.wallet?.address}
                     token0={token0}
                     token1={token1}
                   />
@@ -315,7 +316,7 @@ export default function PoolDetailPage({ params }: { params: { id: string } }) {
                     state={removeState}
                     onChange={setRemoveState}
                     onConnectWallet={() => { }}
-                    isWalletConnected={!!account}
+                    isWalletConnected={!!user?.wallet}
                     token0={token0}
                     token1={token1}
                   />
@@ -332,7 +333,7 @@ export default function PoolDetailPage({ params }: { params: { id: string } }) {
                   <FeesTab
                     state={feesState}
                     onConnectWallet={() => { }}
-                    isWalletConnected={!!account}
+                    isWalletConnected={!!user?.wallet}
                     token0={token0}
                     token1={token1}
                   />

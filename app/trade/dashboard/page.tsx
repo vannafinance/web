@@ -1,7 +1,5 @@
 "use client";
 
-
-
 import OptionPayoffChart from "@/app/ui/dashboard/option-payoff-chart";
 import { SimpleTableComponent } from "@/app/ui/dashboard/simple-table";
 import {
@@ -12,7 +10,7 @@ import {
 import FutureDropdown from "@/app/ui/future/future-dropdown";
 import { CheckSquare, Square } from "@phosphor-icons/react";
 import { useNetwork } from "@/app/context/network-context";
-import { useWeb3React } from "@web3-react/core";
+import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { useEffect, useRef, useState } from "react";
 import {
   ARBITRUM_NETWORK,
@@ -42,12 +40,40 @@ import VToken from "../../abi/vanna/v1/out/VToken.sol/VToken.json";
 import Multicall from "@/app/abi/vanna/v1/out/Multicall.sol/Multicall.json";
 import DefaultRateModel from "@/app/abi/vanna/v1/out/DefaultRateModel.sol/DefaultRateModel.json";
 import Loader from "@/app/ui/components/loader";
+import { Web3Provider } from "@ethersproject/providers";
 
 function Dashboard() {
-  const { account, library } = useWeb3React();
+  const { user, authenticated } = usePrivy();
+  const { wallets } = useWallets();
   const { currentNetwork } = useNetwork();
   const [activeAccount, setActiveAccount] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
+
+  // Get the primary connected wallet for signing
+  const getPrimaryConnectedWallet = () => {
+    if (wallets && wallets.length > 0) {
+      // First try to find an external ethereum wallet
+      const externalWallet = wallets.find(
+        (wallet) => wallet.type === "ethereum" && !wallet.walletClientType
+      );
+      if (externalWallet) {
+        return externalWallet;
+      }
+
+      // If no external wallet, try embedded wallet
+      const embeddedWallet = wallets.find(wallet => wallet.walletClientType);
+      if (embeddedWallet) {
+        return embeddedWallet;
+      }
+
+      // Fallback to first wallet
+      return wallets[0];
+    }
+    return null;
+  };
+
+  const primaryWallet = getPrimaryConnectedWallet();
+  const account = user?.wallet?.address;
 
   const pairOptions: Option[] = [
     { value: "ETH", label: "ETH/USD", icon: "/eth-icon.svg" },
@@ -276,10 +302,14 @@ function Dashboard() {
     if (
       localStorage.getItem("isWalletConnected") === "true" &&
       account &&
-      currentNetwork
+      currentNetwork &&
+      primaryWallet
     ) {
       try {
-        const signer = await library?.getSigner();
+        // Get the signer from Privy wallet and convert to ethers provider
+        const eip1193Provider = await primaryWallet.getEthereumProvider();
+        const ethersProvider = new Web3Provider(eip1193Provider);
+        const signer = ethersProvider.getSigner();
 
         let registryContract;
         if (currentNetwork.id === ARBITRUM_NETWORK) {
@@ -326,7 +356,7 @@ function Dashboard() {
 
   useEffect(() => {
     accountCheck();
-  }, [account, library, currentNetwork]);
+  }, [account, primaryWallet, currentNetwork]);
 
   useEffect(() => {
     // TODO: @vatsal add code here to get availableBalance, marginUsage, totalPnl, healthFactor, borrowRate in trade -> dashboard page
@@ -387,7 +417,12 @@ function Dashboard() {
     setLoading(true);
     setFuturesPositions(defaultFuturePositions);
     try {
-      if (!currentNetwork) return;
+      if (!currentNetwork || !primaryWallet) return;
+
+      // Get the signer from Privy wallet and convert to ethers provider
+      const eip1193Provider = await primaryWallet.getEthereumProvider();
+      const ethersProvider = new Web3Provider(eip1193Provider);
+      const signer = ethersProvider.getSigner();
 
       let deltaCall = 0;
       let deltaPut = 0;
@@ -414,7 +449,7 @@ function Dashboard() {
       if (activeAccount) {
         if (currentNetwork.id === ARBITRUM_NETWORK) {
           const renderedRows: FuturePosition[] = [];
-          const signer = await library?.getSigner();
+
           const liquidityPoolContract = new Contract(
             arbAddressList.muxLiquidityPoolAddress,
             LiquidityPool.abi,
@@ -523,11 +558,10 @@ function Dashboard() {
           WETHContract = new Contract(
             arbAddressList.wethTokenAddress,
             ERC20.abi,
-            library
+            ethersProvider
           );
         } else if (currentNetwork.id === OPTIMISM_NETWORK) {
           const renderedRows: FuturePosition[] = [];
-          const signer = await library?.getSigner();
 
           const OptimismFetchPositionContract = new Contract(
             opAddressList.optimismFetchPositionContractAddress,
@@ -568,7 +602,7 @@ function Dashboard() {
           WETHContract = new Contract(
             opAddressList.wethTokenAddress,
             ERC20.abi,
-            library
+            ethersProvider
           );
           tTokenOracleContract = new Contract(
             opAddressList.OracleFacade,
@@ -677,6 +711,8 @@ function Dashboard() {
           }
         } else if (currentNetwork.id === BASE_NETWORK) {
         }
+
+        // Move all the code that uses activeAccount and ethersProvider inside the if block
         if (
           !vEtherContract ||
           !vDaiContract ||
@@ -770,7 +806,7 @@ function Dashboard() {
         const MCcontract = new Contract(
           opAddressList.multicallAddress,
           Multicall.abi,
-          library
+          ethersProvider
         );
 
         const calldata = [];
@@ -1012,7 +1048,7 @@ function Dashboard() {
 
   useEffect(() => {
     fetchFuturePositions();
-  }, [activeAccount, currentNetwork]);
+  }, [activeAccount, currentNetwork, primaryWallet]);
 
   return (
     <div className="pt-5 sm:pt-7 lg:pt-10 pb-5 px-2.5 md:px-5 lg:px-7 xl:px-10 text-baseBlack dark:text-baseWhite">

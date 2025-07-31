@@ -4,10 +4,10 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import NavLinks from "./nav-links";
-import NavbarButtons from "./navbar-button";
 import { List, SunDim, X } from "@phosphor-icons/react";
 import BurgerMenu from "./burger-menu";
 import { useDarkMode } from "./use-dark-mode";
+import { PrivyNavbarButton } from "./privy-navbar-button";
 
 export default function Navbar() {
   const [isBurgerMenuOpen, setIsBurgerMenuOpen] = useState(false);
@@ -47,7 +47,7 @@ export default function Navbar() {
         </div>
       </div>
       <div className="hidden lg:flex lg:flex-none self-center py-1">
-        <NavbarButtons />
+        <PrivyNavbarButton />
       </div>
       {isBurgerMenuOpen && <BurgerMenu onClose={toggleBurgerMenu} />}
     </nav>

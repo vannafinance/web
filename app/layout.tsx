@@ -7,6 +7,10 @@ import { Web3Providers } from "./web3-providers";
 import { NetworkProvider } from "./context/network-context";
 import StoreProvider from "./store-provider";
 import { DarkModeProvider } from "./ui/header/use-dark-mode";
+import { PrivyProvider } from "@privy-io/react-auth";
+import Providers from "../providers/PrivyProvider";
+
+
 
 export default function RootLayout({
   children,
@@ -16,6 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${publicSans.className} antialiased dark:bg-baseDark`}>
+        <Providers>
         <StoreProvider>
           <NetworkProvider>
             <Web3Providers>
@@ -26,6 +31,7 @@ export default function RootLayout({
             </Web3Providers>
           </NetworkProvider>
         </StoreProvider>
+        </Providers>
       </body>
     </html>
   );
